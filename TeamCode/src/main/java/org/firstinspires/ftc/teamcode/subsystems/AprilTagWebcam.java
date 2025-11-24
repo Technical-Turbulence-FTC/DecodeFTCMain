@@ -21,7 +21,7 @@ public class AprilTagWebcam {
     private VisionPortal visionPortal;
     private List<AprilTagDetection> detectedTags = new ArrayList<>();
     private MultipleTelemetry telemetry;
-    public void init(HardwareMap hwMap, MultipleTelemetry TELE){
+    public void init(Robot robot, MultipleTelemetry TELE){
 
         this.telemetry = TELE;
 
@@ -34,7 +34,7 @@ public class AprilTagWebcam {
                 .build();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "Webcam 1"));
+        builder.setCamera(robot.webcamName);
         builder.setCameraResolution(new Size(640, 480));
         builder.addProcessor(aprilTagProcessor);
 

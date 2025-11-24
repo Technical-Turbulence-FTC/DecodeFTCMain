@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
-
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @Config
 @TeleOp
@@ -22,7 +22,7 @@ public class AprilTagWebcamExample extends OpMode {
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
 
-        aprilTagWebcam.init(hardwareMap, TELE);
+        aprilTagWebcam.init(new Robot(hardwareMap), TELE);
 
     }
 
