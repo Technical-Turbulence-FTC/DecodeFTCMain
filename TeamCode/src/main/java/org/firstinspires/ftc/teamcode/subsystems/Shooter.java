@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.*;
 
-
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -43,6 +42,8 @@ public class Shooter implements Subsystem {
     public double velo = 0.0;
 
     private int targetPosition = 0;
+
+    public double powPID = 1.0;
 
     private double p = 0.0003, i = 0, d = 0.00001;
 
@@ -89,8 +90,6 @@ public class Shooter implements Subsystem {
     }
 
     public void setTurretPosition(double pos) { turretPos = pos; }
-
-
 
     public double getVelocity(double vel) {
         return vel;
@@ -224,6 +223,10 @@ public class Shooter implements Subsystem {
         turret2.setPosition(1 - pos);
     }
 
+    public double getpowPID() {
+        return powPID;
+    }
+
     @Override
     public void update() {
 
@@ -234,10 +237,7 @@ public class Shooter implements Subsystem {
             fly1.setPower(manualPower);
             fly2.setPower(manualPower);
         } else if (Objects.equals(shooterMode, "VEL")) {
-            fly1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            fly2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            double powPID = controller.calculate(-getVelocity(velo), velocity);
+            powPID = velocity;
 
             fly1.setPower(powPID);
             fly2.setPower(powPID);
@@ -245,7 +245,7 @@ public class Shooter implements Subsystem {
         }
 
         if (Objects.equals(turretMode, "MANUAL")) {
-//            hoodServo.setPosition(hoodPos);
+            hoodServo.setPosition(hoodPos);
 
             moveTurret(turretPos);
 

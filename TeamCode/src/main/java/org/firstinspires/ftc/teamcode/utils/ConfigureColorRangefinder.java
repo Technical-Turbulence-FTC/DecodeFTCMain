@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 @Config
 @Autonomous
 
-
 public class ConfigureColorRangefinder extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -24,10 +23,9 @@ public class ConfigureColorRangefinder extends LinearOpMode {
         neither   --> no object
          */
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 60 / 360.0 * 255, 180 / 360.0 * 255); // green
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 20mm or closer requirement
+        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
 
-
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 40); // purple
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.DISTANCE, 2, 80); // purple
 
         crf.setLedBrightness(1);
 
@@ -86,6 +84,7 @@ class ColorRangefinder {
     public void setPin1Value(double lowerBound, double higherBound) {
         setDigital(PinNum.PIN1, DigitalMode.VALUE, lowerBound, higherBound);
     }
+
     /**
      * Sets the maximum distance (in millimeters) within which an object must be located for Pin 0's thresholds to trigger.
      * This is most useful when we want to know if an object is both close and the correct color.
@@ -107,7 +106,6 @@ class ColorRangefinder {
      * This is useful if we want to threshold red; instead of having two thresholds we would invert
      * the color and look for blue.
      */
-
 
     /**
      * Invert the hue value before thresholding it, meaning that the colors become their opposite.
@@ -162,6 +160,7 @@ class ColorRangefinder {
 
     /**
      * Read distance via I2C
+     *
      * @return distance in millimeters
      */
     public double readDistance() {
@@ -180,7 +179,8 @@ class ColorRangefinder {
         if (lowerBound == higherBound) {
             lo = (int) lowerBound;
             hi = (int) higherBound;
-        } else if (digitalMode.value <= DigitalMode.VALUE.value) { // HSV/HUE/SATURATION/VALUE color range
+        } else if (digitalMode.value <=
+                   DigitalMode.VALUE.value) { // HSV/HUE/SATURATION/VALUE color range
             lo = (int) Math.round(lowerBound / 255.0 * 65535);
             hi = (int) Math.round(higherBound / 255.0 * 65535);
         } else { // distance in mm

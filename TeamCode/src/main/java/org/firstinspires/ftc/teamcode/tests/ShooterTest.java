@@ -19,7 +19,7 @@ public class ShooterTest extends LinearOpMode {
     public static double vel = 0.0;
     public static double mcpr = 28.0; // CPR of the motor
     public static double ecpr = 1024.0; // CPR of the encoder
-    public static int pos = 0;
+    public static double pos = 0.0;
     public static double posPower = 0.0;
 
     public static double posi = 0.5;
@@ -38,9 +38,19 @@ public class ShooterTest extends LinearOpMode {
 
     public double initPos = 0.0;
 
-    public static double time = 1.0;
+    public static double time = 0.1;
 
     public double velo = 0.0;
+
+    public double velo1 = 0.0;
+
+    public double stamp1 = 0.0;
+
+    public double initPos1 = 0.0;
+
+    double powPID = 0.0;
+
+    public static int tolerance = 300;
 
     MultipleTelemetry TELE;
 
@@ -81,9 +91,7 @@ public class ShooterTest extends LinearOpMode {
 
             shooter.setManualPower(pow);
 
-            shooter.setVelocity(vel);
-
-            shooter.setTargetPosition(pos);
+            shooter.sethoodPosition(pos);
 
             shooter.setTurretPosition(posi);
 
@@ -93,22 +101,33 @@ public class ShooterTest extends LinearOpMode {
 
             if (servoPosition != 0.501) { shooter.sethoodPosition(servoPosition); }
 
-            if (wait(time)){
-                velo = 60*((shooter.getECPRPosition() - initPos) / time);
-                stamp = getRuntime();
-                initPos = shooter.getECPRPosition();
+            velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
+            stamp1 = getRuntime();
+            initPos1 = shooter.getECPRPosition();
+            if (Math.abs(vel - velo1) > 1500){
+                if (vel - velo1 > 0){
+                    powPID = 0.75;
+                } else if (vel - velo1 < 0){
+                    powPID = 0.25;
+                }
+            } else if (vel - tolerance > velo1) {
+                powPID = powPID + 0.001;
+            } else if (vel + tolerance < velo1) {
+                powPID = powPID - 0.001;
             }
+            shooter.setVelocity(powPID);
 
             shooter.update();
 
             TELE.addData("ECPR Revolutions", shooter.getECPRPosition());
             TELE.addData("MCPR Revolutions", shooter.getMCPRPosition());
-            TELE.addData("Velocity", shooter.getVelocity(velo));
+            TELE.addData("Velocity", velo);
             TELE.addData("hoodPos", shooter.gethoodPosition());
             TELE.addData("turretPos", shooter.getTurretPosition());
             TELE.addData("Power Fly 1", robot.shooter1.getPower());
             TELE.addData("Power Fly 2", robot.shooter2.getPower());
-
+            TELE.addData("powPID", shooter.getpowPID());
+            TELE.addData("Ins Velocity", velo1);
             TELE.update();
 
         }
