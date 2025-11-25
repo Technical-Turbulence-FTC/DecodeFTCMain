@@ -1,37 +1,26 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 
-@Config
-@Autonomous
 
+@TeleOp
 public class ConfigureColorRangefinder extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         ColorRangefinder crf = new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "color"));
-        /*
-        Using this example configuration, you can detect all three sample colors based on which pin is reading true:
-        both      --> yellow
-        only pin0 --> blue
-        only pin1 --> red
-        neither   --> no object
-         */
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 60 / 360.0 * 255, 180 / 360.0 * 255); // green
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
-
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.DISTANCE, 2, 80); // purple
-
-        crf.setLedBrightness(1);
-
         waitForStart();
+        /* Using this example configuration, you can detect both artifact colors based on which pin is reading true:
+            pin0 --> purple
+            pin1 --> green */
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 20); // green
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 150 / 360.0 * 255, 360 / 360.0 * 255); // purple
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 0, 100 / 360.0 *255);
+        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 10mm or closer requirement
 
-        stop();
+        crf.setLedBrightness(10);
     }
 }
 
@@ -40,12 +29,9 @@ public class ConfigureColorRangefinder extends LinearOpMode {
  * Online documentation: <a href="https://docs.brushlandlabs.com">...</a>
  */
 class ColorRangefinder {
-    public static int LED_VALUE = 15;
-    public final RevColorSensorV3 emulator;
     private final I2cDeviceSynchSimple i2c;
 
     public ColorRangefinder(RevColorSensorV3 emulator) {
-        this.emulator = emulator;
         this.i2c = emulator.getDeviceClient();
         this.i2c.enableWriteCoalescing(true);
     }
@@ -66,23 +52,6 @@ class ColorRangefinder {
      */
     public void setPin1Digital(DigitalMode digitalMode, double lowerBound, double higherBound) {
         setDigital(PinNum.PIN1, digitalMode, lowerBound, higherBound);
-    }
-
-    public void setPin0Saturation(double lowerBound, double higherBound) {
-        setDigital(PinNum.PIN0, DigitalMode.SATURATION, lowerBound, higherBound);
-    }
-
-    public void setPin1Saturation(double lowerBound, double higherBound) {
-        setDigital(PinNum.PIN1, DigitalMode.SATURATION, lowerBound, higherBound);
-    }
-
-    // Optional: Easy methods for value/brightness thresholding
-    public void setPin0Value(double lowerBound, double higherBound) {
-        setDigital(PinNum.PIN0, DigitalMode.VALUE, lowerBound, higherBound);
-    }
-
-    public void setPin1Value(double lowerBound, double higherBound) {
-        setDigital(PinNum.PIN1, DigitalMode.VALUE, lowerBound, higherBound);
     }
 
     /**
@@ -106,12 +75,18 @@ class ColorRangefinder {
      * This is useful if we want to threshold red; instead of having two thresholds we would invert
      * the color and look for blue.
      */
+    public void setPin0InvertHue() {
+        setPin0DigitalMaxDistance(DigitalMode.HSV, 200);
+    }
 
     /**
      * Invert the hue value before thresholding it, meaning that the colors become their opposite.
      * This is useful if we want to threshold red; instead of having two thresholds we would invert
      * the color and look for blue.
      */
+    public void setPin1InvertHue() {
+        setPin1DigitalMaxDistance(DigitalMode.HSV, 200);
+    }
 
     /**
      * The denominator is what the raw sensor readings will be divided by before being scaled to 12-bit analog.
@@ -160,7 +135,6 @@ class ColorRangefinder {
 
     /**
      * Read distance via I2C
-     *
      * @return distance in millimeters
      */
     public double readDistance() {
@@ -179,8 +153,7 @@ class ColorRangefinder {
         if (lowerBound == higherBound) {
             lo = (int) lowerBound;
             hi = (int) higherBound;
-        } else if (digitalMode.value <=
-                   DigitalMode.VALUE.value) { // HSV/HUE/SATURATION/VALUE color range
+        } else if (digitalMode.value <= DigitalMode.HSV.value) { // color value 0-255
             lo = (int) Math.round(lowerBound / 255.0 * 65535);
             hi = (int) Math.round(higherBound / 255.0 * 65535);
         } else { // distance in mm
@@ -233,7 +206,7 @@ class ColorRangefinder {
     }
 
     public enum DigitalMode {
-        RED(1), BLUE(2), GREEN(3), ALPHA(4), HSV(5), DISTANCE(6), SATURATION(7), VALUE(8);
+        RED(1), BLUE(2), GREEN(3), ALPHA(4), HSV(5), DISTANCE(6);
         public final byte value;
 
         DigitalMode(int value) {
@@ -250,4 +223,3 @@ class ColorRangefinder {
         }
     }
 }
-
