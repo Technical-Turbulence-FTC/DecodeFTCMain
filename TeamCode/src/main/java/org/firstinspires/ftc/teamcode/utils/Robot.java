@@ -40,6 +40,7 @@ public class Robot {
 
     public Servo rejecter;
 
+
     public Servo turr1;
 
     public Servo turr2;
