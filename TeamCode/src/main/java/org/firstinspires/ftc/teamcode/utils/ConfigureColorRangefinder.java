@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 @TeleOp
 public class ConfigureColorRangefinder extends LinearOpMode {
 
-    public static int LED_Brightness = 35; //1 - 35, 2 - 50,
+    public static int LED_Brightness = 50;
 
-    public static int lowerGreen = 90;
+    public static int lowerGreen = 100;
 
-    public static int higherGreen = 160;
+    public static int higherGreen = 150;
 
     @Override
     public void runOpMode() throws InterruptedException {

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -44,6 +46,8 @@ public class ShooterTest extends LinearOpMode {
 
     public static int tolerance = 300;
 
+    public static boolean shoot = false;
+
     MultipleTelemetry TELE;
 
     @Override
@@ -77,14 +81,10 @@ public class ShooterTest extends LinearOpMode {
 
             shooter.setManualPower(pow);
 
-            if (hoodPos != 0.501) {
-                robot.hood.setPosition(hoodPos);
-            }
+            robot.hood.setPosition(hoodPos);
+            robot.turr1.setPosition(turretPos);
+            robot.turr2.setPosition(turretPos);
 
-            if (turretPos != 0.501) {
-                robot.turr1.setPosition(turretPos);
-                robot.turr2.setPosition(turretPos);
-            }
             velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
             stamp1 = getRuntime();
             initPos1 = shooter.getECPRPosition();
@@ -96,6 +96,13 @@ public class ShooterTest extends LinearOpMode {
                 powPID = powPID - 0.001;
             }
             shooter.setVelocity(powPID);
+            robot.transfer.setPower((powPID / 2) + 0.5);
+
+            if (shoot){
+                robot.transferServo.setPosition(transferServo_in);
+            } else {
+                robot.transferServo.setPosition(transferServo_out);
+            }
 
             shooter.update();
 

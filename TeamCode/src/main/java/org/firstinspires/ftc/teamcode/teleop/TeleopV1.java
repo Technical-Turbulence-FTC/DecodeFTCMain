@@ -210,7 +210,6 @@ public class TeleopV1 extends LinearOpMode {
             TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
 
             TELE.addData("off", offset);
-            robot.transferServo.setPosition(transferServoPos);
 
             robot.hood.setPosition(pos);
 

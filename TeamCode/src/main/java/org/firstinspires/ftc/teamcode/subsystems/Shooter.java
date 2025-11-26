@@ -244,12 +244,5 @@ public class Shooter implements Subsystem {
 
         }
 
-        if (Objects.equals(turretMode, "MANUAL")) {
-            hoodServo.setPosition(hoodPos);
-
-            moveTurret(turretPos);
-
-        }
-
     }
 }
