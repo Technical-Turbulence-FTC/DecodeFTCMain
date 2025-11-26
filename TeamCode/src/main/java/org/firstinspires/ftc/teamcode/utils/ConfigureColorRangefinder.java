@@ -1,13 +1,20 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
-
-
+@Config
 @TeleOp
 public class ConfigureColorRangefinder extends LinearOpMode {
+
+    public static int LED_Brightness = 35; //1 - 35, 2 - 50,
+
+    public static int lowerGreen = 90;
+
+    public static int higherGreen = 160;
+
     @Override
     public void runOpMode() throws InterruptedException {
         ColorRangefinder crf = new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "color"));
@@ -15,12 +22,12 @@ public class ConfigureColorRangefinder extends LinearOpMode {
         /* Using this example configuration, you can detect both artifact colors based on which pin is reading true:
             pin0 --> purple
             pin1 --> green */
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 20); // green
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 150 / 360.0 * 255, 360 / 360.0 * 255); // purple
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 0, 100 / 360.0 *255);
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 10mm or closer requirement
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 40); // green
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, higherGreen / 360.0 * 255, 360 / 360.0 * 255); // purple
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 0, lowerGreen/360.0 * 255);
+        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 40); // 10mm or closer requirement
 
-        crf.setLedBrightness(10);
+        crf.setLedBrightness(LED_Brightness);
     }
 }
 
@@ -135,6 +142,7 @@ class ColorRangefinder {
 
     /**
      * Read distance via I2C
+     *
      * @return distance in millimeters
      */
     public double readDistance() {
