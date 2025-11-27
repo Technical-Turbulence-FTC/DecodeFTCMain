@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @Config
 public class PositionalServoProgrammer extends LinearOpMode {
     Robot robot;
+    MultipleTelemetry TELE;
     public static double spindexPos = 0.501;
     public static double turretPos = 0.501;
     public static double transferPos = 0.501;
@@ -15,6 +18,7 @@ public class PositionalServoProgrammer extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
+        TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
@@ -32,6 +36,11 @@ public class PositionalServoProgrammer extends LinearOpMode {
             if (hoodPos != 0.501){
                 robot.hood.setPosition(hoodPos);
             }
+            TELE.addData("spindexer", 1.111111111*((robot.spin1Pos.getVoltage() / 3.3) - 0.05));
+            TELE.addData("hood", 1.111111111*((robot.hoodPos.getVoltage() / 3.3) - 0.05));
+            TELE.addData("transferServo", 1.111111111*((robot.transferServoPos.getVoltage() / 3.3) - 0.05));
+            TELE.addData("turret", 1.111111111*((robot.turr1Pos.getVoltage() / 3.3) - 0.05));
+            TELE.update();
         }
     }
 }

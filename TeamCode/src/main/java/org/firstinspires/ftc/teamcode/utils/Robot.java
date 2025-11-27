@@ -59,6 +59,18 @@ public class Robot {
 
     public AnalogInput analogInput2;
 
+    public AnalogInput spin1Pos;
+
+    public AnalogInput spin2Pos;
+
+    public AnalogInput hoodPos;
+
+    public AnalogInput turr1Pos;
+
+    public AnalogInput turr2Pos;
+
+    public AnalogInput transferServoPos;
+
     public AprilTagProcessor aprilTagProcessor;
 
     public WebcamName webcam;
@@ -92,13 +104,23 @@ public class Robot {
 
         hood = hardwareMap.get(Servo.class, "hood");
 
+        hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
+
         turr1 = hardwareMap.get(Servo.class, "t1");
+
+        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos");
 
         turr2 = hardwareMap.get(Servo.class, "t2");
 
+        turr2Pos = hardwareMap.get(AnalogInput.class, "t2Pos");
+
         spin1 = hardwareMap.get(Servo.class, "spin1");
 
+        spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
+
         spin2 = hardwareMap.get(Servo.class, "spin2");
+
+        spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
 
         pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
 
@@ -119,6 +141,8 @@ public class Robot {
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
         transferServo = hardwareMap.get(Servo.class, "transferServo");
+
+        transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
 
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 

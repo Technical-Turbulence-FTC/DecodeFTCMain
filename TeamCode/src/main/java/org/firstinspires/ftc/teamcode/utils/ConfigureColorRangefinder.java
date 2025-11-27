@@ -11,7 +11,7 @@ public class ConfigureColorRangefinder extends LinearOpMode {
 
     public static int LED_Brightness = 50;
 
-    public static int lowerGreen = 100;
+    public static int lowerGreen = 120;
 
     public static int higherGreen = 150;
 

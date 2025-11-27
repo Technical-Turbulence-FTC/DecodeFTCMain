@@ -7,4 +7,6 @@ public class ShooterVars {
     public static double turret_GearRatio = 0.9974;
 
     public static double turret_Range = 355;
+
+    public static int velTolerance = 500;
 }

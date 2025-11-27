@@ -83,7 +83,7 @@ public class ShooterTest extends LinearOpMode {
 
             robot.hood.setPosition(hoodPos);
             robot.turr1.setPosition(turretPos);
-            robot.turr2.setPosition(turretPos);
+            robot.turr2.setPosition(1-turretPos);
 
             velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
             stamp1 = getRuntime();
@@ -91,9 +91,9 @@ public class ShooterTest extends LinearOpMode {
             if (Math.abs(vel - velo1) > 3 * tolerance) {
                 powPID = vel / maxVel;
             } else if (vel - tolerance > velo1) {
-                powPID = powPID + 0.001;
+                powPID = powPID + 0.0001;
             } else if (vel + tolerance < velo1) {
-                powPID = powPID - 0.001;
+                powPID = powPID - 0.0001;
             }
             shooter.setVelocity(powPID);
             robot.transfer.setPower((powPID / 2) + 0.5);
