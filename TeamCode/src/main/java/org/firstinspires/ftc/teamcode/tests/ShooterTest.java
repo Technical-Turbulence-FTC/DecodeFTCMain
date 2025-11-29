@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -42,11 +43,21 @@ public class ShooterTest extends LinearOpMode {
 
     double powPID = 0.0;
 
-    public static double maxVel = 4500;
+    public static int maxVel = 4000;
 
     public static int tolerance = 300;
 
     public static boolean shoot = false;
+
+    public static int spindexPos = 1;
+
+    public static int initTolerance = 1000;
+
+    public static boolean intake = true;
+
+    double initVel = 0;
+
+    double stamp = 0.0;
 
     MultipleTelemetry TELE;
 
@@ -59,6 +70,9 @@ public class ShooterTest extends LinearOpMode {
 
         Shooter shooter = new Shooter(robot, TELE);
 
+        robot.shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         shooter.setTelemetryOn(true);
 
         shooter.setTurretMode(turrMode);
@@ -68,6 +82,8 @@ public class ShooterTest extends LinearOpMode {
         shooter.setControllerCoefficients(p, i, d, f);
 
         initPos = shooter.getECPRPosition();
+
+        initVel = vel;
 
         waitForStart();
 
@@ -84,19 +100,45 @@ public class ShooterTest extends LinearOpMode {
             robot.hood.setPosition(hoodPos);
             robot.turr1.setPosition(turretPos);
             robot.turr2.setPosition(1-turretPos);
+            if (intake){
+                robot.transfer.setPower(0);
+                robot.intake.setPower(0.75);
+                robot.spin1.setPosition(spindexer_intakePos);
+                robot.spin2.setPosition(1-spindexer_intakePos);
+            } else {
+                robot.transfer.setPower(1);
+                robot.intake.setPower(0);
+                if (spindexPos == 1){
+                    robot.spin1.setPosition(spindexer_outtakeBall1);
+                    robot.spin2.setPosition(1-spindexer_outtakeBall1);
+                } else if (spindexPos == 2){
+                    robot.spin1.setPosition(spindexer_outtakeBall2);
+                    robot.spin2.setPosition(1-spindexer_outtakeBall2);
+                } else if (spindexPos == 3){
+                    robot.spin1.setPosition(spindexer_outtakeBall3);
+                    robot.spin2.setPosition(1-spindexer_outtakeBall3);
+                }
+            }
+
+            if (vel != initVel){
+                stamp = getRuntime();
+                initVel = vel;
+            }
 
             velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
             stamp1 = getRuntime();
             initPos1 = shooter.getECPRPosition();
-            if (Math.abs(vel - velo1) > 3 * tolerance) {
+            if (Math.abs(vel - velo1) > initTolerance && getRuntime() - stamp < 2) {
                 powPID = vel / maxVel;
             } else if (vel - tolerance > velo1) {
-                powPID = powPID + 0.0001;
+                powPID = powPID + 0.001;
             } else if (vel + tolerance < velo1) {
-                powPID = powPID - 0.0001;
+                powPID = powPID - 0.001;
+            }
+            if (powPID > 1.0){
+                powPID = 1.0;
             }
             shooter.setVelocity(powPID);
-            robot.transfer.setPower((powPID / 2) + 0.5);
 
             if (shoot){
                 robot.transferServo.setPosition(transferServo_in);

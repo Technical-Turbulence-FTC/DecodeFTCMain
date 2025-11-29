@@ -8,5 +8,9 @@ public class ShooterVars {
 
     public static double turret_Range = 355;
 
-    public static int velTolerance = 500;
+    public static int velTolerance = 300;
+
+    public static int initTolerance = 1000;
+
+    public static int maxVel = 4000;
 }

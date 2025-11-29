@@ -15,6 +15,9 @@ public class PositionalServoProgrammer extends LinearOpMode {
     public static double turretPos = 0.501;
     public static double transferPos = 0.501;
     public static double hoodPos = 0.501;
+
+    public static double scalar = 1.112;
+    public static double restPos = 0.158;
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -36,10 +39,14 @@ public class PositionalServoProgrammer extends LinearOpMode {
             if (hoodPos != 0.501){
                 robot.hood.setPosition(hoodPos);
             }
-            TELE.addData("spindexer", 1.111111111*((robot.spin1Pos.getVoltage() / 3.3) - 0.05));
-            TELE.addData("hood", 1.111111111*((robot.hoodPos.getVoltage() / 3.3) - 0.05));
-            TELE.addData("transferServo", 1.111111111*((robot.transferServoPos.getVoltage() / 3.3) - 0.05));
-            TELE.addData("turret", 1.111111111*((robot.turr1Pos.getVoltage() / 3.3) - 0.05));
+            TELE.addData("spindexer", scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3));
+            TELE.addData("hood", 1-scalar*((robot.hoodPos.getVoltage() - restPos) / 3.3));
+            TELE.addData("transferServo", scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3));
+            TELE.addData("turret", scalar*((robot.turr1Pos.getVoltage() - restPos) / 3.3));
+            TELE.addData("spindexerA", robot.spin1Pos.getVoltage());
+            TELE.addData("hoodA", robot.hoodPos.getVoltage());
+            TELE.addData("transferServoA", robot.transferServoPos.getVoltage());
+            TELE.addData("turretA", robot.turr1Pos.getVoltage());
             TELE.update();
         }
     }

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
-
+import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
 
 import androidx.annotation.NonNull;
 
@@ -43,13 +43,12 @@ public class redDaniel extends LinearOpMode {
             double initPos = 0.0;
             double stamp = 0.0;
             double powPID = 0.0;
-            final int maxVel = 4500;
             double ticker = 0.0;
             public boolean run(@NonNull TelemetryPacket telemetryPacket){
                 velo = -60 * ((((double) robot.shooter1.getCurrentPosition() / 2048) - initPos) / (getRuntime() - stamp));
                 stamp = getRuntime();
                 initPos = (double) robot.shooter1.getCurrentPosition() / 2048;
-                if (Math.abs(velocity - velo) > 3 * velTolerance) {
+                if (Math.abs(velocity - velo) > initTolerance) {
                     powPID = (double) velocity / maxVel;
                     ticker = getRuntime();
                 } else if (velocity - velTolerance > velo) {
@@ -75,11 +74,11 @@ public class redDaniel extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 robot.spin1.setPosition(spindexer);
                 robot.spin2.setPosition(1-spindexer);
-                if (robot.spin1Pos.getVoltage() / 3.3 == spindexer){
+                if (scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01 && scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01){
                     robot.transferServo.setPosition(transferServo_in);
                     transfer = true;
                 }
-                if (robot.transferServoPos.getVoltage() / 3.3 == transferServo_in && transfer){
+                if (scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3) < transferServo_in + 0.01 && scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3) > transferServo_in - 0.01 && transfer){
                     robot.transferServo.setPosition(transferServo_out);
                     return false;
                 }
