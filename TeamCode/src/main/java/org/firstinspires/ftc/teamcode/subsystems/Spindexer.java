@@ -184,10 +184,55 @@ public class Spindexer implements Subsystem{
     public void outtakeGreenFs() {
         if (green0 && ball0) {
             outtake1();
+            ball0 = false;
         } else if (green1 && ball1){
             outtake2();
+            ball1 = false;
         } else if (green2 && ball2) {
             outtake3();
+            ball2 = false;
+        }
+    }
+
+    public void outtakePurpleFs() {
+        if (!green0 && ball0) {
+            outtake1();
+            ball0 = false;
+        } else if (!green1 && ball1){
+            outtake2();
+            ball1 = false;
+        } else if (!green2 && ball2) {
+            outtake3();
+            ball2 = false;
+        }
+    }
+
+    public void outtakeRandom() {
+        if (ball0) {
+            outtake1();
+        } else if (ball1) {
+            outtake2();
+        } else if (ball2) {
+            outtake3();
+        }
+    }
+
+    public void outtakeSeq(char[] sequence, int outtakeNum) {
+        checkForBalls();
+        char targetColor = sequence[outtakeNum - 1];
+        if (targetColor == 'G') {
+            if (green0 || green1 || green2) {
+                outtakeGreenFs();
+            } else {
+                outtakeRandom();
+            }
+        }
+        else if (targetColor == 'P') {
+            if (!green0 || !green1 || !green2) {
+                outtakePurpleFs();
+            } else {
+                outtakeRandom();
+            }
         }
     }
 
