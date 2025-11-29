@@ -99,7 +99,7 @@ public class ShooterTest extends LinearOpMode {
                     robot.spin2.setPosition(1 - spindexer_intakePos);
                 } else {
                     robot.transfer.setPower(1);
-                    robot.intake.setPower(0);
+                    robot.intake.setPower(0.75 + (powPID/4));
                     if (spindexPos == 1) {
                         robot.spin1.setPosition(spindexer_outtakeBall1);
                         robot.spin2.setPosition(1 - spindexer_outtakeBall1);

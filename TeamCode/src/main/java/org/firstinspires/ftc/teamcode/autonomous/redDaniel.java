@@ -60,7 +60,7 @@ public class redDaniel extends LinearOpMode {
                 }
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
-                robot.transfer.setPower((powPID / 2) + 0.5);
+                robot.transfer.setPower((powPID / 4) + 0.75);
 
                 return getRuntime() - ticker < 0.5;
             }
