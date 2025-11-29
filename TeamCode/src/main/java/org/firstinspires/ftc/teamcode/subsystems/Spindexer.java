@@ -218,18 +218,24 @@ public class Spindexer implements Subsystem{
     }
 
     public void outtakeSeq(char[] sequence, int outtakeNum) {
-        checkForBalls();
-        char targetColor = sequence[outtakeNum - 1];
-        if (targetColor == 'G') {
-            if (green0 || green1 || green2) {
-                outtakeGreenFs();
-            } else {
-                outtakeRandom();
+        if (sequence.length == 0) {
+            outtakeRandom();
+        } else {
+            checkForBalls();
+            char targetColor = sequence[outtakeNum - 1];
+            if (targetColor == 'G') {
+                if (green0 || green1 || green2) {
+                    outtakeGreenFs();
+                } else {
+                    outtakeRandom();
+                }
             }
-        }
-        else if (targetColor == 'P') {
-            if (!green0 || !green1 || !green2) {
-                outtakePurpleFs();
+            else if (targetColor == 'P') {
+                if (!green0 || !green1 || !green2) {
+                    outtakePurpleFs();
+                } else {
+                    outtakeRandom();
+                }
             } else {
                 outtakeRandom();
             }
