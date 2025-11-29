@@ -51,7 +51,7 @@ public class ShooterTest extends LinearOpMode {
 
     public static int spindexPos = 1;
 
-    public static int initTolerance = 1000;
+    public static int initTolerance = 800;
 
     public static boolean intake = true;
 
@@ -138,6 +138,20 @@ public class ShooterTest extends LinearOpMode {
             if (powPID > 1.0){
                 powPID = 1.0;
             }
+            double feed = kF * parameter;        // Example: vel=2500 → feed=0.5
+
+            // --- PROPORTIONAL CORRECTION ---
+            double error = parameter - velocity;
+            double correction = kP * error;
+
+            // limit how fast power changes (prevents oscillation)
+            correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+            // --- FINAL MOTOR POWER ---
+            powPID = feed + correction;
+
+            // clamp to allowed range
+            powPID = Math.max(0, Math.min(1, powPID));
             shooter.setVelocity(powPID);
 
             if (shoot){
