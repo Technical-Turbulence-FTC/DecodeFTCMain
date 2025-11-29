@@ -45,7 +45,7 @@ public class Shooter implements Subsystem {
 
     public double powPID = 1.0;
 
-    private double p = 0.0003, i = 0, d = 0.00001;
+    private double p = 0.0003, i = 0, d = 0.00001, f=0;
 
     private PIDFController controller;
     private double pow = 0.0;
@@ -133,7 +133,7 @@ public class Shooter implements Subsystem {
     }
 
     public double getMCPRPosition() {
-        return fly1.getCurrentPosition() / (2 * mcpr);
+        return (double) fly1.getCurrentPosition() / 4;
     }
 
     public void setShooterMode(String mode) { shooterMode = mode; }

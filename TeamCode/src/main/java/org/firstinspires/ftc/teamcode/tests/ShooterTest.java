@@ -20,18 +20,11 @@ public class ShooterTest extends LinearOpMode {
 
     public static double pow = 0.0;
     public static double vel = 0.0;
-    public static double mcpr = 28.0; // CPR of the motor
     public static double ecpr = 1024.0; // CPR of the encoder
     public static double hoodPos = 0.5;
-    public static double posPower = 0.0;
-
     public static double turretPos = 0.9;
 
-    public static double p = 0.0003, i = 0, d = 0, f = 0;
-
-    public static String flyMode = "MANUAL";
-
-    public static String turrMode = "MANUAL";
+    public static String flyMode = "VEL";
 
     double initPos = 0.0;
 
@@ -45,22 +38,14 @@ public class ShooterTest extends LinearOpMode {
 
     public static int maxVel = 4000;
 
-    public static int tolerance = 300;
-
     public static boolean shoot = false;
 
     public static int spindexPos = 1;
 
-    public static int initTolerance = 800;
-
     public static boolean intake = true;
 
-    double initVel = 0;
-
-    double stamp = 0.0;
-
-    public static double kP = 0.01;           // small proportional gain (tune this)
-    public static double maxStep = 0.2;         // prevents sudden jumps
+    public static double kP = 0.0005;           // small proportional gain (tune this)
+    public static double maxStep = 0.06;         // prevents sudden jumps
 
     MultipleTelemetry TELE;
 
@@ -78,23 +63,15 @@ public class ShooterTest extends LinearOpMode {
 
         shooter.setTelemetryOn(true);
 
-        shooter.setTurretMode(turrMode);
-
         shooter.setShooterMode(flyMode);
 
-        shooter.setControllerCoefficients(p, i, d, f);
-
         initPos = shooter.getECPRPosition();
-
-        initVel = vel;
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
-            shooter.setControllerCoefficients(p, i, d, f);
 
             shooter.setShooterMode(flyMode);
 
@@ -123,25 +100,11 @@ public class ShooterTest extends LinearOpMode {
                 }
             }
 
-            if (vel != initVel){
-                stamp = getRuntime();
-                initVel = vel;
-            }
-
             velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
             stamp1 = getRuntime();
             initPos1 = shooter.getECPRPosition();
-            if (Math.abs(vel - velo1) > initTolerance && getRuntime() - stamp < 2) {
-                powPID = vel / maxVel;
-            } else if (vel - tolerance > velo1) {
-                powPID = powPID + 0.001;
-            } else if (vel + tolerance < velo1) {
-                powPID = powPID - 0.001;
-            }
-            if (powPID > 1.0){
-                powPID = 1.0;
-            }
-            double feed = kF * vel;        // Example: vel=2500 → feed=0.5
+
+            double feed = vel / maxVel;        // Example: vel=2500 → feed=0.5
 
             // --- PROPORTIONAL CORRECTION ---
             double error = vel - velo1;
@@ -165,8 +128,7 @@ public class ShooterTest extends LinearOpMode {
 
             shooter.update();
 
-            TELE.addData("ECPR Revolutions", shooter.getECPRPosition());
-            TELE.addData("MCPR Revolutions", shooter.getMCPRPosition());
+            TELE.addData("Revolutions", shooter.getECPRPosition());
             TELE.addData("hoodPos", shooter.gethoodPosition());
             TELE.addData("turretPos", shooter.getTurretPosition());
             TELE.addData("Power Fly 1", robot.shooter1.getPower());
