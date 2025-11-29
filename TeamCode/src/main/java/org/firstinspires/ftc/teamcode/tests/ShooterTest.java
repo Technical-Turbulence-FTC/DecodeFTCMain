@@ -59,6 +59,9 @@ public class ShooterTest extends LinearOpMode {
 
     double stamp = 0.0;
 
+    public static double kP = 0.01;           // small proportional gain (tune this)
+    public static double maxStep = 0.2;         // prevents sudden jumps
+
     MultipleTelemetry TELE;
 
     @Override
@@ -138,10 +141,10 @@ public class ShooterTest extends LinearOpMode {
             if (powPID > 1.0){
                 powPID = 1.0;
             }
-            double feed = kF * parameter;        // Example: vel=2500 → feed=0.5
+            double feed = kF * vel;        // Example: vel=2500 → feed=0.5
 
             // --- PROPORTIONAL CORRECTION ---
-            double error = parameter - velocity;
+            double error = vel - velo1;
             double correction = kP * error;
 
             // limit how fast power changes (prevents oscillation)
