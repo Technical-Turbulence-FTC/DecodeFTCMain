@@ -44,6 +44,8 @@ public class ShooterTest extends LinearOpMode {
 
     public static boolean intake = true;
 
+    public static int tolerance = 50;
+
     public static double kP = 0.0005;           // small proportional gain (tune this)
     public static double maxStep = 0.06;         // prevents sudden jumps
 
@@ -106,19 +108,20 @@ public class ShooterTest extends LinearOpMode {
 
             double feed = vel / maxVel;        // Example: vel=2500 → feed=0.5
 
-            // --- PROPORTIONAL CORRECTION ---
+                // --- PROPORTIONAL CORRECTION ---
             double error = vel - velo1;
             double correction = kP * error;
 
-            // limit how fast power changes (prevents oscillation)
+                // limit how fast power changes (prevents oscillation)
             correction = Math.max(-maxStep, Math.min(maxStep, correction));
 
-            // --- FINAL MOTOR POWER ---
+                // --- FINAL MOTOR POWER ---
             powPID = feed + correction;
 
-            // clamp to allowed range
+                // clamp to allowed range
             powPID = Math.max(0, Math.min(1, powPID));
             shooter.setVelocity(powPID);
+
 
             if (shoot){
                 robot.transferServo.setPosition(transferServo_in);
