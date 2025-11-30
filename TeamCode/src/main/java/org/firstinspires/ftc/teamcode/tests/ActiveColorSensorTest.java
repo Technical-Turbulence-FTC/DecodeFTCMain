@@ -58,58 +58,73 @@ public class ActiveColorSensorTest extends LinearOpMode {
 
             robot.intake.setPower(1);
 
+            // Reset the counters after 1 second of not reading a ball.
+            final double ColorCounterResetDelay = 1.0;
+            // Number of times the loop needs to run before deciding on a color.
+            final int ColorCounterTotalMinCount = 20;
+            // If the color sensor reads a color this percentage of time
+            // out of the total, declare the color.
+            // Usage: (Color Count)/(Total Count) > ColorCounterThreshold
+            final double ColorCounterThreshold  = 0.65;
+
             if (robot.pin1.getState()){
                 if (robot.pin0.getState()){
-                    b1Purple += 1;
-                    purpleStamp1 = getRuntime();
+                    b1Purple ++;
                 }
-                b1Total += 1;
+                b1Total++;
                 totalStamp1 = getRuntime();
             }
-            if (getRuntime() - totalStamp1 > 1){
+            if (getRuntime() - totalStamp1 > ColorCounterResetDelay) {
+                // Too Much time has passed without detecting ball
                 b1 = "none";
                 b1Total = 1;
                 b1Purple = 1;
-            }else if (b1Total > 10 && getRuntime() - purpleStamp1 > 2){
-                b1 = "Green";
-            }else if (b1Purple > 10){
+            }else if ((b1Total > ColorCounterTotalMinCount) && ((double) b1Purple / b1Total) >= ColorCounterThreshold){
+            // Enough Time has passed and we met the threshold
                 b1 = "Purple";
+            }else if (b1Total > ColorCounterTotalMinCount) {
+            // Enough Time passed WITHOUT meeting the threshold
+                b1 = "Green";
             }
 
             if (robot.pin3.getState()){
                 if (robot.pin2.getState()){
-                    b2Purple += 1;
-                    purpleStamp2 = getRuntime();
+                    b2Purple ++;
                 }
-                b2Total += 1;
+                b2Total++;
                 totalStamp2 = getRuntime();
             }
-            if (getRuntime() - totalStamp2 > 1){
+            if (getRuntime() - totalStamp2 > ColorCounterResetDelay) {
+                // Too Much time has passed without detecting ball
                 b2 = "none";
                 b2Total = 1;
                 b2Purple = 1;
-            }else if (b2Total > 10 && getRuntime() - purpleStamp2 > 2){
-                b2 = "Green";
-            }else if (b2Purple > 10){
+            }else if ((b2Total > ColorCounterTotalMinCount) && ((double) b2Purple / b2Total) >= ColorCounterThreshold){
+                // Enough Time has passed and we met the threshold
                 b2 = "Purple";
+            }else if (b2Total > ColorCounterTotalMinCount) {
+                // Enough Time passed WITHOUT meeting the threshold
+                b2 = "Green";
             }
 
             if (robot.pin5.getState()){
                 if (robot.pin4.getState()){
-                    b3Purple += 1;
-                    purpleStamp3 = getRuntime();
+                    b3Purple ++;
                 }
-                b3Total += 1;
+                b3Total++;
                 totalStamp3 = getRuntime();
             }
-            if (getRuntime() - totalStamp3 > 1){
+            if (getRuntime() - totalStamp3 > ColorCounterResetDelay) {
+                // Too Much time has passed without detecting ball
                 b3 = "none";
                 b3Total = 1;
                 b3Purple = 1;
-            }else if (b3Total > 10 && getRuntime() - purpleStamp3 > 2){
-                b3 = "Green";
-            }else if (b3Purple > 10){
+            }else if ((b3Total > ColorCounterTotalMinCount) && ((double) b3Purple / b3Total) >= ColorCounterThreshold){
+                // Enough Time has passed and we met the threshold
                 b3 = "Purple";
+            }else if (b3Total > ColorCounterTotalMinCount) {
+                // Enough Time passed WITHOUT meeting the threshold
+                b3 = "Green";
             }
 
             TELE.addData("Green1:", robot.pin1.getState());

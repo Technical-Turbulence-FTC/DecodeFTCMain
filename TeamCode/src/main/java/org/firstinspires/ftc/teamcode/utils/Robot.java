@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -76,6 +78,12 @@ public class Robot {
     public WebcamName webcam;
 
     public DcMotorEx shooterEncoder;
+
+    public RevColorSensorV3 color1;
+
+    public RevColorSensorV3 color2;
+
+    public RevColorSensorV3 color3;
 
     public Robot(HardwareMap hardwareMap) {
 
@@ -150,5 +158,10 @@ public class Robot {
 
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
+        color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
+
+        color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
+
+        color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
     }
 }
