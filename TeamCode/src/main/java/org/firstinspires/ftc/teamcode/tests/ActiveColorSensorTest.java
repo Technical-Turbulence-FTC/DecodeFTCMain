@@ -49,9 +49,9 @@ public class ActiveColorSensorTest extends LinearOpMode {
         while (opModeIsActive()){
 
             if ((getRuntime() % 0.3) >0.15) {
-                position = spindexer_intakePos + 0.02;
+                position = spindexer_intakePos1 + 0.015;
             } else {
-                position = spindexer_intakePos - 0.02;
+                position = spindexer_intakePos1 - 0.015;
             }
             robot.spin1.setPosition(position);
             robot.spin2.setPosition(1-position);

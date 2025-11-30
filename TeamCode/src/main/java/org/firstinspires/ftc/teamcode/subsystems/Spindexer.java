@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
-import java.util.ArrayList;
-
 public class Spindexer implements Subsystem{
 
     private Servo s1;
@@ -118,14 +116,14 @@ public class Spindexer implements Subsystem{
     }
 
     public void intake () {
-        position = spindexer_intakePos;
+        position = spindexer_intakePos1;
     }
 
     public void intakeShake(double runtime) {
         if ((runtime % 0.25) >0.125) {
-            position = spindexer_intakePos + 0.04;
+            position = spindexer_intakePos1 + 0.04;
         } else {
-            position = spindexer_intakePos - 0.04;
+            position = spindexer_intakePos1 - 0.04;
 
         }
     }

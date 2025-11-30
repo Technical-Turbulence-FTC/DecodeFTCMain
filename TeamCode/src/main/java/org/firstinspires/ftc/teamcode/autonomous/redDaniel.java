@@ -13,7 +13,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -37,6 +36,12 @@ public class redDaniel extends LinearOpMode {
 
     AprilTag aprilTag;
 
+    int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
+
+    int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
+
+    int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
+    // TODO: change this velocity PID
     public Action initShooter(int velocity){
         return new Action(){
             double velo = 0.0;
@@ -67,6 +72,10 @@ public class redDaniel extends LinearOpMode {
         };
     }
 
+    public void Obelisk (){
+        // TODO: write the code to detect order
+    }
+
     public Action Shoot(double spindexer){
         return new Action() {
             boolean transfer = false;
@@ -83,6 +92,93 @@ public class redDaniel extends LinearOpMode {
                     return false;
                 }
                 return true;
+            }
+        };
+    }
+
+    public Action intake (){
+        return new Action() {
+            double position = 0.0;
+            final double intakeTime = 4.0; // TODO: change this so it serves as a backup
+            final double stamp = getRuntime();
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if ((getRuntime() % 0.3) >0.15) {
+                    position = spindexer_intakePos1 + 0.02;
+                } else {
+                    position = spindexer_intakePos1 - 0.02;
+                }
+                robot.spin1.setPosition(position);
+                robot.spin2.setPosition(1-position);
+
+                robot.intake.setPower(1);
+
+                return !(robot.pin1.getState() && robot.pin3.getState() && robot.pin5.getState()) || getRuntime() - stamp > intakeTime;
+            }
+        };
+    }
+
+    public Action ColorDetect (){
+        return new Action() {
+            int t1 = 0;
+            int t2 = 0;
+            int t3 = 0;
+            int tP1 = 0;
+            int tP2 = 0;
+            int tP3 = 0;
+            final double stamp = getRuntime();
+            final double detectTime = 3.0;
+            double position = 0.0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if ((getRuntime() % 0.3) >0.15) {
+                    position = spindexer_intakePos1 + 0.02;
+                } else {
+                    position = spindexer_intakePos1 - 0.02;
+                }
+                robot.spin1.setPosition(position);
+                robot.spin2.setPosition(1-position);
+                if (robot.pin1.getState()) {
+                    t1 += 1;
+                    if (robot.pin0.getState()){
+                        tP1 += 1;
+                    }
+                }
+                if (robot.pin3.getState()) {
+                    t2 += 1;
+                    if (robot.pin0.getState()){
+                        tP2 += 1;
+                    }
+                }
+                if (robot.pin5.getState()) {
+                    t3 += 1;
+                    if (robot.pin0.getState()){
+                        tP3 += 1;
+                    }
+                }
+                if (t1 > 20){
+                    if (tP1 > 20){
+                        b1 = 2;
+                    } else {
+                        b1 = 1;
+                    }
+                }
+                if (t2 > 20){
+                    if (tP2 > 20){
+                        b2 = 2;
+                    } else {
+                        b2 = 1;
+                    }
+                }
+                if (t3 > 20){
+                    if (tP3 > 20){
+                        b3 = 2;
+                    } else {
+                        b3 = 1;
+                    }
+                }
+                return !(b1 + b2 + b3 >= 5) || (getRuntime() - stamp < detectTime);
+
             }
         };
     }

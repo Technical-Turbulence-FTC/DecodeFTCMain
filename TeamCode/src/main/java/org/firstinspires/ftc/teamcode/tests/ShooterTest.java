@@ -30,7 +30,12 @@ public class ShooterTest extends LinearOpMode {
 
     double initPos = 0.0;
 
+    double velo = 0.0;
     double velo1 = 0.0;
+    double velo2 = 0.0;
+    double velo3 = 0.0;
+    double velo4 = 0.0;
+    double velo5 = 0.0;
 
     double stamp1 = 0.0;
 
@@ -38,7 +43,7 @@ public class ShooterTest extends LinearOpMode {
 
     double powPID = 0.0;
 
-    public static int maxVel = 4000;
+    public static int maxVel = 4500;
 
     public static boolean shoot = false;
 
@@ -48,7 +53,9 @@ public class ShooterTest extends LinearOpMode {
 
     public static int tolerance = 50;
 
-    public static double kP = 0.0005;           // small proportional gain (tune this)
+    double stamp = 0.0;
+
+    public static double kP = 0.001;           // small proportional gain (tune this)
     public static double maxStep = 0.06;         // prevents sudden jumps
     public static double distance = 50;
 
@@ -72,11 +79,15 @@ public class ShooterTest extends LinearOpMode {
 
         initPos = shooter.getECPRPosition();
 
+        int ticker = 0;
+
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+
+            ticker++;
 
             if (AutoTrack){
                 hoodPos = hoodAnglePrediction(distance);
@@ -85,69 +96,88 @@ public class ShooterTest extends LinearOpMode {
 
 
 
-                shooter.setShooterMode(flyMode);
+            shooter.setShooterMode(flyMode);
 
-                shooter.setManualPower(pow);
+            shooter.setManualPower(pow);
 
-                robot.hood.setPosition(hoodPos);
-                robot.turr1.setPosition(turretPos);
-                robot.turr2.setPosition(1 - turretPos);
-                if (intake) {
-                    robot.transfer.setPower(0);
-                    robot.intake.setPower(0.75);
-                    robot.spin1.setPosition(spindexer_intakePos);
-                    robot.spin2.setPosition(1 - spindexer_intakePos);
-                } else {
-                    robot.transfer.setPower(1);
-                    robot.intake.setPower(0.75 + (powPID/4));
-                    if (spindexPos == 1) {
-                        robot.spin1.setPosition(spindexer_outtakeBall1);
-                        robot.spin2.setPosition(1 - spindexer_outtakeBall1);
-                    } else if (spindexPos == 2) {
-                        robot.spin1.setPosition(spindexer_outtakeBall2);
-                        robot.spin2.setPosition(1 - spindexer_outtakeBall2);
-                    } else if (spindexPos == 3) {
-                        robot.spin1.setPosition(spindexer_outtakeBall3);
-                        robot.spin2.setPosition(1 - spindexer_outtakeBall3);
-                    }
+            robot.hood.setPosition(hoodPos);
+            robot.turr1.setPosition(turretPos);
+            robot.turr2.setPosition(1 - turretPos);
+            if (intake) {
+                robot.transfer.setPower(0);
+                robot.intake.setPower(0.75);
+                robot.spin1.setPosition(spindexer_intakePos1);
+                robot.spin2.setPosition(1 - spindexer_intakePos1);
+            } else {
+                robot.transfer.setPower(.75 + (powPID/4));
+                robot.intake.setPower(0);
+                if (spindexPos == 1) {
+                    robot.spin1.setPosition(spindexer_outtakeBall1);
+                    robot.spin2.setPosition(1 - spindexer_outtakeBall1);
+                } else if (spindexPos == 2) {
+                    robot.spin1.setPosition(spindexer_outtakeBall2);
+                    robot.spin2.setPosition(1 - spindexer_outtakeBall2);
+                } else if (spindexPos == 3) {
+                    robot.spin1.setPosition(spindexer_outtakeBall3);
+                    robot.spin2.setPosition(1 - spindexer_outtakeBall3);
                 }
+            }
 
-                velo1 = -60 * ((shooter.getECPRPosition() - initPos1) / (getRuntime() - stamp1));
-                stamp1 = getRuntime();
-                initPos1 = shooter.getECPRPosition();
+            double penguin = 0;
+            if (ticker % 8 ==0){
+                penguin = shooter.getECPRPosition();
+                stamp = getRuntime();
+                velo1 = -60 * ((penguin - initPos1) / (stamp - stamp1));
+                initPos1 = penguin;
+                stamp1 = stamp;
+            }
 
-                double feed = vel / maxVel;        // Example: vel=2500 → feed=0.5
 
-                // --- PROPORTIONAL CORRECTION ---
-                double error = vel - velo1;
-                double correction = kP * error;
+            velo = velo1;
 
-                // limit how fast power changes (prevents oscillation)
-                correction = Math.max(-maxStep, Math.min(maxStep, correction));
+            double feed = vel / maxVel;        // Example: vel=2500 → feed=0.5
 
-                // --- FINAL MOTOR POWER ---
-                powPID = feed + correction;
+            if (vel > 500){
+                feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+            }
 
-                // clamp to allowed range
-                powPID = Math.max(0, Math.min(1, powPID));
-                shooter.setVelocity(powPID);
+            // --- PROPORTIONAL CORRECTION ---
+            double error = vel - velo1;
+            double correction = kP * error;
 
-                if (shoot) {
-                    robot.transferServo.setPosition(transferServo_in);
-                } else {
-                    robot.transferServo.setPosition(transferServo_out);
-                }
+            // limit how fast power changes (prevents oscillation)
+            correction = Math.max(-maxStep, Math.min(maxStep, correction));
 
-                shooter.update();
+            // --- FINAL MOTOR POWER ---
+            powPID = feed + correction;
 
-                TELE.addData("Revolutions", shooter.getECPRPosition());
-                TELE.addData("hoodPos", shooter.gethoodPosition());
-                TELE.addData("turretPos", shooter.getTurretPosition());
-                TELE.addData("Power Fly 1", robot.shooter1.getPower());
-                TELE.addData("Power Fly 2", robot.shooter2.getPower());
-                TELE.addData("powPID", shooter.getpowPID());
-                TELE.addData("Velocity", velo1);
-                TELE.update();
+            // clamp to allowed range
+            powPID = Math.max(0, Math.min(1, powPID));
+
+            if (vel - velo > 1000){
+                powPID = 1;
+            } else if (velo - vel > 1000){
+                powPID = 0;
+            }
+
+            shooter.setVelocity(powPID);
+
+            if (shoot) {
+                robot.transferServo.setPosition(transferServo_in);
+            } else {
+                robot.transferServo.setPosition(transferServo_out);
+            }
+
+            shooter.update();
+
+            TELE.addData("Revolutions", shooter.getECPRPosition());
+            TELE.addData("hoodPos", shooter.gethoodPosition());
+            TELE.addData("turretPos", shooter.getTurretPosition());
+            TELE.addData("Power Fly 1", robot.shooter1.getPower());
+            TELE.addData("Power Fly 2", robot.shooter2.getPower());
+            TELE.addData("powPID", shooter.getpowPID());
+            TELE.addData("Velocity", velo);
+            TELE.update();
 
 
         }

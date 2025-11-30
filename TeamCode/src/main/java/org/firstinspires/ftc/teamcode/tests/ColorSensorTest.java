@@ -29,6 +29,8 @@ public class ColorSensorTest extends LinearOpMode{
             TELE.addData("Purple2:", robot.pin2.getState());
             TELE.addData("Green3:", robot.pin5.getState());
             TELE.addData("Purple3:", robot.pin4.getState());
+            TELE.addData("Hello Keshav (analog)", robot.analogInput.getVoltage());
+            TELE.addData("Hello again (analog2)", robot.analogInput2.getVoltage());
 
             TELE.update();
         }
