@@ -42,32 +42,66 @@ public class redDaniel extends LinearOpMode {
 
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
     // TODO: change this velocity PID
-    public Action initShooter(int velocity){
+
+    boolean spindexPosEqual (double spindexer) {
+        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
+                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
+    }
+
+    boolean transferPosEqual (double transfer) {
+        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > transfer - 0.01 &&
+                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < transfer + 0.01);
+    }
+    public Action initShooter(int vel){
         return new Action(){
             double velo = 0.0;
             double initPos = 0.0;
             double stamp = 0.0;
+            double stamp1 = 0.0;
             double powPID = 0.0;
             double ticker = 0.0;
+            final double time = getRuntime();
             public boolean run(@NonNull TelemetryPacket telemetryPacket){
-                velo = -60 * ((((double) robot.shooter1.getCurrentPosition() / 2048) - initPos) / (getRuntime() - stamp));
-                stamp = getRuntime();
-                initPos = (double) robot.shooter1.getCurrentPosition() / 2048;
-                if (Math.abs(velocity - velo) > initTolerance) {
-                    powPID = (double) velocity / maxVel;
-                    ticker = getRuntime();
-                } else if (velocity - velTolerance > velo) {
-                    powPID = powPID + 0.0001;
-                    ticker = getRuntime();
-                } else if (velocity + velTolerance < velo) {
-                    powPID = powPID - 0.0001;
-                    ticker  = getRuntime();
+                ticker ++;
+
+                double currentPos;
+                if (ticker % 8 == 0) {
+                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
+                    stamp = getRuntime();
+                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
+                    initPos = currentPos;
+                    stamp1 = stamp;
                 }
+
+                double feed = (double) vel / maxVel;        // Example: vel=2500 → feed=0.5
+
+                if (vel > 500) {
+                    feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+                }
+
+                // --- PROPORTIONAL CORRECTION ---
+                double error = vel - velo;
+                double correction = kP * error;
+
+                // limit how fast power changes (prevents oscillation)
+                correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+                // --- FINAL MOTOR POWER ---
+                powPID = feed + correction;
+
+                // clamp to allowed range
+                powPID = Math.max(0, Math.min(1, powPID));
+
+                if (vel - velo > 1000) {
+                    powPID = 1;
+                } else if (velo - vel > 1000) {
+                    powPID = 0;
+                }
+
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
-                robot.transfer.setPower((powPID / 4) + 0.75);
 
-                return getRuntime() - ticker < 0.5;
+                return !(vel - 100 < velo && vel + 100 > velo) || (getRuntime() - time > 4.0);
             }
         };
     }
@@ -78,20 +112,44 @@ public class redDaniel extends LinearOpMode {
 
     public Action Shoot(double spindexer){
         return new Action() {
-            boolean transfer = false;
+            double transferStamp = 0.0;
+            int ticker = 1;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 robot.spin1.setPosition(spindexer);
-                robot.spin2.setPosition(1-spindexer);
-                if (scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01 && scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01){
-                    robot.transferServo.setPosition(transferServo_in);
-                    transfer = true;
+                robot.spin2.setPosition(1 - spindexer);
+                if (spindexPosEqual(spindexer)){
+                    if (ticker == 1){
+                        transferStamp = getRuntime();
+                        ticker ++;
+                    }
+                    if (getRuntime() - transferStamp > waitTransfer) {
+                        robot.transferServo.setPosition(transferServo_in);
+                    } else {
+                        robot.transferServo.setPosition(transferServo_out);
+                    }
+                } else {
+                    robot.transferServo.setPosition(transferServo_out);
+                    ticker = 1;
+                    transferStamp = getRuntime();
                 }
-                if (scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3) < transferServo_in + 0.01 && scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3) > transferServo_in - 0.01 && transfer){
+
+                return !(transferPosEqual(transferServo_in));
+            }
+        };
+    }
+
+    public Action transferOut(){
+        return new Action() {
+            final double transfer = getRuntime();
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (getRuntime() - transfer > 0.2){
                     robot.transferServo.setPosition(transferServo_out);
                     return false;
+                } else {
+                    return true;
                 }
-                return true;
             }
         };
     }
@@ -112,73 +170,18 @@ public class redDaniel extends LinearOpMode {
                 robot.spin2.setPosition(1-position);
 
                 robot.intake.setPower(1);
-
+                // TODO: change return statement
                 return !(robot.pin1.getState() && robot.pin3.getState() && robot.pin5.getState()) || getRuntime() - stamp > intakeTime;
             }
         };
     }
-
+    //TODO: use i2c code to write this
     public Action ColorDetect (){
         return new Action() {
-            int t1 = 0;
-            int t2 = 0;
-            int t3 = 0;
-            int tP1 = 0;
-            int tP2 = 0;
-            int tP3 = 0;
-            final double stamp = getRuntime();
-            final double detectTime = 3.0;
-            double position = 0.0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if ((getRuntime() % 0.3) >0.15) {
-                    position = spindexer_intakePos1 + 0.02;
-                } else {
-                    position = spindexer_intakePos1 - 0.02;
-                }
-                robot.spin1.setPosition(position);
-                robot.spin2.setPosition(1-position);
-                if (robot.pin1.getState()) {
-                    t1 += 1;
-                    if (robot.pin0.getState()){
-                        tP1 += 1;
-                    }
-                }
-                if (robot.pin3.getState()) {
-                    t2 += 1;
-                    if (robot.pin0.getState()){
-                        tP2 += 1;
-                    }
-                }
-                if (robot.pin5.getState()) {
-                    t3 += 1;
-                    if (robot.pin0.getState()){
-                        tP3 += 1;
-                    }
-                }
-                if (t1 > 20){
-                    if (tP1 > 20){
-                        b1 = 2;
-                    } else {
-                        b1 = 1;
-                    }
-                }
-                if (t2 > 20){
-                    if (tP2 > 20){
-                        b2 = 2;
-                    } else {
-                        b2 = 1;
-                    }
-                }
-                if (t3 > 20){
-                    if (tP3 > 20){
-                        b3 = 2;
-                    } else {
-                        b3 = 1;
-                    }
-                }
-                return !(b1 + b2 + b3 >= 5) || (getRuntime() - stamp < detectTime);
-
+                return false;
             }
         };
     }

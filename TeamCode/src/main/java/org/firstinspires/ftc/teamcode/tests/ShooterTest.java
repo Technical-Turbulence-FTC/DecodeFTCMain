@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
+import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -32,10 +34,6 @@ public class ShooterTest extends LinearOpMode {
 
     double velo = 0.0;
     double velo1 = 0.0;
-    double velo2 = 0.0;
-    double velo3 = 0.0;
-    double velo4 = 0.0;
-    double velo5 = 0.0;
 
     double stamp1 = 0.0;
 
@@ -43,21 +41,24 @@ public class ShooterTest extends LinearOpMode {
 
     double powPID = 0.0;
 
-    public static int maxVel = 4500;
-
     public static boolean shoot = false;
 
     public static int spindexPos = 1;
 
-    public static boolean intake = true;
-
-    public static int tolerance = 50;
+    public static int intake = 1; // 1 for intake, 0 for outtake
 
     double stamp = 0.0;
 
-    public static double kP = 0.001;           // small proportional gain (tune this)
-    public static double maxStep = 0.06;         // prevents sudden jumps
     public static double distance = 50;
+    double transferStamp = 0.0;
+    int shot = 0;
+
+    int ticker = 1;
+
+    boolean spindexPosEqual (double spindexer) {
+        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
+                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
+    }
 
     MultipleTelemetry TELE;
 
@@ -89,12 +90,11 @@ public class ShooterTest extends LinearOpMode {
 
             ticker++;
 
-            if (AutoTrack){
+            //Based on a distance it sets a velocity and hood
+            if (AutoTrack) {
                 hoodPos = hoodAnglePrediction(distance);
                 vel = velPrediction(distance);
             }
-
-
 
             shooter.setShooterMode(flyMode);
 
@@ -103,28 +103,100 @@ public class ShooterTest extends LinearOpMode {
             robot.hood.setPosition(hoodPos);
             robot.turr1.setPosition(turretPos);
             robot.turr2.setPosition(1 - turretPos);
-            if (intake) {
+
+            //Automation for spindex and transfer if not intaking
+            if (intake == 1) {
                 robot.transfer.setPower(0);
+                robot.transferServo.setPosition(transferServo_out);
                 robot.intake.setPower(0.75);
-                robot.spin1.setPosition(spindexer_intakePos1);
-                robot.spin2.setPosition(1 - spindexer_intakePos1);
+                double position;
+                if ((getRuntime() % 0.3) >0.15) {
+                    position = spindexer_intakePos1 + 0.015;
+                } else {
+                    position = spindexer_intakePos1 - 0.015;
+                }
+                robot.spin1.setPosition(position);
+                robot.spin2.setPosition(1-position);
             } else {
-                robot.transfer.setPower(.75 + (powPID/4));
+                robot.transfer.setPower(.75 + (powPID / 4));
                 robot.intake.setPower(0);
-                if (spindexPos == 1) {
-                    robot.spin1.setPosition(spindexer_outtakeBall1);
-                    robot.spin2.setPosition(1 - spindexer_outtakeBall1);
-                } else if (spindexPos == 2) {
-                    robot.spin1.setPosition(spindexer_outtakeBall2);
-                    robot.spin2.setPosition(1 - spindexer_outtakeBall2);
-                } else if (spindexPos == 3) {
-                    robot.spin1.setPosition(spindexer_outtakeBall3);
-                    robot.spin2.setPosition(1 - spindexer_outtakeBall3);
+                if (shoot) {
+
+                    if (spindexPos == 1) {
+                        robot.spin1.setPosition(spindexer_outtakeBall1);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall1);
+                        if (spindexPosEqual(spindexer_outtakeBall1)){
+                            if (ticker == 1){
+                                transferStamp = getRuntime();
+                                ticker ++;
+                            }
+                            if (getRuntime() - transferStamp > waitTransfer) {
+                                robot.transferServo.setPosition(transferServo_in);
+                            } else {
+                                robot.transferServo.setPosition(transferServo_out);
+                            }
+                        } else {
+                            robot.transferServo.setPosition(transferServo_out);
+                            ticker = 1;
+                            transferStamp = getRuntime();
+                        }
+
+                    } else if (spindexPos == 2) {
+                        robot.spin1.setPosition(spindexer_outtakeBall2);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall2);
+                        if (spindexPosEqual(spindexer_outtakeBall2)) {
+                            if (ticker == 1){
+                                transferStamp = getRuntime();
+                                ticker ++;
+                            }
+                            if (getRuntime() - transferStamp > waitTransfer){
+                                robot.transferServo.setPosition(transferServo_in);
+                            } else {
+                                robot.transferServo.setPosition(transferServo_out);
+                            }
+                        } else {
+                            robot.transferServo.setPosition(transferServo_out);
+                            ticker = 1;
+                            transferStamp = getRuntime();
+                        }
+
+                    } else if (spindexPos == 3) {
+                        robot.spin1.setPosition(spindexer_outtakeBall3);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall3);
+                        if (spindexPosEqual(spindexer_outtakeBall3)){
+                            if (ticker == 1){
+                                transferStamp = getRuntime();
+                                ticker ++;
+                            }
+                            if (getRuntime() - transferStamp > waitTransfer){
+                                robot.transferServo.setPosition(transferServo_in);
+                            } else {
+                                robot.transferServo.setPosition(transferServo_out);
+                            }
+                        } else {
+                            transferStamp = getRuntime();
+                            robot.transferServo.setPosition(transferServo_out);
+                            ticker = 1;
+                        }
+                    }
+
+                } else {
+                    robot.transferServo.setPosition(transferServo_out);
+                    if (spindexPos == 1) {
+                        robot.spin1.setPosition(spindexer_outtakeBall1);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall1);
+                    } else if (spindexPos == 2) {
+                        robot.spin1.setPosition(spindexer_outtakeBall2);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall2);
+                    } else if (spindexPos == 3) {
+                        robot.spin1.setPosition(spindexer_outtakeBall3);
+                        robot.spin2.setPosition(1 - spindexer_outtakeBall3);
+                    }
                 }
             }
 
-            double penguin = 0;
-            if (ticker % 8 ==0){
+            double penguin;
+            if (ticker % 8 == 0) {
                 penguin = shooter.getECPRPosition();
                 stamp = getRuntime();
                 velo1 = -60 * ((penguin - initPos1) / (stamp - stamp1));
@@ -132,12 +204,11 @@ public class ShooterTest extends LinearOpMode {
                 stamp1 = stamp;
             }
 
-
             velo = velo1;
 
             double feed = vel / maxVel;        // Example: vel=2500 → feed=0.5
 
-            if (vel > 500){
+            if (vel > 500) {
                 feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
             }
 
@@ -154,19 +225,14 @@ public class ShooterTest extends LinearOpMode {
             // clamp to allowed range
             powPID = Math.max(0, Math.min(1, powPID));
 
-            if (vel - velo > 1000){
+            if (vel - velo > 1000) {
                 powPID = 1;
-            } else if (velo - vel > 1000){
+            } else if (velo - vel > 1000) {
                 powPID = 0;
             }
 
-            shooter.setVelocity(powPID);
-
-            if (shoot) {
-                robot.transferServo.setPosition(transferServo_in);
-            } else {
-                robot.transferServo.setPosition(transferServo_out);
-            }
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
 
             shooter.update();
 
@@ -179,7 +245,6 @@ public class ShooterTest extends LinearOpMode {
             TELE.addData("Velocity", velo);
             TELE.update();
 
-
         }
 
     }
@@ -190,15 +255,14 @@ public class ShooterTest extends LinearOpMode {
         double k = 0.0157892;
         double n = 3.39375;
 
-        double dist = Math.sqrt(distance*distance+24*24);
+        double dist = Math.sqrt(distance * distance + 24 * 24);
 
         return L + A * Math.exp(-Math.pow(k * dist, n));
     }
+
     public static double velPrediction(double distance) {
 
-        double x = Math.sqrt(distance*distance+24*24);
-
-
+        double x = Math.sqrt(distance * distance + 24 * 24);
 
         double A = -211149.992;
         double B = -1.19943;
