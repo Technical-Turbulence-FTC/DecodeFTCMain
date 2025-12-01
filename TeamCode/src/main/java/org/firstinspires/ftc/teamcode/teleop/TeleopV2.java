@@ -6,9 +6,11 @@ import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
@@ -17,6 +19,8 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 import java.util.ArrayList;
 import java.util.List;
 
+@TeleOp
+@Config
 public class TeleopV2 extends LinearOpMode {
 
     public static double vel = 3000;
