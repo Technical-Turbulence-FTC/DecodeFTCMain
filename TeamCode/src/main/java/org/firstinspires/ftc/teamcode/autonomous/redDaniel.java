@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
@@ -196,8 +197,10 @@ public class redDaniel extends LinearOpMode {
                 robot.spin2.setPosition(1-position);
 
                 robot.intake.setPower(1);
-                // TODO: change return statement
-                return !(robot.pin1.getState() && robot.pin3.getState() && robot.pin5.getState()) || getRuntime() - stamp < intakeTime;
+                return !(robot.color1.getDistance(DistanceUnit.MM) < 40.0 &&
+                         robot.color2.getDistance(DistanceUnit.MM) < 40.0 &&
+                         robot.color3.getDistance(DistanceUnit.MM) < 40.0)
+                       || getRuntime() - stamp < intakeTime;
             }
         };
     }
