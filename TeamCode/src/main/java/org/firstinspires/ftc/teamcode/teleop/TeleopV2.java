@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
-import static org.firstinspires.ftc.teamcode.tests.ShooterTest.*;
+import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
+import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -9,6 +11,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 import java.util.ArrayList;
@@ -16,16 +19,13 @@ import java.util.List;
 
 public class TeleopV2 extends LinearOpMode {
 
+    public static double vel = 3000;
+    public static double hood = 0.5;
     Robot robot;
     MultipleTelemetry TELE;
-
     boolean intake = false;
     boolean reject = false;
-    private double lastEncoderRevolutions = 0.0;
-    private double lastTimeStamp = 0.0;
-
-    private double vel = 3000;
-
+    int ticker = 0;
     List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
@@ -33,6 +33,15 @@ public class TeleopV2 extends LinearOpMode {
     List<Boolean> s1 = new ArrayList<>();
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
+    private double lastEncoderRevolutions = 0.0;
+    private double lastTimeStamp = 0.0;
+    private double velo1, velo;
+    private double stamp1, stamp, initPos;
+    private boolean shootAll = false;
+    double desiredTurretAngle = 180;
+
+    MecanumDrive drive = new MecanumDrive(hardwareMap, teleStart);
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,7 +59,7 @@ public class TeleopV2 extends LinearOpMode {
         if (isStopRequested()) return;
         while (opModeIsActive()) {
 
-        //DRIVETRAIN:
+            //DRIVETRAIN:
 
             double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
@@ -67,7 +76,7 @@ public class TeleopV2 extends LinearOpMode {
             robot.frontRight.setPower(frontRightPower);
             robot.backRight.setPower(backRightPower);
 
-        //INTAKE:
+            //INTAKE:
 
             if (gamepad1.rightBumperWasPressed()) {
                 intake = true;
@@ -96,7 +105,7 @@ public class TeleopV2 extends LinearOpMode {
                 robot.intake.setPower(0);
             }
 
-        //COLOR:
+            //COLOR:
 
             double s1D = robot.color1.getDistance(DistanceUnit.MM);
             double s2D = robot.color2.getDistance(DistanceUnit.MM);
@@ -151,38 +160,73 @@ public class TeleopV2 extends LinearOpMode {
             boolean green2 = s2.get(s2.size() - 1);
             boolean green3 = s3.get(s3.size() - 1);
 
-        //SHOOTER:
+            //SHOOTER:
 
-            double kF = 1.0 / MAX_RPM;     // baseline feedforward
+            double penguin = 0;
 
-            double encoderRevolutions = (double) robot.shooterEncoder.getCurrentPosition() / 2048;
+            if (ticker % 8 == 0) {
+                penguin = (double) robot.shooterEncoder.getCurrentPosition() / 2048;
+                double stamp = getRuntime();
+                velo1 = -60 * ((penguin - initPos) / (stamp - stamp1));
+                initPos = penguin;
+                stamp1 = stamp;
+            }
 
-            double velocity = -60 * (encoderRevolutions - lastEncoderRevolutions) / (getRuntime() - lastTimeStamp);
+            velo = velo1;
 
-            double velPID;
+            double feed = vel / 4500;
 
-            // --- FEEDFORWARD BASE POWER ---
-            double feed = kF * vel;        // Example: vel=2500 → feed=0.5
+            if (vel > 500) {
+                feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+            }
 
             // --- PROPORTIONAL CORRECTION ---
-            double error = vel - velocity;
+            double error = vel - velo1;
             double correction = kP * error;
 
             // limit how fast power changes (prevents oscillation)
             correction = Math.max(-maxStep, Math.min(maxStep, correction));
 
             // --- FINAL MOTOR POWER ---
-            velPID = feed + correction;
+            double powPID = feed + correction;
 
             // clamp to allowed range
-            velPID = Math.max(0, Math.min(1, velPID));
+            powPID = Math.max(0, Math.min(1, powPID));
 
-            robot.shooter1.setPower(velPID);
-            robot.shooter2.setPower(velPID);
+            if (vel - velo > 1000) {
+                powPID = 1;
+            } else if (velo - vel > 1000) {
+                powPID = 0;
+            }
+
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
+
+            robot.hood.setPosition(hood);
 
             //TODO: ADD CODE TO CHANGE VARIABLE VEL BASED ON POSITION
 
-        //MISC:
+            //TODO: ADD CODE TO CHANGE VARIABLE HOOD ANGLE BASED ON POSITION
+
+
+
+
+            //SHOOT ALL:
+
+            if (gamepad2.rightBumperWasPressed()){
+                shootAll = true;
+            }
+
+            if (shootAll){
+                intake  = false;
+                reject = false;
+
+            }
+
+            //MISC:
+
+            drive.updatePoseEstimate();
+
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
@@ -192,7 +236,12 @@ public class TeleopV2 extends LinearOpMode {
             TELE.addData("Spin2Green", s2.get(s2.size() - 1));
             TELE.addData("Spin3Green", s3.get(s3.size() - 1));
 
+            TELE.addData("pose", drive.localizer.getPose());
+            TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
+
             TELE.update();
+
+            ticker++;
 
         }
     }
