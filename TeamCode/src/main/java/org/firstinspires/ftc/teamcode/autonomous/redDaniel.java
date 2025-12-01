@@ -21,7 +21,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTag;
+import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
@@ -34,14 +34,28 @@ public class redDaniel extends LinearOpMode {
 
     MecanumDrive drive;
 
-    AprilTag aprilTag;
+    AprilTagWebcam aprilTag;
+
+    boolean gpp = false;
+
+    boolean pgp = false;
+
+    boolean ppg = false;
 
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
 
     int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
 
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    // TODO: change this velocity PID
+
+    // Reset the counters after 1 second of not reading a ball.
+    final double ColorCounterResetDelay = 1.0;
+    // Number of times the loop needs to run before deciding on a color.
+    final int ColorCounterTotalMinCount = 20;
+    // If the color sensor reads a color this percentage of time
+    // out of the total, declare the color.
+    // Usage: (Color Count)/(Total Count) > ColorCounterThreshold
+    final double ColorCounterThreshold  = 0.65;
 
     boolean spindexPosEqual (double spindexer) {
         return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
@@ -106,8 +120,20 @@ public class redDaniel extends LinearOpMode {
         };
     }
 
-    public void Obelisk (){
-        // TODO: write the code to detect order
+    public Action Obelisk (){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (aprilTag.getTagById(21) != null){
+                    gpp = true;
+                } else if (aprilTag.getTagById(22) != null){
+                    pgp = true;
+                } else if (aprilTag.getTagById(23) != null){
+                    ppg = true;
+                }
+                return !gpp && !pgp && !ppg;
+            }
+        };
     }
 
     public Action Shoot(double spindexer){
@@ -171,17 +197,86 @@ public class redDaniel extends LinearOpMode {
 
                 robot.intake.setPower(1);
                 // TODO: change return statement
-                return !(robot.pin1.getState() && robot.pin3.getState() && robot.pin5.getState()) || getRuntime() - stamp > intakeTime;
+                return !(robot.pin1.getState() && robot.pin3.getState() && robot.pin5.getState()) || getRuntime() - stamp < intakeTime;
             }
         };
     }
     //TODO: use i2c code to write this
     public Action ColorDetect (){
         return new Action() {
-
+            int b1Green = 1;
+            int b1Total = 1;
+            double totalStamp1 = getRuntime();
+            int b2Green = 1;
+            int b2Total = 1;
+            double totalStamp2 = getRuntime();
+            int b3Green = 1;
+            int b3Total = 1;
+            double totalStamp3 = getRuntime();
+            double stamp = getRuntime();
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return false;
+                if (robot.pin1.getState()){
+                    if (robot.pin0.getState()){
+                        b1Green++;
+                    }
+                    b1Total++;
+                    totalStamp1 = getRuntime();
+                }
+                if (getRuntime() - totalStamp1 > ColorCounterResetDelay) {
+                    // Too Much time has passed without detecting ball
+                    b1 = 0;
+                    b1Total = 1;
+                    b1Green = 1;
+                }else if ((b1Total > ColorCounterTotalMinCount) && ((double) b1Green / b1Total) >= ColorCounterThreshold){
+                    // Enough Time has passed and we met the threshold
+                    b1 = 1;
+                }else if (b1Total > ColorCounterTotalMinCount) {
+                    // Enough Time passed WITHOUT meeting the threshold
+                    b1 = 2;
+                }
+
+                if (robot.pin3.getState()){
+                    if (robot.pin2.getState()){
+                        b2Green++;
+                    }
+                    b2Total++;
+                    totalStamp2 = getRuntime();
+                }
+                if (getRuntime() - totalStamp2 > ColorCounterResetDelay) {
+                    // Too Much time has passed without detecting ball
+                    b2 = 0;
+                    b2Total = 1;
+                    b2Green = 1;
+                }else if ((b2Total > ColorCounterTotalMinCount) && ((double) b2Green / b2Total) >= ColorCounterThreshold){
+                    // Enough Time has passed and we met the threshold
+                    b2 = 1;
+                }else if (b2Total > ColorCounterTotalMinCount) {
+                    // Enough Time passed WITHOUT meeting the threshold
+                    b2 = 2;
+                }
+
+                if (robot.pin5.getState()){
+                    if (robot.pin4.getState()){
+                        b3Green++;
+                    }
+                    b3Total++;
+                    totalStamp3 = getRuntime();
+                }
+                if (getRuntime() - totalStamp3 > ColorCounterResetDelay) {
+                    // Too Much time has passed without detecting ball
+                    b3 = 0;
+                    b3Total = 1;
+                    b3Green = 1;
+                }else if ((b3Total > ColorCounterTotalMinCount) && ((double) b3Green / b3Total) >= ColorCounterThreshold){
+                    // Enough Time has passed and we met the threshold
+                    b3 = 1;
+                }else if (b3Total > ColorCounterTotalMinCount) {
+                    // Enough Time passed WITHOUT meeting the threshold
+                    b3 = 2;
+                }
+
+                return !(b1 + b2 + b3 >= 5) || getRuntime() - stamp < 3.0;
             }
         };
     }
@@ -199,7 +294,9 @@ public class redDaniel extends LinearOpMode {
                 0, 0, 0
         ));
 
-        aprilTag = new AprilTag(robot, TELE);
+        aprilTag = new AprilTagWebcam();
+
+        aprilTag.init(robot, TELE);
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
@@ -239,8 +336,6 @@ public class redDaniel extends LinearOpMode {
             robot.turr2.setPosition(1 - turret_red);
 
             robot.transferServo.setPosition(transferServo_out);
-
-            aprilTag.initTelemetry();
 
             aprilTag.update();
 
