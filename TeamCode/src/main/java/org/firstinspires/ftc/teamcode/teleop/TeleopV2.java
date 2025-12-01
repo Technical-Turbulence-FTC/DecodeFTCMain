@@ -33,15 +33,13 @@ public class TeleopV2 extends LinearOpMode {
     List<Boolean> s1 = new ArrayList<>();
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
+    double desiredTurretAngle = 180;
+    MecanumDrive drive = new MecanumDrive(hardwareMap, teleStart);
     private double lastEncoderRevolutions = 0.0;
     private double lastTimeStamp = 0.0;
     private double velo1, velo;
     private double stamp1, stamp, initPos;
     private boolean shootAll = false;
-    double desiredTurretAngle = 180;
-
-    MecanumDrive drive = new MecanumDrive(hardwareMap, teleStart);
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -208,17 +206,14 @@ public class TeleopV2 extends LinearOpMode {
 
             //TODO: ADD CODE TO CHANGE VARIABLE HOOD ANGLE BASED ON POSITION
 
-
-
-
             //SHOOT ALL:
 
-            if (gamepad2.rightBumperWasPressed()){
+            if (gamepad2.rightBumperWasPressed()) {
                 shootAll = true;
             }
 
-            if (shootAll){
-                intake  = false;
+            if (shootAll) {
+                intake = false;
                 reject = false;
 
             }
@@ -226,7 +221,6 @@ public class TeleopV2 extends LinearOpMode {
             //MISC:
 
             drive.updatePoseEstimate();
-
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
