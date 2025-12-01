@@ -1,19 +1,16 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 public class Robot {
 
@@ -30,8 +27,6 @@ public class Robot {
 
     public DcMotorEx transfer;
 
-
-
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
@@ -39,7 +34,6 @@ public class Robot {
     public Servo transferServo;
 
     public Servo rejecter;
-
 
     public Servo turr1;
 
@@ -62,27 +56,31 @@ public class Robot {
 
     public AnalogInput analogInput2;
 
-    public AprilTagProcessor aprilTagProcessor;
+    public AnalogInput spin1Pos;
 
+    public AnalogInput spin2Pos;
+
+    public AnalogInput hoodPos;
+
+    public AnalogInput turr1Pos;
+
+    public AnalogInput turr2Pos;
+
+    public AnalogInput transferServoPos;
+
+    public AprilTagProcessor aprilTagProcessor;
 
     public WebcamName webcam;
 
     public DcMotorEx shooterEncoder;
 
+    public RevColorSensorV3 color1;
 
+    public RevColorSensorV3 color2;
 
+    public RevColorSensorV3 color3;
 
-
-
-
-
-
-
-
-
-
-
-    public Robot (HardwareMap hardwareMap) {
+    public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
 
@@ -109,13 +107,23 @@ public class Robot {
 
         hood = hardwareMap.get(Servo.class, "hood");
 
+        hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
+
         turr1 = hardwareMap.get(Servo.class, "t1");
+
+        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos");
 
         turr2 = hardwareMap.get(Servo.class, "t2");
 
+        turr2Pos = hardwareMap.get(AnalogInput.class, "t2Pos");
+
         spin1 = hardwareMap.get(Servo.class, "spin1");
 
+        spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
+
         spin2 = hardwareMap.get(Servo.class, "spin2");
+
+        spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
 
         pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
 
@@ -129,10 +137,7 @@ public class Robot {
 
         pin5 = hardwareMap.get(DigitalChannel.class, "pin5");
 
-
-
         analogInput = hardwareMap.get(AnalogInput.class, "analog");
-
 
         analogInput2 = hardwareMap.get(AnalogInput.class, "analog2");
 
@@ -140,16 +145,18 @@ public class Robot {
 
         transferServo = hardwareMap.get(Servo.class, "transferServo");
 
+        transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
+
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
         aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
 
-
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
+        color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
 
+        color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
-
-
+        color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
     }
 }
