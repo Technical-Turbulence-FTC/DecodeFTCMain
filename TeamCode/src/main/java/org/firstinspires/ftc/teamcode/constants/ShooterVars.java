@@ -17,4 +17,7 @@ public class ShooterVars {
     public static double waitTransfer = 0.25;
     public static double kP = 0.001;           // small proportional gain (tune this)
     public static double maxStep = 0.06;         // prevents sudden jumps
+
+    // VELOCITY CONSTANTS
+    public static int AUTO_CLOSE_VEL = 3000;
 }
