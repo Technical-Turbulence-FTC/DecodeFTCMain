@@ -29,6 +29,7 @@ public class ServoPositions {
 
     public static double turret_red = 0.43;
     public static double turret_blue = 0.4;
+    public static double turret_range = 0.9;
 
 
 }

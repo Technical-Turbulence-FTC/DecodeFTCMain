@@ -12,8 +12,9 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+//import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+//import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ public class TeleopV2 extends LinearOpMode {
     boolean intake = false;
     boolean reject = false;
     int ticker = 0;
-    List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
     List<Double> s3G = new ArrayList<>();
@@ -38,7 +38,7 @@ public class TeleopV2 extends LinearOpMode {
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
     double desiredTurretAngle = 180;
-    MecanumDrive drive = new MecanumDrive(hardwareMap, teleStart);
+//    MecanumDrive drive = new MecanumDrive(hardwareMap, teleStart);
     private double lastEncoderRevolutions = 0.0;
     private double lastTimeStamp = 0.0;
     private double velo1, velo;
@@ -48,6 +48,8 @@ public class TeleopV2 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
@@ -56,6 +58,8 @@ public class TeleopV2 extends LinearOpMode {
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
+
+//        drive = new MecanumDrive(hardwareMap, teleStart);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -158,9 +162,21 @@ public class TeleopV2 extends LinearOpMode {
                 }
             }
 
-            boolean green1 = s1.get(s1.size() - 1);
-            boolean green2 = s2.get(s2.size() - 1);
-            boolean green3 = s3.get(s3.size() - 1);
+            boolean green1 = false;
+            boolean green2 = false;
+            boolean green3 = false;
+
+
+
+            if (!s1.isEmpty()) {
+                 green1 = s1.get(s1.size() - 1);
+            }
+            if (!s2.isEmpty()) {
+                 green2 = s2.get(s2.size() - 1);
+            }
+            if (!s3.isEmpty()) {
+                 green3 = s3.get(s3.size() - 1);
+            }
 
             //SHOOTER:
 
@@ -222,20 +238,44 @@ public class TeleopV2 extends LinearOpMode {
 
             }
 
+            //TURRET:
+
+//            double offset = desiredTurretAngle - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
+//
+//            if (offset < -90) {
+//                offset+=360;
+//            }
+//
+//            double pos = 0.3;
+//
+//            pos += offset * (0.9/360);
+//
+//            if (pos < 0.02){
+//                pos = 0.02;
+//            } else if (pos > 0.91) {
+//                pos = 0.91;
+//            }
+//
+//            robot.turr1.setPosition(pos);
+//            robot.turr2.setPosition(1-pos);
+//
+
+
+
             //MISC:
 
-            drive.updatePoseEstimate();
+//            drive.updatePoseEstimate();
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
 
-            TELE.addData("Spin1Green", s1.get(s1.size() - 1));
-            TELE.addData("Spin2Green", s2.get(s2.size() - 1));
-            TELE.addData("Spin3Green", s3.get(s3.size() - 1));
-
-            TELE.addData("pose", drive.localizer.getPose());
-            TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
+            TELE.addData("Spin1Green", green1);
+            TELE.addData("Spin2Green", green2);
+            TELE.addData("Spin3Green", green3);
+//
+//            TELE.addData("pose", drive.localizer.getPose());
+//            TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
 
             TELE.update();
 
