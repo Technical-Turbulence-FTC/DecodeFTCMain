@@ -105,6 +105,8 @@ public class Robot {
 
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        shooterEncoder = shooter1;
+
         hood = hardwareMap.get(Servo.class, "hood");
 
         hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
