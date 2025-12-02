@@ -225,9 +225,9 @@ public class ShooterTest extends LinearOpMode {
             // clamp to allowed range
             powPID = Math.max(0, Math.min(1, powPID));
 
-            if (vel - velo > 1000) {
+            if (vel - velo > 500) {
                 powPID = 1;
-            } else if (velo - vel > 1000) {
+            } else if (velo - vel > 500) {
                 powPID = 0;
             }
 

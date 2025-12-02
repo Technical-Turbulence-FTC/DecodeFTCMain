@@ -38,7 +38,7 @@ public class redDaniel extends LinearOpMode {
 
     AprilTagWebcam aprilTag;
 
-    public static double intake1Time = 5.0;
+    public static double intake1Time = 7.0;
 
     public static double intake2Time = 8.0;
 
@@ -69,7 +69,8 @@ public class redDaniel extends LinearOpMode {
     }
 
     boolean transferPosEqual(double transfer) {
-        return (scalar * ((robot.transferServoPos.getVoltage() - restPos) / 3.3) > transfer - 0.01 &&
+        return (scalar * ((robot.transferServoPos.getVoltage() - restPos) / 3.3) >
+                transfer - 0.01 &&
                 scalar * ((robot.transferServoPos.getVoltage() - restPos) / 3.3) < transfer + 0.01);
     }
 
@@ -85,7 +86,7 @@ public class redDaniel extends LinearOpMode {
             int ticker1 = 0;
 
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0){
+                if (ticker == 0) {
                     stamp2 = getRuntime();
                 }
                 ticker1++;
@@ -120,17 +121,20 @@ public class redDaniel extends LinearOpMode {
                 // clamp to allowed range
                 powPID = Math.max(0, Math.min(1, powPID));
 
-                if (vel - velo > 1000) {
+                if (vel - velo > 500) {
                     powPID = 1;
-                } else if (velo - vel > 1000) {
+                } else if (velo - vel > 500) {
                     powPID = 0;
                 }
 
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
-                robot.transfer.setPower(0.75 + (powPID/4));
+                robot.transfer.setPower(1);
 
-                return !(vel - 100 < velo && vel + 100 > velo) || (getRuntime() - stamp2 < 4.0);
+                TELE.addData("Velocity", velo);
+                TELE.update();
+
+                return !(vel - 100 < velo && vel + 100 > velo) || (getRuntime() - stamp2 < 5.0);
             }
         };
     }
@@ -139,9 +143,10 @@ public class redDaniel extends LinearOpMode {
         return new Action() {
             double stamp = getRuntime();
             int ticker = 0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0){
+                if (ticker == 0) {
                     stamp = getRuntime();
                 }
                 ticker++;
@@ -154,7 +159,13 @@ public class redDaniel extends LinearOpMode {
                     ppg = true;
                 }
                 aprilTag.update();
-                return (!gpp && !pgp && !ppg) || getRuntime() - stamp < 4.0;
+
+                TELE.addData("21", gpp);
+                TELE.addData("22", pgp);
+                TELE.addData("23", ppg);
+                TELE.update();
+
+                return !(gpp || pgp || ppg) || getRuntime() - stamp < 5.0;
             }
         };
     }
@@ -168,6 +179,7 @@ public class redDaniel extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 robot.spin1.setPosition(spindexer);
                 robot.spin2.setPosition(1 - spindexer);
+                robot.transferServo.setPosition(transferServo_out);
                 if (spindexPosEqual(spindexer)) {
                     if (ticker == 1) {
                         transferStamp = getRuntime();
@@ -184,6 +196,9 @@ public class redDaniel extends LinearOpMode {
                     transferStamp = getRuntime();
                 }
 
+                TELE.addLine("shooting");
+                TELE.update();
+
                 return !(transferPosEqual(transferServo_in));
             }
         };
@@ -193,12 +208,17 @@ public class redDaniel extends LinearOpMode {
         return new Action() {
             double transfer = 0.0;
             int ticker = 0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0){
+                if (ticker == 0) {
                     transfer = getRuntime();
                 }
                 ticker++;
+
+                TELE.addLine("transfer");
+                TELE.update();
+
                 if (getRuntime() - transfer > 0.2) {
                     robot.transferServo.setPosition(transferServo_out);
                     return false;
@@ -214,9 +234,10 @@ public class redDaniel extends LinearOpMode {
             double position = 0.0;
             double stamp = 0.0;
             int ticker = 0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0){
+                if (ticker == 0) {
                     stamp = getRuntime();
                 }
                 ticker++;
@@ -233,11 +254,14 @@ public class redDaniel extends LinearOpMode {
                 robot.spin1.setPosition(position);
                 robot.spin2.setPosition(1 - position);
 
+                TELE.addLine("Intaking");
+                TELE.update();
+
                 robot.intake.setPower(1);
-                if ((s1D < 40.0 && s2D < 40.0 && s3D < 40.0) || getRuntime() - stamp > intakeTime){
+                if ((s1D < 40.0 && s2D < 40.0 && s3D < 40.0) || getRuntime() - stamp > intakeTime) {
                     robot.intake.setPower(0);
                     return false;
-                } else{
+                } else {
                     return true;
                 }
             }
@@ -248,19 +272,22 @@ public class redDaniel extends LinearOpMode {
         return new Action() {
             int b1Green = 1;
             int b1Total = 1;
-            double totalStamp1 = getRuntime();
+            double totalStamp1 = 0.0;
             int b2Green = 1;
             int b2Total = 1;
-            double totalStamp2 = getRuntime();
+            double totalStamp2 = 0.0;
             int b3Green = 1;
             int b3Total = 1;
-            double totalStamp3 = getRuntime();
+            double totalStamp3 = 0.0;
             double stamp = 0.0;
             int ticker = 0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0){
+                if (ticker == 0) {
                     stamp = getRuntime();
+                    totalStamp1 = getRuntime();
+                    totalStamp2 = getRuntime();
+                    totalStamp3 = getRuntime();
                 }
                 ticker++;
 
@@ -287,10 +314,11 @@ public class redDaniel extends LinearOpMode {
                     b1 = 0;
                     b1Total = 1;
                     b1Green = 1;
-                }else if ((b1Total > ColorCounterTotalMinCount) && ((double) b1Green / b1Total) >= ColorCounterThreshold){
+                } else if ((b1Total > ColorCounterTotalMinCount) &&
+                           ((double) b1Green / b1Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b1 = 2;
-                }else if (b1Total > ColorCounterTotalMinCount) {
+                } else if (b1Total > ColorCounterTotalMinCount) {
                     // Enough Time passed WITHOUT meeting the threshold
                     b1 = 1;
                 }
@@ -315,10 +343,11 @@ public class redDaniel extends LinearOpMode {
                     b2 = 0;
                     b2Total = 1;
                     b2Green = 1;
-                }else if ((b2Total > ColorCounterTotalMinCount) && ((double) b2Green / b2Total) >= ColorCounterThreshold){
+                } else if ((b2Total > ColorCounterTotalMinCount) &&
+                           ((double) b2Green / b2Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b2 = 2;
-                }else if (b2Total > ColorCounterTotalMinCount) {
+                } else if (b2Total > ColorCounterTotalMinCount) {
                     // Enough Time passed WITHOUT meeting the threshold
                     b2 = 1;
                 }
@@ -344,15 +373,19 @@ public class redDaniel extends LinearOpMode {
                     b1 = 0;
                     b3Total = 1;
                     b3Green = 1;
-                }else if ((b3Total > ColorCounterTotalMinCount) && ((double) b3Green / b3Total) >= ColorCounterThreshold){
+                } else if ((b3Total > ColorCounterTotalMinCount) &&
+                           ((double) b3Green / b3Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b3 = 2;
-                }else if (b3Total > ColorCounterTotalMinCount) {
+                } else if (b3Total > ColorCounterTotalMinCount) {
                     // Enough Time passed WITHOUT meeting the threshold
                     b3 = 1;
                 }
 
-                return !(b1 + b2 + b3 >= 4) || getRuntime() - stamp < 4.0;
+                TELE.addLine("Detecting");
+                TELE.update();
+
+                return (b1 + b2 + b3 < 4) || getRuntime() - stamp < 4.0;
             }
         };
     }
@@ -371,8 +404,6 @@ public class redDaniel extends LinearOpMode {
         ));
 
         aprilTag = new AprilTagWebcam();
-
-        aprilTag.init(robot, TELE);
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
@@ -396,6 +427,8 @@ public class redDaniel extends LinearOpMode {
         TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(x1, y1, h1))
                 .strafeToLinearHeading(new Vector2d(x1, y1 + 30), h1);
 
+        aprilTag.init(robot, TELE);
+
         while (opModeInInit()) {
 
             if (gamepad2.dpadUpWasPressed()) {
@@ -414,7 +447,7 @@ public class redDaniel extends LinearOpMode {
             robot.transferServo.setPosition(transferServo_out);
 
             robot.spin1.setPosition(spindexer_intakePos1);
-            robot.spin2.setPosition(1-spindexer_intakePos1);
+            robot.spin2.setPosition(1 - spindexer_intakePos1);
 
             aprilTag.update();
 
@@ -432,14 +465,17 @@ public class redDaniel extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             shoot0.build(),
-                            initShooter(AUTO_CLOSE_VEL)
+                            initShooter(AUTO_CLOSE_VEL),
+                            Obelisk()
                     )
             );
 
-            shootingSequence();
-
             robot.turr1.setPosition(turret_red);
-            robot.turr2.setPosition(1-turret_red);
+            robot.turr2.setPosition(1 - turret_red);
+            robot.spin1.setPosition(spindexer_outtakeBall1);
+            robot.spin2.setPosition(1-spindexer_outtakeBall1);
+
+            shootingSequence();
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -450,8 +486,8 @@ public class redDaniel extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot1.build(),
-                            ColorDetect()
+                            shoot1.build()
+                            //ColorDetect()
                     )
             );
 
@@ -466,8 +502,8 @@ public class redDaniel extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot2.build(),
-                            ColorDetect()
+                            shoot2.build()
+                            //ColorDetect()
                     )
             );
 
@@ -491,141 +527,179 @@ public class redDaniel extends LinearOpMode {
 
     }
 
-    public void shootingSequence(){
-        if (gpp){
-            if (b1+b2+b3 == 4){
-                if (b1 == 2 && b2-b3 == 0){
+    public void shootingSequence() {
+        if (gpp) {
+            if (b1 + b2 + b3 == 4) {
+                if (b1 == 2 && b2 - b3 == 0) {
                     sequence1();
-                } else if (b2 == 2 && b1-b3 == 0){
+                    TELE.addLine("sequence1");
+                } else if (b2 == 2 && b1 - b3 == 0) {
                     sequence3();
-                } else if (b3 == 2 && b1-b2 == 0){
+                    TELE.addLine("sequence3");
+                } else if (b3 == 2 && b1 - b2 == 0) {
                     sequence6();
+                    TELE.addLine("sequence6");
                 } else {
                     sequence1();
+                    TELE.addLine("sequence1");
                 }
-            } else if (b1+b2+b3 >= 5){
-                if (b1 == 2){
+            } else if (b1 + b2 + b3 >= 5) {
+                if (b1 == 2) {
                     sequence1();
-                } else if (b2 == 2){
+                    TELE.addLine("sequence1");
+                } else if (b2 == 2) {
                     sequence3();
-                } else if (b3 == 2){
+                    TELE.addLine("sequence3");
+                } else if (b3 == 2) {
                     sequence6();
+                    TELE.addLine("sequence6");
                 }
             } else {
                 sequence1();
+                TELE.addLine("sequence1");
             }
-        } else if (pgp){
-            if (b1+b2+b3 == 4){
-                if (b1 == 2 && b2-b3 == 0){
+        } else if (pgp) {
+            if (b1 + b2 + b3 == 4) {
+                if (b1 == 2 && b2 - b3 == 0) {
                     sequence3();
-                } else if (b2 == 2 && b1-b3 == 0){
+                    TELE.addLine("sequence3");
+                } else if (b2 == 2 && b1 - b3 == 0) {
                     sequence1();
-                } else if (b3 == 2 && b1-b2 == 0){
+                    TELE.addLine("sequence1");
+                } else if (b3 == 2 && b1 - b2 == 0) {
                     sequence4();
+                    TELE.addLine("sequence4");
                 } else {
                     sequence1();
+                    TELE.addLine("sequence1");
                 }
-            } else if (b1+b2+b3 >= 5){
-                if (b1 == 2){
+            } else if (b1 + b2 + b3 >= 5) {
+                if (b1 == 2) {
                     sequence3();
-                } else if (b2 == 2){
+                    TELE.addLine("sequence3");
+                } else if (b2 == 2) {
                     sequence1();
-                } else if (b3 == 2){
+                    TELE.addLine("sequence1");
+                } else if (b3 == 2) {
                     sequence4();
+                    TELE.addLine("sequence4");
                 }
             } else {
                 sequence3();
+                TELE.addLine("sequence3");
             }
-        } else if (ppg){
-            if (b1+b2+b3 == 4){
-                if (b1 == 2 && b2-b3 == 0){
+        } else if (ppg) {
+            if (b1 + b2 + b3 == 4) {
+                if (b1 == 2 && b2 - b3 == 0) {
                     sequence6();
-                } else if (b2 == 2 && b1-b3 == 0){
+                    TELE.addLine("sequence6");
+                } else if (b2 == 2 && b1 - b3 == 0) {
                     sequence5();
-                } else if (b3 == 2 && b1-b2 == 0){
+                    TELE.addLine("sequence5");
+                } else if (b3 == 2 && b1 - b2 == 0) {
                     sequence1();
+                    TELE.addLine("sequence1");
                 } else {
                     sequence1();
+                    TELE.addLine("sequence1");
                 }
-            } else if (b1+b2+b3 >= 5){
-                if (b1 == 2){
+            } else if (b1 + b2 + b3 >= 5) {
+                if (b1 == 2) {
                     sequence6();
-                } else if (b2 == 2){
+                    TELE.addLine("sequence6");
+                } else if (b2 == 2) {
                     sequence5();
-                } else if (b3 == 2){
+                    TELE.addLine("sequence5");
+                } else if (b3 == 2) {
                     sequence1();
+                    TELE.addLine("sequence1");
                 }
             } else {
                 sequence6();
+                TELE.addLine("sequence6");
             }
         } else {
             sequence1();
+            TELE.addLine("sequence1");
         }
+        TELE.update();
     }
 
-    public void sequence1(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall1),
-                transferOut(),
-                Shoot(spindexer_outtakeBall2),
-                transferOut(),
-                Shoot(spindexer_outtakeBall3),
-                transferOut()
+    public void sequence1() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut()
+                )
         );
     }
 
-    public void sequence2(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall1),
-                transferOut(),
-                Shoot(spindexer_outtakeBall3),
-                transferOut(),
-                Shoot(spindexer_outtakeBall2),
-                transferOut()
+    public void sequence2() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut()
+                )
         );
     }
 
-    public void sequence3(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall2),
-                transferOut(),
-                Shoot(spindexer_outtakeBall1),
-                transferOut(),
-                Shoot(spindexer_outtakeBall3),
-                transferOut()
+    public void sequence3() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut()
+                )
         );
     }
 
-    public void sequence4(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall2),
-                transferOut(),
-                Shoot(spindexer_outtakeBall3),
-                transferOut(),
-                Shoot(spindexer_outtakeBall1),
-                transferOut()
+    public void sequence4() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut()
+                )
         );
     }
 
-    public void sequence5(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall3),
-                transferOut(),
-                Shoot(spindexer_outtakeBall1),
-                transferOut(),
-                Shoot(spindexer_outtakeBall2),
-                transferOut()
+    public void sequence5() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut()
+                )
         );
     }
 
-    public void sequence6(){
-        new SequentialAction(
-                Shoot(spindexer_outtakeBall3),
-                transferOut(),
-                Shoot(spindexer_outtakeBall2),
-                transferOut(),
-                Shoot(spindexer_outtakeBall1),
-                transferOut()
+    public void sequence6() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        Shoot(spindexer_outtakeBall3),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall2),
+                        transferOut(),
+                        Shoot(spindexer_outtakeBall1),
+                        transferOut()
+                )
         );
     }
 }
