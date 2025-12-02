@@ -219,7 +219,7 @@ public class redDaniel extends LinearOpMode {
                 TELE.addLine("transfer");
                 TELE.update();
 
-                if (getRuntime() - transfer > 0.2) {
+                if (getRuntime() - transfer > 0.5) {
                     robot.transferServo.setPosition(transferServo_out);
                     return false;
                 } else {
