@@ -3,9 +3,13 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.goalPose;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
+import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
+import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.scalar;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -370,6 +374,48 @@ public class TeleopV2 extends LinearOpMode {
         if (countWindow == 0) return false; // avoid divide by zero
         return countTrue > countWindow / 2.0; // more than 50% true
     }
+
+    boolean spindexPosEqual(double spindexer) {
+        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
+                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
+    }
+
+    // Fields to keep state across calls
+    private double transferStamp = 0.0;
+    private int ticker = 1;
+
+    public boolean shootTeleop(double spindexer) {
+        // Spin motors
+        robot.spin1.setPosition(spindexer);
+        robot.spin2.setPosition(1 - spindexer);
+
+        // Default transfer position
+        robot.transferServo.setPosition(transferServo_out);
+
+        if (spindexPosEqual(spindexer)) {
+            if (ticker == 1) {
+                transferStamp = getRuntime();
+                ticker++;
+            }
+
+            if (getRuntime() - transferStamp > waitTransfer) {
+                robot.transferServo.setPosition(transferServo_in);
+            } else {
+                robot.transferServo.setPosition(transferServo_out);
+            }
+        } else {
+            robot.transferServo.setPosition(transferServo_out);
+            ticker = 1;
+            transferStamp = getRuntime();
+        }
+
+        TELE.addLine("shooting");
+        TELE.update();
+
+        // Return true while transfer servo hasn't reached "in" position
+        return !transferPosEqual(transferServo_in);
+    }
+
 
 
 
