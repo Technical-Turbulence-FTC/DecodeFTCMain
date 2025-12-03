@@ -1,18 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import static org.firstinspires.ftc.teamcode.constants.Poses.h1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.h2;
-import static org.firstinspires.ftc.teamcode.constants.Poses.h2_b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.h3;
-import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.Poses.x1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.x2;
-import static org.firstinspires.ftc.teamcode.constants.Poses.x2_b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.x3;
-import static org.firstinspires.ftc.teamcode.constants.Poses.y1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.y2;
-import static org.firstinspires.ftc.teamcode.constants.Poses.y2_b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.y3;
+import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 
 import androidx.annotation.NonNull;
@@ -147,20 +135,20 @@ public class Blue extends LinearOpMode {
 
         TrajectoryActionBuilder traj2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
                 .turnTo(Math.toRadians(-135))
-                .strafeToLinearHeading(new Vector2d(x2, -y2), -h2 );
+                .strafeToLinearHeading(new Vector2d(x2b, -y2b), -h2b);
 
 
-        TrajectoryActionBuilder traj3 = drive.actionBuilder(new Pose2d(x2, -y2, -h2))
+        TrajectoryActionBuilder traj3 = drive.actionBuilder(new Pose2d(x2b, -y2b, -h2b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
 
         TrajectoryActionBuilder traj4 = drive.actionBuilder(new Pose2d(x1, y1, h1))
 
-                .strafeToLinearHeading(new Vector2d(x2_b, -y2_b), -h2_b )
+                .strafeToLinearHeading(new Vector2d(x3a, -y3a), -h3a)
 
-                .strafeToLinearHeading(new Vector2d(x3, -y3), -h3 );
+                .strafeToLinearHeading(new Vector2d(x3b, -y3b), -h3b);
 
 
-        TrajectoryActionBuilder traj5 = drive.actionBuilder(new Pose2d(x3, -y3, -h3))
+        TrajectoryActionBuilder traj5 = drive.actionBuilder(new Pose2d(x3b, -y3b, -h3b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
 
 

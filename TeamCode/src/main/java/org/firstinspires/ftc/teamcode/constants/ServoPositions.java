@@ -27,10 +27,10 @@ public class ServoPositions {
 
     public static double hoodLow = 1.0;
 
-    public static double turret_red = 0.3;
+    public static double turret_red = 0.28;
     public static double turret_blue = 0.4;
 
-    public static double turret_detect = 0.15;
+    public static double turret_detect = 0.1;
 
 
 }

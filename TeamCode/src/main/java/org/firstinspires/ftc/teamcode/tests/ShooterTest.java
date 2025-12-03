@@ -231,8 +231,7 @@ public class ShooterTest extends LinearOpMode {
                 powPID = 0;
             }
 
-            robot.shooter1.setPower(powPID);
-            robot.shooter2.setPower(powPID);
+            shooter.setVelocity(powPID);
 
             shooter.update();
 

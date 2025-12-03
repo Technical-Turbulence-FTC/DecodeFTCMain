@@ -3,23 +3,17 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTag;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -27,9 +21,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.utils.Robot;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
-
-
 
 @Config
 @Autonomous
@@ -105,20 +96,20 @@ public class Red extends LinearOpMode {
 
         TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(x1, y1, h1))
                 .turnTo(Math.toRadians(135))
-                .strafeToLinearHeading(new Vector2d(x2, y2), h2 );
+                .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b);
 
 
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(x2, y2, h2))
+        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
 
         TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
 
-                .strafeToLinearHeading(new Vector2d(x2_b, y2_b), h2_b )
+                .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
 
-                .strafeToLinearHeading(new Vector2d(x3, y3), h3 );
+                .strafeToLinearHeading(new Vector2d(x3b, y3b), h3b);
 
 
-        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3, y3, h3))
+        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
 
 

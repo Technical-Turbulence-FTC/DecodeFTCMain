@@ -83,17 +83,13 @@ public class redDaniel extends LinearOpMode {
             double powPID = 0.0;
             double ticker = 0.0;
             double stamp2 = getRuntime();
-            int ticker1 = 0;
-
+            double currentPos = 0.0;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp2 = getRuntime();
                 }
-                ticker1++;
 
                 ticker++;
-
-                double currentPos;
                 if (ticker % 8 == 0) {
                     currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
                     stamp = getRuntime();
@@ -102,11 +98,7 @@ public class redDaniel extends LinearOpMode {
                     stamp1 = stamp;
                 }
 
-                double feed = (double) vel / maxVel;        // Example: vel=2500 → feed=0.5
-
-                if (vel > 500) {
-                    feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
-                }
+                double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
 
                 // --- PROPORTIONAL CORRECTION ---
                 double error = vel - velo;
@@ -122,9 +114,7 @@ public class redDaniel extends LinearOpMode {
                 powPID = Math.max(0, Math.min(1, powPID));
 
                 if (vel - velo > 500) {
-                    powPID = 1;
-                } else if (velo - vel > 500) {
-                    powPID = 0;
+                    powPID = 1.0;
                 }
 
                 robot.shooter1.setPower(powPID);
@@ -133,8 +123,7 @@ public class redDaniel extends LinearOpMode {
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-
-                return !(vel - 100 < velo && vel + 100 > velo) || (getRuntime() - stamp2 < 5.0);
+                 if (vel - 100 < )
             }
         };
     }
@@ -165,7 +154,7 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("23", ppg);
                 TELE.update();
 
-                return !(gpp || pgp || ppg) || getRuntime() - stamp < 5.0;
+                return !gpp || !pgp || !ppg;
             }
         };
     }
@@ -174,55 +163,32 @@ public class redDaniel extends LinearOpMode {
         return new Action() {
             double transferStamp = 0.0;
             int ticker = 1;
-
+            boolean transferIn = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 robot.spin1.setPosition(spindexer);
                 robot.spin2.setPosition(1 - spindexer);
-                robot.transferServo.setPosition(transferServo_out);
+                TELE.addLine("shooting");
+                TELE.update();
                 if (spindexPosEqual(spindexer)) {
                     if (ticker == 1) {
                         transferStamp = getRuntime();
                         ticker++;
                     }
-                    if (getRuntime() - transferStamp > waitTransfer) {
+                    if (getRuntime() - transferStamp > waitTransfer && !transferIn) {
                         robot.transferServo.setPosition(transferServo_in);
-                    } else {
+                        transferIn = true;
+                        return true;
+                    } else if (getRuntime() - transferStamp > waitTransfer+waitTransferOut && transferIn){
                         robot.transferServo.setPosition(transferServo_out);
+                        return false;
+                    } else {
+                        return true;
                     }
                 } else {
                     robot.transferServo.setPosition(transferServo_out);
                     ticker = 1;
                     transferStamp = getRuntime();
-                }
-
-                TELE.addLine("shooting");
-                TELE.update();
-
-                return !(transferPosEqual(transferServo_in));
-            }
-        };
-    }
-
-    public Action transferOut() {
-        return new Action() {
-            double transfer = 0.0;
-            int ticker = 0;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0) {
-                    transfer = getRuntime();
-                }
-                ticker++;
-
-                TELE.addLine("transfer");
-                TELE.update();
-
-                if (getRuntime() - transfer > 0.5) {
-                    robot.transferServo.setPosition(transferServo_out);
-                    return false;
-                } else {
                     return true;
                 }
             }
@@ -304,17 +270,12 @@ public class redDaniel extends LinearOpMode {
                     double gP = green / (green + red + blue);
                     b1Total++;
                     totalStamp1 = getRuntime();
-                    if (gP >= 0.43) {
+                    if (gP >= 0.35) {
                         b1Green++;
                     }
                 }
 
-                if (getRuntime() - totalStamp1 > ColorCounterResetDelay) {
-                    // Too Much time has passed without detecting ball
-                    b1 = 0;
-                    b1Total = 1;
-                    b1Green = 1;
-                } else if ((b1Total > ColorCounterTotalMinCount) &&
+                if ((b1Total > ColorCounterTotalMinCount) &&
                            ((double) b1Green / b1Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b1 = 2;
@@ -333,17 +294,12 @@ public class redDaniel extends LinearOpMode {
 
                     b2Total++;
                     totalStamp2 = getRuntime();
-                    if (gP >= 0.43) {
+                    if (gP >= 0.35) {
                         b2Green++;
                     }
                 }
 
-                if (getRuntime() - totalStamp2 > ColorCounterResetDelay) {
-                    // Too Much time has passed without detecting ball
-                    b2 = 0;
-                    b2Total = 1;
-                    b2Green = 1;
-                } else if ((b2Total > ColorCounterTotalMinCount) &&
+                if ((b2Total > ColorCounterTotalMinCount) &&
                            ((double) b2Green / b2Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b2 = 2;
@@ -352,7 +308,7 @@ public class redDaniel extends LinearOpMode {
                     b2 = 1;
                 }
 
-                if (s3D < 30) {
+                if (s3D < 40) {
 
                     double green = robot.color3.getNormalizedColors().green;
                     double red = robot.color3.getNormalizedColors().red;
@@ -363,17 +319,12 @@ public class redDaniel extends LinearOpMode {
                     b3Total++;
                     totalStamp3 = getRuntime();
 
-                    if (gP >= 0.43) {
+                    if (gP >= 0.35) {
                         b3Green++;
                     }
                 }
 
-                if (getRuntime() - totalStamp3 > ColorCounterResetDelay) {
-                    // Too Much time has passed without detecting ball
-                    b1 = 0;
-                    b3Total = 1;
-                    b3Green = 1;
-                } else if ((b3Total > ColorCounterTotalMinCount) &&
+                if ((b3Total > ColorCounterTotalMinCount) &&
                            ((double) b3Green / b3Total) >= ColorCounterThreshold) {
                     // Enough Time has passed and we met the threshold
                     b3 = 2;
@@ -383,6 +334,12 @@ public class redDaniel extends LinearOpMode {
                 }
 
                 TELE.addLine("Detecting");
+                TELE.addData("Distance 1", s1D);
+                TELE.addData("Distance 2", s2D);
+                TELE.addData("Distance 3", s3D);
+                TELE.addData("B1", b1);
+                TELE.addData("B2", b2);
+                TELE.addData("B3", b3);
                 TELE.update();
 
                 return (b1 + b2 + b3 < 4) || getRuntime() - stamp < 4.0;
@@ -409,19 +366,19 @@ public class redDaniel extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
 
         TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .turnTo(Math.toRadians(h2))
-                .strafeToLinearHeading(new Vector2d(x2, y2), h2);
+                .strafeToLinearHeading(new Vector2d(x2a, y2a), h2a)
+                .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b);
 
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(x2, y2, h2))
+        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
 
         TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
 
-                .strafeToLinearHeading(new Vector2d(x2_b, y2_b), h2_b)
+                .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
 
-                .strafeToLinearHeading(new Vector2d(x3, y3), h3);
+                .strafeToLinearHeading(new Vector2d(x3b, y3b), h3b);
 
-        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3, y3, h3))
+        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
 
         TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(x1, y1, h1))
@@ -472,8 +429,6 @@ public class redDaniel extends LinearOpMode {
 
             robot.turr1.setPosition(turret_red);
             robot.turr2.setPosition(1 - turret_red);
-            robot.spin1.setPosition(spindexer_outtakeBall1);
-            robot.spin2.setPosition(1-spindexer_outtakeBall1);
 
             shootingSequence();
 
@@ -486,8 +441,8 @@ public class redDaniel extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot1.build()
-                            //ColorDetect()
+                            shoot1.build(),
+                            ColorDetect()
                     )
             );
 
@@ -502,8 +457,8 @@ public class redDaniel extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot2.build()
-                            //ColorDetect()
+                            shoot2.build(),
+                            ColorDetect()
                     )
             );
 
@@ -629,11 +584,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall1),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall2),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall3),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall3)
                 )
         );
     }
@@ -642,11 +594,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall1),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall3),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall2),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall2)
                 )
         );
     }
@@ -655,11 +604,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall2),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall1),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall3),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall3)
                 )
         );
     }
@@ -668,11 +614,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall2),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall3),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall1),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall1)
                 )
         );
     }
@@ -681,11 +624,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall3),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall1),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall2),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall2)
                 )
         );
     }
@@ -694,11 +634,8 @@ public class redDaniel extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         Shoot(spindexer_outtakeBall3),
-                        transferOut(),
                         Shoot(spindexer_outtakeBall2),
-                        transferOut(),
-                        Shoot(spindexer_outtakeBall1),
-                        transferOut()
+                        Shoot(spindexer_outtakeBall1)
                 )
         );
     }
