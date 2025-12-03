@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.goalPose;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 
@@ -35,6 +36,9 @@ public class TeleopV2 extends LinearOpMode {
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
     List<Double> s3G = new ArrayList<>();
+    List<Double> s1T = new ArrayList<>();
+    List<Double> s2T = new ArrayList<>();
+    List<Double> s3T = new ArrayList<>();
     List<Boolean> s1 = new ArrayList<>();
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
@@ -45,6 +49,8 @@ public class TeleopV2 extends LinearOpMode {
     private double velo1, velo;
     private double stamp1, stamp, initPos;
     private boolean shootAll = false;
+
+    boolean shoot1 = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -89,7 +95,15 @@ public class TeleopV2 extends LinearOpMode {
                 intake = true;
             }
 
+            if (gamepad1.leftBumperWasPressed()) {
+                intake = false;
+            }
+
             if (intake) {
+
+                robot.transferServo.setPosition(transferServo_out);
+
+
                 robot.intake.setPower(1);
 
                 double position;
@@ -133,6 +147,9 @@ public class TeleopV2 extends LinearOpMode {
                 } else {
                     s1.add(false);
                 }
+
+                s1T.add(getRuntime());
+
             }
 
             if (s2D < 40) {
@@ -150,6 +167,8 @@ public class TeleopV2 extends LinearOpMode {
                 } else {
                     s2.add(false);
                 }
+
+                s2T.add(getRuntime());
             }
 
             if (s3D < 30) {
@@ -167,6 +186,8 @@ public class TeleopV2 extends LinearOpMode {
                 } else {
                     s3.add(false);
                 }
+
+                s3T.add(getRuntime());
             }
 
             boolean green1 = false;
@@ -174,13 +195,12 @@ public class TeleopV2 extends LinearOpMode {
             boolean green3 = false;
 
             if (!s1.isEmpty()) {
-                green1 = s1.get(s1.size() - 1);
+                green1 = checkGreen(s1, s1T);
             }
             if (!s2.isEmpty()) {
-                green2 = s2.get(s2.size() - 1);
-            }
+                green2 = checkGreen(s2, s2T);
             if (!s3.isEmpty()) {
-                green3 = s3.get(s3.size() - 1);
+                green3 = checkGreen(s3, s3T);            }
             }
 
             //SHOOTER:
@@ -203,6 +223,7 @@ public class TeleopV2 extends LinearOpMode {
                 feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
             }
 
+
             // --- PROPORTIONAL CORRECTION ---
             double error = vel - velo1;
             double correction = kP * error;
@@ -222,10 +243,18 @@ public class TeleopV2 extends LinearOpMode {
                 powPID = 0;
             }
 
+            TELE.addData("PIDPower", powPID);
+
+            TELE.addData("vel", velo1);
+
+
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
+            robot.transfer.setPower(1);
+
             robot.hood.setPosition(hood);
+
 
             //TODO: ADD CODE TO CHANGE VARIABLE VEL BASED ON POSITION
 
@@ -240,6 +269,8 @@ public class TeleopV2 extends LinearOpMode {
             if (shootAll) {
                 intake = false;
                 reject = false;
+
+                if (robot.)
 
             }
 
@@ -256,18 +287,22 @@ public class TeleopV2 extends LinearOpMode {
             double dx = goalX - robotX;  // delta x from robot to goal
             double dy = goalY - robotY;  // delta y from robot to goal
 
-            double angleRad = Math.atan2(dy, dx);
 
 
             desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
 
-            offset = desiredTurretAngle - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
+            offset = desiredTurretAngle - 180 - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
+
+
 
             if (offset > 90) {
                 offset -= 360;
             }
 
             double pos = 0.3;
+
+            TELE.addData("offset", offset);
+
 
             pos -= offset * (0.9 / 360);
 
@@ -277,10 +312,23 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.91;
             }
 
+
+
             robot.turr1.setPosition(pos);
             robot.turr2.setPosition(1 - pos);
 
+            //SPINDEXER:
+
+            if (gamepad2.squareWasPressed()){
+                shoot1 = true;
+            }
+
+
+
+
+
             //MISC:
+
 
             drive.updatePoseEstimate();
 
@@ -301,4 +349,28 @@ public class TeleopV2 extends LinearOpMode {
 
         }
     }
+
+    // Helper method
+    private boolean checkGreen(List<Boolean> s, List<Double> sT) {
+        if (s.isEmpty()) return false;
+
+        double lastTime = sT.get(sT.size() - 1);
+        int countTrue = 0;
+        int countWindow = 0;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (lastTime - sT.get(i) <= 3.0) {  // element is within 2s of last
+                countWindow++;
+                if (s.get(i)) {
+                    countTrue++;
+                }
+            }
+        }
+
+        if (countWindow == 0) return false; // avoid divide by zero
+        return countTrue > countWindow / 2.0; // more than 50% true
+    }
+
+
+
 }
