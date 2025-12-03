@@ -84,6 +84,7 @@ public class redDaniel extends LinearOpMode {
             double ticker = 0.0;
             double stamp2 = 0.0;
             double currentPos = 0.0;
+            boolean steady = false;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp2 = getRuntime();
@@ -123,8 +124,12 @@ public class redDaniel extends LinearOpMode {
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-                 if (vel - 100 < velo && getRuntime() - stamp2 > 3.0){
-                     TELE.addLine("finish velo");
+                 if (vel < velo && getRuntime() - stamp2 > 3.0 && !steady){
+                     steady = true;
+                     stamp2 = getRuntime();
+                     return true;
+                 } else if (steady && getRuntime() - stamp2 > 1.0){
+                     TELE.addLine("finished init");
                      TELE.update();
                      return false;
                  } else {
