@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.constants.Poses.goalPose;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
@@ -8,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -244,6 +246,20 @@ public class TeleopV2 extends LinearOpMode {
             //TURRET:
 
             double offset;
+
+            double robotX = drive.localizer.getPose().position.x;
+            double robotY = drive.localizer.getPose().position.y;
+
+            double goalX = -10;
+            double goalY = 0;
+
+            double dx = goalX - robotX;  // delta x from robot to goal
+            double dy = goalY - robotY;  // delta y from robot to goal
+
+            double angleRad = Math.atan2(dy, dx);
+
+
+            desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
 
             offset = desiredTurretAngle - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
 

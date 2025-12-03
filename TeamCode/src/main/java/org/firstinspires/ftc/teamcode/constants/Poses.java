@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.constants;
 
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 
@@ -19,11 +18,11 @@ public class Poses {
 
     public static double x2_b = 58, y2_b = 42, h2_b = Math.toRadians(140);
 
-
     public static double x3 = 34, y3 = 58, h3 = Math.toRadians(140);
 
-    public static Pose2d teleStart = new Pose2d(x1,-10,0);
+    public static double tx = 0, ty = 0, th = 0;
+    public static Pose2d teleStart = new Pose2d(tx, ty, th);
 
-
+    public static Pose2d goalPose = new Pose2d(-15, 0, 0);
 
 }
