@@ -38,9 +38,9 @@ public class redDaniel extends LinearOpMode {
 
     AprilTagWebcam aprilTag;
 
-    public static double intake1Time = 7.0;
+    public static double intake1Time = 4.0;
 
-    public static double intake2Time = 8.0;
+    public static double intake2Time = 6.0;
 
     boolean gpp = false;
 
@@ -82,7 +82,7 @@ public class redDaniel extends LinearOpMode {
             double stamp1 = 0.0;
             double powPID = 0.0;
             double ticker = 0.0;
-            double stamp2 = getRuntime();
+            double stamp2 = 0.0;
             double currentPos = 0.0;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -123,7 +123,13 @@ public class redDaniel extends LinearOpMode {
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-                 if (vel - 100 < )
+                 if (vel - 100 < velo && getRuntime() - stamp2 > 3.0){
+                     TELE.addLine("finish velo");
+                     TELE.update();
+                     return false;
+                 } else {
+                     return true;
+                 }
             }
         };
     }
@@ -154,7 +160,7 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("23", ppg);
                 TELE.update();
 
-                return !gpp || !pgp || !ppg;
+                return !gpp && !pgp && !ppg;
             }
         };
     }
@@ -247,6 +253,7 @@ public class redDaniel extends LinearOpMode {
             double totalStamp3 = 0.0;
             double stamp = 0.0;
             int ticker = 0;
+            double position = 0.0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -256,6 +263,14 @@ public class redDaniel extends LinearOpMode {
                     totalStamp3 = getRuntime();
                 }
                 ticker++;
+
+                if ((getRuntime() % 0.3) > 0.15) {
+                    position = spindexer_intakePos1 + 0.02;
+                } else {
+                    position = spindexer_intakePos1 - 0.02;
+                }
+                robot.spin1.setPosition(position);
+                robot.spin2.setPosition(1 - position);
 
                 double s1D = robot.color1.getDistance(DistanceUnit.MM);
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
@@ -342,7 +357,11 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("B3", b3);
                 TELE.update();
 
-                return (b1 + b2 + b3 < 4) || getRuntime() - stamp < 4.0;
+                if ((b1 + b2 + b3 >= 4) || getRuntime() - stamp > 4.0){
+                    return false;
+                } else {
+                    return true;
+                }
             }
         };
     }

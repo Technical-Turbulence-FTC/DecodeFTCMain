@@ -19,5 +19,5 @@ public class ShooterVars {
     public static double maxStep = 0.06;         // prevents sudden jumps
 
     // VELOCITY CONSTANTS
-    public static int AUTO_CLOSE_VEL = 2500;
+    public static int AUTO_CLOSE_VEL = 3000;
 }
