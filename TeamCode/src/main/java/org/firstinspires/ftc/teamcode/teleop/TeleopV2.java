@@ -271,42 +271,6 @@ public class TeleopV2 extends LinearOpMode {
             robot.hood.setPosition(hood);
 
 
-            //TODO: ADD CODE TO CHANGE VARIABLE VEL BASED ON POSITION
-
-            //TODO: ADD CODE TO CHANGE VARIABLE HOOD ANGLE BASED ON POSITION
-
-            //SHOOT ALL:
-
-            if (gamepad2.rightBumperWasPressed()) {
-                shootAll = true;
-            }
-
-            if (shootAll) {
-                intake = false;
-                reject = false;
-
-
-
-
-                if (shootA) {
-                    shootA = shootTeleop(spindexer_outtakeBall3);
-                    TELE.addData("shootA", shootA);
-                } else if (shootB) {
-                    shootB = shootTeleop(spindexer_outtakeBall2);
-                    TELE.addData("shootB", shootB);
-                } else if (shootC) {
-                    shootC = shootTeleop(spindexer_outtakeBall1);
-                    TELE.addData("shootC", shootC);
-
-                } else {
-                    robot.spin1.setPosition(spindexer_intakePos1);
-                    robot.spin2.setPosition(1 - spindexer_intakePos1);
-                    shootAll = false;
-                }
-
-
-            }
-
             //TURRET:
 
             double offset;
@@ -319,6 +283,8 @@ public class TeleopV2 extends LinearOpMode {
 
             double dx = goalX - robotX;  // delta x from robot to goal
             double dy = goalY - robotY;  // delta y from robot to goal
+
+            double distanceToGoal = Math.sqrt (dx*dx +dy*dy);
 
 
 
@@ -350,6 +316,55 @@ public class TeleopV2 extends LinearOpMode {
             robot.turr1.setPosition(pos);
             robot.turr2.setPosition(1 - pos);
 
+            if (autoVel){
+                vel = 2000 + distanceToGoal * 12;
+            } else {
+
+            }
+
+
+
+
+
+
+            //TODO: ADD CODE TO CHANGE VARIABLE HOOD ANGLE BASED ON POSITION
+
+            //SHOOT ALL:
+
+            if (gamepad2.rightBumperWasPressed()) {
+                shootAll = true;
+            }
+
+            if (shootAll) {
+                intake = false;
+                reject = false;
+
+
+
+
+                if (shootA) {
+                    shootA = shootTeleop(spindexer_outtakeBall3);
+                    TELE.addData("shootA", shootA);
+                } else if (shootB) {
+                    shootB = shootTeleop(spindexer_outtakeBall2);
+                    TELE.addData("shootB", shootB);
+                } else if (shootC) {
+                    shootC = shootTeleop(spindexer_outtakeBall1);
+                    TELE.addData("shootC", shootC);
+
+                } else {
+                    robot.spin1.setPosition(spindexer_intakePos1);
+                    robot.spin2.setPosition(1 - spindexer_intakePos1);
+                    shootA = true;
+                    shootB = true;
+                    shootC = true;
+                    shootAll = false;
+                }
+
+
+            }
+
+
             //SPINDEXER:
 
             if (gamepad2.squareWasPressed()){
@@ -375,6 +390,8 @@ public class TeleopV2 extends LinearOpMode {
 
             TELE.addData("pose", drive.localizer.getPose());
             TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
+            TELE.addData("distanceToGoal", distanceToGoal);
+
 
             TELE.update();
 
@@ -456,6 +473,7 @@ public class TeleopV2 extends LinearOpMode {
             return true; // still moving spin
         }
     }
+
 
 
 
