@@ -3,9 +3,13 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.goalPose;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransferOut;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
@@ -55,6 +59,13 @@ public class TeleopV2 extends LinearOpMode {
     private boolean shootAll = false;
 
     boolean shoot1 = false;
+
+
+    // Make these class-level flags
+    boolean shootA = true;
+    boolean shootB = true;
+    boolean shootC = true;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -274,7 +285,25 @@ public class TeleopV2 extends LinearOpMode {
                 intake = false;
                 reject = false;
 
-                if (robot.)
+
+
+
+                if (shootA) {
+                    shootA = shootTeleop(spindexer_outtakeBall3);
+                    TELE.addData("shootA", shootA);
+                } else if (shootB) {
+                    shootB = shootTeleop(spindexer_outtakeBall2);
+                    TELE.addData("shootB", shootB);
+                } else if (shootC) {
+                    shootC = shootTeleop(spindexer_outtakeBall1);
+                    TELE.addData("shootC", shootC);
+
+                } else {
+                    robot.spin1.setPosition(spindexer_intakePos1);
+                    robot.spin2.setPosition(1 - spindexer_intakePos1);
+                    shootAll = false;
+                }
+
 
             }
 
@@ -380,40 +409,52 @@ public class TeleopV2 extends LinearOpMode {
                 scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
     }
 
-    // Fields to keep state across calls
     private double transferStamp = 0.0;
-    private int ticker = 1;
+    private int tickerA = 1;
+    private boolean transferIn = false;
 
     public boolean shootTeleop(double spindexer) {
-        // Spin motors
+        // Set spin positions
         robot.spin1.setPosition(spindexer);
         robot.spin2.setPosition(1 - spindexer);
 
-        // Default transfer position
-        robot.transferServo.setPosition(transferServo_out);
 
+        // Check if spindexer has reached the target position
         if (spindexPosEqual(spindexer)) {
-            if (ticker == 1) {
+            if (tickerA == 1) {
                 transferStamp = getRuntime();
-                ticker++;
+                tickerA++;
+                TELE.addLine("tickerSet");
             }
 
-            if (getRuntime() - transferStamp > waitTransfer) {
+            if (getRuntime() - transferStamp > waitTransfer && !transferIn) {
                 robot.transferServo.setPosition(transferServo_in);
-            } else {
+                transferIn = true;
+                TELE.addLine("transferring");
+
+                return true; // still in progress
+
+            } else if (getRuntime() - transferStamp > waitTransfer + waitTransferOut && transferIn) {
                 robot.transferServo.setPosition(transferServo_out);
+                transferIn = false; // reset for next shot
+                tickerA = 1;        // reset ticker
+                transferStamp = 0.0;
+
+                TELE.addLine("shotFinished");
+
+
+                return false;       // finished shooting
+            } else {
+                TELE.addLine("sIP");
+                return true; // still in progress
             }
         } else {
             robot.transferServo.setPosition(transferServo_out);
-            ticker = 1;
+            tickerA = 1;
             transferStamp = getRuntime();
+            transferIn = false;
+            return true; // still moving spin
         }
-
-        TELE.addLine("shooting");
-        TELE.update();
-
-        // Return true while transfer servo hasn't reached "in" position
-        return !transferPosEqual(transferServo_in);
     }
 
 

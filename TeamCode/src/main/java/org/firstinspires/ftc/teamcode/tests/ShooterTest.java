@@ -16,9 +16,9 @@ public class ShooterTest extends LinearOpMode {
     public static int mode = 0;
     public static double parameter = 0.0;
     // --- CONSTANTS YOU TUNE ---
-    public static double MAX_RPM = 2500;      // your measured max RPM
-    public static double kP = 0.01;           // small proportional gain (tune this)
-    public static double maxStep = 0.2;         // prevents sudden jumps
+    public static double MAX_RPM = 4500;      // your measured max RPM
+    public static double kP = 0.001;           // small proportional gain (tune this)
+    public static double maxStep = 0.06;         // prevents sudden jumps
 
     //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
     public static double transferPower = 0.0;
