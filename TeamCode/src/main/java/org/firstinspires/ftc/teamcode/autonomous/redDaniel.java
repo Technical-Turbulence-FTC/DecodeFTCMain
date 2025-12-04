@@ -298,7 +298,6 @@ public class redDaniel extends LinearOpMode {
 
                     double gP = green / (green + red + blue);
                     b1Total++;
-                    totalStamp1 = getRuntime();
                     if (gP >= 0.35) {
                         b1Green++;
                     }
@@ -322,7 +321,6 @@ public class redDaniel extends LinearOpMode {
                     double gP = green / (green + red + blue);
 
                     b2Total++;
-                    totalStamp2 = getRuntime();
                     if (gP >= 0.35) {
                         b2Green++;
                     }
@@ -346,7 +344,6 @@ public class redDaniel extends LinearOpMode {
                     double gP = green / (green + red + blue);
 
                     b3Total++;
-                    totalStamp3 = getRuntime();
 
                     if (gP >= 0.35) {
                         b3Green++;
@@ -371,7 +368,7 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("B3", b3);
                 TELE.update();
 
-                if ((b1 + b2 + b3 >= 4) || getRuntime() - stamp > 3.5){
+                if ((b1 + b2 + b3 >= 4) || getRuntime() - stamp > colorDetect){
                     return false;
                 } else {
                     return true;
