@@ -42,11 +42,15 @@ public class redDaniel extends LinearOpMode {
 
     public static double intake2Time = 6.0;
 
+    public static double colorDetect = 3.0;
+
     boolean gpp = false;
 
     boolean pgp = false;
 
     boolean ppg = false;
+
+    double powPID = 0.0;
 
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
 
@@ -80,7 +84,6 @@ public class redDaniel extends LinearOpMode {
             double initPos = 0.0;
             double stamp = 0.0;
             double stamp1 = 0.0;
-            double powPID = 0.0;
             double ticker = 0.0;
             double stamp2 = 0.0;
             double currentPos = 0.0;
@@ -91,7 +94,7 @@ public class redDaniel extends LinearOpMode {
                 }
 
                 ticker++;
-                if (ticker % 8 == 0) {
+                if (ticker % 16 == 0) {
                     currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
                     stamp = getRuntime();
                     velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
@@ -99,23 +102,23 @@ public class redDaniel extends LinearOpMode {
                     stamp1 = stamp;
                 }
 
-                double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
-
-                // --- PROPORTIONAL CORRECTION ---
-                double error = vel - velo;
-                double correction = kP * error;
-
-                // limit how fast power changes (prevents oscillation)
-                correction = Math.max(-maxStep, Math.min(maxStep, correction));
-
-                // --- FINAL MOTOR POWER ---
-                powPID = feed + correction;
-
-                // clamp to allowed range
-                powPID = Math.max(0, Math.min(1, powPID));
-
                 if (vel - velo > 500) {
                     powPID = 1.0;
+                } else {
+                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+
+                    // --- PROPORTIONAL CORRECTION ---
+                    double error = vel - velo;
+                    double correction = kP * error;
+
+                    // limit how fast power changes (prevents oscillation)
+                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+                    // --- FINAL MOTOR POWER ---
+                    powPID = feed + correction;
+
+                    // clamp to allowed range
+                    powPID = Math.max(0, Math.min(1, powPID));
                 }
 
                 robot.shooter1.setPower(powPID);
@@ -128,7 +131,7 @@ public class redDaniel extends LinearOpMode {
                      steady = true;
                      stamp2 = getRuntime();
                      return true;
-                 } else if (steady && getRuntime() - stamp2 > 1.0){
+                 } else if (steady && getRuntime() - stamp2 > 2.0){
                      TELE.addLine("finished init");
                      TELE.update();
                      return false;
@@ -165,7 +168,13 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("23", ppg);
                 TELE.update();
 
-                return !gpp && !pgp && !ppg;
+                if (gpp || pgp || ppg){
+                    robot.turr1.setPosition(turret_red);
+                    robot.turr2.setPosition(1 - turret_red);
+                    return false;
+                } else {
+                    return true;
+                }
             }
         };
     }
@@ -362,7 +371,7 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("B3", b3);
                 TELE.update();
 
-                if ((b1 + b2 + b3 >= 4) || getRuntime() - stamp > 4.0){
+                if ((b1 + b2 + b3 >= 4) || getRuntime() - stamp > 3.5){
                     return false;
                 } else {
                     return true;
@@ -406,7 +415,7 @@ public class redDaniel extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
 
         TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .strafeToLinearHeading(new Vector2d(x1, y1 + 30), h1);
+                .strafeToLinearHeading(new Vector2d(x1, y1 - 30), h1);
 
         aprilTag.init(robot, TELE);
 
@@ -422,8 +431,8 @@ public class redDaniel extends LinearOpMode {
 
             robot.hood.setPosition(hoodDefault);
 
-            robot.turr1.setPosition(turret_detect);
-            robot.turr2.setPosition(1 - turret_detect);
+            robot.turr1.setPosition(turret_detectRed);
+            robot.turr2.setPosition(1 - turret_detectRed);
 
             robot.transferServo.setPosition(transferServo_out);
 
@@ -441,7 +450,7 @@ public class redDaniel extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            robot.hood.setPosition(hoodDefault);
+            robot.hood.setPosition(hoodStart);
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -451,10 +460,12 @@ public class redDaniel extends LinearOpMode {
                     )
             );
 
-            robot.turr1.setPosition(turret_red);
-            robot.turr2.setPosition(1 - turret_red);
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
 
             shootingSequence();
+
+            robot.hood.setPosition(hoodDefault);
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -469,6 +480,9 @@ public class redDaniel extends LinearOpMode {
                             ColorDetect()
                     )
             );
+
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
 
             shootingSequence();
 
@@ -485,6 +499,9 @@ public class redDaniel extends LinearOpMode {
                             ColorDetect()
                     )
             );
+
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
 
             shootingSequence();
 
