@@ -34,7 +34,9 @@ import java.util.List;
 @Config
 public class TeleopV2 extends LinearOpMode {
 
-    public static double vel = 3000;
+    public double vel = 3000;
+    public static double manualVel = 3000;
+    public boolean autoVel = true;
     public static double hood = 0.5;
     Robot robot;
     MultipleTelemetry TELE;
@@ -65,6 +67,10 @@ public class TeleopV2 extends LinearOpMode {
     boolean shootA = true;
     boolean shootB = true;
     boolean shootC = true;
+
+    public static double velMultiplier = 20;
+
+    public double manualOffset = 0.0;
 
 
     @Override
@@ -288,7 +294,10 @@ public class TeleopV2 extends LinearOpMode {
 
 
 
+
             desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
+
+            desiredTurretAngle += manualOffset;
 
             offset = desiredTurretAngle - 180 - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
 
@@ -311,15 +320,33 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.91;
             }
 
-
-
             robot.turr1.setPosition(pos);
             robot.turr2.setPosition(1 - pos);
 
-            if (autoVel){
-                vel = 2000 + distanceToGoal * 12;
-            } else {
+            if (gamepad2.dpad_right){
+                manualOffset += 4;
+            } else if (gamepad2.dpad_left){
+                manualOffset -=4;
+            }
 
+            //VELOCITY AUTOMATIC
+
+            if (autoVel){
+                vel = velPrediction(distanceToGoal)
+            } else {
+                vel = manualVel;
+            }
+
+            if (gamepad2.right_stick_button){
+                autoVel = true;
+            } else if (Math.abs(gamepad2.right_stick_y) > 0.5 ){
+                vel -= gamepad2.right_stick_y * velMultiplier;
+            }
+
+            //HOOD:
+
+            if (autoHood) {
+                hood
             }
 
 
@@ -472,6 +499,17 @@ public class TeleopV2 extends LinearOpMode {
             transferIn = false;
             return true; // still moving spin
         }
+    }
+
+    public static double velPrediction(double distance) {
+
+        double x = Math.sqrt(distance * distance + 24 * 24);
+
+        double A = -211149.992;
+        double B = -1.19943;
+        double C = 3720.15909;
+
+        return A * Math.pow(x, B) + C;
     }
 
 
