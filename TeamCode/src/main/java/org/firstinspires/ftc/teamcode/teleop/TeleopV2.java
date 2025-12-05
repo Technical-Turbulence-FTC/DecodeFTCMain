@@ -69,6 +69,7 @@ public class TeleopV2 extends LinearOpMode {
     boolean shootA = true;
     boolean shootB = true;
     boolean shootC = true;
+    boolean manualTurret = false;
 
     public boolean green1 = false;
     public boolean green2 = false;
@@ -338,6 +339,10 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.97;
             }
 
+            if (manualTurret){
+                pos = 0.4 + (manualOffset/100);
+            }
+
             robot.turr1.setPosition(pos);
             robot.turr2.setPosition(1 - pos);
 
@@ -346,6 +351,8 @@ public class TeleopV2 extends LinearOpMode {
             } else if (gamepad2.dpad_left) {
                 manualOffset += 2;
             }
+
+        
 
             //VELOCITY AUTOMATIC
 
@@ -387,8 +394,18 @@ public class TeleopV2 extends LinearOpMode {
                 hoodOffset += 0.03;
             }
 
-            if (gamepad2.leftStickButtonWasPressed()) {
-                autoHood = !autoHood;
+            if (gamepad2.left_stick_x>0.5){
+                manualTurret = false;
+            } else if (gamepad2.left_stick_x<-0.5){
+                manualTurret = true;
+                manualOffset = 0;
+            }
+
+            if (gamepad2.left_stick_y<-0.5){
+                autoHood = true;
+            } else if (gamepad2.;eft_stick_y>0.5){
+                autoHood = false;
+                hoodOffset = 0;
             }
 
             //SHOOT ALL:
@@ -399,7 +416,6 @@ public class TeleopV2 extends LinearOpMode {
                 TELE.addData("100% works",shootOrder);
                 TELE.update();
 
-                sleep (1500);
 
 
 
@@ -455,6 +471,8 @@ public class TeleopV2 extends LinearOpMode {
                     shootA = true;
                     shootB = true;
                     shootC = true;
+                    reject = false;
+                    intake = true;
                     shootAll = false;
                 }
 
@@ -499,7 +517,6 @@ public class TeleopV2 extends LinearOpMode {
                 if (square) {
                     // Odd ball first
                     addOddThenRest(shootOrder, oddBallColor);
-                    sleep (5000);
 
                 } else if (triangle) {
                     // Odd ball second
