@@ -88,22 +88,6 @@ public class TeleopV2 extends LinearOpMode {
     public boolean square = false;
     public boolean triangle = false;
 
-    public static double velPrediction(double distance) {
-
-        if (distance < 40) {
-            return 2650;
-        } else if (distance > 120) {
-            if (distance > 160) {
-                return 4200;
-            }
-            return 3600;
-        } else {
-            // linear interpolation between 40->2650 and 120->3600
-            double slope = (3600.0 - 2650.0) / (120.0 - 40.0);
-            return (int) Math.round(2650 + slope * (distance - 40));
-        }
-
-    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -350,8 +334,8 @@ public class TeleopV2 extends LinearOpMode {
 
             if (pos < 0.02) {
                 pos = 0.02;
-            } else if (pos > 0.91) {
-                pos = 0.91;
+            } else if (pos > 0.97) {
+                pos = 0.97;
             }
 
             robot.turr1.setPosition(pos);
@@ -724,5 +708,23 @@ public class TeleopV2 extends LinearOpMode {
         }
         return false; // default
     }
+
+        public static double velPrediction(double distance) {
+
+        if (distance < 30) {
+            return 2750;
+        } else if (distance > 100) {
+            if (distance > 160) {
+                return 4200;
+            }
+            return 3700;
+        } else {
+            // linear interpolation between 40->2650 and 120->3600
+            double slope = (3700.0 - 2750.0) / (100.0 - 30);
+            return (int) Math.round(2750 + slope * (distance - 30));
+        }
+
+    }
+
 
 }
