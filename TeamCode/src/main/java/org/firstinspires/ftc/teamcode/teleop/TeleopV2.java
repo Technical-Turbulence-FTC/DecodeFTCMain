@@ -17,6 +17,10 @@ import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.sca
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -55,6 +59,9 @@ public class TeleopV2 extends LinearOpMode {
     List<Boolean> s1 = new ArrayList<>();
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
+
+    boolean oddBallColor = false;
+
     MecanumDrive drive;
     double hoodOffset = 0.0;
     boolean shoot1 = false;
@@ -76,6 +83,10 @@ public class TeleopV2 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+    public double shootStamp = 0.0;
+    public boolean circle = false;
+    public boolean square = false;
+    public boolean triangle = false;
 
     public static double velPrediction(double distance) {
 
@@ -110,35 +121,48 @@ public class TeleopV2 extends LinearOpMode {
 
         drive = new MecanumDrive(hardwareMap, teleStart);
 
+        Pose2d shootPos = teleStart;
+
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()) {
 
             //DRIVETRAIN:
 
-            double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
-            double rx = gamepad1.left_stick_x;
 
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+                double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
+                double x = gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
+                double rx = gamepad1.left_stick_x;
 
-            robot.frontLeft.setPower(frontLeftPower);
-            robot.backLeft.setPower(backLeftPower);
-            robot.frontRight.setPower(frontRightPower);
-            robot.backRight.setPower(backRightPower);
+                double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+                double frontLeftPower = (y + x + rx) / denominator;
+                double backLeftPower = (y - x + rx) / denominator;
+                double frontRightPower = (y - x - rx) / denominator;
+                double backRightPower = (y + x - rx) / denominator;
+
+
+
+                    robot.frontLeft.setPower(frontLeftPower);
+                    robot.backLeft.setPower(backLeftPower);
+                    robot.frontRight.setPower(frontRightPower);
+                    robot.backRight.setPower(backRightPower);
+
+
 
             //INTAKE:
 
             if (gamepad1.rightBumperWasPressed()) {
-                intake = true;
+                intake = !intake;
+                reject = false;
+                shootAll = false;
+
             }
 
             if (gamepad1.leftBumperWasPressed()) {
                 intake = false;
+                reject = true;
+                shootAll = false;
+
             }
 
             if (intake) {
@@ -237,10 +261,12 @@ public class TeleopV2 extends LinearOpMode {
             }
             if (!s2.isEmpty()) {
                 green2 = checkGreen(s2, s2T);
-                if (!s3.isEmpty()) {
-                    green3 = checkGreen(s3, s3T);
-                }
+
             }
+            if (!s3.isEmpty()) {
+                green3 = checkGreen(s3, s3T);
+            }
+
 
             //SHOOTER:
 
@@ -290,6 +316,7 @@ public class TeleopV2 extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
+
             //TURRET:
 
             double offset;
@@ -331,9 +358,9 @@ public class TeleopV2 extends LinearOpMode {
             robot.turr2.setPosition(1 - pos);
 
             if (gamepad2.dpad_right) {
-                manualOffset -= 4;
+                manualOffset -= 2;
             } else if (gamepad2.dpad_left) {
-                manualOffset += 4;
+                manualOffset += 2;
             }
 
             //VELOCITY AUTOMATIC
@@ -346,9 +373,20 @@ public class TeleopV2 extends LinearOpMode {
 
             if (gamepad2.right_stick_button) {
                 autoVel = true;
-            } else if (Math.abs(gamepad2.right_stick_y) > 0.5) {
+            } else if (gamepad2.right_stick_y < -0.5) {
                 autoVel = false;
-                manualVel -= gamepad2.right_stick_y * velMultiplier;
+                manualVel = 4100;
+            } else if (gamepad2.right_stick_y > 0.5) {
+                autoVel = false;
+                manualVel = 2700;
+            }
+            else if (gamepad2.right_stick_x > 0.5) {
+                autoVel = false;
+                manualVel = 3600;
+            }
+            else if (gamepad2.right_stick_x < -0.5) {
+                autoVel = false;
+                manualVel = 3100;
             }
 
             //HOOD:
@@ -374,7 +412,11 @@ public class TeleopV2 extends LinearOpMode {
 
             if (shootAll) {
 
-                TELE.addData("works","w");
+                TELE.addData("100% works",shootOrder);
+                TELE.update();
+
+                sleep (1500);
+
 
 
 
@@ -382,25 +424,38 @@ public class TeleopV2 extends LinearOpMode {
                 intake = false;
                 reject = false;
 
-                if (!shootOrder.isEmpty()) {
+                if (!shootOrder.isEmpty() && (getRuntime()-shootStamp < 10)) {
                     int currentSlot = shootOrder.get(0); // Peek, do NOT remove yet
                     boolean shootingDone = false;
 
                     switch (currentSlot) {
                         case 1:
-                            shootA = shootTeleop(spindexer_outtakeBall3);
+                            shootA = shootTeleop(spindexer_outtakeBall1);
                             TELE.addData("shootA", shootA);
-                            shootingDone = !shootA; // shootA is false when done
+
+                            if ((getRuntime()- shootStamp) < 3* (4-shootOrder.size())){
+                            shootingDone = !shootA;
+                            } else {
+                                shootingDone = true;
+                            }
                             break;
                         case 2:
                             shootB = shootTeleop(spindexer_outtakeBall2);
                             TELE.addData("shootB", shootB);
-                            shootingDone = !shootB;
+                            if ((getRuntime()- shootStamp) < 3* (4-shootOrder.size())){
+                                shootingDone = !shootB;
+                            } else {
+                                shootingDone = true;
+                            }
                             break;
                         case 3:
-                            shootC = shootTeleop(spindexer_outtakeBall1);
+                            shootC = shootTeleop(spindexer_outtakeBall3);
                             TELE.addData("shootC", shootC);
-                            shootingDone = !shootC;
+                            if ((getRuntime()- shootStamp) < 3* (4-shootOrder.size())){
+                                shootingDone = !shootC;
+                            } else {
+                                shootingDone = true;
+                            }
                             break;
                     }
 
@@ -419,11 +474,30 @@ public class TeleopV2 extends LinearOpMode {
                     shootAll = false;
                 }
 
-                TELE.update();
 
             }
 
-            if (gamepad2.squareWasPressed() || gamepad2.triangleWasPressed() || gamepad2.circleWasPressed()) {
+            if (gamepad2.squareWasPressed()){
+                square = true;
+                shootStamp = getRuntime();
+            }
+
+
+            if (gamepad2.circleWasPressed()){
+                circle = true;
+                shootStamp = getRuntime();
+
+            }
+
+
+            if (gamepad2.triangleWasPressed()){
+                triangle = true;
+                shootStamp = getRuntime();
+
+            }
+
+
+            if (square || circle || triangle) {
 
                 // Count green balls
                 int greenCount = 0;
@@ -432,36 +506,50 @@ public class TeleopV2 extends LinearOpMode {
                 if (green3) greenCount++;
 
                 // Determine the odd ball color
-                boolean oddBallColor = greenCount < 2; // true = green, false = purple
+                oddBallColor = greenCount < 2; // true = green, false = purple
 
                 shootOrder.clear();
 
                 // Determine shooting order based on button pressed
                 // square = odd ball first, triangle = odd ball second, circle = odd ball third
-                if (gamepad2.squareWasPressed()) {
+                if (square) {
                     // Odd ball first
                     addOddThenRest(shootOrder, oddBallColor);
-                } else if (gamepad2.triangleWasPressed()) {
+                    sleep (5000);
+
+                } else if (triangle) {
                     // Odd ball second
                     addOddInMiddle(shootOrder, oddBallColor);
-                } else if (gamepad2.circleWasPressed()) {
+                } else if (circle) {
                     // Odd ball last
                     addOddLast(shootOrder, oddBallColor);
                 }
 
-                shootAll = true;
+                circle = false;
+                square = false;
+                triangle = false;
+
+
             }
 
             // Right bumper shoots all balls fastest, ignoring colors
             if (gamepad2.rightBumperWasPressed()) {
                 shootOrder.clear();
+                shootStamp = getRuntime();
+
                 // Fastest order (example: slot 3 → 2 → 1)
                 shootOrder.add(3);
                 shootOrder.add(2);
                 shootOrder.add(1);
                 shootAll = true;
+                shootPos = drive.localizer.getPose();
 
 
+
+            }
+
+            if (gamepad2.x || gamepad2.left_bumper){
+                shootAll = false;
 
             }
 
@@ -481,9 +569,10 @@ public class TeleopV2 extends LinearOpMode {
             TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
             TELE.addData("distanceToGoal", distanceToGoal);
             TELE.addData("hood", robot.hood.getPosition());
-            TELE.addData("targetVel", manualVel);
+            TELE.addData("targetVel", vel);
 
             TELE.addData("shootOrder", shootOrder);
+            TELE.addData("oddColor", oddBallColor);
 
             TELE.update();
 
@@ -568,20 +657,62 @@ public class TeleopV2 extends LinearOpMode {
     void addOddThenRest(List<Integer> order, boolean oddColor) {
         // Odd ball first
         for (int i = 1; i <= 3; i++) if (getBallColor(i) == oddColor) order.add(i);
+        TELE.addData("1", shootOrder);
         for (int i = 1; i <= 3; i++) if (getBallColor(i) != oddColor) order.add(i);
+        TELE.addData("works", shootOrder);
+        TELE.addData("oddBall", oddColor);
+        shootAll = true;
+
+
+
     }
 
     void addOddInMiddle(List<Integer> order, boolean oddColor) {
-        // Odd ball second
-        for (int i = 1; i <= 3; i++) if (getBallColor(i) != oddColor) order.add(i);
-        for (int i = 1; i <= 3; i++) if (getBallColor(i) == oddColor) order.add(i);
-        for (int i = 1; i <= 3; i++) if (getBallColor(i) != oddColor && !order.contains(i)) order.add(i);
-    }
 
+        boolean[] used = new boolean[4];   // index 1..3
+
+        // 1) Add a NON-odd ball first
+        for (int i = 1; i <= 3; i++) {
+            if (getBallColor(i) != oddColor) {
+                order.add(i);
+                used[i] = true;
+                break;
+            }
+        }
+
+        // 2) Add the odd ball second
+        for (int i = 1; i <= 3; i++) {
+            if (!used[i] && getBallColor(i) == oddColor) {
+                order.add(i);
+                used[i] = true;
+                break;
+            }
+        }
+
+        // 3) Add the remaining non-odd ball third
+        for (int i = 1; i <= 3; i++) {
+            if (!used[i] && getBallColor(i) != oddColor) {
+                order.add(i);
+                used[i] = true;
+                break;
+            }
+        }
+
+        TELE.addData("works", order);
+        TELE.addData("oddBall", oddColor);
+        shootAll = true;
+
+    }
     void addOddLast(List<Integer> order, boolean oddColor) {
         // Odd ball last
         for (int i = 1; i <= 3; i++) if (getBallColor(i) != oddColor) order.add(i);
+        TELE.addData("1", shootOrder);
         for (int i = 1; i <= 3; i++) if (getBallColor(i) == oddColor) order.add(i);
+        TELE.addData("works", shootOrder);
+        TELE.addData("oddBall", oddColor);
+        shootAll = true;
+
+
     }
 
     // Returns color of ball in slot i (1-based)
