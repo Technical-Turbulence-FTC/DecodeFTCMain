@@ -23,6 +23,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
@@ -38,9 +39,13 @@ public class redDaniel extends LinearOpMode {
 
     AprilTagWebcam aprilTag;
 
-    public static double intake1Time = 4.0;
+    Flywheel flywheel;
 
-    public static double intake2Time = 5.5;
+    double velo = 0.0;
+    double targetVelocity = 0.0;
+    public static double intake1Time = 6.5;
+
+    public static double intake2Time = 6.5;
 
     public static double colorDetect = 3.0;
 
@@ -59,6 +64,7 @@ public class redDaniel extends LinearOpMode {
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
 
     boolean spindexPosEqual(double spindexer) {
+        TELE.addData("Velocity", velo);
         TELE.addLine("spindex equal");
         TELE.update();
         return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
@@ -67,7 +73,6 @@ public class redDaniel extends LinearOpMode {
 
     public Action initShooter(int vel) {
         return new Action() {
-            double velo = 0.0;
             double initPos = 0.0;
             double stamp = 0.0;
             double stamp1 = 0.0;
@@ -80,34 +85,15 @@ public class redDaniel extends LinearOpMode {
                     stamp2 = getRuntime();
                 }
 
+                targetVelocity = (double) vel;
                 ticker++;
                 if (ticker % 16 == 0) {
-                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
                     stamp = getRuntime();
-                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
-                    initPos = currentPos;
                     stamp1 = stamp;
                 }
 
-                if (vel - velo > 500) {
-                    powPID = 1.0;
-                } else {
-                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
-
-                    // --- PROPORTIONAL CORRECTION ---
-                    double error = vel - velo;
-                    double correction = kP * error;
-
-                    // limit how fast power changes (prevents oscillation)
-                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
-
-                    // --- FINAL MOTOR POWER ---
-                    powPID = feed + correction;
-
-                    // clamp to allowed range
-                    powPID = Math.max(0, Math.min(1, powPID));
-                }
-
+                powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+                velo = flywheel.getVelo();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
                 robot.transfer.setPower(1);
@@ -119,6 +105,7 @@ public class redDaniel extends LinearOpMode {
                      stamp2 = getRuntime();
                      return true;
                  } else if (steady && getRuntime() - stamp2 > 1.5){
+                     TELE.addData("Velocity", velo);
                      TELE.addLine("finished init");
                      TELE.update();
                      return false;
@@ -131,49 +118,12 @@ public class redDaniel extends LinearOpMode {
 
     public Action steadyShooter(int vel, boolean last) {
         return new Action() {
-            double velo = 0.0;
-            double initPos = 0.0;
             double stamp = 0.0;
-            double stamp1 = 0.0;
-            double ticker = 0.0;
-            double stamp2 = 0.0;
-            double currentPos = 0.0;
             boolean steady = false;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0) {
-                    stamp2 = getRuntime();
-                }
-
-                ticker++;
-                if (ticker % 8 == 0) {
-                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
-                    stamp = getRuntime();
-                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
-                    initPos = currentPos;
-                    stamp1 = stamp;
-                }
-
-                if (vel - velo > 500) {
-                    powPID = 1.0;
-                } else if (velo - vel > 500){
-                    powPID = 0.0;
-                } else {
-                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
-
-                    // --- PROPORTIONAL CORRECTION ---
-                    double error = vel - velo;
-                    double correction = kP * error;
-
-                    // limit how fast power changes (prevents oscillation)
-                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
-
-                    // --- FINAL MOTOR POWER ---
-                    powPID = feed + correction;
-
-                    // clamp to allowed range
-                    powPID = Math.max(0, Math.min(1, powPID));
-                }
-
+                powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+                velo = flywheel.getVelo();
+                steady = flywheel.getSteady();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
                 robot.transfer.setPower(1);
@@ -181,11 +131,10 @@ public class redDaniel extends LinearOpMode {
                 TELE.addData("Velocity", velo);
                 TELE.update();
 
-                if (Math.abs(vel - velo) < 100 && last && !steady){
+                if (last && !steady){
                     stamp = getRuntime();
-                    steady = true;
                     return false;
-                } else if (steady && getRuntime() - stamp > 1.0) {
+                } else if (steady) {
                     stamp = getRuntime();
                     return true;
                 } else {
@@ -216,6 +165,7 @@ public class redDaniel extends LinearOpMode {
                 }
                 aprilTag.update();
 
+                TELE.addData("Velocity", velo);
                 TELE.addData("21", gpp);
                 TELE.addData("22", pgp);
                 TELE.addData("23", ppg);
@@ -236,7 +186,6 @@ public class redDaniel extends LinearOpMode {
         return new Action() {
             double currentPos = 0.0;
             double stamp = 0.0;
-            double velo = 0.0;
             double initPos = 0.0;
             double stamp1 = 0.0;
             int ticker = 0;
@@ -272,10 +221,13 @@ public class redDaniel extends LinearOpMode {
                     powPID = Math.max(0, Math.min(1, powPID));
                 }
 
+                powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+                velo = flywheel.getVelo();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
                 robot.spin1.setPosition(spindexer);
                 robot.spin2.setPosition(1-spindexer);
+                TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
                 return !spindexPosEqual(spindexer);
@@ -290,13 +242,14 @@ public class redDaniel extends LinearOpMode {
             boolean transferIn = false;
             double currentPos = 0.0;
             double stamp = 0.0;
-            double velo = 0.0;
             double initPos = 0.0;
             double stamp1 = 0.0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                TELE.addData("Velocity", velo);
                 TELE.addLine("shooting");
                 TELE.update();
+
                 if (ticker % 8 == 0) {
                     currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
                     stamp = getRuntime();
@@ -326,6 +279,8 @@ public class redDaniel extends LinearOpMode {
                     powPID = Math.max(0, Math.min(1, powPID));
                 }
 
+                powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+                velo = flywheel.getVelo();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
 
@@ -336,12 +291,14 @@ public class redDaniel extends LinearOpMode {
                 }
                 if (getRuntime() - transferStamp > waitTransfer && !transferIn) {
                     robot.transferServo.setPosition(transferServo_in);
+                    TELE.addData("Velocity", velo);
                     TELE.addData("ticker", ticker);
                     TELE.update();
                     transferIn = true;
                     return true;
                 } else if (getRuntime() - transferStamp > waitTransfer+waitTransferOut && transferIn){
                     robot.transferServo.setPosition(transferServo_out);
+                    TELE.addData("Velocity", velo);
                     TELE.addLine("shot once");
                     TELE.update();
                     return false;
@@ -378,6 +335,7 @@ public class redDaniel extends LinearOpMode {
                 robot.spin1.setPosition(position);
                 robot.spin2.setPosition(1 - position);
 
+                TELE.addData("Velocity", velo);
                 TELE.addLine("Intaking");
                 TELE.update();
 
@@ -463,6 +421,7 @@ public class redDaniel extends LinearOpMode {
                     }
                 }
 
+                TELE.addData("Velocity", velo);
                 TELE.addLine("Detecting");
                 TELE.addData("Distance 1", s1D);
                 TELE.addData("Distance 2", s2D);
@@ -481,6 +440,8 @@ public class redDaniel extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         robot = new Robot(hardwareMap);
+
+        flywheel = new Flywheel();
 
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -534,7 +495,7 @@ public class redDaniel extends LinearOpMode {
             robot.spin2.setPosition(1 - spindexer_intakePos1);
 
             aprilTag.update();
-
+            TELE.addData("Velocity", velo);
             TELE.update();
         }
 
@@ -554,6 +515,8 @@ public class redDaniel extends LinearOpMode {
                     )
             );
 
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+            velo = flywheel.getVelo();
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -576,6 +539,8 @@ public class redDaniel extends LinearOpMode {
                     )
             );
 
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+            velo = flywheel.getVelo();
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -596,6 +561,8 @@ public class redDaniel extends LinearOpMode {
                     )
             );
 
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
+            velo = flywheel.getVelo();
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -605,8 +572,8 @@ public class redDaniel extends LinearOpMode {
 
             teleStart = drive.localizer.getPose();
 
+            TELE.addData("Velocity", velo);
             TELE.addLine("finished");
-
             TELE.update();
 
             sleep(2000);
@@ -616,6 +583,7 @@ public class redDaniel extends LinearOpMode {
     }
 
     public void shootingSequence() {
+        TELE.addData("Velocity", velo);
         if (gpp) {
             if (b1 + b2 + b3 == 4) {
                 if (b1 == 2 && b2 - b3 == 0) {
