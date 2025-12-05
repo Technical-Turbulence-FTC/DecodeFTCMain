@@ -12,7 +12,7 @@ public class Poses {
 
     public static double relativeGoalHeight = goalHeight - turretHeight;
 
-    public static double x1 = 50, y1 = 0, h1 = 0;
+    public static double x1 = 50, y1 = -4, h1 = 0;
 
     public static double x2a = 45, y2a = 5, h2a = Math.toRadians(140);
 

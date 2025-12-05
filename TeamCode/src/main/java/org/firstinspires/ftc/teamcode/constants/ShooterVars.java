@@ -13,11 +13,11 @@ public class ShooterVars {
     public static int initTolerance = 1000;
 
     public static int maxVel = 4500;
-    public static double waitTransferOut = 0.6;
+    public static double waitTransferOut = 0.3;
     public static double waitTransfer = 0.4;
     public static double kP = 0.001;           // small proportional gain (tune this)
     public static double maxStep = 0.06;         // prevents sudden jumps
 
     // VELOCITY CONSTANTS
-    public static int AUTO_CLOSE_VEL = 3000;
+    public static int AUTO_CLOSE_VEL = 3300;
 }

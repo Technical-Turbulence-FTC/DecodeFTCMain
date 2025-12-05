@@ -40,7 +40,7 @@ public class redDaniel extends LinearOpMode {
 
     public static double intake1Time = 4.0;
 
-    public static double intake2Time = 6.0;
+    public static double intake2Time = 5.5;
 
     public static double colorDetect = 3.0;
 
@@ -58,24 +58,11 @@ public class redDaniel extends LinearOpMode {
 
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
 
-    // Reset the counters after 1 second of not reading a ball.
-    final double ColorCounterResetDelay = 1.0;
-    // Number of times the loop needs to run before deciding on a color.
-    final int ColorCounterTotalMinCount = 20;
-    // If the color sensor reads a color this percentage of time
-    // out of the total, declare the color.
-    // Usage: (Color Count)/(Total Count) > ColorCounterThreshold
-    final double ColorCounterThreshold = 0.65;
-
     boolean spindexPosEqual(double spindexer) {
+        TELE.addLine("spindex equal");
+        TELE.update();
         return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
                 scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
-    }
-
-    boolean transferPosEqual(double transfer) {
-        return (scalar * ((robot.transferServoPos.getVoltage() - restPos) / 3.3) >
-                transfer - 0.01 &&
-                scalar * ((robot.transferServoPos.getVoltage() - restPos) / 3.3) < transfer + 0.01);
     }
 
     public Action initShooter(int vel) {
@@ -131,13 +118,79 @@ public class redDaniel extends LinearOpMode {
                      steady = true;
                      stamp2 = getRuntime();
                      return true;
-                 } else if (steady && getRuntime() - stamp2 > 2.0){
+                 } else if (steady && getRuntime() - stamp2 > 1.5){
                      TELE.addLine("finished init");
                      TELE.update();
                      return false;
                  } else {
                      return true;
                  }
+            }
+        };
+    }
+
+    public Action steadyShooter(int vel, boolean last) {
+        return new Action() {
+            double velo = 0.0;
+            double initPos = 0.0;
+            double stamp = 0.0;
+            double stamp1 = 0.0;
+            double ticker = 0.0;
+            double stamp2 = 0.0;
+            double currentPos = 0.0;
+            boolean steady = false;
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (ticker == 0) {
+                    stamp2 = getRuntime();
+                }
+
+                ticker++;
+                if (ticker % 8 == 0) {
+                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
+                    stamp = getRuntime();
+                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
+                    initPos = currentPos;
+                    stamp1 = stamp;
+                }
+
+                if (vel - velo > 500) {
+                    powPID = 1.0;
+                } else if (velo - vel > 500){
+                    powPID = 0.0;
+                } else {
+                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+
+                    // --- PROPORTIONAL CORRECTION ---
+                    double error = vel - velo;
+                    double correction = kP * error;
+
+                    // limit how fast power changes (prevents oscillation)
+                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+                    // --- FINAL MOTOR POWER ---
+                    powPID = feed + correction;
+
+                    // clamp to allowed range
+                    powPID = Math.max(0, Math.min(1, powPID));
+                }
+
+                robot.shooter1.setPower(powPID);
+                robot.shooter2.setPower(powPID);
+                robot.transfer.setPower(1);
+
+                TELE.addData("Velocity", velo);
+                TELE.update();
+
+                if (Math.abs(vel - velo) < 100 && last && !steady){
+                    stamp = getRuntime();
+                    steady = true;
+                    return false;
+                } else if (steady && getRuntime() - stamp > 1.0) {
+                    stamp = getRuntime();
+                    return true;
+                } else {
+                    return true;
+                }
             }
         };
     }
@@ -179,38 +232,123 @@ public class redDaniel extends LinearOpMode {
         };
     }
 
-    public Action Shoot(double spindexer) {
+    public Action spindex (double spindexer, double vel){
+        return new Action() {
+            double currentPos = 0.0;
+            double stamp = 0.0;
+            double velo = 0.0;
+            double initPos = 0.0;
+            double stamp1 = 0.0;
+            int ticker = 0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                ticker++;
+                if (ticker % 8 == 0) {
+                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
+                    stamp = getRuntime();
+                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
+                    initPos = currentPos;
+                    stamp1 = stamp;
+                }
+
+                if (vel - velo > 500 && ticker > 16) {
+                    powPID = 1.0;
+                } else if (velo - vel > 500 && ticker > 16){
+                    powPID = 0.0;
+                } else if (Math.abs(vel - velo) < 100 && ticker > 16){
+                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+
+                    // --- PROPORTIONAL CORRECTION ---
+                    double error = vel - velo;
+                    double correction = kP * error;
+
+                    // limit how fast power changes (prevents oscillation)
+                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+                    // --- FINAL MOTOR POWER ---
+                    powPID = feed + correction;
+
+                    // clamp to allowed range
+                    powPID = Math.max(0, Math.min(1, powPID));
+                }
+
+                robot.shooter1.setPower(powPID);
+                robot.shooter2.setPower(powPID);
+                robot.spin1.setPosition(spindexer);
+                robot.spin2.setPosition(1-spindexer);
+                TELE.addLine("spindex");
+                TELE.update();
+                return !spindexPosEqual(spindexer);
+            }
+        };
+    }
+
+    public Action Shoot(double vel) {
         return new Action() {
             double transferStamp = 0.0;
             int ticker = 1;
             boolean transferIn = false;
+            double currentPos = 0.0;
+            double stamp = 0.0;
+            double velo = 0.0;
+            double initPos = 0.0;
+            double stamp1 = 0.0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                robot.spin1.setPosition(spindexer);
-                robot.spin2.setPosition(1 - spindexer);
                 TELE.addLine("shooting");
                 TELE.update();
-                if (spindexPosEqual(spindexer)) {
-                    if (ticker == 1) {
-                        transferStamp = getRuntime();
-                        ticker++;
-                    }
-                    if (getRuntime() - transferStamp > waitTransfer && !transferIn) {
-                        robot.transferServo.setPosition(transferServo_in);
-                        transferIn = true;
-                        return true;
-                    } else if (getRuntime() - transferStamp > waitTransfer+waitTransferOut && transferIn){
-                        robot.transferServo.setPosition(transferServo_out);
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } else {
-                    robot.transferServo.setPosition(transferServo_out);
-                    ticker = 1;
+                if (ticker % 8 == 0) {
+                    currentPos = (double) robot.shooter1.getCurrentPosition() / 2048;
+                    stamp = getRuntime();
+                    velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
+                    initPos = currentPos;
+                    stamp1 = stamp;
+                }
+
+                if (vel - velo > 500 && ticker > 16) {
+                    powPID = 1.0;
+                } else if (velo - vel > 500 && ticker > 16){
+                    powPID = 0.0;
+                } else if (Math.abs(vel - velo) < 100 && ticker > 16){
+                    double feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
+
+                    // --- PROPORTIONAL CORRECTION ---
+                    double error = vel - velo;
+                    double correction = kP * error;
+
+                    // limit how fast power changes (prevents oscillation)
+                    correction = Math.max(-maxStep, Math.min(maxStep, correction));
+
+                    // --- FINAL MOTOR POWER ---
+                    powPID = feed + correction;
+
+                    // clamp to allowed range
+                    powPID = Math.max(0, Math.min(1, powPID));
+                }
+
+                robot.shooter1.setPower(powPID);
+                robot.shooter2.setPower(powPID);
+
+
+                if (ticker == 1) {
                     transferStamp = getRuntime();
+                    ticker++;
+                }
+                if (getRuntime() - transferStamp > waitTransfer && !transferIn) {
+                    robot.transferServo.setPosition(transferServo_in);
+                    TELE.addData("ticker", ticker);
+                    TELE.update();
+                    transferIn = true;
+                    return true;
+                } else if (getRuntime() - transferStamp > waitTransfer+waitTransferOut && transferIn){
+                    robot.transferServo.setPosition(transferServo_out);
+                    TELE.addLine("shot once");
+                    TELE.update();
+                    return false;
+                } else {
                     return true;
                 }
+
             }
         };
     }
@@ -256,15 +394,6 @@ public class redDaniel extends LinearOpMode {
 
     public Action ColorDetect() {
         return new Action() {
-            int b1Green = 1;
-            int b1Total = 1;
-            double totalStamp1 = 0.0;
-            int b2Green = 1;
-            int b2Total = 1;
-            double totalStamp2 = 0.0;
-            int b3Green = 1;
-            int b3Total = 1;
-            double totalStamp3 = 0.0;
             double stamp = 0.0;
             int ticker = 0;
             double position = 0.0;
@@ -272,9 +401,6 @@ public class redDaniel extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp = getRuntime();
-                    totalStamp1 = getRuntime();
-                    totalStamp2 = getRuntime();
-                    totalStamp3 = getRuntime();
                 }
                 ticker++;
 
@@ -297,19 +423,14 @@ public class redDaniel extends LinearOpMode {
                     double blue = robot.color1.getNormalizedColors().blue;
 
                     double gP = green / (green + red + blue);
-                    b1Total++;
-                    if (gP >= 0.35) {
-                        b1Green++;
-                    }
-                }
 
-                if ((b1Total > ColorCounterTotalMinCount) &&
-                           ((double) b1Green / b1Total) >= ColorCounterThreshold) {
-                    // Enough Time has passed and we met the threshold
-                    b1 = 2;
-                } else if (b1Total > ColorCounterTotalMinCount) {
-                    // Enough Time passed WITHOUT meeting the threshold
-                    b1 = 1;
+
+
+                    if (gP >= 0.4) {
+                        b1 = 2;
+                    } else {
+                        b1 = 1;
+                    }
                 }
 
                 if (s2D < 40) {
@@ -320,22 +441,14 @@ public class redDaniel extends LinearOpMode {
 
                     double gP = green / (green + red + blue);
 
-                    b2Total++;
-                    if (gP >= 0.35) {
-                        b2Green++;
+                    if (gP >= 0.4) {
+                        b2 = 2;
+                    } else {
+                        b2 = 1;
                     }
                 }
 
-                if ((b2Total > ColorCounterTotalMinCount) &&
-                           ((double) b2Green / b2Total) >= ColorCounterThreshold) {
-                    // Enough Time has passed and we met the threshold
-                    b2 = 2;
-                } else if (b2Total > ColorCounterTotalMinCount) {
-                    // Enough Time passed WITHOUT meeting the threshold
-                    b2 = 1;
-                }
-
-                if (s3D < 40) {
+                if (s3D < 30) {
 
                     double green = robot.color3.getNormalizedColors().green;
                     double red = robot.color3.getNormalizedColors().red;
@@ -343,20 +456,11 @@ public class redDaniel extends LinearOpMode {
 
                     double gP = green / (green + red + blue);
 
-                    b3Total++;
-
-                    if (gP >= 0.35) {
-                        b3Green++;
+                    if (gP >= 0.4) {
+                        b3 = 2;
+                    } else {
+                        b3 = 1;
                     }
-                }
-
-                if ((b3Total > ColorCounterTotalMinCount) &&
-                           ((double) b3Green / b3Total) >= ColorCounterThreshold) {
-                    // Enough Time has passed and we met the threshold
-                    b3 = 2;
-                } else if (b3Total > ColorCounterTotalMinCount) {
-                    // Enough Time passed WITHOUT meeting the threshold
-                    b3 = 1;
                 }
 
                 TELE.addLine("Detecting");
@@ -410,9 +514,6 @@ public class redDaniel extends LinearOpMode {
 
         TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
                 .strafeToLinearHeading(new Vector2d(x1, y1), h1);
-
-        TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .strafeToLinearHeading(new Vector2d(x1, y1 - 30), h1);
 
         aprilTag.init(robot, TELE);
 
@@ -474,7 +575,8 @@ public class redDaniel extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             shoot1.build(),
-                            ColorDetect()
+                            ColorDetect(),
+                            steadyShooter(AUTO_CLOSE_VEL, true)
                     )
             );
 
@@ -493,7 +595,8 @@ public class redDaniel extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             shoot2.build(),
-                            ColorDetect()
+                            ColorDetect(),
+                            steadyShooter(AUTO_CLOSE_VEL, true)
                     )
             );
 
@@ -501,10 +604,6 @@ public class redDaniel extends LinearOpMode {
             robot.shooter2.setPower(powPID);
 
             shootingSequence();
-
-            Actions.runBlocking(
-                    park.build()
-            );
 
             drive.updatePoseEstimate();
 
@@ -621,9 +720,12 @@ public class redDaniel extends LinearOpMode {
     public void sequence1() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall1),
-                        Shoot(spindexer_outtakeBall2),
-                        Shoot(spindexer_outtakeBall3)
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL)
                 )
         );
     }
@@ -631,19 +733,26 @@ public class redDaniel extends LinearOpMode {
     public void sequence2() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall1),
-                        Shoot(spindexer_outtakeBall3),
-                        Shoot(spindexer_outtakeBall2)
-                )
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL)
+                        )
         );
     }
 
     public void sequence3() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall2),
-                        Shoot(spindexer_outtakeBall1),
-                        Shoot(spindexer_outtakeBall3)
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+
+                        Shoot(AUTO_CLOSE_VEL)
                 )
         );
     }
@@ -651,9 +760,12 @@ public class redDaniel extends LinearOpMode {
     public void sequence4() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall2),
-                        Shoot(spindexer_outtakeBall3),
-                        Shoot(spindexer_outtakeBall1)
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL)
                 )
         );
     }
@@ -661,9 +773,12 @@ public class redDaniel extends LinearOpMode {
     public void sequence5() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall3),
-                        Shoot(spindexer_outtakeBall1),
-                        Shoot(spindexer_outtakeBall2)
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL)
                 )
         );
     }
@@ -671,9 +786,12 @@ public class redDaniel extends LinearOpMode {
     public void sequence6() {
         Actions.runBlocking(
                 new SequentialAction(
-                        Shoot(spindexer_outtakeBall3),
-                        Shoot(spindexer_outtakeBall2),
-                        Shoot(spindexer_outtakeBall1)
+                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
+                        Shoot(AUTO_CLOSE_VEL)
                 )
         );
     }
