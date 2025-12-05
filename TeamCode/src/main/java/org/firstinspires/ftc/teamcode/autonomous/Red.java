@@ -91,30 +91,30 @@ public class Red extends LinearOpMode {
 
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1 );
 
 
-        TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(x1, y1, h1))
+        TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
                 .turnTo(Math.toRadians(135))
-                .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b);
+                .strafeToLinearHeading(new Vector2d(rx2b, ry2b), rh2b);
 
 
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
+                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1 );
 
-        TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
+        TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
 
-                .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
+                .strafeToLinearHeading(new Vector2d(rx3a, ry3a), rh3a)
 
-                .strafeToLinearHeading(new Vector2d(x3b, y3b), h3b);
-
-
-        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+                .strafeToLinearHeading(new Vector2d(rx3b, ry3b), rh3b);
 
 
-        TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .strafeToLinearHeading(new Vector2d(x1, y1+30), h1 );
+        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
+                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1 );
+
+
+        TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
+                .strafeToLinearHeading(new Vector2d(rx1, ry1 + 30), rh1 );
 
         while(opModeInInit()) {
 

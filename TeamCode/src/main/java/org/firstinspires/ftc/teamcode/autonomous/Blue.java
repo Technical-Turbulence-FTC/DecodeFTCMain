@@ -130,30 +130,30 @@ public class Blue extends LinearOpMode {
 
 
         TrajectoryActionBuilder traj1 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1 );
 
 
-        TrajectoryActionBuilder traj2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
+        TrajectoryActionBuilder traj2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                 .turnTo(Math.toRadians(-135))
-                .strafeToLinearHeading(new Vector2d(x2b, -y2b), -h2b);
+                .strafeToLinearHeading(new Vector2d(bx2b, -by2b), -bh2b);
 
 
-        TrajectoryActionBuilder traj3 = drive.actionBuilder(new Pose2d(x2b, -y2b, -h2b))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+        TrajectoryActionBuilder traj3 = drive.actionBuilder(new Pose2d(bx2b, -by2b, -bh2b))
+                .strafeToLinearHeading(new Vector2d(rx1, by1), bh1 );
 
-        TrajectoryActionBuilder traj4 = drive.actionBuilder(new Pose2d(x1, y1, h1))
+        TrajectoryActionBuilder traj4 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
 
-                .strafeToLinearHeading(new Vector2d(x3a, -y3a), -h3a)
+                .strafeToLinearHeading(new Vector2d(bx3a, -by3a), -bh3a)
 
-                .strafeToLinearHeading(new Vector2d(x3b, -y3b), -h3b);
-
-
-        TrajectoryActionBuilder traj5 = drive.actionBuilder(new Pose2d(x3b, -y3b, -h3b))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1 );
+                .strafeToLinearHeading(new Vector2d(bx3b, -by3b), -bh3b);
 
 
-        TrajectoryActionBuilder traj6 = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .strafeToLinearHeading(new Vector2d(x1, y1-30), h1 );
+        TrajectoryActionBuilder traj5 = drive.actionBuilder(new Pose2d(bx3b, -by3b, -bh3b))
+                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1 );
+
+
+        TrajectoryActionBuilder traj6 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
+                .strafeToLinearHeading(new Vector2d(bx1, by1 - 30), bh1 );
 
         while(opModeInInit()) {
 

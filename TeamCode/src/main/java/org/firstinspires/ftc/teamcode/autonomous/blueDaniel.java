@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
 @Autonomous
-public class redDaniel extends LinearOpMode {
+public class blueDaniel extends LinearOpMode {
 
     Robot robot;
 
@@ -114,17 +114,17 @@ public class redDaniel extends LinearOpMode {
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-                 if (vel < velo && getRuntime() - stamp2 > 3.0 && !steady){
-                     steady = true;
-                     stamp2 = getRuntime();
-                     return true;
-                 } else if (steady && getRuntime() - stamp2 > 1.5){
-                     TELE.addLine("finished init");
-                     TELE.update();
-                     return false;
-                 } else {
-                     return true;
-                 }
+                if (vel < velo && getRuntime() - stamp2 > 3.0 && !steady){
+                    steady = true;
+                    stamp2 = getRuntime();
+                    return true;
+                } else if (steady && getRuntime() - stamp2 > 1.5){
+                    TELE.addLine("finished init");
+                    TELE.update();
+                    return false;
+                } else {
+                    return true;
+                }
             }
         };
     }
@@ -222,8 +222,8 @@ public class redDaniel extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg){
-                    robot.turr1.setPosition(turret_red);
-                    robot.turr2.setPosition(1 - turret_red);
+                    robot.turr1.setPosition(turret_blue);
+                    robot.turr2.setPosition(1 - turret_blue);
                     return false;
                 } else {
                     return true;
@@ -493,23 +493,23 @@ public class redDaniel extends LinearOpMode {
         aprilTag = new AprilTagWebcam();
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
+                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
-        TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
-                .strafeToLinearHeading(new Vector2d(rx2a, ry2a), rh2a)
-                .strafeToLinearHeading(new Vector2d(rx2b, ry2b), rh2b);
+        TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(rx1, by1, bh1))
+                .strafeToLinearHeading(new Vector2d(bx2a, by2a), bh2a)
+                .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b);
 
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
-                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
+        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
+                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
-        TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
+        TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
 
-                .strafeToLinearHeading(new Vector2d(rx3a, ry3a), rh3a)
+                .strafeToLinearHeading(new Vector2d(bx3a, by3a), bh3a)
 
-                .strafeToLinearHeading(new Vector2d(rx3b, ry3b), rh3b);
+                .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b);
 
-        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
-                .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
+        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
+                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
         aprilTag.init(robot, TELE);
 
@@ -525,8 +525,8 @@ public class redDaniel extends LinearOpMode {
 
             robot.hood.setPosition(hoodDefault);
 
-            robot.turr1.setPosition(turret_detectRed);
-            robot.turr2.setPosition(1 - turret_detectRed);
+            robot.turr1.setPosition(turret_detectBlue);
+            robot.turr2.setPosition(1 - turret_detectBlue);
 
             robot.transferServo.setPosition(transferServo_out);
 
@@ -735,7 +735,7 @@ public class redDaniel extends LinearOpMode {
                         Shoot(AUTO_CLOSE_VEL),
                         spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
                         Shoot(AUTO_CLOSE_VEL)
-                        )
+                )
         );
     }
 

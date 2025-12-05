@@ -4,15 +4,12 @@ import static org.firstinspires.ftc.teamcode.tests.ShooterTest.*;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.constants.Poses;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
@@ -22,7 +19,6 @@ public class Shooter implements Subsystem {
     private final DcMotorEx fly1;
     private final DcMotorEx fly2;
 
-    private final DcMotorEx encoder;
     private final Servo hoodServo;
 
     private final Servo turret1;
@@ -31,18 +27,9 @@ public class Shooter implements Subsystem {
 
     private final MultipleTelemetry telemetry;
 
-    private boolean telemetryOn = false;
-
     private double manualPower = 0.0;
-    private double hoodPos = 0.0;
 
-    private double turretPos = 0.0;
     private double velocity = 0.0;
-    private double posPower = 0.0;
-
-    public double velo = 0.0;
-
-    private int targetPosition = 0;
 
     public double powPID = 1.0;
 
@@ -76,7 +63,7 @@ public class Shooter implements Subsystem {
 
         this.turret2 = robot.turr2;
 
-        this.encoder = robot.shooterEncoder;
+        DcMotorEx encoder = robot.shooterEncoder;
 
     }
 
@@ -84,13 +71,13 @@ public class Shooter implements Subsystem {
         return (hoodServo.getPosition());
     }
 
-    public void sethoodPosition(double pos) { hoodPos = pos; }
+    public void sethoodPosition(double pos) { }
 
     public double getTurretPosition() {
         return ((turret1.getPosition() + (1 - turret2.getPosition())) / 2);
     }
 
-    public void setTurretPosition(double pos) { turretPos = pos; }
+    public void setTurretPosition(double pos) { }
 
     public double getVelocity(double vel) {
         return vel;
@@ -98,10 +85,9 @@ public class Shooter implements Subsystem {
 
     public void setVelocity(double vel) { velocity = vel; }
 
-    public void setPosPower(double power) { posPower = power; }
+    public void setPosPower(double power) { }
 
     public void setTargetPosition(int pos) {
-        targetPosition = pos;
     }
 
     public void setTolerance(int tolerance) {
@@ -217,7 +203,7 @@ public class Shooter implements Subsystem {
         return pos;
     }
 
-    public void setTelemetryOn(boolean state) { telemetryOn = state; }
+    public void setTelemetryOn(boolean state) { }
 
     public void moveTurret(double pos) {
         turret1.setPosition(pos);
@@ -245,5 +231,13 @@ public class Shooter implements Subsystem {
 
         }
 
+    }
+
+    public double getPow() {
+        return pow;
+    }
+
+    public void setPow(double pow) {
+        this.pow = pow;
     }
 }

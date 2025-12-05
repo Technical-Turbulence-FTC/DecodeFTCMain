@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-
 import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
 import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.scalar;
 
@@ -19,27 +18,21 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 @Config
 public class PIDServoTest extends LinearOpMode {
 
-    private PIDController controller;
     public static double p = 0.0003, i = 0, d = 0.00001;
 
-    public static boolean extendo = false;
-
     public static double target = 0.5;
-
-    private final double ticks = 1425.1 /360;
 
     Robot robot;
 
     double pos = 0.0;
 
-
     @Override
     public void runOpMode() throws InterruptedException {
 
-        controller = new PIDController(p, i, d);
+        PIDController controller = new PIDController(p, i, d);
 
         controller.setTolerance(50);
-        robot = new Robot (hardwareMap);
+        robot = new Robot(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -47,10 +40,10 @@ public class PIDServoTest extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        while (opModeIsActive()){
-            controller.setPID(p,i,d);
+        while (opModeIsActive()) {
+            controller.setPID(p, i, d);
 
-            pos = scalar*((robot.turr1Pos.getVoltage() - restPos) / 3.3);
+            pos = scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3);
 
             double pid = controller.calculate(pos, target);
 
@@ -60,10 +53,6 @@ public class PIDServoTest extends LinearOpMode {
             telemetry.addData("pos", pos);
             telemetry.addData("target", target);
             telemetry.update();
-
-
-
-
 
         }
 
