@@ -14,6 +14,8 @@ import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
 import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
 import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.scalar;
 
+
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -28,6 +30,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +69,9 @@ public class TeleopV2 extends LinearOpMode {
     List<Boolean> s3 = new ArrayList<>();
 
     boolean oddBallColor = false;
+
+    AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
+
 
     MecanumDrive drive;
     double hoodOffset = 0.0;
@@ -110,6 +118,14 @@ public class TeleopV2 extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap, teleStart);
 
         Pose2d shootPos = teleStart;
+
+        aprilTagWebcam.init(new Robot(hardwareMap), TELE);
+
+        robot.turr1.setPosition(0.4);
+        robot.turr2.setPosition(1-0.4);
+
+
+
 
         waitForStart();
         if (isStopRequested()) return;
@@ -442,6 +458,18 @@ public class TeleopV2 extends LinearOpMode {
                     int currentSlot = shootOrder.get(0); // Peek, do NOT remove yet
                     boolean shootingDone = false;
 
+                    AprilTagDetection d20 = aprilTagWebcam.getTagById(20);
+                    AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
+
+
+                    if (d20!=null){
+                        //TODO: Add logic here and below for webcam if using
+                    }
+
+                    if (d24!=null){
+
+                    }
+
                     switch (currentSlot) {
                         case 1:
                             shootA = shootTeleop(spindexer_outtakeBall1);
@@ -588,6 +616,9 @@ public class TeleopV2 extends LinearOpMode {
 
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
+
+            aprilTagWebcam.update();
+
 
             TELE.update();
 
