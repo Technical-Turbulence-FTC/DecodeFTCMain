@@ -49,6 +49,9 @@ public class TeleopV2 extends LinearOpMode {
     MultipleTelemetry TELE;
     boolean intake = false;
     boolean reject = false;
+    double xOffset = 0.0;
+    double yOffset = 0.0;
+    double headingOffset = 0.0;
     int ticker = 0;
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
@@ -306,8 +309,9 @@ public class TeleopV2 extends LinearOpMode {
 
             double offset;
 
-            double robotX = drive.localizer.getPose().position.x;
-            double robotY = drive.localizer.getPose().position.y;
+            double robotX = drive.localizer.getPose().position.x - xOffset;
+            double robotY = drive.localizer.getPose().position.y - xOffset;
+            double robotHeading = drive.localizer.getPose().heading.toDouble();
 
             double goalX = -10;
             double goalY = 0;
@@ -321,7 +325,7 @@ public class TeleopV2 extends LinearOpMode {
 
             desiredTurretAngle += manualOffset;
 
-            offset = desiredTurretAngle - 180 - Math.toDegrees(drive.localizer.getPose().heading.toDouble());
+            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
 
             if (offset > 135) {
                 offset -= 360;
@@ -399,13 +403,23 @@ public class TeleopV2 extends LinearOpMode {
             } else if (gamepad2.left_stick_x<-0.5){
                 manualTurret = true;
                 manualOffset = 0;
+                if (gamepad2.left_bumper){
+                    xOffset = robotX;
+                    yOffset = robotY;
+                    headingOffset = robotHeading;
+                }
             }
 
             if (gamepad2.left_stick_y<-0.5){
                 autoHood = true;
-            } else if (gamepad2.;eft_stick_y>0.5){
+            } else if (gamepad2.left_stick_y>0.5){
                 autoHood = false;
                 hoodOffset = 0;
+                if (gamepad2.left_bumper){
+                    xOffset = robotX;
+                    yOffset = robotY;
+                    headingOffset = robotHeading;
+                }
             }
 
             //SHOOT ALL:
@@ -549,7 +563,7 @@ public class TeleopV2 extends LinearOpMode {
 
             }
 
-            if (gamepad2.x || gamepad2.left_bumper){
+            if (gamepad2.x){
                 shootAll = false;
 
             }
