@@ -131,8 +131,12 @@ public class Red_V2 extends LinearOpMode {
                 TELE.addData("Velocity", velo);
                 TELE.update();
 
+
                 if (last && !steady){
                     stamp = getRuntime();
+                    drive.updatePoseEstimate();
+
+                    teleStart = drive.localizer.getPose();
                     return false;
                 } else if (steady) {
                     stamp = getRuntime();
@@ -230,6 +234,11 @@ public class Red_V2 extends LinearOpMode {
                 TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
                 return !spindexPosEqual(spindexer);
             }
         };
@@ -283,6 +292,10 @@ public class Red_V2 extends LinearOpMode {
                 velo = flywheel.getVelo();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
 
 
                 if (ticker == 1) {
@@ -339,6 +352,10 @@ public class Red_V2 extends LinearOpMode {
                 TELE.addLine("Intaking");
                 TELE.update();
 
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
                 robot.intake.setPower(1);
                 if ((s1D < 40.0 && s2D < 40.0 && s3D < 40.0) || getRuntime() - stamp > intakeTime) {
                     robot.intake.setPower(0);
@@ -373,6 +390,10 @@ public class Red_V2 extends LinearOpMode {
                 double s1D = robot.color1.getDistance(DistanceUnit.MM);
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
                 double s3D = robot.color3.getDistance(DistanceUnit.MM);
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
 
                 if (s1D < 40) {
 
@@ -477,14 +498,14 @@ public class Red_V2 extends LinearOpMode {
         while (opModeInInit()) {
 
             if (gamepad2.dpadUpWasPressed()) {
-                hoodDefault -= 0.01;
+                hoodAuto-= 0.01;
             }
 
             if (gamepad2.dpadDownWasPressed()) {
-                hoodDefault += 0.01;
+                hoodAuto += 0.01;
             }
 
-            robot.hood.setPosition(hoodDefault);
+            robot.hood.setPosition(hoodAuto);
 
             robot.turr1.setPosition(turret_detectRed);
             robot.turr2.setPosition(1 - turret_detectRed);
@@ -505,7 +526,7 @@ public class Red_V2 extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            robot.hood.setPosition(hoodStart);
+            robot.hood.setPosition(hoodAuto);
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -514,6 +535,9 @@ public class Red_V2 extends LinearOpMode {
                             Obelisk()
                     )
             );
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
 
             powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
             velo = flywheel.getVelo();
@@ -522,7 +546,11 @@ public class Red_V2 extends LinearOpMode {
 
             shootingSequence();
 
-            robot.hood.setPosition(hoodDefault);
+            robot.hood.setPosition(hoodAuto);
+
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -530,6 +558,9 @@ public class Red_V2 extends LinearOpMode {
                             intake(intake1Time)
                     )
             );
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -539,12 +570,19 @@ public class Red_V2 extends LinearOpMode {
                     )
             );
 
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
+
             powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, (double) robot.shooter1.getCurrentPosition());
             velo = flywheel.getVelo();
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
             shootingSequence();
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -552,6 +590,9 @@ public class Red_V2 extends LinearOpMode {
                             intake(intake2Time)
                     )
             );
+            drive.updatePoseEstimate();
+
+            teleStart = drive.localizer.getPose();
 
             Actions.runBlocking(
                     new ParallelAction(
