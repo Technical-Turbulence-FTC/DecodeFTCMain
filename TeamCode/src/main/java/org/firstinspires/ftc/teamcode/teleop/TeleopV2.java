@@ -100,6 +100,9 @@ public class TeleopV2 extends LinearOpMode {
     public boolean square = false;
     public boolean triangle = false;
 
+    double turretPos() {
+        return (scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3));
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -463,7 +466,8 @@ public class TeleopV2 extends LinearOpMode {
 
 
                     if (d20!=null){
-                        //TODO: Add logic here and below for webcam if using
+                        double bearing = d20.ftcPose.bearing;
+
                     }
 
                     if (d24!=null){
