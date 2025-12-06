@@ -501,6 +501,7 @@ public class TeleopV2 extends LinearOpMode {
                             break;
                     }
 
+
                     // Remove from the list only if shooting is complete
                     if (shootingDone) {
                         shootOrder.remove(0);

@@ -21,8 +21,31 @@ public class Poses {
     public static double x3 = 34, y3 = 58, h3 = Math.toRadians(140);
 
     public static double tx = 0, ty = 0, th = 0;
-    public static Pose2d teleStart = new Pose2d(tx, ty, th);
 
     public static Pose2d goalPose = new Pose2d(-15, 0, 0);
+
+
+
+    public static double rx1 = 50, ry1 = -4, rh1 = 0;
+
+    public static double rx2a = 45, ry2a = 5, rh2a = Math.toRadians(140);
+
+    public static double rx2b = 31, ry2b = 32, rh2b = Math.toRadians(140);
+
+    public static double rx3a = 58, ry3a = 42, rh3a = Math.toRadians(140);
+
+    public static double rx3b = 34, ry3b = 58, rh3b = Math.toRadians(140);
+
+    public static double bx1 = 50, by1 = 4, bh1 = 0;
+
+    public static double bx2a = 45, by2a = -5, bh2a = Math.toRadians(-140);
+
+    public static double bx2b = 31, by2b = -32, bh2b = Math.toRadians(-140);
+
+    public static double bx3a = 58, by3a = -42, bh3a = Math.toRadians(-140);
+
+    public static double bx3b = 34, by3b = -58, bh3b = Math.toRadians(-140);
+
+    public static Pose2d teleStart = new Pose2d(rx1, 10, 0);
 
 }
