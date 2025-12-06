@@ -26,7 +26,7 @@ public class Poses {
 
 
 
-    public static double rx1 = 50, ry1 = -4, rh1 = 0;
+    public static double rx1 = 46, ry1 = -4, rh1 = 0;
 
     public static double rx2a = 45, ry2a = 5, rh2a = Math.toRadians(140);
 
@@ -36,7 +36,7 @@ public class Poses {
 
     public static double rx3b = 34, ry3b = 58, rh3b = Math.toRadians(140);
 
-    public static double bx1 = 50, by1 = 4, bh1 = 0;
+    public static double bx1 = 46, by1 = 4, bh1 = 0;
 
     public static double bx2a = 45, by2a = -5, bh2a = Math.toRadians(-140);
 

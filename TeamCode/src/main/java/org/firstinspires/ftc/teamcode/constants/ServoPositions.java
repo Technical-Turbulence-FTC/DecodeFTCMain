@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.constants;
 
-
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
@@ -21,14 +20,11 @@ public class ServoPositions {
 
     public static double transferServo_in = 0.38;
 
-
-
     public static double turret_range = 0.9;
 
     public static double hoodDefault = 0.6;
 
     public static double hoodAuto = 0.59;
-
 
     public static double hoodHigh = 0.21;
 
@@ -40,6 +36,5 @@ public class ServoPositions {
     public static double turret_detectRed = 0.2;
 
     public static double turret_detectBlue = 0.6;
-
 
 }

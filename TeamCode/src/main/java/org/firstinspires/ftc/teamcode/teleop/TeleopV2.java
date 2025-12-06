@@ -40,6 +40,7 @@ public class TeleopV2 extends LinearOpMode {
     public static double hoodDefaultPos = 0.5;
     public static double desiredTurretAngle = 180;
     public static double velMultiplier = 20;
+    public static double shootStamp2 = 0.0;
     public double vel = 3000;
     public boolean autoVel = true;
     public double manualOffset = 0.0;
@@ -51,6 +52,7 @@ public class TeleopV2 extends LinearOpMode {
     public boolean circle = false;
     public boolean square = false;
     public boolean triangle = false;
+    double autoHoodOffset = 0.0;
     Robot robot;
     MultipleTelemetry TELE;
     boolean intake = false;
@@ -399,15 +401,19 @@ public class TeleopV2 extends LinearOpMode {
             //HOOD:
 
             if (autoHood) {
-                robot.hood.setPosition(hoodAnglePrediction(distanceToGoal));
+                robot.hood.setPosition(hoodAnglePrediction(distanceToGoal) + autoHoodOffset);
             } else {
                 robot.hood.setPosition(hoodDefaultPos + hoodOffset);
             }
 
             if (gamepad2.dpadUpWasPressed()) {
                 hoodOffset -= 0.03;
+                autoHoodOffset -= 0.02;
+
             } else if (gamepad2.dpadDownWasPressed()) {
                 hoodOffset += 0.03;
+                autoHoodOffset += 0.02;
+
             }
 
             if (gamepad2.left_stick_x > 0.5) {
@@ -415,6 +421,7 @@ public class TeleopV2 extends LinearOpMode {
             } else if (gamepad2.left_stick_x < -0.5) {
                 manualTurret = true;
                 manualOffset = 0;
+                autoHoodOffset = 0;
                 if (gamepad2.left_bumper) {
                     xOffset = robotX;
                     yOffset = robotY;
@@ -461,7 +468,6 @@ public class TeleopV2 extends LinearOpMode {
             } else if (shootAll) {
 
                 TELE.addData("100% works", shootOrder);
-                TELE.update();
 
                 intake = false;
                 reject = false;
@@ -493,7 +499,7 @@ public class TeleopV2 extends LinearOpMode {
 
                     switch (currentSlot) {
                         case 1:
-                            shootA = shootTeleop(spindexer_outtakeBall1, outtake1);
+                            shootA = shootTeleop(spindexer_outtakeBall1, outtake1, shootStamp2);
                             TELE.addData("shootA", shootA);
 
                             if ((getRuntime() - shootStamp) < 4 * (4 - shootOrder.size())) {
@@ -503,7 +509,7 @@ public class TeleopV2 extends LinearOpMode {
                             }
                             break;
                         case 2:
-                            shootB = shootTeleop(spindexer_outtakeBall2, outtake2);
+                            shootB = shootTeleop(spindexer_outtakeBall2, outtake2, shootStamp2);
                             TELE.addData("shootB", shootB);
                             if ((getRuntime() - shootStamp) < 4 * (4 - shootOrder.size())) {
                                 shootingDone = !shootB;
@@ -512,7 +518,7 @@ public class TeleopV2 extends LinearOpMode {
                             }
                             break;
                         case 3:
-                            shootC = shootTeleop(spindexer_outtakeBall3, outtake3);
+                            shootC = shootTeleop(spindexer_outtakeBall3, outtake3, shootStamp2);
                             TELE.addData("shootC", shootC);
                             if ((getRuntime() - shootStamp) < 4 * (4 - shootOrder.size())) {
                                 shootingDone = !shootC;
@@ -525,6 +531,8 @@ public class TeleopV2 extends LinearOpMode {
                     // Remove from the list only if shooting is complete
                     if (shootingDone) {
                         shootOrder.remove(0);
+                        shootStamp2 = getRuntime();
+
                     }
 
                 } else {
@@ -548,6 +556,7 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.squareWasPressed()) {
                 square = true;
                 shootStamp = getRuntime();
+                shootStamp2 = getRuntime();
                 outtake1 = false;
                 outtake2 = false;
                 outtake3 = false;
@@ -556,6 +565,8 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.circleWasPressed()) {
                 circle = true;
                 shootStamp = getRuntime();
+                shootStamp2 = getRuntime();
+
                 outtake1 = false;
                 outtake2 = false;
                 outtake3 = false;
@@ -565,6 +576,8 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.triangleWasPressed()) {
                 triangle = true;
                 shootStamp = getRuntime();
+                shootStamp2 = getRuntime();
+
                 outtake1 = false;
                 outtake2 = false;
                 outtake3 = false;
@@ -614,9 +627,39 @@ public class TeleopV2 extends LinearOpMode {
                 outtake3 = false;
 
                 // Fastest order (example: slot 3 → 2 → 1)
+
                 shootOrder.add(3);
+
                 shootOrder.add(2);
+
                 shootOrder.add(1);
+
+                shootAll = true;
+                shootPos = drive.localizer.getPose();
+
+            }
+
+            // Right bumper shoots all balls fastest, ignoring colors
+            if (gamepad2.leftBumperWasPressed()) {
+                shootOrder.clear();
+                shootStamp = getRuntime();
+
+                outtake1 = false;
+                outtake2 = false;
+                outtake3 = false;
+
+                // Fastest order (example: slot 3 → 2 → 1)
+
+                if (ballIn(3)) {
+                    shootOrder.add(3);
+                }
+
+                if (ballIn(2)) {
+                    shootOrder.add(2);
+                }
+                if (ballIn(1)) {
+                    shootOrder.add(1);
+                }
                 shootAll = true;
                 shootPos = drive.localizer.getPose();
 
@@ -635,9 +678,9 @@ public class TeleopV2 extends LinearOpMode {
                 hub.clearBulkCache();
             }
 
-            TELE.addData("Spin1Green", green1);
-            TELE.addData("Spin2Green", green2);
-            TELE.addData("Spin3Green", green3);
+            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
+            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
+            TELE.addData("Spin3Green", green3 + ": " + ballIn(3));
 
             TELE.addData("pose", drive.localizer.getPose());
             TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
@@ -683,13 +726,13 @@ public class TeleopV2 extends LinearOpMode {
                 scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
     }
 
-    public boolean shootTeleop(double spindexer, boolean spinOk) {
+    public boolean shootTeleop(double spindexer, boolean spinOk, double stamp) {
         // Set spin positions
         robot.spin1.setPosition(spindexer);
         robot.spin2.setPosition(1 - spindexer);
 
         // Check if spindexer has reached the target position
-        if (spinOk) {
+        if (spinOk || getRuntime() - stamp > 1.5) {
             if (tickerA == 1) {
                 transferStamp = getRuntime();
                 tickerA++;
@@ -742,7 +785,6 @@ public class TeleopV2 extends LinearOpMode {
             return 1.94372 * Math.exp(-0.0528731 * x) + 0.39;
         }
     }
-
 
     void addOddThenRest(List<Integer> order, boolean oddColor) {
         // Odd ball first
@@ -814,6 +856,33 @@ public class TeleopV2 extends LinearOpMode {
                 return green3;
         }
         return false; // default
+    }
+
+    boolean ballIn(int slot) {
+        switch (slot) {
+            case 1:
+
+                if (!s1T.isEmpty()) {
+
+                    return !(s1T.get(s1T.size() - 1) < (getRuntime()) - 3);
+                }
+
+            case 2:
+
+                if (!s2T.isEmpty()) {
+
+                    return !(s2T.get(s2T.size() - 1) < (getRuntime()) - 3);
+                }
+
+            case 3:
+
+                if (!s3T.isEmpty()) {
+
+                    return !(s3T.get(s3T.size() - 1) < (getRuntime()) - 3);
+
+                }
+        }
+        return true; // default
     }
 
 }

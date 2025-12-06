@@ -17,7 +17,7 @@ public class PositionalServoProgrammer extends LinearOpMode {
     public static double hoodPos = 0.501;
 
     public static double scalar = 1.112;
-    public static double restPos = 0.158;
+    public static double restPos = 0.15;
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
