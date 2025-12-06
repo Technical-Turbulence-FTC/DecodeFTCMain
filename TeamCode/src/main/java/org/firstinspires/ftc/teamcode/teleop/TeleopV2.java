@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turrDefault;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransferOut;
 import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
@@ -41,6 +42,8 @@ public class TeleopV2 extends LinearOpMode {
     public static double desiredTurretAngle = 180;
     public static double velMultiplier = 20;
     public static double shootStamp2 = 0.0;
+
+
     public double vel = 3000;
     public boolean autoVel = true;
     public double manualOffset = 0.0;
@@ -84,6 +87,8 @@ public class TeleopV2 extends LinearOpMode {
     boolean outtake1 = false;
     boolean outtake2 = false;
     boolean outtake3 = false;
+    boolean overrideTurr = false;
+
 
     List<Integer> shootOrder = new ArrayList<>();
     boolean emergency = false;
@@ -164,6 +169,8 @@ public class TeleopV2 extends LinearOpMode {
                 reject = false;
                 shootAll = false;
                 emergency = false;
+                overrideTurr = false;
+
 
             }
 
@@ -171,6 +178,8 @@ public class TeleopV2 extends LinearOpMode {
                 intake = false;
                 reject = true;
                 shootAll = false;
+                overrideTurr = false;
+
 
             }
 
@@ -349,7 +358,7 @@ public class TeleopV2 extends LinearOpMode {
                 offset -= 360;
             }
 
-            double pos = 0.4;
+            double pos = turrDefault;
 
             TELE.addData("offset", offset);
 
@@ -362,11 +371,14 @@ public class TeleopV2 extends LinearOpMode {
             }
 
             if (manualTurret) {
-                pos = 0.4 + (manualOffset / 100);
+                pos = turrDefault + (manualOffset / 100);
             }
 
-            robot.turr1.setPosition(pos);
-            robot.turr2.setPosition(1 - pos);
+            if (!overrideTurr) {
+
+                robot.turr1.setPosition(pos);
+                robot.turr2.setPosition(1 - pos);
+            }
 
             if (gamepad2.dpad_right) {
                 manualOffset -= 2;
@@ -480,10 +492,27 @@ public class TeleopV2 extends LinearOpMode {
                     AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
 
                     if (d20 != null) {
-                        //TODO: Add logic here and below for webcam if using
+                        overrideTurr = true;
+                        double bearing = d20.ftcPose.bearing;
+                        double finalPos =robot.turr1.getPosition() -  (bearing/1300);
+                        robot.turr1.setPosition(finalPos);
+                        robot.turr2.setPosition(1-finalPos);
+
+                        TELE.addData("Bear", bearing);
+
+
+
+
+
                     }
 
                     if (d24 != null) {
+                        overrideTurr = true;
+
+                        double bearing = d24.ftcPose.bearing;
+                        double finalPos = turretPos() +  (bearing/720);
+                        robot.turr1.setPosition(finalPos);
+                        robot.turr2.setPosition(1-finalPos);
 
                     }
 
@@ -548,6 +577,9 @@ public class TeleopV2 extends LinearOpMode {
                     outtake1 = false;
                     outtake2 = false;
                     outtake3 = false;
+                    overrideTurr = false;
+
+
 
                 }
 
@@ -628,11 +660,36 @@ public class TeleopV2 extends LinearOpMode {
 
                 // Fastest order (example: slot 3 → 2 → 1)
 
-                shootOrder.add(3);
+                if (ballIn(3)){
+                    shootOrder.add(3);
 
-                shootOrder.add(2);
+                }
 
-                shootOrder.add(1);
+                if (ballIn(2)){
+                    shootOrder.add(2);
+
+                }
+
+                if (ballIn(1)){
+                    shootOrder.add(1);
+
+                }
+
+                if (!shootOrder.contains(3)) {
+
+                    shootOrder.add(3);
+                }
+
+                if (!shootOrder.contains(2)) {
+
+                    shootOrder.add(2);
+                }
+
+                if (!shootOrder.contains(1)) {
+
+                    shootOrder.add(1);
+                }
+
 
                 shootAll = true;
                 shootPos = drive.localizer.getPose();
@@ -883,6 +940,10 @@ public class TeleopV2 extends LinearOpMode {
                 }
         }
         return true; // default
+    }
+
+    public double turretPos() {
+        return (scalar*((robot.turr1Pos.getVoltage()-restPos) /3.3 ));
     }
 
 }

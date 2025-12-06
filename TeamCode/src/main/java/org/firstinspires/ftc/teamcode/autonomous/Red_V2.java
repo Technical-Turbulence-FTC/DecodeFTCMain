@@ -520,6 +520,7 @@ public class Red_V2 extends LinearOpMode {
             TELE.update();
         }
 
+
         waitForStart();
 
         if (isStopRequested()) return;
