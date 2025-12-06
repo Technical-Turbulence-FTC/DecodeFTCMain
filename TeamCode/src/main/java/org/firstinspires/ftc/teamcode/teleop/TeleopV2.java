@@ -50,6 +50,7 @@ public class TeleopV2 extends LinearOpMode {
     public boolean autoVel = true;
     public double manualOffset = 0.0;
     public boolean autoHood = true;
+    double turrCamAdjust = 0.0;
     Robot robot;
     MultipleTelemetry TELE;
     boolean intake = false;
@@ -57,6 +58,7 @@ public class TeleopV2 extends LinearOpMode {
     double xOffset = 0.0;
     double yOffset = 0.0;
     double headingOffset = 0.0;
+    boolean camDetected = false;
     int ticker = 0;
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
@@ -366,9 +368,6 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.4 + (manualOffset/100);
             }
 
-            robot.turr1.setPosition(pos);
-            robot.turr2.setPosition(1 - pos);
-
             if (gamepad2.dpad_right) {
                 manualOffset -= 2;
             } else if (gamepad2.dpad_left) {
@@ -466,12 +465,19 @@ public class TeleopV2 extends LinearOpMode {
 
 
                     if (d20!=null){
-                        double bearing = d20.ftcPose.bearing;
-
+                        turrCamAdjust = turretPos() + d20.ftcPose.bearing;
+                        TELE.addData("Turret Pos Target by Camera", turrCamAdjust);
+                        camDetected = true;
+                    } else {
+                        camDetected = false;
                     }
 
                     if (d24!=null){
-
+                        turrCamAdjust = turretPos() + d24.ftcPose.bearing;
+                        TELE.addData("Turret Pos Target by Camera", turrCamAdjust);
+                        camDetected = true;
+                    } else {
+                        camDetected = false;
                     }
 
                     switch (currentSlot) {
@@ -578,6 +584,14 @@ public class TeleopV2 extends LinearOpMode {
                 triangle = false;
 
 
+            }
+
+            if (camDetected){
+                robot.turr1.setPosition(turrCamAdjust);
+                robot.turr2.setPosition(1 - turrCamAdjust);
+            } else {
+                robot.turr1.setPosition(pos);
+                robot.turr2.setPosition(1 - pos);
             }
 
             // Right bumper shoots all balls fastest, ignoring colors
