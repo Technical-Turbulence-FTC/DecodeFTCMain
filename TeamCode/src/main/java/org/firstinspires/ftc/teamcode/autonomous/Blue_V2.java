@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopV2")
 public class Blue_V2 extends LinearOpMode {
 
     Robot robot;
@@ -44,9 +44,9 @@ public class Blue_V2 extends LinearOpMode {
 
     double velo = 0.0;
     double targetVelocity = 0.0;
-    public static double intake1Time = 6.5;
+    public static double intake1Time = 2.9;
 
-    public static double intake2Time = 6.5;
+    public static double intake2Time = 2.9;
 
     public static double colorDetect = 3.0;
 
@@ -182,6 +182,39 @@ public class Blue_V2 extends LinearOpMode {
                     return false;
                 } else {
                     return true;
+                }
+            }
+        };
+    }
+
+    public Action intakeReject() {
+        return new Action() {
+            double stamp = 0.0;
+            int ticker = 0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                double position = 0.0;
+
+                if ((getRuntime() % 0.3) > 0.15) {
+                    position = spindexer_intakePos1 + 0.02;
+                } else {
+                    position = spindexer_intakePos1 - 0.02;
+                }
+
+                robot.spin1.setPosition(position);
+                robot.spin2.setPosition(1 - position);
+
+                if (ticker == 0) {
+                    stamp = getRuntime();
+                }
+                ticker++;
+
+                if (getRuntime() - stamp < 0.3){
+                    return true;
+                }else {
+                    robot.intake.setPower(0);
+                    return false;
                 }
             }
         };
@@ -359,7 +392,6 @@ public class Blue_V2 extends LinearOpMode {
 
                 robot.intake.setPower(1);
                 if ((s1D < 40.0 && s2D < 40.0 && s3D < 40.0) || getRuntime() - stamp > intakeTime) {
-                    robot.intake.setPower(0);
                     return false;
                 } else {
                     return true;
@@ -567,7 +599,8 @@ public class Blue_V2 extends LinearOpMode {
                     new ParallelAction(
                             shoot1.build(),
                             ColorDetect(),
-                            steadyShooter(AUTO_CLOSE_VEL, true)
+                            steadyShooter(AUTO_CLOSE_VEL, true),
+                            intakeReject()
                     )
             );
 
@@ -599,7 +632,8 @@ public class Blue_V2 extends LinearOpMode {
                     new ParallelAction(
                             shoot2.build(),
                             ColorDetect(),
-                            steadyShooter(AUTO_CLOSE_VEL, true)
+                            steadyShooter(AUTO_CLOSE_VEL, true),
+                            intakeReject()
                     )
             );
 

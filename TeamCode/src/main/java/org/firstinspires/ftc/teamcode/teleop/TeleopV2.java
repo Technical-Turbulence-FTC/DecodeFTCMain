@@ -43,7 +43,6 @@ public class TeleopV2 extends LinearOpMode {
     public static double velMultiplier = 20;
     public static double shootStamp2 = 0.0;
 
-
     public double vel = 3000;
     public boolean autoVel = true;
     public double manualOffset = 0.0;
@@ -88,7 +87,6 @@ public class TeleopV2 extends LinearOpMode {
     boolean outtake2 = false;
     boolean outtake3 = false;
     boolean overrideTurr = false;
-
 
     List<Integer> shootOrder = new ArrayList<>();
     boolean emergency = false;
@@ -171,7 +169,6 @@ public class TeleopV2 extends LinearOpMode {
                 emergency = false;
                 overrideTurr = false;
 
-
             }
 
             if (gamepad1.leftBumperWasPressed()) {
@@ -179,7 +176,6 @@ public class TeleopV2 extends LinearOpMode {
                 reject = true;
                 shootAll = false;
                 overrideTurr = false;
-
 
             }
 
@@ -336,8 +332,11 @@ public class TeleopV2 extends LinearOpMode {
 
             double offset;
 
-            double robotX = drive.localizer.getPose().position.x - xOffset;
-            double robotY = drive.localizer.getPose().position.y - xOffset;
+            double robX = drive.localizer.getPose().position.x;
+            double robY = drive.localizer.getPose().position.y;
+
+            double robotX = robX - xOffset;
+            double robotY = robY - yOffset;
             double robotHeading = drive.localizer.getPose().heading.toDouble();
 
             double goalX = -10;
@@ -431,12 +430,11 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.left_stick_x > 0.5) {
                 manualTurret = false;
             } else if (gamepad2.left_stick_x < -0.5) {
-                manualTurret = true;
                 manualOffset = 0;
-                autoHoodOffset = 0;
+                manualTurret = true;
                 if (gamepad2.left_bumper) {
-                    xOffset = robotX;
-                    yOffset = robotY;
+                    xOffset = robX;
+                    yOffset = robY;
                     headingOffset = robotHeading;
                 }
             }
@@ -456,7 +454,7 @@ public class TeleopV2 extends LinearOpMode {
             //SHOOT ALL:]
 
             if (emergency) {
-                intake = false;
+                intake = true;
                 reject = false;
 
                 if (getRuntime() % 3 > 1.5) {
@@ -494,15 +492,12 @@ public class TeleopV2 extends LinearOpMode {
                     if (d20 != null) {
                         overrideTurr = true;
                         double bearing = d20.ftcPose.bearing;
-                        double finalPos =robot.turr1.getPosition() -  (bearing/1300);
+
+                        double finalPos = robot.turr1.getPosition() - (bearing / 1300);
                         robot.turr1.setPosition(finalPos);
-                        robot.turr2.setPosition(1-finalPos);
+                        robot.turr2.setPosition(1 - finalPos);
 
                         TELE.addData("Bear", bearing);
-
-
-
-
 
                     }
 
@@ -510,9 +505,9 @@ public class TeleopV2 extends LinearOpMode {
                         overrideTurr = true;
 
                         double bearing = d24.ftcPose.bearing;
-                        double finalPos = turretPos() +  (bearing/720);
+                        double finalPos = robot.turr1.getPosition() - (bearing / 1300);
                         robot.turr1.setPosition(finalPos);
-                        robot.turr2.setPosition(1-finalPos);
+                        robot.turr2.setPosition(1 - finalPos);
 
                     }
 
@@ -577,9 +572,13 @@ public class TeleopV2 extends LinearOpMode {
                     outtake1 = false;
                     outtake2 = false;
                     outtake3 = false;
+
+
+
+
+
+
                     overrideTurr = false;
-
-
 
                 }
 
@@ -660,17 +659,17 @@ public class TeleopV2 extends LinearOpMode {
 
                 // Fastest order (example: slot 3 → 2 → 1)
 
-                if (ballIn(3)){
+                if (ballIn(3)) {
                     shootOrder.add(3);
 
                 }
 
-                if (ballIn(2)){
+                if (ballIn(2)) {
                     shootOrder.add(2);
 
                 }
 
-                if (ballIn(1)){
+                if (ballIn(1)) {
                     shootOrder.add(1);
 
                 }
@@ -690,38 +689,37 @@ public class TeleopV2 extends LinearOpMode {
                     shootOrder.add(1);
                 }
 
-
                 shootAll = true;
                 shootPos = drive.localizer.getPose();
 
             }
 
-            // Right bumper shoots all balls fastest, ignoring colors
-            if (gamepad2.leftBumperWasPressed()) {
-                shootOrder.clear();
-                shootStamp = getRuntime();
-
-                outtake1 = false;
-                outtake2 = false;
-                outtake3 = false;
-
-                // Fastest order (example: slot 3 → 2 → 1)
-
-                if (ballIn(3)) {
-                    shootOrder.add(3);
-                }
-
-                if (ballIn(2)) {
-                    shootOrder.add(2);
-                }
-                if (ballIn(1)) {
-                    shootOrder.add(1);
-                }
-                shootAll = true;
-                shootPos = drive.localizer.getPose();
-
-            }
-
+//            // Right bumper shoots all balls fastest, ignoring colors
+//            if (gamepad2.leftBumperWasPressed()) {
+//                shootOrder.clear();
+//                shootStamp = getRuntime();
+//
+//                outtake1 = false;
+//                outtake2 = false;
+//                outtake3 = false;
+//
+//                // Fastest order (example: slot 3 → 2 → 1)
+//
+//                if (ballIn(3)) {
+//                    shootOrder.add(3);
+//                }
+//
+//                if (ballIn(2)) {
+//                    shootOrder.add(2);
+//                }
+//                if (ballIn(1)) {
+//                    shootOrder.add(1);
+//                }
+//                shootAll = true;
+//                shootPos = drive.localizer.getPose();
+//
+//            }
+//
             if (gamepad2.crossWasPressed()) {
                 emergency = !emergency;
 
@@ -943,7 +941,7 @@ public class TeleopV2 extends LinearOpMode {
     }
 
     public double turretPos() {
-        return (scalar*((robot.turr1Pos.getVoltage()-restPos) /3.3 ));
+        return (scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3));
     }
 
 }

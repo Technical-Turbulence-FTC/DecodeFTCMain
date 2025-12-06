@@ -24,13 +24,13 @@ public class ServoPositions {
 
     public static double hoodDefault = 0.6;
 
-    public static double hoodAuto = 0.59;
+    public static double hoodAuto = 0.55;
 
     public static double hoodHigh = 0.21;
 
     public static double hoodLow = 1.0;
 
-    public static double turret_red = 0.4;
+    public static double turret_red = 0.42;
     public static double turret_blue = 0.38;
 
     public static double turret_detectRed = 0.2;
