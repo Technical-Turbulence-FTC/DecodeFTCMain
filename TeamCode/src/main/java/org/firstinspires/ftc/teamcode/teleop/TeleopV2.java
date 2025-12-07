@@ -173,9 +173,7 @@ public class TeleopV2 extends LinearOpMode {
 
             if (gamepad1.leftBumperWasPressed()) {
                 intake = false;
-                reject = true;
-                shootAll = false;
-                overrideTurr = false;
+                emergency = !emergency;
 
             }
 
@@ -431,11 +429,10 @@ public class TeleopV2 extends LinearOpMode {
                 manualTurret = false;
             } else if (gamepad2.left_stick_x < -0.5) {
                 manualOffset = 0;
-                manualTurret = true;
+                manualTurret = false;
                 if (gamepad2.left_bumper) {
-                    xOffset = robX;
-                    yOffset = robY;
-                    headingOffset = robotHeading;
+                    drive = new MecanumDrive(hardwareMap, new Pose2d(2, 0, 0));
+                    sleep(1200);
                 }
             }
 
@@ -454,8 +451,8 @@ public class TeleopV2 extends LinearOpMode {
             //SHOOT ALL:]
 
             if (emergency) {
-                intake = true;
-                reject = false;
+                intake = false;
+                reject = true;
 
                 if (getRuntime() % 3 > 1.5) {
                     robot.spin1.setPosition(0);
@@ -466,12 +463,7 @@ public class TeleopV2 extends LinearOpMode {
                     robot.spin2.setPosition(0);
                 }
 
-                if (getRuntime() % 1 < 0.5) {
-                    robot.transferServo.setPosition(transferServo_in);
-                } else {
-                    robot.transferServo.setPosition(transferServo_out);
-
-                }
+                robot.transferServo.setPosition(transferServo_out);
 
                 robot.transfer.setPower(1);
 
@@ -572,11 +564,6 @@ public class TeleopV2 extends LinearOpMode {
                     outtake1 = false;
                     outtake2 = false;
                     outtake3 = false;
-
-
-
-
-
 
                     overrideTurr = false;
 
@@ -721,8 +708,12 @@ public class TeleopV2 extends LinearOpMode {
 //            }
 //
             if (gamepad2.crossWasPressed()) {
-                emergency = !emergency;
+                emergency = true;
 
+            }
+
+            if (gamepad2.leftBumperWasPressed()) {
+                emergency = false;
             }
 
             //MISC:
