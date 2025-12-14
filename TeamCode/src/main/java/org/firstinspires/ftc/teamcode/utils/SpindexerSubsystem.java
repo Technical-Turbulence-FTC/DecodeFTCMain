@@ -20,6 +20,7 @@ public class SpindexerSubsystem {
     private Robot robot;
     private MultipleTelemetry telemetry;
     private ColorSensorSubsystem colorSensor;
+    private TurretSubsystem turretSubsystem;
 
     private List<Integer> shootOrder = new ArrayList<>();
     private boolean shootAll = false;
@@ -35,10 +36,11 @@ public class SpindexerSubsystem {
     private int tickerA = 1;
     private boolean transferIn = false;
 
-    public SpindexerSubsystem(Robot robot, MultipleTelemetry telemetry, ColorSensorSubsystem colorSensor) {
+    public SpindexerSubsystem(Robot robot, MultipleTelemetry telemetry, ColorSensorSubsystem colorSensor, TurretSubsystem turretSubsystem) {
         this.robot = robot;
         this.telemetry = telemetry;
         this.colorSensor = colorSensor;
+        this.turretSubsystem = turretSubsystem;
     }
 
     /**
@@ -61,17 +63,15 @@ public class SpindexerSubsystem {
 
             if (d20 != null) {
                 double bearing = d20.ftcPose.bearing;
-                double finalPos = robot.turr1.getPosition() - (bearing / 1300);
-                robot.turr1.setPosition(finalPos);
-                robot.turr2.setPosition(1 - finalPos);
+                double finalPos = turretSubsystem.getPosition() - (bearing / 1300);
+                turretSubsystem.setPosition(finalPos);
                 telemetry.addData("Bear", bearing);
             }
 
             if (d24 != null) {
                 double bearing = d24.ftcPose.bearing;
-                double finalPos = robot.turr1.getPosition() - (bearing / 1300);
-                robot.turr1.setPosition(finalPos);
-                robot.turr2.setPosition(1 - finalPos);
+                double finalPos = turretSubsystem.getPosition() - (bearing / 1300);
+                turretSubsystem.setPosition(finalPos);
             }
 
             // Check if positions are reached

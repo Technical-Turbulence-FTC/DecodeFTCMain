@@ -76,7 +76,7 @@ public class TeleopV2 extends LinearOpMode {
         shooter = new ShooterSubsystem(robot, TELE);
         turret = new TurretSubsystem(robot, TELE);
         hood = new HoodSubsystem(robot);
-        spindexer = new SpindexerSubsystem(robot, TELE, colorSensor);
+        spindexer = new SpindexerSubsystem(robot, TELE, colorSensor, turret);
         aprilTagWebcam.init(new Robot(hardwareMap), TELE);
 
         robot.turr1.setPosition(0.4);

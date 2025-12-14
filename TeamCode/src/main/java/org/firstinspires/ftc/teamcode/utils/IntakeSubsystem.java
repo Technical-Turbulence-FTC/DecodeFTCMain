@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 
-public class Intake {
+public class IntakeSubsystem {
     private Robot robot;
     private boolean isIntaking;
     private boolean isRejecting;
@@ -55,6 +56,7 @@ public class Intake {
      */
     public void update(double runtime) {
         if (isIntaking) {
+            robot.transferServo.setPosition(transferServo_out);
             robot.intake.setPower(1);
 
             // Oscillate spindexer for better intake
