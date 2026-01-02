@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodAuto;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
+import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
 
 import androidx.annotation.NonNull;
 

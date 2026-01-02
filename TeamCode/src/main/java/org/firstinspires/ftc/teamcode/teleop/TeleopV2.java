@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
+import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

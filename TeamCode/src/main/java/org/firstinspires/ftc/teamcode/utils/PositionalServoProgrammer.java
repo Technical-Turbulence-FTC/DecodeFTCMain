@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -16,8 +18,6 @@ public class PositionalServoProgrammer extends LinearOpMode {
     public static double transferPos = 0.501;
     public static double hoodPos = 0.501;
 
-    public static double scalar = 1.112;
-    public static double restPos = 0.15;
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -43,10 +43,10 @@ public class PositionalServoProgrammer extends LinearOpMode {
             TELE.addData("hood", 1-scalar*((robot.hoodPos.getVoltage() - restPos) / 3.3));
             TELE.addData("transferServo", scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3));
             TELE.addData("turret", scalar*((robot.turr1Pos.getVoltage() - restPos) / 3.3));
-            TELE.addData("spindexerA", robot.spin1Pos.getVoltage());
-            TELE.addData("hoodA", robot.hoodPos.getVoltage());
-            TELE.addData("transferServoA", robot.transferServoPos.getVoltage());
-            TELE.addData("turretA", robot.turr1Pos.getVoltage());
+            TELE.addData("spindexer voltage", robot.spin1Pos.getVoltage());
+            TELE.addData("hood voltage", robot.hoodPos.getVoltage());
+            TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
+            TELE.addData("turret voltage", robot.turr1Pos.getVoltage());
             TELE.update();
         }
     }
