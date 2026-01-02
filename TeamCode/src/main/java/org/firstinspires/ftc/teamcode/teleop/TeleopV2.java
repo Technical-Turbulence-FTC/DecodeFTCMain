@@ -1,19 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turrDefault;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransferOut;
-import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
-import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.scalar;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
+import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -17,8 +19,6 @@ public class ShooterTest extends LinearOpMode {
     public static double parameter = 0.0;
     // --- CONSTANTS YOU TUNE ---
     public static double MAX_RPM = 4500;      // your measured max RPM
-    public static double kP = 0.001;           // small proportional gain (tune this)
-    public static double maxStep = 0.06;         // prevents sudden jumps
 
     //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
     public static double transferPower = 0.0;

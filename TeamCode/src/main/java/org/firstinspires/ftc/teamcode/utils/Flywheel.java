@@ -13,15 +13,16 @@ public class Flywheel {
     double stamp = 0.0;
     double stamp1 = 0.0;
     double ticker = 0.0;
-    double stamp2 = 0.0;
     double currentPos = 0.0;
-    boolean prevSteady = false;
     double velo = 0.0;
-    double prevVelo = 0.0;
+    double velo1 = 0.0;
+    double velo2 = 0.0;
+    double velo3 = 0.0;
+    double velo4 = 0.0;
+    double velo5 = 0.0;
     double targetVelocity = 0.0;
     double powPID = 0.0;
     boolean steady = false;
-
     public Flywheel () {
         //robot = new Robot(hardwareMap);
     }
@@ -41,15 +42,22 @@ public class Flywheel {
 
 
     public double manageFlywheel(int commandedVelocity, double shooter1CurPos) {
-        targetVelocity = (double) commandedVelocity;
+        targetVelocity = commandedVelocity;
 
         ticker++;
-        if (ticker % 8 == 0) {
+        if (ticker % 2 == 0) {
+            velo5 = velo4;
+            velo4 = velo3;
+            velo3 = velo2;
+            velo2 = velo1;
+
             currentPos = shooter1CurPos / 2048;
             stamp = getTimeSeconds(); //getRuntime();
-            velo = -60 * ((currentPos - initPos) / (stamp - stamp1));
+            velo1 = -60 * ((currentPos - initPos) / (stamp - stamp1));
             initPos = currentPos;
             stamp1 = stamp;
+
+            velo = (velo1 + velo2 + velo3 + velo4 + velo5) / 5;
         }
         // Flywheel control code here
         if (targetVelocity - velo > 500) {
@@ -74,19 +82,12 @@ public class Flywheel {
         }
 
         // really should be a running average of the last 5
-        if ((Math.abs(targetVelocity - velo) < 150.0) && (Math.abs(targetVelocity - prevVelo) < 150.0))
-        {
-            steady = true;
-        }
-        else
-        {
-            steady = false;
-        }
+        steady = (Math.abs(targetVelocity - velo) < 100.0);
 
         return powPID;
     }
 
     public void update()
     {
-    };
-};
+    }
+}
