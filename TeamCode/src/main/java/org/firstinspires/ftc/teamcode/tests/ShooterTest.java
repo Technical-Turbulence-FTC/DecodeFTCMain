@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -19,13 +21,12 @@ public class ShooterTest extends LinearOpMode {
     // --- CONSTANTS YOU TUNE ---
 
     //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
-    public static double transferPower = 0.0;
+    public static double transferPower = 1.0;
     public static double hoodPos = 0.501;
-
     public static double turretPos = 0.501;
+    public static boolean shoot = false;
     Robot robot;
     Flywheel flywheel;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,7 +49,6 @@ public class ShooterTest extends LinearOpMode {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-
                 double powPID = flywheel.manageFlywheel((int) parameter, robot.shooter1.getCurrentPosition());
 
                 TELE.addData("Velocity", flywheel.getVelo());
@@ -61,12 +61,17 @@ public class ShooterTest extends LinearOpMode {
                 robot.hood.setPosition(hoodPos);
             }
 
-            if (turretPos!=0.501){
+            if (turretPos != 0.501) {
                 robot.turr1.setPosition(turretPos);
                 robot.turr2.setPosition(turretPos);
             }
 
             robot.transfer.setPower(transferPower);
+            if (shoot) {
+                robot.transferServo.setPosition(transferServo_in);
+            } else {
+                robot.transferServo.setPosition(transferServo_out);
+            }
 
             TELE.update();
 

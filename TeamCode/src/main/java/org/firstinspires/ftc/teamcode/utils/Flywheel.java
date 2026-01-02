@@ -7,8 +7,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 public class Flywheel {
     Robot robot;
-
     MultipleTelemetry TELE;
+
     double initPos = 0.0;
     double stamp = 0.0;
     double stamp1 = 0.0;
