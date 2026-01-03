@@ -4,7 +4,9 @@ import static org.firstinspires.ftc.teamcode.variables.HardwareConfig.*;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -30,8 +32,10 @@ public class Robot {
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "s1");
-
         shooter2 = hardwareMap.get(DcMotorEx.class, "s2");
+        shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         hood = hardwareMap.get(Servo.class, "hood");
 

@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.kP;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.maxStep;
+import com.acmerobotics.dashboard.config.Config;
 
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-
+@Config
 public class Flywheel {
-    Robot robot;
-    MultipleTelemetry TELE;
-
+    public static double kP = 0.001;           // small proportional gain (tune this)
+    public static double maxStep = 0.06;         // prevents sudden jumps
     double initPos = 0.0;
     double stamp = 0.0;
     double stamp1 = 0.0;
