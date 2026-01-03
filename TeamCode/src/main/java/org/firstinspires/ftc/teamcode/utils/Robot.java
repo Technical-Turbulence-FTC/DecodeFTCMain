@@ -34,6 +34,7 @@ public class Robot {
         shooter1 = hardwareMap.get(DcMotorEx.class, "s1");
         shooter2 = hardwareMap.get(DcMotorEx.class, "s2");
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
