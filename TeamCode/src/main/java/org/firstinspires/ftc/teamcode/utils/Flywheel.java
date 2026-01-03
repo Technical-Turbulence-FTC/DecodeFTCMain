@@ -51,7 +51,7 @@ public class Flywheel {
             velo3 = velo2;
             velo2 = velo1;
 
-            currentPos = shooter1CurPos / 2048;
+            currentPos = shooter1CurPos / 3072;
             stamp = getTimeSeconds(); //getRuntime();
             velo1 = -60 * ((currentPos - initPos) / (stamp - stamp1));
             initPos = currentPos;

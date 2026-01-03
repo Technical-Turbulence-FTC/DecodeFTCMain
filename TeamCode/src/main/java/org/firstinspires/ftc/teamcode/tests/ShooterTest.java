@@ -34,6 +34,7 @@ public class ShooterTest extends LinearOpMode {
         robot = new Robot(hardwareMap);
         DcMotorEx leftShooter = robot.shooter1;
         DcMotorEx rightShooter = robot.shooter2;
+        flywheel = new Flywheel();
 
         MultipleTelemetry TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -50,11 +51,9 @@ public class ShooterTest extends LinearOpMode {
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
                 double powPID = flywheel.manageFlywheel((int) parameter, robot.shooter1.getCurrentPosition());
-
-                TELE.addData("Velocity", flywheel.getVelo());
+                rightShooter.setPower(powPID);
+                leftShooter.setPower(powPID);
                 TELE.addData("PIDPower", powPID);
-                TELE.addData("Power", robot.shooter1.getPower());
-                TELE.addData("Steady?", flywheel.getSteady());
             }
 
             if (hoodPos != 0.501) {
@@ -62,8 +61,8 @@ public class ShooterTest extends LinearOpMode {
             }
 
             if (turretPos != 0.501) {
-                robot.turr1.setPosition(turretPos);
-                robot.turr2.setPosition(turretPos);
+                robot.turr1.setPower(turretPos);
+                robot.turr2.setPower(turretPos);
             }
 
             robot.transfer.setPower(transferPower);
@@ -72,6 +71,10 @@ public class ShooterTest extends LinearOpMode {
             } else {
                 robot.transferServo.setPosition(transferServo_out);
             }
+            TELE.addData("Velocity", flywheel.getVelo());
+            TELE.addData("Power", robot.shooter1.getPower());
+            TELE.addData("Steady?", flywheel.getSteady());
+            TELE.addData("Position", robot.shooter1.getCurrentPosition());
 
             TELE.update();
 

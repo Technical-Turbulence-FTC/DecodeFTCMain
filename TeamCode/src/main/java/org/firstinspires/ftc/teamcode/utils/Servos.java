@@ -1,52 +1,61 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
 public class Servos {
-    PIDController spinPID;
+    Robot robot;
 
-    PIDController turretPID;
+    PIDFController spinPID;
+
+    PIDFController turretPID;
 
     //PID constants
-    public static double spinP = 0.0, spinI = 0.0, spinD = 0.0;
-    public static double turrP = 0.0, turrI = 0.0, turrD = 0.0;
+    public static double spinP = 2.85, spinI = 0.015, spinD = 0.09, spinF = 0.03;
+    public static double turrP = 4.0, turrI = 0.0, turrD = 0.0, turrF;
 
-    public static double spin_scalar = 0.15;
-    public static double spin_restPos = 1.112;
-    public static double turret_scalar = 0.15;
-    public static double turret_restPos = 1.112;
+    public static double spin_scalar = 1.011;
+    public static double spin_restPos = 0.0;
+    public static double turret_scalar = 1.009;
+    public static double turret_restPos = 0.0;
 
-    public void initServos() {
-        spinPID = new PIDController(spinP, spinI, spinD);
-        turretPID = new PIDController(turrP, turrI, turrD);
+    public Servos(HardwareMap hardwareMap) {
+        robot = new Robot(hardwareMap);
+        spinPID = new PIDFController(spinP, spinI, spinD, spinF);
+        turretPID = new PIDFController(turrP, turrI, turrD, turrF);
     }
 
     // In the code below, encoder = robot.servo.getVoltage()
 
-    public double getSpinPos(double encoder){
-        return spin_scalar * ((encoder - spin_restPos) / 3.3);
-    }
-    public double setSpinPos(double pos, double encoder){
-        spinPID.setPID(spinP, spinI, spinD);
-
-        return spinPID.calculate(this.getSpinPos(encoder), pos);
-    }
-    public boolean spinEqual(double pos, double encoder){
-        return Math.abs(pos - this.getSpinPos(encoder)) < 0.01;
+    public double getSpinPos() {
+        return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
     }
 
-    public double getTurrPos(double encoder){
-        return turret_scalar * ((encoder - turret_restPos) / 3.3);
-    }
-    public double setTurrPos(double pos, double encoder){
-        turretPID.setPID(turrP, turrI, turrD);
+    public double setSpinPos(double pos) {
+        spinPID.setPIDF(spinP, spinI, spinD, spinF);
 
-        return spinPID.calculate(this.getTurrPos(encoder), pos);
+        return spinPID.calculate(this.getSpinPos(), pos);
     }
-    public boolean turretEqual(double pos, double encoder){
-        return Math.abs(pos - this.getTurrPos(encoder)) < 0.01;
+
+    public boolean spinEqual(double pos) {
+        return Math.abs(pos - this.getSpinPos()) < 0.01;
+    }
+
+    public double getTurrPos() {
+        return turret_scalar * ((robot.turr1Pos.getVoltage() - turret_restPos) / 3.3);
+    }
+
+    public double setTurrPos(double pos) {
+        turretPID.setPIDF(turrP, turrI, turrD, turrF);
+
+        return spinPID.calculate(this.getTurrPos(), pos);
+    }
+
+    public boolean turretEqual(double pos) {
+        return Math.abs(pos - this.getTurrPos()) < 0.01;
     }
 }

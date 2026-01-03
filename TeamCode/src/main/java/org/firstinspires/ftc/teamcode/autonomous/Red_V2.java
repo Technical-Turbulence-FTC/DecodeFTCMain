@@ -171,8 +171,8 @@ public class Red_V2 extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg){
-                    robot.turr1.setPosition(turret_red);
-                    robot.turr2.setPosition(1 - turret_red);
+                    robot.turr1.setPower(turret_red);
+                    robot.turr2.setPower(1 - turret_red);
                     return false;
                 } else {
                     return true;
@@ -190,8 +190,8 @@ public class Red_V2 extends LinearOpMode {
                 velo = flywheel.getVelo();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
-                robot.spin1.setPosition(spindexer);
-                robot.spin2.setPosition(1-spindexer);
+                robot.spin1.setPower(spindexer);
+                robot.spin2.setPower(1-spindexer);
                 TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
@@ -272,8 +272,8 @@ public class Red_V2 extends LinearOpMode {
                 } else {
                     position = spindexer_intakePos1 - 0.02;
                 }
-                robot.spin1.setPosition(position);
-                robot.spin2.setPosition(1 - position);
+                robot.spin1.setPower(position);
+                robot.spin2.setPower(1 - position);
 
                 TELE.addData("Velocity", velo);
                 TELE.addLine("Intaking");
@@ -331,8 +331,8 @@ public class Red_V2 extends LinearOpMode {
                 } else {
                     position = spindexer_intakePos1 - 0.02;
                 }
-                robot.spin1.setPosition(position);
-                robot.spin2.setPosition(1 - position);
+                robot.spin1.setPower(position);
+                robot.spin2.setPower(1 - position);
 
                 double s1D = robot.color1.getDistance(DistanceUnit.MM);
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
@@ -454,13 +454,13 @@ public class Red_V2 extends LinearOpMode {
 
             robot.hood.setPosition(hoodAuto);
 
-            robot.turr1.setPosition(turret_detectRed);
-            robot.turr2.setPosition(1 - turret_detectRed);
+            robot.turr1.setPower(turret_detectRed);
+            robot.turr2.setPower(1 - turret_detectRed);
 
             robot.transferServo.setPosition(transferServo_out);
 
-            robot.spin1.setPosition(spindexer_intakePos1);
-            robot.spin2.setPosition(1 - spindexer_intakePos1);
+            robot.spin1.setPower(spindexer_intakePos1);
+            robot.spin2.setPower(1 - spindexer_intakePos1);
 
             aprilTag.update();
             TELE.addData("Velocity", velo);

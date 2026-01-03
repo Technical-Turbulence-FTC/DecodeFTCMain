@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.*;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -17,14 +15,14 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 @Config
 public class PIDServoTest extends LinearOpMode {
 
-    public static double p = 0.0003, i = 0, d = 0.00001;
+    public static double p = 2, i = 0, d = 0, f = 0;
 
     public static double target = 0.5;
 
     public static int mode = 0; //0 is for turret, 1 is for spindexer
 
-    public static double scalar = 1.112;
-    public static double restPos = 0.15;
+    public static double scalar = 1.01;
+    public static double restPos = 0.0;
 
     Robot robot;
 
@@ -33,7 +31,7 @@ public class PIDServoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        PIDController controller = new PIDController(p, i, d);
+        PIDFController controller = new PIDFController(p, i, d, f);
 
         controller.setTolerance(0);
         robot = new Robot(hardwareMap);
@@ -45,22 +43,22 @@ public class PIDServoTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            controller.setPID(p, i, d);
+            controller.setPIDF(p, i, d, f);
 
             if (mode == 0) {
                 pos = scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3);
 
                 double pid = controller.calculate(pos, target);
 
-                robot.turr1.setPosition(pid);
-                robot.turr2.setPosition(-pid);
+                robot.turr1.setPower(pid);
+                robot.turr2.setPower(-pid);
             } else if (mode == 1) {
                 pos = scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3);
 
                 double pid = controller.calculate(pos, target);
 
-                robot.spin1.setPosition(pid);
-                robot.spin2.setPosition(-pid);
+                robot.spin1.setPower(pid);
+                robot.spin2.setPower(-pid);
             }
 
             telemetry.addData("pos", pos);
