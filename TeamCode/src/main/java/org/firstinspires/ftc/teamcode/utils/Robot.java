@@ -7,6 +7,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Robot {
 
@@ -20,6 +21,8 @@ public class Robot {
 
     public DcMotorEx shooter2;
 
+    public Servo hood;
+
     public Robot (HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
@@ -29,6 +32,8 @@ public class Robot {
         shooter1 = hardwareMap.get(DcMotorEx.class, "s1");
 
         shooter2 = hardwareMap.get(DcMotorEx.class, "s2");
+
+        hood = hardwareMap.get(Servo.class, "hood");
 
         if (USING_LL) {
             limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
