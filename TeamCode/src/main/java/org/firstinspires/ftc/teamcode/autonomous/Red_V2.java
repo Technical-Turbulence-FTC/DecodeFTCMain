@@ -454,10 +454,6 @@ public class Red_V2 extends LinearOpMode {
 
             robot.hood.setPosition(hoodAuto);
 
-            double turretPID = servo.setTurrPos(turret_detectRed);
-            robot.turr1.setPower(turretPID);
-            robot.turr2.setPower(-turretPID);
-
             robot.transferServo.setPosition(transferServo_out);
 
             robot.spin1.setPower(spindexer_intakePos1);
@@ -465,6 +461,7 @@ public class Red_V2 extends LinearOpMode {
 
             aprilTag.update();
             TELE.addData("Velocity", velo);
+            TELE.addData("Turret Pos", servo.getTurrPos());
             TELE.update();
         }
 

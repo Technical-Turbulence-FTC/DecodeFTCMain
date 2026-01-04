@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -80,6 +81,8 @@ public class Robot {
     public RevColorSensorV3 color2;
 
     public RevColorSensorV3 color3;
+
+    public Limelight3A limelight;
 
     public Robot(HardwareMap hardwareMap) {
 
@@ -163,5 +166,7 @@ public class Robot {
         color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
+
+        limelight = hardwareMap.get(Limelight3A.class,"Limelight");
     }
 }
