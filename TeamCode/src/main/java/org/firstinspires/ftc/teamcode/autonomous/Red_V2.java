@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
-import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
 
 import androidx.annotation.NonNull;
 
@@ -26,6 +25,8 @@ import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utils.Servos;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV2")
@@ -40,6 +41,8 @@ public class Red_V2 extends LinearOpMode {
     AprilTagWebcam aprilTag;
 
     Flywheel flywheel;
+
+    Servos servo;
 
     double velo = 0.0;
     public static double intake1Time = 2.9;
@@ -56,18 +59,13 @@ public class Red_V2 extends LinearOpMode {
 
     double powPID = 0.0;
 
+    double bearing = 0.0;
+
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
 
     int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
 
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-
-    boolean spindexPosEqual(double spindexer) {
-        TELE.addLine("spindex equal");
-        TELE.update();
-        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
-                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
-    }
 
     public Action initShooter(int vel) {
         return new Action() {
@@ -125,7 +123,7 @@ public class Red_V2 extends LinearOpMode {
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-
+                detectTag();
 
                 if (last && !steady){
                     stamp = getRuntime();
@@ -171,9 +169,10 @@ public class Red_V2 extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg){
-                    robot.turr1.setPower(turret_red);
-                    robot.turr2.setPower(1 - turret_red);
-                    return false;
+                    double turretPID = servo.setTurrPos(turret_red);
+                    robot.turr1.setPower(turretPID);
+                    robot.turr2.setPower(-turretPID);
+                    return !servo.turretEqual(turret_red);
                 } else {
                     return true;
                 }
@@ -200,7 +199,7 @@ public class Red_V2 extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                return !spindexPosEqual(spindexer);
+                return !servo.spinEqual(spindexer);
             }
         };
     }
@@ -222,6 +221,7 @@ public class Red_V2 extends LinearOpMode {
                 robot.shooter2.setPower(powPID);
 
                 drive.updatePoseEstimate();
+                detectTag();
 
                 teleStart = drive.localizer.getPose();
 
@@ -454,8 +454,9 @@ public class Red_V2 extends LinearOpMode {
 
             robot.hood.setPosition(hoodAuto);
 
-            robot.turr1.setPower(turret_detectRed);
-            robot.turr2.setPower(1 - turret_detectRed);
+            double turretPID = servo.setTurrPos(turret_detectRed);
+            robot.turr1.setPower(turretPID);
+            robot.turr2.setPower(-turretPID);
 
             robot.transferServo.setPosition(transferServo_out);
 
@@ -572,6 +573,25 @@ public class Red_V2 extends LinearOpMode {
 
         }
 
+    }
+
+    public void detectTag(){
+        AprilTagDetection d20 = aprilTag.getTagById(20);
+        AprilTagDetection d24 = aprilTag.getTagById(24);
+
+        if (d20 != null) {
+            bearing = d20.ftcPose.bearing;
+            TELE.addData("Bear", bearing);
+        }
+
+        if (d24 != null) {
+            bearing = d24.ftcPose.bearing;
+            TELE.addData("Bear", bearing);
+        }
+        double turretPos = servo.getTurrPos() - (bearing / 1300);
+        double turretPID = servo.setTurrPos(turretPos);
+        robot.turr1.setPower(turretPID);
+        robot.turr2.setPower(-turretPID);
     }
 
     public void shootingSequence() {
