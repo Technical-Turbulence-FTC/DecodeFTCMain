@@ -56,6 +56,7 @@ public class TeleopV2 extends LinearOpMode {
     double yOffset = 0.0;
     double headingOffset = 0.0;
     int ticker = 0;
+    int camTicker = 0;
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
     List<Double> s3G = new ArrayList<>();
@@ -319,7 +320,7 @@ public class TeleopV2 extends LinearOpMode {
                 offset -= 360;
             }
 
-            double pos = turrDefault + error;
+            double pos = turrDefault + (error/8);
 
             TELE.addData("offset", offset);
 
@@ -335,19 +336,27 @@ public class TeleopV2 extends LinearOpMode {
                 AprilTagDetection d20 = aprilTagWebcam.getTagById(20);
                 AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
 
+                double bearing = 0.0;
                 if (d20 != null) {
                     overrideTurr = true;
-                    double bearing = d20.ftcPose.bearing;
+                    bearing = d20.ftcPose.bearing;
                     turretPos = servo.getTurrPos() - (bearing/1300);
                     TELE.addData("Bear", bearing);
                 }
 
                 if (d24 != null) {
                     overrideTurr = true;
-                    double bearing = d24.ftcPose.bearing;
+                    bearing = d24.ftcPose.bearing;
                     turretPos = servo.getTurrPos() - (bearing/1300);
                     TELE.addData("Bear", bearing);
                 }
+
+                if (camTicker < 8){
+                    error += bearing/1300;
+                }
+                camTicker++;
+            }else{
+                camTicker = 0;
             }
 
             if (manualTurret) {
@@ -356,8 +365,6 @@ public class TeleopV2 extends LinearOpMode {
 
             if (!overrideTurr) {
                 turretPos = pos;
-            } else{
-                error = servo.getSpinPos() - pos;
             }
 
             if (gamepad2.dpad_right) {
