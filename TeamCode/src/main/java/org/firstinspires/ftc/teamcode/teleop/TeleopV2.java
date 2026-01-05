@@ -320,7 +320,7 @@ public class TeleopV2 extends LinearOpMode {
                 offset -= 360;
             }
 
-            double pos = turrDefault + (error/8);
+            double pos = turrDefault + (error/8); // adds the overall error to the default
 
             TELE.addData("offset", offset);
 
@@ -332,30 +332,29 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.97;
             }
 
-            if (y < 0.1 && y > -0.1 && x < 0.1 && x > -0.1 && rx < 0.1 && rx > -0.1){
+            if (y < 0.1 && y > -0.1 && x < 0.1 && x > -0.1 && rx < 0.1 && rx > -0.1){ //not moving
                 AprilTagDetection d20 = aprilTagWebcam.getTagById(20);
                 AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
 
                 double bearing = 0.0;
-                if (d20 != null) {
+                if (d20 != null || d24 != null){
+                    if (d20 != null) {
+                        bearing = d20.ftcPose.bearing;
+                    }
+                    if (d24 != null) {
+                        bearing = d24.ftcPose.bearing;
+                    }
                     overrideTurr = true;
-                    bearing = d20.ftcPose.bearing;
                     turretPos = servo.getTurrPos() - (bearing/1300);
                     TELE.addData("Bear", bearing);
+                    if (camTicker < 8){
+                        error += bearing/1300; //adds error in first 8 frames of seeing the tag to see how much to adjust the default pos
+                    }
+                    camTicker++;
                 }
 
-                if (d24 != null) {
-                    overrideTurr = true;
-                    bearing = d24.ftcPose.bearing;
-                    turretPos = servo.getTurrPos() - (bearing/1300);
-                    TELE.addData("Bear", bearing);
-                }
 
-                if (camTicker < 8){
-                    error += bearing/1300;
-                }
-                camTicker++;
-            }else{
+            } else {
                 camTicker = 0;
             }
 

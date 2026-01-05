@@ -16,9 +16,14 @@ public class PositionalServoProgrammer extends LinearOpMode {
     Servos servo;
 
     public static double spindexPos = 0.501;
+    public static double spindexPow = 0.0;
+    public static double spinHoldPow = 0.0;
     public static double turretPos = 0.501;
+    public static double turretPow = 0.0;
+    public static double turrHoldPow = 0.0;
     public static double transferPos = 0.501;
     public static double hoodPos = 0.501;
+    public static int mode = 0; //0 for positional, 1 for power
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,21 +33,27 @@ public class PositionalServoProgrammer extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
-            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos)){
+            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos) && mode == 0){
                 double pos = servo.setSpinPos(spindexPos);
                 robot.spin1.setPower(pos);
                 robot.spin2.setPower(-pos);
-            } else{
-                robot.spin1.setPower(0);
-                robot.spin2.setPower(0);
+            } else if (mode == 0){
+                robot.spin1.setPower(spinHoldPow);
+                robot.spin2.setPower(spinHoldPow);
+            } else {
+                robot.spin1.setPower(spindexPow);
+                robot.spin2.setPower(-spindexPow);
             }
             if (turretPos != 0.501 && !servo.turretEqual(turretPos)){
                 double pos = servo.setTurrPos(turretPos);
                 robot.turr1.setPower(pos);
                 robot.turr2.setPower(-pos);
+            } else if (mode == 0){
+                robot.turr1.setPower(turrHoldPow);
+                robot.turr2.setPower(turrHoldPow);
             } else {
-                robot.turr1.setPower(0);
-                robot.turr2.setPower(0);
+                robot.spin1.setPower(turretPow);
+                robot.spin2.setPower(-turretPow);
             }
             if (transferPos != 0.501){
                 robot.transferServo.setPosition(transferPos);
@@ -51,8 +62,6 @@ public class PositionalServoProgrammer extends LinearOpMode {
                 robot.hood.setPosition(hoodPos);
             }
             TELE.addData("spindexer", servo.getSpinPos());
-            TELE.addData("hood", 1-scalar*((robot.hoodPos.getVoltage() - restPos) / 3.3));
-            TELE.addData("transferServo", scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3));
             TELE.addData("turret", servo.getTurrPos());
             TELE.addData("spindexer voltage", robot.spin1Pos.getVoltage());
             TELE.addData("hood voltage", robot.hoodPos.getVoltage());

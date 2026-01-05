@@ -89,8 +89,6 @@ public class IntakeTest extends LinearOpMode {
                         } else if (servo.spinEqual(spindexer_intakePos3)){
                             spindexerPos = spindexer_intakePos2;
                         }
-                    } else {
-                        spindexerPos = spindexer_outtakeBall1;
                     }
                 }
 
