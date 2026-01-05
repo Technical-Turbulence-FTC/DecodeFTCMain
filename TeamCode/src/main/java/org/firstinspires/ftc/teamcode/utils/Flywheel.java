@@ -50,7 +50,7 @@ public class Flywheel {
 
             currentPos = shooter1CurPos / 2048;
             stamp = getTimeSeconds(); //getRuntime();
-            velo1 = -60 * ((currentPos - initPos) / (stamp - stamp1));
+            velo1 = 60 * ((currentPos - initPos) / (stamp - stamp1));
             initPos = currentPos;
             stamp1 = stamp;
 
