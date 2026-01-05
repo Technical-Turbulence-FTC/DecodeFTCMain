@@ -163,7 +163,9 @@ public class TeleopV2 extends LinearOpMode {
             robot.turr1.setPower(turretPID);
             robot.turr2.setPower(-turretPID);
 
+            //TODO: make sure changing position works throughout opmode
             if (!servo.spinEqual(spindexPos)){
+                spindexPID = servo.setSpinPos(spindexPos);
                 robot.spin1.setPower(spindexPID);
                 robot.spin2.setPower(-spindexPID);
             } else{
@@ -320,6 +322,7 @@ public class TeleopV2 extends LinearOpMode {
                 offset -= 360;
             }
 
+            //TODO: test the camera teleop code
             double pos = turrDefault + (error/8); // adds the overall error to the default
 
             TELE.addData("offset", offset);

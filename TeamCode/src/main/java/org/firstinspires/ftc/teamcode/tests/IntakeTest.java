@@ -20,7 +20,7 @@ public class IntakeTest extends LinearOpMode {
     Servos servo;
 
     public static int mode = 0; // 0 for teleop, 1 for auto
-    public static double manualPow = 0.5;
+    public static double manualPow = 1.0;
     double stamp = 0;
     int ticker = 0;
     boolean b1 = false;
@@ -40,6 +40,7 @@ public class IntakeTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            //TODO: test tele intake with new spindexer
             if (mode == 0) {
                 if (gamepad1.cross) {
                     ticker = 0;
@@ -59,6 +60,7 @@ public class IntakeTest extends LinearOpMode {
                         robot.intake.setPower(0);
                     }
                 }
+            //TODO: test this monstrosity
             } else if (mode == 1) {
 
                 if (gamepad1.cross){

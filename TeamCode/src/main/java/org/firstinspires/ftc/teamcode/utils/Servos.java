@@ -15,8 +15,9 @@ public class Servos {
     PIDFController turretPID;
 
     //PID constants
+    // TODO: get PIDF constants
     public static double spinP = 2.85, spinI = 0.015, spinD = 0.09, spinF = 0.03;
-    public static double turrP = 4.0, turrI = 0.0, turrD = 0.0, turrF;
+    public static double turrP = 4.0, turrI = 0.0, turrD = 0.0, turrF = 0.0;
 
     public static double spin_scalar = 1.011;
     public static double spin_restPos = 0.0;
@@ -34,7 +35,7 @@ public class Servos {
     public double getSpinPos() {
         return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
     }
-
+    //TODO: PID warp so 0 and 1 are usable positions
     public double setSpinPos(double pos) {
         spinPID.setPIDF(spinP, spinI, spinD, spinF);
 

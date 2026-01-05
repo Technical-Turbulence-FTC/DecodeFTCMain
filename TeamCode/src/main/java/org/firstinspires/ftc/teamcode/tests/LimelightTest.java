@@ -6,9 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.utils.Robot;
-
-import java.util.List;
-
+//TODO: fix to get the apriltag that it is reading
 public class LimelightTest extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
@@ -20,7 +18,6 @@ public class LimelightTest extends LinearOpMode {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.limelight.pipelineSwitch(pipeline);
-
         waitForStart();
         if (isStopRequested()) return;
         robot.limelight.start();
