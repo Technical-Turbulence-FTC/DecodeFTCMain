@@ -74,7 +74,7 @@ public class IntakeTest extends LinearOpMode {
                 colorDetect();
                 spindexer();
 
-                if (b1 && steadySpin && getRuntime() - stamp > 0.5){
+                if (b1 && steadySpin && getRuntime() - stamp > 1.0){
                     if (!b2){
                         if (servo.spinEqual(spindexer_intakePos1)){
                             spindexerPos = spindexer_intakePos2;
@@ -93,8 +93,6 @@ public class IntakeTest extends LinearOpMode {
                         }
                     }
                 }
-
-                powPID = servo.setSpinPos(spindexerPos);
 
             } else if (mode == 2){ // switch to this mode before switching modes
                 powPID = 0;
@@ -150,18 +148,15 @@ public class IntakeTest extends LinearOpMode {
 
     public void spindexer(){
         if (!servo.spinEqual(spindexerPos)){
+            powPID = servo.setSpinPos(spindexerPos);
             robot.spin1.setPower(powPID);
             robot.spin2.setPower(-powPID);
             steadySpin = false;
-            ticker = 0;
+            stamp = getRuntime();
         } else{
             robot.spin1.setPower(0);
             robot.spin2.setPower(0);
             steadySpin = true;
-            if (ticker == 0){
-                stamp = getRuntime();
-            }
-            ticker++;
         }
     }
 }

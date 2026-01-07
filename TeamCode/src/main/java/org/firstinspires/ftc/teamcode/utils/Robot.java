@@ -133,6 +133,9 @@ public class Robot {
 
         spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
 
+        spin1.setDirection(DcMotorSimple.Direction.REVERSE);
+        spin2.setDirection(DcMotorSimple.Direction.REVERSE);
+
         pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
 
         pin1 = hardwareMap.get(DigitalChannel.class, "pin1");
@@ -166,7 +169,5 @@ public class Robot {
         color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
-
-        limelight = hardwareMap.get(Limelight3A.class,"Limelight");
     }
 }
