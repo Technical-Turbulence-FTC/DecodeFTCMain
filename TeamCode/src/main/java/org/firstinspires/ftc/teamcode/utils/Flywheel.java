@@ -6,13 +6,17 @@ import com.acmerobotics.dashboard.config.Config;
 public class Flywheel {
     public static double kP = 0.001;           // small proportional gain (tune this)
     public static double maxStep = 0.06;         // prevents sudden jumps
-    double initPos = 0.0;
+    double initPos1 = 0.0;
+    double initPos2 = 0.0;
     double stamp = 0.0;
     double stamp1 = 0.0;
     double ticker = 0.0;
-    double currentPos = 0.0;
+    double currentPos1 = 0.0;
+    double currentPos2 = 0.0;
     double velo = 0.0;
     double velo1 = 0.0;
+    double velo1a = 0.0;
+    double velo1b = 0.0;
     double velo2 = 0.0;
     double velo3 = 0.0;
     double velo4 = 0.0;
@@ -20,27 +24,12 @@ public class Flywheel {
     double targetVelocity = 0.0;
     double powPID = 0.0;
     boolean steady = false;
-    public Flywheel () {
+
+    public Flywheel() {
         //robot = new Robot(hardwareMap);
     }
 
-    public double getVelo () {
-        return velo;
-    }
-
-    public boolean getSteady() {
-        return steady;
-    }
-
-    private double getTimeSeconds ()
-    {
-        return (double) System.currentTimeMillis()/1000.0;
-    }
-
-
-    public double manageFlywheel(int commandedVelocity, double shooter1CurPos) {
-        targetVelocity = commandedVelocity;
-
+    public double getVelo(double shooter1CurPos, double shooter2CurPos) {
         ticker++;
         if (ticker % 2 == 0) {
             velo5 = velo4;
@@ -48,18 +37,46 @@ public class Flywheel {
             velo3 = velo2;
             velo2 = velo1;
 
-            currentPos = shooter1CurPos / 2048;
+            currentPos1 = shooter1CurPos / 28;
+            currentPos2 = shooter2CurPos / 28;
             stamp = getTimeSeconds(); //getRuntime();
-            velo1 = 60 * ((currentPos - initPos) / (stamp - stamp1));
-            initPos = currentPos;
+            velo1a = 60 * ((currentPos1 - initPos1) / (stamp - stamp1));
+            velo1b = 60 * ((currentPos2 - initPos2) / (stamp - stamp1));
+            initPos1 = currentPos1;
             stamp1 = stamp;
 
-            velo = (velo1 + velo2 + velo3 + velo4 + velo5) / 5;
+            if (Math.abs(velo1a - velo1b) > 200) {
+                if (velo1a < 200) {
+                    velo1 = velo1b;
+                } else {
+                    velo1 = velo1a;
+                }
+            } else {
+                velo1 = (velo1a + velo1b) / 2;
+            }
         }
-        // Flywheel control code here
+        return ((velo1 + velo2 + velo3 + velo4 + velo5) / 5);
+    }
+
+    public double getVelo1() { return (velo1a + velo2 + velo3 + velo4 + velo5) / 5; }
+
+    public double getVelo2() { return (velo1b + velo2 + velo3 + velo4 + velo5) / 5; }
+
+    public boolean getSteady() {
+        return steady;
+    }
+
+    private double getTimeSeconds() {
+        return (double) System.currentTimeMillis() / 1000.0;
+    }
+
+    public double manageFlywheel1(int commandedVelocity, double shooter1CurPos, double shooter2CurPos) {
+        targetVelocity = commandedVelocity;
+        velo = getVelo(shooter1CurPos, shooter2CurPos);
+        // Flywheel PID code here
         if (targetVelocity - velo > 500) {
             powPID = 1.0;
-        } else if (velo - targetVelocity > 500){
+        } else if (velo - targetVelocity > 500) {
             powPID = 0.0;
         } else {
             double feed = Math.log((668.39 / (targetVelocity + 591.96)) - 0.116) / -4.18;
@@ -78,13 +95,11 @@ public class Flywheel {
             powPID = Math.max(0, Math.min(1, powPID));
         }
 
-        // really should be a running average of the last 5
         steady = (Math.abs(targetVelocity - velo) < 100.0);
 
         return powPID;
     }
 
-    public void update()
-    {
+    public void update() {
     }
 }
