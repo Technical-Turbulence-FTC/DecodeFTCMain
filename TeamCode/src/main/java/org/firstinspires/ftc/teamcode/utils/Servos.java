@@ -4,8 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.utils.Robot;
-
 @Config
 public class Servos {
     Robot robot;
@@ -16,7 +14,7 @@ public class Servos {
 
     //PID constants
     // TODO: get PIDF constants
-    public static double spinP = 1.8, spinI = 0, spinD = 0.03, spinF = 0.03;
+    public static double spinP = 3.4, spinI = 0, spinD = 0.075, spinF = 0.02;
     public static double turrP = 4.0, turrI = 0.0, turrD = 0.0, turrF = 0.0;
 
     public static double spin_scalar = 1.0086;
