@@ -94,11 +94,12 @@ public class IntakeTest extends LinearOpMode {
                     }
                 }
 
-            } else if (mode == 2){ // switch to this mode before switching modes
+            } else if (mode == 2){ // switch to this mode before switching modes or to reset balls
                 powPID = 0;
                 spindexerPos = spindexer_intakePos1;
                 stamp = getRuntime();
                 ticker = 0;
+                spindexer();
             }
             TELE.addData("Manual Power", manualPow);
             TELE.addData("PID Power", powPID);
