@@ -43,14 +43,13 @@ public class Flywheel {
             velo1a = 60 * ((currentPos1 - initPos1) / (stamp - stamp1));
             velo1b = 60 * ((currentPos2 - initPos2) / (stamp - stamp1));
             initPos1 = currentPos1;
+            initPos2 = currentPos2;
             stamp1 = stamp;
 
-            if (Math.abs(velo1a - velo1b) > 200) {
-                if (velo1a < 200) {
-                    velo1 = velo1b;
-                } else {
-                    velo1 = velo1a;
-                }
+            if (velo1a < 200){
+                velo1 = velo1b;
+            } else if (velo1b < 200){
+                velo1 = velo1a;
             } else {
                 velo1 = (velo1a + velo1b) / 2;
             }
