@@ -69,7 +69,7 @@ public class Flywheel {
         return (double) System.currentTimeMillis() / 1000.0;
     }
 
-    public double manageFlywheel1(int commandedVelocity, double shooter1CurPos, double shooter2CurPos) {
+    public double manageFlywheel(int commandedVelocity, double shooter1CurPos, double shooter2CurPos) {
         targetVelocity = commandedVelocity;
         velo = getVelo(shooter1CurPos, shooter2CurPos);
         // Flywheel PID code here

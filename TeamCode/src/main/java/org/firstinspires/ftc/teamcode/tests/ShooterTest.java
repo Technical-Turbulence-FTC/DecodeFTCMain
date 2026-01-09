@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
@@ -43,7 +42,7 @@ public class ShooterTest extends LinearOpMode {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-                double powPID = flywheel.manageFlywheel1((int) parameter, leftShooter.getCurrentPosition(), rightShooter.getCurrentPosition());
+                double powPID = flywheel.manageFlywheel((int) parameter, leftShooter.getCurrentPosition(), rightShooter.getCurrentPosition());
                 rightShooter.setPower(powPID);
                 leftShooter.setPower(powPID);
                 TELE.addData("PIDPower", powPID);
