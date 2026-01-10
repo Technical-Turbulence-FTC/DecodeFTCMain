@@ -45,11 +45,12 @@ public class LimelightTest extends LinearOpMode {
                     for (LLResultTypes.FiducialResult fiducial : fiducials) {
                         int id = fiducial.getFiducialId();
                         TELE.addData("ID", id);
+                        TELE.update();
                     }
 
                 }
             } else if (mode == 2){
-                limelight.pipelineSwitch(4);
+                limelight.pipelineSwitch(2);
                 LLResult result = limelight.getLatestResult();
                 if (result != null) {
                     if (result.isValid()) {
@@ -59,7 +60,7 @@ public class LimelightTest extends LinearOpMode {
                     }
                 }
             } else if (mode == 3){
-                limelight.pipelineSwitch(5);
+                limelight.pipelineSwitch(3);
                 LLResult result = limelight.getLatestResult();
                 if (result != null) {
                     if (result.isValid()) {
