@@ -55,6 +55,8 @@ public class Robot {
     public RevColorSensorV3 color3;
     public Limelight3A limelight;
 
+    public static boolean usingLimelight = true;
+
     public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
@@ -140,5 +142,9 @@ public class Robot {
         color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
+
+        if (usingLimelight){
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        }
     }
 }

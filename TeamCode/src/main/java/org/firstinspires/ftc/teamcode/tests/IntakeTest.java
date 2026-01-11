@@ -86,8 +86,8 @@ public class IntakeTest extends LinearOpMode {
                     robot.spin1.setPower(0);
                     robot.spin2.setPower(0);
 
-                    if (getRuntime() - stamp < 0.5) {
-                        robot.intake.setPower(-1);
+                    if (getRuntime() - stamp < 1) {
+                        robot.intake.setPower(-(getRuntime() - stamp)*2);
                     } else {
                         robot.intake.setPower(0);
                     }
