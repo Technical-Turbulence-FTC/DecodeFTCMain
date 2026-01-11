@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
 import static org.firstinspires.ftc.teamcode.constants.Color.*;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransferOut;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
