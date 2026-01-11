@@ -350,15 +350,28 @@ public class TeleopV2 extends LinearOpMode {
                     overrideTurr = true;
                     turretPos = servo.getTurrPos() - (bearing/1300);
                     TELE.addData("Bear", bearing);
-                    if (camTicker < 8){
-                        error += bearing/1300; //adds error in first 8 frames of seeing the tag to see how much to adjust the default pos
+
+                    double bearingCorrection = bearing / 1300;
+
+
+                    // deadband: ignore tiny noise
+                    if (Math.abs(bearing) > 0.3 && camTicker < 8) {
+
+                        // only accumulate if bearing direction is consistent
+                        if (Math.signum(bearingCorrection) == Math.signum(error) || error == 0) {
+                            error += bearingCorrection;
+                        }
                     }
+
                     camTicker++;
+
                 }
 
 
             } else {
                 camTicker = 0;
+                overrideTurr = false;
+
             }
 
             if (manualTurret) {
