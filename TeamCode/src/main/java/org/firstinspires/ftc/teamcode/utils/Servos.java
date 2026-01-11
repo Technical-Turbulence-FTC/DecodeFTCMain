@@ -41,7 +41,7 @@ public class Servos {
     }
 
     public boolean spinEqual(double pos) {
-        return Math.abs(pos - this.getSpinPos()) < 0.01;
+        return Math.abs(pos - this.getSpinPos()) < 0.02;
     }
 
     public double getTurrPos() {

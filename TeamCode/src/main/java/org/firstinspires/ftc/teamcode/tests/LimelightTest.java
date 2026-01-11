@@ -45,6 +45,7 @@ public class LimelightTest extends LinearOpMode {
                     for (LLResultTypes.FiducialResult fiducial : fiducials) {
                         int id = fiducial.getFiducialId();
                         TELE.addData("ID", id);
+                        TELE.update();
                     }
 
                 }

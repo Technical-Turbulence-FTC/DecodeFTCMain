@@ -35,7 +35,7 @@ public class IntakeTest extends LinearOpMode {
     List<Boolean> s2 = new ArrayList<>();
     List<Boolean> s3 = new ArrayList<>();
     public static int mode = 0; // 0 for teleop, 1 for auto
-    public static double manualPow = 1.0;
+    public static double manualPow = 0.15;
     double stamp = 0;
     int ticker = 0;
     boolean steadySpin = false;
@@ -43,6 +43,9 @@ public class IntakeTest extends LinearOpMode {
     boolean intake = true;
     double spindexerPos = spindexer_intakePos1;
     boolean wasMoving = false;
+    double currentPos = 0.0;
+    double initPos = 0.0;
+    boolean reverse = false;
     @Override
     public void runOpMode() throws InterruptedException {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -58,32 +61,44 @@ public class IntakeTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            //TODO: test tele intake with new spindexer
             if (mode == 0) {
-                if (gamepad1.cross) {
-                    ticker = 0;
-                    robot.spin1.setPower(manualPow);
-                    robot.spin2.setPower(-manualPow);
+                if (gamepad1.right_bumper) {
+                    ticker++;
+                    if (ticker % 16 == 0){
+                        currentPos = servo.getSpinPos();
+                        if (Math.abs(currentPos - initPos) == 0.0){
+                            reverse = !reverse;
+                        }
+                        initPos = currentPos;
+                    }
+                    if (reverse){
+                        robot.spin1.setPower(manualPow);
+                        robot.spin2.setPower(-manualPow);
+                    } else {
+                        robot.spin1.setPower(-manualPow);
+                        robot.spin2.setPower(manualPow);
+                    }
                     robot.intake.setPower(1);
+                    stamp = getRuntime();
+                    TELE.addData("Reverse?", reverse);
+                    TELE.update();
                 } else {
                     robot.spin1.setPower(0);
                     robot.spin2.setPower(0);
-                    if (ticker == 0) {
-                        stamp = getRuntime();
-                    }
-                    ticker++;
+
                     if (getRuntime() - stamp < 0.5) {
                         robot.intake.setPower(-1);
                     } else {
                         robot.intake.setPower(0);
                     }
+
+                    ticker = 0;
                 }
-            //TODO: test this monstrosity
             } else if (mode == 1) {
 
-                if (gamepad1.cross && intake){
+                if (gamepad1.right_bumper && intake){
                     robot.intake.setPower(1);
-                } else if (gamepad1.circle){
+                } else if (gamepad1.left_bumper){
                     robot.intake.setPower(-1);
                 } else {
                     robot.intake.setPower(0);
@@ -123,6 +138,21 @@ public class IntakeTest extends LinearOpMode {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
+            double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
+            double x = gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
+            double rx = gamepad1.left_stick_x;
+
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double frontLeftPower = (y + x + rx) / denominator;
+            double backLeftPower = (y - x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower = (y + x - rx) / denominator;
+
+            robot.frontLeft.setPower(frontLeftPower);
+            robot.backLeft.setPower(backLeftPower);
+            robot.frontRight.setPower(frontRightPower);
+            robot.backRight.setPower(backRightPower);
+
             TELE.addData("Manual Power", manualPow);
             TELE.addData("PID Power", powPID);
             TELE.addData("B1", ballIn(1));
@@ -143,15 +173,15 @@ public class IntakeTest extends LinearOpMode {
         TELE.addData("Color 3 Distance", s3D);
         TELE.update();
 
-        if (s1D < 40) {
+        if (s1D < 43) {
             s1T.add(getRuntime());
         }
 
-        if (s2D < 40) {
+        if (s2D < 60) {
             s2T.add(getRuntime());
         }
 
-        if (s3D < 30) {
+        if (s3D < 33) {
             s3T.add(getRuntime());
         }
     }

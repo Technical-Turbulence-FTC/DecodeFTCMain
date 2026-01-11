@@ -20,68 +20,39 @@ public class Robot {
 
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
-
     public DcMotorEx backLeft;
-
     public DcMotorEx backRight;
-
     public DcMotorEx intake;
-
     public DcMotorEx transfer;
-
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
-
     public Servo transferServo;
-
     public Servo rejecter;
-
     public CRServo turr1;
-
     public CRServo turr2;
-
     public CRServo spin1;
-
     public CRServo spin2;
-
     public DigitalChannel pin0;
-
     public DigitalChannel pin1;
     public DigitalChannel pin2;
     public DigitalChannel pin3;
     public DigitalChannel pin4;
-
     public DigitalChannel pin5;
-
     public AnalogInput analogInput;
-
     public AnalogInput analogInput2;
-
     public AnalogInput spin1Pos;
-
     public AnalogInput spin2Pos;
-
     public AnalogInput hoodPos;
-
     public AnalogInput turr1Pos;
-
     public AnalogInput turr2Pos;
-
     public AnalogInput transferServoPos;
-
     public AprilTagProcessor aprilTagProcessor;
-
     public WebcamName webcam;
-
     public DcMotorEx shooterEncoder;
-
     public RevColorSensorV3 color1;
-
     public RevColorSensorV3 color2;
-
     public RevColorSensorV3 color3;
-
     public Limelight3A limelight;
 
     public Robot(HardwareMap hardwareMap) {
