@@ -17,16 +17,18 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
-import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
+import java.util.List;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
@@ -34,7 +36,7 @@ public class Red_V3 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     MecanumDrive drive;
-    Flywheel flywheel;
+    FlywheelV2 flywheel;
     Servos servo;
 
     double velo = 0.0;
@@ -49,38 +51,20 @@ public class Red_V3 extends LinearOpMode {
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
     int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    
+
     public Action initShooter(int vel) {
         return new Action() {
-            double ticker = 0.0;
-            double stamp = 0.0;
-            boolean steady = false;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0) {
-                    stamp = getRuntime();
-                }
-                ticker++;
-                
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition());
-                velo = flywheel.getVelo();
+                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
                 robot.transfer.setPower(1);
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
-                if (vel < velo && getRuntime() - stamp > 3.0 && !steady){
-                    steady = true;
-                    stamp = getRuntime();
-                    return true;
-                } else if (steady && getRuntime() - stamp > 1.5){
-                    TELE.addData("Velocity", velo);
-                    TELE.addLine("finished init");
-                    TELE.update();
-                    return false;
-                } else {
-                    return true;
-                }
+
+                return !flywheel.getSteady();
             }
         };
     }
@@ -90,8 +74,8 @@ public class Red_V3 extends LinearOpMode {
             double stamp = 0.0;
             boolean steady = false;
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition());
-                velo = flywheel.getVelo();
+                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 steady = flywheel.getSteady();
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
@@ -101,10 +85,9 @@ public class Red_V3 extends LinearOpMode {
                 TELE.update();
                 detectTag();
 
-                if (last && !steady){
+                if (last && !steady) {
                     stamp = getRuntime();
                     drive.updatePoseEstimate();
-
                     teleStart = drive.localizer.getPose();
                     return false;
                 } else if (steady) {
@@ -119,24 +102,27 @@ public class Red_V3 extends LinearOpMode {
 
     public Action Obelisk() {
         return new Action() {
-            double stamp = getRuntime();
-            int ticker = 0;
-
+            int id = 0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (ticker == 0) {
-                    stamp = getRuntime();
-                }
-                ticker++;
+                LLResult result = robot.limelight.getLatestResult();
+                if (result != null && result.isValid()) {
+                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                        id = fiducial.getFiducialId();
+                        TELE.addData("ID", id);
+                        TELE.update();
+                    }
 
-                if (aprilTag.getTagById(21) != null) {
+                }
+
+                if (id == 21){
                     gpp = true;
-                } else if (aprilTag.getTagById(22) != null) {
+                } else if (id == 22){
                     pgp = true;
-                } else if (aprilTag.getTagById(23) != null) {
+                } else if (id == 23){
                     ppg = true;
                 }
-                aprilTag.update();
 
                 TELE.addData("Velocity", velo);
                 TELE.addData("21", gpp);
@@ -144,10 +130,11 @@ public class Red_V3 extends LinearOpMode {
                 TELE.addData("23", ppg);
                 TELE.update();
 
-                if (gpp || pgp || ppg){
+                if (gpp || pgp || ppg) {
                     double turretPID = servo.setTurrPos(turret_red);
                     robot.turr1.setPower(turretPID);
                     robot.turr2.setPower(-turretPID);
+                    robot.limelight.pipelineSwitch(3);
                     return !servo.turretEqual(turret_red);
                 } else {
                     return true;
@@ -156,23 +143,24 @@ public class Red_V3 extends LinearOpMode {
         };
     }
 
-    public Action spindex (double spindexer, int vel){
+    public Action spindex(double spindexer, int vel) {
         return new Action() {
+            double spinPID = 0.0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition());
-                velo = flywheel.getVelo();
+                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
-                robot.spin1.setPower(spindexer);
-                robot.spin2.setPower(1-spindexer);
+                spinPID = servo.setSpinPos(spindexer);
+                robot.spin1.setPower(spinPID);
+                robot.spin2.setPower(-spinPID);
                 TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
 
                 drive.updatePoseEstimate();
-
                 teleStart = drive.localizer.getPose();
 
                 return !servo.spinEqual(spindexer);
@@ -185,14 +173,15 @@ public class Red_V3 extends LinearOpMode {
             double transferStamp = 0.0;
             int ticker = 1;
             boolean transferIn = false;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 TELE.addData("Velocity", velo);
                 TELE.addLine("shooting");
                 TELE.update();
 
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition());
-                velo = flywheel.getVelo();
+                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
 
@@ -212,7 +201,8 @@ public class Red_V3 extends LinearOpMode {
                     TELE.update();
                     transferIn = true;
                     return true;
-                } else if (getRuntime() - transferStamp > waitTransfer+waitTransferOut && transferIn){
+                } else if (getRuntime() - transferStamp > waitTransfer + waitTransferOut &&
+                           transferIn) {
                     robot.transferServo.setPosition(transferServo_out);
                     TELE.addData("Velocity", velo);
                     TELE.addLine("shot once");
@@ -273,6 +263,7 @@ public class Red_V3 extends LinearOpMode {
         return new Action() {
             double stamp = 0.0;
             int ticker = 0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -280,9 +271,9 @@ public class Red_V3 extends LinearOpMode {
                 }
                 ticker++;
 
-                if (getRuntime() - stamp < 0.3){
+                if (getRuntime() - stamp < 0.3) {
                     return true;
-                }else {
+                } else {
                     robot.intake.setPower(0);
                     return false;
                 }
@@ -295,6 +286,7 @@ public class Red_V3 extends LinearOpMode {
             double stamp = 0.0;
             int ticker = 0;
             double position = 0.0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -325,8 +317,6 @@ public class Red_V3 extends LinearOpMode {
                     double blue = robot.color1.getNormalizedColors().blue;
 
                     double gP = green / (green + red + blue);
-
-
 
                     if (gP >= 0.4) {
                         b1 = 2;
@@ -385,7 +375,7 @@ public class Red_V3 extends LinearOpMode {
 
         robot = new Robot(hardwareMap);
 
-        flywheel = new Flywheel();
+        flywheel = new FlywheelV2();
 
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -395,7 +385,8 @@ public class Red_V3 extends LinearOpMode {
                 0, 0, 0
         ));
 
-        aprilTag = new AprilTagWebcam();
+        robot.limelight.pipelineSwitch(1);
+        robot.limelight.start();
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                 .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
@@ -416,12 +407,10 @@ public class Red_V3 extends LinearOpMode {
         TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
                 .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
-        aprilTag.init(robot, TELE);
-
         while (opModeInInit()) {
 
             if (gamepad2.dpadUpWasPressed()) {
-                hoodAuto-= 0.01;
+                hoodAuto -= 0.01;
             }
 
             if (gamepad2.dpadDownWasPressed()) {
@@ -435,12 +424,10 @@ public class Red_V3 extends LinearOpMode {
             robot.spin1.setPower(spindexer_intakePos1);
             robot.spin2.setPower(1 - spindexer_intakePos1);
 
-            aprilTag.update();
             TELE.addData("Velocity", velo);
             TELE.addData("Turret Pos", servo.getTurrPos());
             TELE.update();
         }
-
 
         waitForStart();
 
@@ -461,8 +448,8 @@ public class Red_V3 extends LinearOpMode {
 
             teleStart = drive.localizer.getPose();
 
-            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition());
-            velo = flywheel.getVelo();
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+            velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -497,8 +484,8 @@ public class Red_V3 extends LinearOpMode {
 
             teleStart = drive.localizer.getPose();
 
-            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition());
-            velo = flywheel.getVelo();
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+            velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -527,8 +514,8 @@ public class Red_V3 extends LinearOpMode {
                     )
             );
 
-            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition());
-            velo = flywheel.getVelo();
+            powPID = flywheel.manageFlywheel(AUTO_CLOSE_VEL, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+            velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
 
@@ -547,19 +534,13 @@ public class Red_V3 extends LinearOpMode {
         }
 
     }
-
-    public void detectTag(){
-        AprilTagDetection d20 = aprilTag.getTagById(20);
-        AprilTagDetection d24 = aprilTag.getTagById(24);
-
-        if (d20 != null) {
-            bearing = d20.ftcPose.bearing;
-            TELE.addData("Bear", bearing);
-        }
-
-        if (d24 != null) {
-            bearing = d24.ftcPose.bearing;
-            TELE.addData("Bear", bearing);
+    //TODO: adjust this
+    public void detectTag() {
+        LLResult result = robot.limelight.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                bearing = result.getTx();
+            }
         }
         double turretPos = servo.getTurrPos() - (bearing / 1300);
         double turretPID = servo.setTurrPos(turretPos);
