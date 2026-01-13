@@ -205,7 +205,6 @@ public class IntakeTest extends LinearOpMode {
         }
     }
 
-
     boolean ballIn(int slot) {
         List<Double> times;
 
