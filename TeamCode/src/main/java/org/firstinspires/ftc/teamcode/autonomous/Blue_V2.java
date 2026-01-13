@@ -178,8 +178,8 @@ public class Blue_V2 extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg){
-                    robot.turr1.setPower(turret_blue);
-                    robot.turr2.setPower(1 - turret_blue);
+                    robot.turr1.setPower(turret_blueClose);
+                    robot.turr2.setPower(1 - turret_blueClose);
                     return false;
                 } else {
                     return true;
@@ -541,8 +541,8 @@ public class Blue_V2 extends LinearOpMode {
 
             robot.hood.setPosition(hoodAuto);
 
-            robot.turr1.setPower(turret_detectBlue);
-            robot.turr2.setPower(1 - turret_detectBlue);
+            robot.turr1.setPower(turret_detectBlueClose);
+            robot.turr2.setPower(1 - turret_detectBlueClose);
 
             robot.transferServo.setPosition(transferServo_out);
 

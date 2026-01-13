@@ -33,7 +33,7 @@ import java.util.List;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
-public class Auto_V3 extends LinearOpMode {
+public class AutoFar_V1 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     MecanumDrive drive;
@@ -101,15 +101,20 @@ public class Auto_V3 extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg) {
-                    double turretPID = servo.setTurrPos(turret_red);
-                    robot.turr1.setPower(turretPID);
-                    robot.turr2.setPower(-turretPID);
                     if (redAlliance){
                         robot.limelight.pipelineSwitch(3);
+                        double turretPID = servo.setTurrPos(turret_redFar);
+                        robot.turr1.setPower(turretPID);
+                        robot.turr2.setPower(-turretPID);
+                        return !servo.turretEqual(turret_redFar);
+
                     } else {
                         robot.limelight.pipelineSwitch(2);
+                        double turretPID = servo.setTurrPos(turret_blueFar);
+                        robot.turr1.setPower(turretPID);
+                        robot.turr2.setPower(-turretPID);
+                        return !servo.turretEqual(turret_blueFar);
                     }
-                    return !servo.turretEqual(turret_red);
                 } else {
                     return true;
                 }
@@ -256,7 +261,13 @@ public class Auto_V3 extends LinearOpMode {
                 if ((s1D < 43.0 && s2D < 60.0 && s3D < 33.0) || getRuntime() - stamp > intakeTime) {
                     robot.spin1.setPower(0);
                     robot.spin2.setPower(0);
-                    return false;
+                    if (getRuntime() - stamp - intakeTime < 1){
+                        pow = -2*(getRuntime() - stamp - intakeTime);
+                        return true;
+                    } else {
+                        robot.intake.setPower(0);
+                        return false;
+                    }
                 } else {
                     return true;
                 }
@@ -366,22 +377,10 @@ public class Auto_V3 extends LinearOpMode {
         robot.limelight.pipelineSwitch(1);
         robot.limelight.start();
 
-        TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
-
-        TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
-                .strafeToLinearHeading(new Vector2d(bx2a, by2a), bh2a)
-                .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b);
-
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
-                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
-
-        TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
-                .strafeToLinearHeading(new Vector2d(bx3a, by3a), bh3a)
-                .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b);
-
-        TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
-                .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
+        //TODO: add positions to develop auto
+        
+        TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(0,0,0))
+                .strafeToLinearHeading(new Vector2d(rfx1, rfy1), rfh1);
 
         while (opModeInInit()) {
 
@@ -397,43 +396,18 @@ public class Auto_V3 extends LinearOpMode {
                 redAlliance = !redAlliance;
             }
 
+            double turrPID;
+
             if (redAlliance){
-                shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                        .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
-
-                pickup1 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
-                        .strafeToLinearHeading(new Vector2d(rx2a, ry2a), rh2a)
-                        .strafeToLinearHeading(new Vector2d(rx2b, ry2b), rh2b);
-
-                shoot1 = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
-                        .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
-
-                pickup2 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
-                        .strafeToLinearHeading(new Vector2d(rx3a, ry3a), rh3a)
-                        .strafeToLinearHeading(new Vector2d(rx3b, ry3b), rh3b);
-
-                shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
-                        .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
+                turrPID = servo.setTurrPos(turret_detectRedClose);
             } else {
-                shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                        .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
-
-                pickup1 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
-                        .strafeToLinearHeading(new Vector2d(bx2a, by2a), bh2a)
-                        .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b);
-
-                shoot1 = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
-                        .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
-
-                pickup2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
-                        .strafeToLinearHeading(new Vector2d(bx3a, by3a), bh3a)
-                        .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b);
-
-                shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
-                        .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
+                turrPID = servo.setTurrPos(turret_detectBlueClose);
             }
 
-            robot.hood.setPosition(hoodAuto);
+            robot.turr1.setPower(turrPID);
+            robot.turr2.setPower(-turrPID);
+
+            robot.hood.setPosition(hoodAutoFar);
 
             robot.transferServo.setPosition(transferServo_out);
 
@@ -449,12 +423,9 @@ public class Auto_V3 extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            robot.hood.setPosition(hoodAuto);
-
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot0.build(),
-                            initShooter(AUTO_CLOSE_VEL),
+                            initShooter(AUTO_FAR_VEL),
                             Obelisk()
                     )
             );
@@ -468,65 +439,11 @@ public class Auto_V3 extends LinearOpMode {
 
             robot.transfer.setPower(0);
 
-            robot.hood.setPosition(hoodAuto);
-
             drive.updatePoseEstimate();
 
             teleStart = drive.localizer.getPose();
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            pickup1.build(),
-                            intake(intake1Time)
-                    )
-            );
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            shoot1.build(),
-                            ColorDetect(AUTO_CLOSE_VEL)
-                    )
-            );
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            robot.transfer.setPower(1);
-
-            shootingSequence();
-
-            robot.transfer.setPower(0);
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            pickup2.build(),
-                            intake(intake2Time)
-                    )
-            );
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            shoot2.build(),
-                            ColorDetect(AUTO_CLOSE_VEL)
-                    )
-            );
-
-            robot.transfer.setPower(1);
-
-            shootingSequence();
-
-            robot.transfer.setPower(0);
+            
+            Actions.runBlocking(park.build());
 
             drive.updatePoseEstimate();
 
@@ -657,12 +574,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence1() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
@@ -670,12 +587,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence2() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
@@ -683,13 +600,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence3() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
@@ -697,12 +613,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence4() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
@@ -710,12 +626,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence5() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
@@ -723,12 +639,12 @@ public class Auto_V3 extends LinearOpMode {
     public void sequence6() {
         Actions.runBlocking(
                 new SequentialAction(
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
+                        spindex(spindexer_outtakeBall3, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall2, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL),
+                        spindex(spindexer_outtakeBall1, AUTO_FAR_VEL),
+                        Shoot(AUTO_FAR_VEL)
                 )
         );
     }
