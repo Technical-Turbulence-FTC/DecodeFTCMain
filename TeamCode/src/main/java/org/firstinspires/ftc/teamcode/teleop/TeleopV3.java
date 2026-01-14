@@ -9,7 +9,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -17,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.LimelightManager;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
@@ -31,6 +31,7 @@ public class TeleopV3 extends LinearOpMode {
     Servos servo;
     Flywheel flywheel;
     MecanumDrive drive;
+    LimelightManager limelightManager;
 
     public static double manualVel = 3000;
     public static double hoodDefaultPos = 0.5;
@@ -101,14 +102,14 @@ public class TeleopV3 extends LinearOpMode {
         servo = new Servos(hardwareMap);
         flywheel = new Flywheel();
         drive = new MecanumDrive(hardwareMap, teleStart);
+        limelightManager = new LimelightManager(hardwareMap, Robot.usingLimelight);
+        limelightManager.init();
 
         if (redAlliance) {
-            robot.limelight.pipelineSwitch(3);
+            limelightManager.switchMode(LimelightManager.LimelightMode.RED_GOAL);
         } else {
-            robot.limelight.pipelineSwitch(2);
+            limelightManager.switchMode(LimelightManager.LimelightMode.BLUE_GOAL);
         }
-
-        robot.limelight.start();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -304,30 +305,26 @@ public class TeleopV3 extends LinearOpMode {
             }
 
             if (y < 0.1 && y > -0.1 && x < 0.1 && x > -0.1 && rx < 0.1 && rx > -0.1) { //not moving
-                double bearing;
+                limelightManager.update();
+                double bearing = limelightManager.getBearing();
+                
+                if (limelightManager.getLatestResult() != null && limelightManager.getLatestResult().isValid()) {
+                    overrideTurr = true;
+                    turretPos = servo.getTurrPos() - (bearing / 1300);
 
-                LLResult result = robot.limelight.getLatestResult();
-                if (result != null) {
-                    if (result.isValid()) {
-                        bearing = result.getTx();
-                        overrideTurr = true;
-                        turretPos = servo.getTurrPos() - (bearing / 1300);
+                    double bearingCorrection = bearing / 1300;
 
-                        double bearingCorrection = bearing / 1300;
-
-                        // deadband: ignore tiny noise
-                        if (Math.abs(bearing) > 0.3 && camTicker < 8) {
-
-                            // only accumulate if bearing direction is consistent
-                            if (Math.signum(bearingCorrection) == Math.signum(error) ||
-                                error == 0) {
-                                error += bearingCorrection;
-                            }
+                    // deadband: ignore tiny noise
+                    if (Math.abs(bearing) > 0.3 && camTicker < 8) {
+                        // only accumulate if bearing direction is consistent
+                        if (Math.signum(bearingCorrection) == Math.signum(error) ||
+                            error == 0) {
+                            error += bearingCorrection;
                         }
-                        camTicker++;
-                        TELE.addData("tx", bearing);
-                        TELE.addData("ty", result.getTy());
                     }
+                    camTicker++;
+                    TELE.addData("tx", bearing);
+                    TELE.addData("ty", limelightManager.getLatestResult().getTy());
                 }
 
             } else {
