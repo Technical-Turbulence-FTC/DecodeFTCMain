@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
@@ -29,7 +29,7 @@ public class TeleopV3 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     Servos servo;
-    Flywheel flywheel;
+    FlywheelV2 flywheel;
     MecanumDrive drive;
 
     public static double manualVel = 3000;
@@ -99,7 +99,7 @@ public class TeleopV3 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
-        flywheel = new Flywheel();
+        flywheel = new FlywheelV2();
         drive = new MecanumDrive(hardwareMap, teleStart);
 
         if (redAlliance) {
@@ -256,7 +256,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //SHOOTER:
 
-            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition());
+            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
 
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);

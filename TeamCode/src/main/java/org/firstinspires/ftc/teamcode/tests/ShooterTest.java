@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
@@ -26,7 +26,7 @@ public class ShooterTest extends LinearOpMode {
     public static double turretPos = 0.501;
     public static boolean shoot = false;
     Robot robot;
-    Flywheel flywheel;
+    FlywheelV2 flywheel;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,7 +34,7 @@ public class ShooterTest extends LinearOpMode {
         robot = new Robot(hardwareMap);
         DcMotorEx leftShooter = robot.shooter1;
         DcMotorEx rightShooter = robot.shooter2;
-        flywheel = new Flywheel();
+        flywheel = new FlywheelV2();
 
         MultipleTelemetry TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -50,7 +50,7 @@ public class ShooterTest extends LinearOpMode {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-                double powPID = flywheel.manageFlywheel((int) parameter, robot.shooter1.getCurrentPosition());
+                double powPID = flywheel.manageFlywheel((int) parameter, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 rightShooter.setPower(powPID);
                 leftShooter.setPower(powPID);
                 TELE.addData("PIDPower", powPID);
@@ -71,7 +71,9 @@ public class ShooterTest extends LinearOpMode {
             } else {
                 robot.transferServo.setPosition(transferServo_out);
             }
-            TELE.addData("Velocity", flywheel.getVelo());
+            TELE.addData("Velocity", flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition()));
+            TELE.addData("Velocity 1", flywheel.getVelo1());
+            TELE.addData("Velocity 2", flywheel.getVelo2());
             TELE.addData("Power", robot.shooter1.getPower());
             TELE.addData("Steady?", flywheel.getSteady());
             TELE.addData("Position", robot.shooter1.getCurrentPosition());
