@@ -45,7 +45,7 @@ public class Servos {
     }
 
     public double getTurrPos() {
-        return turret_scalar * ((robot.turr1Pos.getVoltage() - turret_restPos) / 3.3);
+        return robot.turr1Pos.getCurrentPosition();
     }
 
     public double setTurrPos(double pos) {
