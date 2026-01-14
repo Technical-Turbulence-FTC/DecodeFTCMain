@@ -18,18 +18,15 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.LimelightManager;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
-
-import java.util.List;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
@@ -39,20 +36,19 @@ public class AutoFar_V1 extends LinearOpMode {
     MecanumDrive drive;
     FlywheelV2 flywheel;
     Servos servo;
+    LimelightManager limelightManager;
 
     double velo = 0.0;
     public static double intake1Time = 2.7;
     public static double intake2Time = 3.0;
     public static double colorDetect = 3.0;
-    boolean gpp = false;
-    boolean pgp = false;
-    boolean ppg = false;
+    public static double holdTurrPow = 0.1;
+
+    // Ball color detection: 0 = no ball, 1 = green, 2 = purple
+    int b1 = 0, b2 = 0, b3 = 0;
+    boolean gpp = false, pgp = false, ppg = false;
     double powPID = 0.0;
     double bearing = 0.0;
-    int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
-    int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
-    int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    public static double holdTurrPow = 0.1; // power to hold turret in place
 
     public Action initShooter(int vel) {
         return new Action() {
@@ -72,52 +68,34 @@ public class AutoFar_V1 extends LinearOpMode {
 
     public Action Obelisk() {
         return new Action() {
-            int id = 0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                LLResult result = robot.limelight.getLatestResult();
-                if (result != null && result.isValid()) {
-                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                        id = fiducial.getFiducialId();
-                        TELE.addData("ID", id);
-                        TELE.update();
-                    }
+                limelightManager.update();
+                int id = limelightManager.detectFiducial();
 
-                }
+                if (id == 21) gpp = true;
+                else if (id == 22) pgp = true;
+                else if (id == 23) ppg = true;
 
-                if (id == 21){
-                    gpp = true;
-                } else if (id == 22){
-                    pgp = true;
-                } else if (id == 23){
-                    ppg = true;
-                }
-
-                TELE.addData("Velocity", velo);
+                TELE.addData("Fiducial ID", id);
                 TELE.addData("21", gpp);
                 TELE.addData("22", pgp);
                 TELE.addData("23", ppg);
                 TELE.update();
 
                 if (gpp || pgp || ppg) {
-                    if (redAlliance){
-                        robot.limelight.pipelineSwitch(3);
-                        double turretPID = servo.setTurrPos(turret_redFar);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_redFar);
+                    LimelightManager.LimelightMode mode = redAlliance ?
+                            LimelightManager.LimelightMode.RED_GOAL :
+                            LimelightManager.LimelightMode.BLUE_GOAL;
+                    limelightManager.switchMode(mode);
 
-                    } else {
-                        robot.limelight.pipelineSwitch(2);
-                        double turretPID = servo.setTurrPos(turret_blueFar);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_blueFar);
-                    }
-                } else {
-                    return true;
+                    double turretTarget = redAlliance ? turret_redFar : turret_blueFar;
+                    double turretPID = servo.setTurrPos(turretTarget);
+                    robot.turr1.setPower(turretPID);
+                    robot.turr2.setPower(-turretPID);
+                    return !servo.turretEqual(turretTarget);
                 }
+                return true;
             }
         };
     }
@@ -363,19 +341,13 @@ public class AutoFar_V1 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         robot = new Robot(hardwareMap);
-
         flywheel = new FlywheelV2();
-
-        TELE = new MultipleTelemetry(
-                telemetry, FtcDashboard.getInstance().getTelemetry()
-        );
-
-        drive = new MecanumDrive(hardwareMap, new Pose2d(
-                0, 0, 0
-        ));
-
-        robot.limelight.pipelineSwitch(1);
-        robot.limelight.start();
+        TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        servo = new Servos(hardwareMap);
+        limelightManager = new LimelightManager(hardwareMap, Robot.usingLimelight);
+        limelightManager.init();
+        limelightManager.switchMode(LimelightManager.LimelightMode.OBELISK_DETECTION);
 
         //TODO: add positions to develop auto
         
@@ -460,12 +432,8 @@ public class AutoFar_V1 extends LinearOpMode {
     }
     //TODO: adjust this according to Teleop numbers
     public void detectTag() {
-        LLResult result = robot.limelight.getLatestResult();
-        if (result != null) {
-            if (result.isValid()) {
-                bearing = result.getTx();
-            }
-        }
+        limelightManager.update();
+        bearing = limelightManager.getBearing();
         double turretPos = servo.getTurrPos() - (bearing / 1300);
         double turretPID = servo.setTurrPos(turretPos);
         robot.turr1.setPower(turretPID);
