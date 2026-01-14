@@ -18,18 +18,15 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.LimelightManager;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
-
-import java.util.List;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
@@ -39,20 +36,19 @@ public class AutoClose_V3 extends LinearOpMode {
     MecanumDrive drive;
     FlywheelV2 flywheel;
     Servos servo;
+    LimelightManager limelightManager;
 
     double velo = 0.0;
     public static double intake1Time = 2.7;
     public static double intake2Time = 3.0;
     public static double colorDetect = 3.0;
-    boolean gpp = false;
-    boolean pgp = false;
-    boolean ppg = false;
+    public static double holdTurrPow = 0.1;
+
+    // Ball color detection: 0 = no ball, 1 = green, 2 = purple
+    int b1 = 0, b2 = 0, b3 = 0;
+    boolean gpp = false, pgp = false, ppg = false;
     double powPID = 0.0;
     double bearing = 0.0;
-    int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
-    int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
-    int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    public static double holdTurrPow = 0.1; // power to hold turret in place
 
     public Action initShooter(int vel) {
         return new Action() {
@@ -72,52 +68,34 @@ public class AutoClose_V3 extends LinearOpMode {
 
     public Action Obelisk() {
         return new Action() {
-            int id = 0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                LLResult result = robot.limelight.getLatestResult();
-                if (result != null && result.isValid()) {
-                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                        id = fiducial.getFiducialId();
-                        TELE.addData("ID", id);
-                        TELE.update();
-                    }
+                limelightManager.update();
+                int id = limelightManager.detectFiducial();
 
-                }
+                if (id == 21) gpp = true;
+                else if (id == 22) pgp = true;
+                else if (id == 23) ppg = true;
 
-                if (id == 21){
-                    gpp = true;
-                } else if (id == 22){
-                    pgp = true;
-                } else if (id == 23){
-                    ppg = true;
-                }
-
-                TELE.addData("Velocity", velo);
+                TELE.addData("Fiducial ID", id);
                 TELE.addData("21", gpp);
                 TELE.addData("22", pgp);
                 TELE.addData("23", ppg);
                 TELE.update();
 
                 if (gpp || pgp || ppg) {
-                    if (redAlliance){
-                        robot.limelight.pipelineSwitch(3);
-                        double turretPID = servo.setTurrPos(turret_redClose);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_redClose);
+                    LimelightManager.LimelightMode mode = redAlliance ?
+                            LimelightManager.LimelightMode.RED_GOAL :
+                            LimelightManager.LimelightMode.BLUE_GOAL;
+                    limelightManager.switchMode(mode);
 
-                    } else {
-                        robot.limelight.pipelineSwitch(2);
-                        double turretPID = servo.setTurrPos(turret_blueClose);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_blueClose);
-                    }
-                } else {
-                    return true;
+                    double turretTarget = redAlliance ? turret_redClose : turret_blueClose;
+                    double turretPID = servo.setTurrPos(turretTarget);
+                    robot.turr1.setPower(turretPID);
+                    robot.turr2.setPower(-turretPID);
+                    return !servo.turretEqual(turretTarget);
                 }
+                return true;
             }
         };
     }
@@ -361,21 +339,14 @@ public class AutoClose_V3 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         robot = new Robot(hardwareMap);
-
         flywheel = new FlywheelV2();
-
-        TELE = new MultipleTelemetry(
-                telemetry, FtcDashboard.getInstance().getTelemetry()
-        );
-
-        drive = new MecanumDrive(hardwareMap, new Pose2d(
-                0, 0, 0
-        ));
-
-        robot.limelight.pipelineSwitch(1);
-        robot.limelight.start();
+        TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        servo = new Servos(hardwareMap);
+        limelightManager = new LimelightManager(hardwareMap, Robot.usingLimelight);
+        limelightManager.init();
+        limelightManager.switchMode(LimelightManager.LimelightMode.OBELISK_DETECTION);
 
         TrajectoryActionBuilder shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                 .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
@@ -559,12 +530,8 @@ public class AutoClose_V3 extends LinearOpMode {
     }
     //TODO: adjust this according to Teleop numbers
     public void detectTag() {
-        LLResult result = robot.limelight.getLatestResult();
-        if (result != null) {
-            if (result.isValid()) {
-                bearing = result.getTx();
-            }
-        }
+        limelightManager.update();
+        bearing = limelightManager.getBearing();
         double turretPos = servo.getTurrPos() - (bearing / 1300);
         double turretPID = servo.setTurrPos(turretPos);
         robot.turr1.setPower(turretPID);
@@ -573,179 +540,67 @@ public class AutoClose_V3 extends LinearOpMode {
 
     public void shootingSequence() {
         TELE.addData("Velocity", velo);
+        
+        // Define sequences based on obelisk configuration
+        double[][] sequences = {
+            {1, 2, 3}, {1, 3, 2}, {2, 1, 3}, {2, 3, 1}, {3, 1, 2}, {3, 2, 1}
+        };
+
+        double[] sequence = null;
+        
         if (gpp) {
             if (b1 + b2 + b3 == 4) {
-                if (b1 == 2 && b2 - b3 == 0) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                } else if (b2 == 2 && b1 - b3 == 0) {
-                    sequence3();
-                    TELE.addLine("sequence3");
-                } else if (b3 == 2 && b1 - b2 == 0) {
-                    sequence6();
-                    TELE.addLine("sequence6");
-                } else {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                }
+                if (b1 == 2 && b2 == b3) sequence = sequences[0];      // 1,2,3
+                else if (b2 == 2 && b1 == b3) sequence = sequences[2]; // 2,1,3
+                else if (b3 == 2 && b1 == b2) sequence = sequences[4]; // 3,1,2
+                else sequence = sequences[0];
             } else if (b1 + b2 + b3 >= 5) {
-                if (b1 == 2) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                } else if (b2 == 2) {
-                    sequence3();
-                    TELE.addLine("sequence3");
-                } else if (b3 == 2) {
-                    sequence6();
-                    TELE.addLine("sequence6");
-                }
-            } else {
-                sequence1();
-                TELE.addLine("sequence1");
-            }
+                if (b1 == 2) sequence = sequences[0];
+                else if (b2 == 2) sequence = sequences[2];
+                else if (b3 == 2) sequence = sequences[4];
+            } else sequence = sequences[0];
         } else if (pgp) {
             if (b1 + b2 + b3 == 4) {
-                if (b1 == 2 && b2 - b3 == 0) {
-                    sequence3();
-                    TELE.addLine("sequence3");
-                } else if (b2 == 2 && b1 - b3 == 0) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                } else if (b3 == 2 && b1 - b2 == 0) {
-                    sequence4();
-                    TELE.addLine("sequence4");
-                } else {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                }
+                if (b1 == 2 && b2 == b3) sequence = sequences[2];      // 2,1,3
+                else if (b2 == 2 && b1 == b3) sequence = sequences[0]; // 1,2,3
+                else if (b3 == 2 && b1 == b2) sequence = sequences[3]; // 2,3,1
+                else sequence = sequences[0];
             } else if (b1 + b2 + b3 >= 5) {
-                if (b1 == 2) {
-                    sequence3();
-                    TELE.addLine("sequence3");
-                } else if (b2 == 2) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                } else if (b3 == 2) {
-                    sequence4();
-                    TELE.addLine("sequence4");
-                }
-            } else {
-                sequence3();
-                TELE.addLine("sequence3");
-            }
+                if (b1 == 2) sequence = sequences[2];
+                else if (b2 == 2) sequence = sequences[0];
+                else if (b3 == 2) sequence = sequences[3];
+            } else sequence = sequences[2];
         } else if (ppg) {
             if (b1 + b2 + b3 == 4) {
-                if (b1 == 2 && b2 - b3 == 0) {
-                    sequence6();
-                    TELE.addLine("sequence6");
-                } else if (b2 == 2 && b1 - b3 == 0) {
-                    sequence5();
-                    TELE.addLine("sequence5");
-                } else if (b3 == 2 && b1 - b2 == 0) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                } else {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                }
+                if (b1 == 2 && b2 == b3) sequence = sequences[4];      // 3,1,2
+                else if (b2 == 2 && b1 == b3) sequence = sequences[5]; // 3,2,1
+                else if (b3 == 2 && b1 == b2) sequence = sequences[0]; // 1,2,3
+                else sequence = sequences[0];
             } else if (b1 + b2 + b3 >= 5) {
-                if (b1 == 2) {
-                    sequence6();
-                    TELE.addLine("sequence6");
-                } else if (b2 == 2) {
-                    sequence5();
-                    TELE.addLine("sequence5");
-                } else if (b3 == 2) {
-                    sequence1();
-                    TELE.addLine("sequence1");
-                }
-            } else {
-                sequence6();
-                TELE.addLine("sequence6");
-            }
-        } else {
-            sequence1();
-            TELE.addLine("sequence1");
-        }
+                if (b1 == 2) sequence = sequences[4];
+                else if (b2 == 2) sequence = sequences[5];
+                else if (b3 == 2) sequence = sequences[0];
+            } else sequence = sequences[4];
+        } else sequence = sequences[0];
+
+        executeShootingSequence(sequence);
         TELE.update();
     }
 
-    public void sequence1() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
-    }
+    private void executeShootingSequence(double[] sequence) {
+        double[] ballPositions = {
+            spindexer_outtakeBall1,
+            spindexer_outtakeBall2,
+            spindexer_outtakeBall3
+        };
 
-    public void sequence2() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
-    }
-
-    public void sequence3() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
-    }
-
-    public void sequence4() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
-    }
-
-    public void sequence5() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
-    }
-
-    public void sequence6() {
-        Actions.runBlocking(
-                new SequentialAction(
-                        spindex(spindexer_outtakeBall3, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall2, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL),
-                        spindex(spindexer_outtakeBall1, AUTO_CLOSE_VEL),
-                        Shoot(AUTO_CLOSE_VEL)
-                )
-        );
+        for (double ball : sequence) {
+            Actions.runBlocking(
+                    new SequentialAction(
+                            spindex(ballPositions[(int) ball - 1], AUTO_CLOSE_VEL),
+                            Shoot(AUTO_CLOSE_VEL)
+                    )
+            );
+        }
     }
 }
