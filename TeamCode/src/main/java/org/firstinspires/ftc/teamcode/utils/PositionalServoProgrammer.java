@@ -61,13 +61,25 @@ public class PositionalServoProgrammer extends LinearOpMode {
             if (hoodPos != 0.501){
                 robot.hood.setPosition(hoodPos);
             }
-            TELE.addData("spindexer", servo.getSpinPos());
-            TELE.addData("turret", servo.getTurrPos());
-            TELE.addData("spindexer voltage", robot.spin1Pos.getVoltage());
-            TELE.addData("hood voltage", robot.hoodPos.getVoltage());
+            // To check configuration of spindexer:
+            // Set "mode" to 1 and spindexPow to 0.1
+            // If the spindexer is turning clockwise, the servos are reversed. Swap the configuration of the two servos, DO NOT TOUCH THE ACTUAL CODE
+            // Do the previous test again to confirm
+            // Set "mode" to 0 but keep spindexPos at 0.501
+            // Manually turn the spindexer until "spindexer pos" is set close to 0
+            // Check each spindexer voltage:
+                // If "spindexer voltage 1" is closer to 0 than "spindexer voltage 2," then you are done!
+                // If "spindexer voltage 2" is closer to 0 than "spindexer voltage 1," swap the two spindexer analog inputs in the configuration, DO NOT TOUCH THE ACTUAL CODE
+            //TODO: @KeshavAnandCode do the above please
+
+            TELE.addData("spindexer pos", servo.getSpinPos());
+            TELE.addData("turret pos", servo.getTurrPos());
+            TELE.addData("spindexer voltage 1", robot.spin1Pos.getVoltage());
+            TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
+            TELE.addData("hood pos", robot.hood.getPosition());
             TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
-            TELE.addData("turret voltage", robot.turr1Pos.getVoltage());
-            TELE.addData("Spin Equal", servo.spinEqual(spindexPos));
+            TELE.addData("turret voltage", robot.turr1Pos.getCurrentPosition());
+            TELE.addData("spindexer pow", robot.spin1.getPower());
             TELE.update();
         }
     }

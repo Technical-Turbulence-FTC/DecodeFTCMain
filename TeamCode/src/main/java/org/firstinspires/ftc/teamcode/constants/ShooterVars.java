@@ -20,4 +20,5 @@ public class ShooterVars {
 
     // VELOCITY CONSTANTS
     public static int AUTO_CLOSE_VEL = 3025; //3300;
+    public static int AUTO_FAR_VEL = 4000; //TODO: test this
 }

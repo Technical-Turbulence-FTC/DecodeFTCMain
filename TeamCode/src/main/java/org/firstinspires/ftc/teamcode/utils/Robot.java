@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -28,37 +27,29 @@ public class Robot {
     public DcMotorEx shooter2;
     public Servo hood;
     public Servo transferServo;
-    public Servo rejecter;
     public CRServo turr1;
     public CRServo turr2;
     public CRServo spin1;
     public CRServo spin2;
-    public DigitalChannel pin0;
-    public DigitalChannel pin1;
-    public DigitalChannel pin2;
-    public DigitalChannel pin3;
-    public DigitalChannel pin4;
-    public DigitalChannel pin5;
-    public AnalogInput analogInput;
-    public AnalogInput analogInput2;
     public AnalogInput spin1Pos;
     public AnalogInput spin2Pos;
-    public AnalogInput hoodPos;
-    public AnalogInput turr1Pos;
-    public AnalogInput turr2Pos;
+    public DcMotorEx turr1Pos;
     public AnalogInput transferServoPos;
     public AprilTagProcessor aprilTagProcessor;
     public WebcamName webcam;
-    public DcMotorEx shooterEncoder;
     public RevColorSensorV3 color1;
     public RevColorSensorV3 color2;
     public RevColorSensorV3 color3;
     public Limelight3A limelight;
 
+    public static boolean usingLimelight = true;
+
+    public static boolean usingCamera = true;
+
     public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
-
+        //TODO: fix the configuration of these - I trust you to figure it out yourself @KeshavAnandCode
         frontLeft = hardwareMap.get(DcMotorEx.class, "fl");
         frontRight = hardwareMap.get(DcMotorEx.class, "fr");
         backLeft = hardwareMap.get(DcMotorEx.class, "bl");
@@ -72,30 +63,24 @@ public class Robot {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-        rejecter = hardwareMap.get(Servo.class, "rejecter");
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
 
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-
+        //TODO: figure out which shooter motor is reversed using ShooterTest and change it in code @KeshavAnandCode
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        shooterEncoder = shooter1;
-
         hood = hardwareMap.get(Servo.class, "hood");
-
-        hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
 
         turr1 = hardwareMap.get(CRServo.class, "t1");
 
-        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos");
-
         turr2 = hardwareMap.get(CRServo.class, "t2");
 
-        turr2Pos = hardwareMap.get(AnalogInput.class, "t2Pos");
+        turr1Pos = intake; // Encoder of turret plugged in intake port
 
+        //TODO: check spindexer configuration (both servo and analog input) - check comments in PositionalServoProgrammer
         spin1 = hardwareMap.get(CRServo.class, "spin1");
 
         spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
@@ -107,22 +92,6 @@ public class Robot {
         spin1.setDirection(DcMotorSimple.Direction.REVERSE);
         spin2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
-
-        pin1 = hardwareMap.get(DigitalChannel.class, "pin1");
-
-        pin2 = hardwareMap.get(DigitalChannel.class, "pin2");
-
-        pin3 = hardwareMap.get(DigitalChannel.class, "pin3");
-
-        pin4 = hardwareMap.get(DigitalChannel.class, "pin4");
-
-        pin5 = hardwareMap.get(DigitalChannel.class, "pin5");
-
-        analogInput = hardwareMap.get(AnalogInput.class, "analog");
-
-        analogInput2 = hardwareMap.get(AnalogInput.class, "analog2");
-
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
         transferServo = hardwareMap.get(Servo.class, "transferServo");
@@ -130,15 +99,19 @@ public class Robot {
         transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
 
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-
-        webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
 
         color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
+
+        if (usingLimelight){
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        } else if (usingCamera){
+            webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+            aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+        }
     }
 }

@@ -46,7 +46,7 @@ public class PIDServoTest extends LinearOpMode {
             controller.setPIDF(p, i, d, f);
 
             if (mode == 0) {
-                pos = scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3);
+                pos = robot.turr1Pos.getCurrentPosition();
 
                 double pid = controller.calculate(pos, target);
 
@@ -62,7 +62,7 @@ public class PIDServoTest extends LinearOpMode {
             }
 
             telemetry.addData("pos", pos);
-            telemetry.addData("Turret Voltage", robot.turr1Pos.getVoltage());
+            telemetry.addData("Turret Voltage", robot.turr1Pos.getCurrentPosition());
             telemetry.addData("Spindex Voltage", robot.spin1Pos.getVoltage());
             telemetry.addData("target", target);
             telemetry.addData("Mode", mode);
