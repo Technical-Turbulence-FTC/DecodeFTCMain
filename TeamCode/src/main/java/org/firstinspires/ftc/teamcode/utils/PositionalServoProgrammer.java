@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -11,27 +13,47 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class PositionalServoProgrammer extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
+    Servos servo;
+
     public static double spindexPos = 0.501;
+    public static double spindexPow = 0.0;
+    public static double spinHoldPow = 0.0;
     public static double turretPos = 0.501;
+    public static double turretPow = 0.0;
+    public static double turrHoldPow = 0.0;
     public static double transferPos = 0.501;
     public static double hoodPos = 0.501;
+    public static int mode = 0; //0 for positional, 1 for power
 
-    public static double scalar = 1.112;
-    public static double restPos = 0.15;
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        servo = new Servos(hardwareMap);
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
-            if (spindexPos != 0.501){
-                robot.spin1.setPosition(spindexPos);
-                robot.spin2.setPosition(1-spindexPos);
+            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos) && mode == 0){
+                double pos = servo.setSpinPos(spindexPos);
+                robot.spin1.setPower(pos);
+                robot.spin2.setPower(-pos);
+            } else if (mode == 0){
+                robot.spin1.setPower(spinHoldPow);
+                robot.spin2.setPower(spinHoldPow);
+            } else {
+                robot.spin1.setPower(spindexPow);
+                robot.spin2.setPower(-spindexPow);
             }
-            if (turretPos != 0.501){
-                robot.turr1.setPosition(turretPos);
-                robot.turr2.setPosition(1-turretPos);
+            if (turretPos != 0.501 && !servo.turretEqual(turretPos)){
+                double pos = servo.setTurrPos(turretPos);
+                robot.turr1.setPower(pos);
+                robot.turr2.setPower(-pos);
+            } else if (mode == 0){
+                robot.turr1.setPower(turrHoldPow);
+                robot.turr2.setPower(turrHoldPow);
+            } else {
+                robot.turr1.setPower(turretPow);
+                robot.turr2.setPower(-turretPow);
             }
             if (transferPos != 0.501){
                 robot.transferServo.setPosition(transferPos);
@@ -39,14 +61,13 @@ public class PositionalServoProgrammer extends LinearOpMode {
             if (hoodPos != 0.501){
                 robot.hood.setPosition(hoodPos);
             }
-            TELE.addData("spindexer", scalar*((robot.spin1Pos.getVoltage() - restPos) / 3.3));
-            TELE.addData("hood", 1-scalar*((robot.hoodPos.getVoltage() - restPos) / 3.3));
-            TELE.addData("transferServo", scalar*((robot.transferServoPos.getVoltage() - restPos) / 3.3));
-            TELE.addData("turret", scalar*((robot.turr1Pos.getVoltage() - restPos) / 3.3));
-            TELE.addData("spindexerA", robot.spin1Pos.getVoltage());
-            TELE.addData("hoodA", robot.hoodPos.getVoltage());
-            TELE.addData("transferServoA", robot.transferServoPos.getVoltage());
-            TELE.addData("turretA", robot.turr1Pos.getVoltage());
+            TELE.addData("spindexer", servo.getSpinPos());
+            TELE.addData("turret", servo.getTurrPos());
+            TELE.addData("spindexer voltage", robot.spin1Pos.getVoltage());
+            TELE.addData("hood voltage", robot.hoodPos.getVoltage());
+            TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
+            TELE.addData("turret voltage", robot.turr1Pos.getVoltage());
+            TELE.addData("Spin Equal", servo.spinEqual(spindexPos));
             TELE.update();
         }
     }

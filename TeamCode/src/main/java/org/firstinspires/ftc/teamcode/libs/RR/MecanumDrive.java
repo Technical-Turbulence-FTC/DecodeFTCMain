@@ -185,19 +185,19 @@ public final class MecanumDrive {
                     new DualNum<Time>(new double[]{
                             (leftFrontPosVel.position - lastLeftFrontPos),
                             leftFrontPosVel.velocity,
-                    }).times(PARAMS.inPerTick),
+                            }).times(PARAMS.inPerTick),
                     new DualNum<Time>(new double[]{
                             (leftBackPosVel.position - lastLeftBackPos),
                             leftBackPosVel.velocity,
-                    }).times(PARAMS.inPerTick),
+                            }).times(PARAMS.inPerTick),
                     new DualNum<Time>(new double[]{
                             (rightBackPosVel.position - lastRightBackPos),
                             rightBackPosVel.velocity,
-                    }).times(PARAMS.inPerTick),
+                            }).times(PARAMS.inPerTick),
                     new DualNum<Time>(new double[]{
                             (rightFrontPosVel.position - lastRightFrontPos),
                             rightFrontPosVel.velocity,
-                    }).times(PARAMS.inPerTick)
+                            }).times(PARAMS.inPerTick)
             ));
 
             lastLeftFrontPos = leftFrontPosVel.position;
@@ -454,14 +454,14 @@ public final class MecanumDrive {
     public PoseVelocity2d updatePoseEstimate() {
         PoseVelocity2d vel = localizer.update();
         poseHistory.add(localizer.getPose());
-        
+
         while (poseHistory.size() > 100) {
             poseHistory.removeFirst();
         }
 
         estimatedPoseWriter.write(new PoseMessage(localizer.getPose()));
-        
-        
+
+
         return vel;
     }
 

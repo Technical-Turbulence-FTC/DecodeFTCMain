@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -18,67 +20,40 @@ public class Robot {
 
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
-
     public DcMotorEx backLeft;
-
     public DcMotorEx backRight;
-
     public DcMotorEx intake;
-
     public DcMotorEx transfer;
-
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
-
     public Servo transferServo;
-
     public Servo rejecter;
-
-    public Servo turr1;
-
-    public Servo turr2;
-
-    public Servo spin1;
-
-    public Servo spin2;
-
+    public CRServo turr1;
+    public CRServo turr2;
+    public CRServo spin1;
+    public CRServo spin2;
     public DigitalChannel pin0;
-
     public DigitalChannel pin1;
     public DigitalChannel pin2;
     public DigitalChannel pin3;
     public DigitalChannel pin4;
-
     public DigitalChannel pin5;
-
     public AnalogInput analogInput;
-
     public AnalogInput analogInput2;
-
     public AnalogInput spin1Pos;
-
     public AnalogInput spin2Pos;
-
     public AnalogInput hoodPos;
-
     public AnalogInput turr1Pos;
-
     public AnalogInput turr2Pos;
-
     public AnalogInput transferServoPos;
-
     public AprilTagProcessor aprilTagProcessor;
-
     public WebcamName webcam;
-
     public DcMotorEx shooterEncoder;
-
     public RevColorSensorV3 color1;
-
     public RevColorSensorV3 color2;
-
     public RevColorSensorV3 color3;
+    public Limelight3A limelight;
 
     public Robot(HardwareMap hardwareMap) {
 
@@ -104,6 +79,8 @@ public class Robot {
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
 
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterEncoder = shooter1;
 
@@ -111,21 +88,24 @@ public class Robot {
 
         hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
 
-        turr1 = hardwareMap.get(Servo.class, "t1");
+        turr1 = hardwareMap.get(CRServo.class, "t1");
 
         turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos");
 
-        turr2 = hardwareMap.get(Servo.class, "t2");
+        turr2 = hardwareMap.get(CRServo.class, "t2");
 
         turr2Pos = hardwareMap.get(AnalogInput.class, "t2Pos");
 
-        spin1 = hardwareMap.get(Servo.class, "spin1");
+        spin1 = hardwareMap.get(CRServo.class, "spin1");
 
         spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
 
-        spin2 = hardwareMap.get(Servo.class, "spin2");
+        spin2 = hardwareMap.get(CRServo.class, "spin2");
 
         spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
+
+        spin1.setDirection(DcMotorSimple.Direction.REVERSE);
+        spin2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
 

@@ -1,19 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turrDefault;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransfer;
-import static org.firstinspires.ftc.teamcode.constants.ShooterVars.waitTransferOut;
-import static org.firstinspires.ftc.teamcode.tests.ShooterTest.kP;
-import static org.firstinspires.ftc.teamcode.tests.ShooterTest.maxStep;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.restPos;
-import static org.firstinspires.ftc.teamcode.utils.PositionalServoProgrammer.scalar;
+import static org.firstinspires.ftc.teamcode.constants.Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+import static org.firstinspires.ftc.teamcode.constants.ShooterVars.*;
+import static org.firstinspires.ftc.teamcode.tests.PIDServoTest.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -26,7 +16,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
+import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.ArrayList;
@@ -35,7 +27,8 @@ import java.util.List;
 @TeleOp
 @Config
 public class TeleopV2 extends LinearOpMode {
-
+    Servos servo;
+    Flywheel flywheel;
     public static double manualVel = 3000;
     public static double hood = 0.5;
     public static double hoodDefaultPos = 0.5;
@@ -63,6 +56,7 @@ public class TeleopV2 extends LinearOpMode {
     double yOffset = 0.0;
     double headingOffset = 0.0;
     int ticker = 0;
+    int camTicker = 0;
     List<Double> s1G = new ArrayList<>();
     List<Double> s2G = new ArrayList<>();
     List<Double> s3G = new ArrayList<>();
@@ -98,6 +92,11 @@ public class TeleopV2 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+    double turretPID = 0.0;
+    double turretPos = 0.5;
+    double spindexPID = 0.0;
+    double spindexPos = spindexer_intakePos1;
+    double error = 0.0;
 
     public static double velPrediction(double distance) {
 
@@ -129,15 +128,14 @@ public class TeleopV2 extends LinearOpMode {
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
+        servo = new Servos(hardwareMap);
+        flywheel = new Flywheel();
 
         drive = new MecanumDrive(hardwareMap, teleStart);
 
         Pose2d shootPos = teleStart;
 
         aprilTagWebcam.init(new Robot(hardwareMap), TELE);
-
-        robot.turr1.setPosition(0.4);
-        robot.turr2.setPosition(1 - 0.4);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -159,6 +157,21 @@ public class TeleopV2 extends LinearOpMode {
             robot.backLeft.setPower(backLeftPower);
             robot.frontRight.setPower(frontRightPower);
             robot.backRight.setPower(backRightPower);
+
+            // PID SERVOS
+            turretPID = servo.setTurrPos(turretPos);
+            robot.turr1.setPower(turretPID);
+            robot.turr2.setPower(-turretPID);
+
+            //TODO: make sure changing position works throughout opmode
+            if (!servo.spinEqual(spindexPos)){
+                spindexPID = servo.setSpinPos(spindexPos);
+                robot.spin1.setPower(spindexPID);
+                robot.spin2.setPower(-spindexPID);
+            } else{
+                robot.spin1.setPower(0);
+                robot.spin2.setPower(0);
+            }
 
             //INTAKE:
 
@@ -183,22 +196,15 @@ public class TeleopV2 extends LinearOpMode {
 
                 robot.intake.setPower(1);
 
-                double position;
-
                 if ((getRuntime() % 0.3) > 0.15) {
-                    position = spindexer_intakePos1 + 0.015;
+                    spindexPos = spindexer_intakePos1 + 0.015;
                 } else {
-                    position = spindexer_intakePos1 - 0.015;
+                    spindexPos = spindexer_intakePos1 - 0.015;
                 }
-
-                robot.spin1.setPosition(position);
-                robot.spin2.setPosition(1 - position);
 
             } else if (reject) {
                 robot.intake.setPower(-1);
-                double position = spindexer_intakePos1;
-                robot.spin1.setPosition(position);
-                robot.spin2.setPosition(1 - position);
+                spindexPos = spindexer_intakePos1;
             } else {
                 robot.intake.setPower(0);
             }
@@ -280,46 +286,7 @@ public class TeleopV2 extends LinearOpMode {
 
             //SHOOTER:
 
-            double penguin = 0;
-
-            if (ticker % 8 == 0) {
-                penguin = (double) robot.shooterEncoder.getCurrentPosition() / 2048;
-                double stamp = getRuntime();
-                velo1 = -60 * ((penguin - initPos) / (stamp - stamp1));
-                initPos = penguin;
-                stamp1 = stamp;
-            }
-
-            velo = velo1;
-
-            double feed = vel / 4500;
-
-            if (vel > 500) {
-                feed = Math.log((668.39 / (vel + 591.96)) - 0.116) / -4.18;
-            }
-
-            // --- PROPORTIONAL CORRECTION ---
-            double error = vel - velo1;
-            double correction = kP * error;
-
-            // limit how fast power changes (prevents oscillation)
-            correction = Math.max(-maxStep, Math.min(maxStep, correction));
-
-            // --- FINAL MOTOR POWER ---
-            double powPID = feed + correction;
-
-            // clamp to allowed range
-            powPID = Math.max(0, Math.min(1, powPID));
-
-            if (vel - velo > 1000) {
-                powPID = 1;
-            } else if (velo - vel > 1000) {
-                powPID = 0;
-            }
-
-            TELE.addData("PIDPower", powPID);
-
-            TELE.addData("vel", velo1);
+            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition());
 
             robot.shooter1.setPower(powPID);
             robot.shooter2.setPower(powPID);
@@ -355,7 +322,8 @@ public class TeleopV2 extends LinearOpMode {
                 offset -= 360;
             }
 
-            double pos = turrDefault;
+            //TODO: test the camera teleop code
+            double pos = turrDefault + (error/8); // adds the overall error to the default
 
             TELE.addData("offset", offset);
 
@@ -367,14 +335,51 @@ public class TeleopV2 extends LinearOpMode {
                 pos = 0.97;
             }
 
+            if (y < 0.1 && y > -0.1 && x < 0.1 && x > -0.1 && rx < 0.1 && rx > -0.1){ //not moving
+                AprilTagDetection d20 = aprilTagWebcam.getTagById(20);
+                AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
+
+                double bearing = 0.0;
+                if (d20 != null || d24 != null){
+                    if (d20 != null) {
+                        bearing = d20.ftcPose.bearing;
+                    }
+                    if (d24 != null) {
+                        bearing = d24.ftcPose.bearing;
+                    }
+                    overrideTurr = true;
+                    turretPos = servo.getTurrPos() - (bearing/1300);
+                    TELE.addData("Bear", bearing);
+
+                    double bearingCorrection = bearing / 1300;
+
+
+                    // deadband: ignore tiny noise
+                    if (Math.abs(bearing) > 0.3 && camTicker < 8) {
+
+                        // only accumulate if bearing direction is consistent
+                        if (Math.signum(bearingCorrection) == Math.signum(error) || error == 0) {
+                            error += bearingCorrection;
+                        }
+                    }
+
+                    camTicker++;
+
+                }
+
+
+            } else {
+                camTicker = 0;
+                overrideTurr = false;
+
+            }
+
             if (manualTurret) {
                 pos = turrDefault + (manualOffset / 100);
             }
 
             if (!overrideTurr) {
-
-                robot.turr1.setPosition(pos);
-                robot.turr2.setPosition(1 - pos);
+                turretPos = pos;
             }
 
             if (gamepad2.dpad_right) {
@@ -455,12 +460,9 @@ public class TeleopV2 extends LinearOpMode {
                 reject = true;
 
                 if (getRuntime() % 3 > 1.5) {
-                    robot.spin1.setPosition(0);
-                    robot.spin2.setPosition(1);
+                    spindexPos = 1;
                 } else {
-
-                    robot.spin1.setPosition(1);
-                    robot.spin2.setPosition(0);
+                    spindexPos = 0;
                 }
 
                 robot.transferServo.setPosition(transferServo_out);
@@ -478,39 +480,14 @@ public class TeleopV2 extends LinearOpMode {
                     int currentSlot = shootOrder.get(0); // Peek, do NOT remove yet
                     boolean shootingDone = false;
 
-                    AprilTagDetection d20 = aprilTagWebcam.getTagById(20);
-                    AprilTagDetection d24 = aprilTagWebcam.getTagById(24);
-
-                    if (d20 != null) {
-                        overrideTurr = true;
-                        double bearing = d20.ftcPose.bearing;
-
-                        double finalPos = robot.turr1.getPosition() - (bearing / 1300);
-                        robot.turr1.setPosition(finalPos);
-                        robot.turr2.setPosition(1 - finalPos);
-
-                        TELE.addData("Bear", bearing);
-
-                    }
-
-                    if (d24 != null) {
-                        overrideTurr = true;
-
-                        double bearing = d24.ftcPose.bearing;
-                        double finalPos = robot.turr1.getPosition() - (bearing / 1300);
-                        robot.turr1.setPosition(finalPos);
-                        robot.turr2.setPosition(1 - finalPos);
-
-                    }
-
                     if (!outtake1) {
-                        outtake1 = (spindexPosEqual(spindexer_outtakeBall1));
+                        outtake1 = (servo.spinEqual(spindexer_outtakeBall1));
                     }
                     if (!outtake2) {
-                        outtake2 = (spindexPosEqual(spindexer_outtakeBall2));
+                        outtake2 = (servo.spinEqual(spindexer_outtakeBall2));
                     }
                     if (!outtake3) {
-                        outtake3 = (spindexPosEqual(spindexer_outtakeBall3));
+                        outtake3 = (servo.spinEqual(spindexer_outtakeBall3));
                     }
 
                     switch (currentSlot) {
@@ -553,8 +530,7 @@ public class TeleopV2 extends LinearOpMode {
 
                 } else {
                     // Finished shooting all balls
-                    robot.spin1.setPosition(spindexer_intakePos1);
-                    robot.spin2.setPosition(1 - spindexer_intakePos1);
+                    spindexPos = spindexer_intakePos1;
                     shootA = true;
                     shootB = true;
                     shootC = true;
@@ -767,15 +743,9 @@ public class TeleopV2 extends LinearOpMode {
         return countTrue > countWindow / 2.0; // more than 50% true
     }
 
-    boolean spindexPosEqual(double spindexer) {
-        return (scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) > spindexer - 0.01 &&
-                scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3) < spindexer + 0.01);
-    }
-
     public boolean shootTeleop(double spindexer, boolean spinOk, double stamp) {
         // Set spin positions
-        robot.spin1.setPosition(spindexer);
-        robot.spin2.setPosition(1 - spindexer);
+        spindexPos = spindexer;
 
         // Check if spindexer has reached the target position
         if (spinOk || getRuntime() - stamp > 1.5) {
@@ -930,9 +900,4 @@ public class TeleopV2 extends LinearOpMode {
         }
         return true; // default
     }
-
-    public double turretPos() {
-        return (scalar * ((robot.turr1Pos.getVoltage() - restPos) / 3.3));
-    }
-
 }
