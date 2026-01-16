@@ -14,7 +14,7 @@ public class Servos {
 
     //PID constants
     // TODO: get PIDF constants
-    public static double spinP = 3.4, spinI = 0, spinD = 0.075, spinF = 0.02;
+    public static double spinP = 3.3, spinI = 0, spinD = 0.1, spinF = 0.02;
     public static double turrP = 4.0, turrI = 0.0, turrD = 0.0, turrF = 0.0;
 
     public static double spin_scalar = 1.0086;

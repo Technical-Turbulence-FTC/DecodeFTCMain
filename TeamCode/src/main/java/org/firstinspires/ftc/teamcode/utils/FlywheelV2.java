@@ -73,12 +73,18 @@ public class FlywheelV2 {
         targetVelocity = commandedVelocity;
         velo = getVelo(shooter1CurPos, shooter2CurPos);
         // Flywheel PID code here
-        if (targetVelocity - velo > 500) {
+        if (targetVelocity - velo > 4500) {
             powPID = 1.0;
-        } else if (velo - targetVelocity > 500) {
+        } else if (velo - targetVelocity > 4500) {
             powPID = 0.0;
         } else {
-            double feed = Math.log((668.39 / (targetVelocity + 591.96)) - 0.116) / -4.18;
+
+            double a = 2539.07863;
+            double c = 1967.6498;
+            double d = -0.289647;
+            double h = -1.1569;
+
+            double feed = Math.log((a / (targetVelocity + c)) + d) / h;
 
             // --- PROPORTIONAL CORRECTION ---
             double error = targetVelocity - velo;
@@ -88,7 +94,7 @@ public class FlywheelV2 {
             correction = Math.max(-maxStep, Math.min(maxStep, correction));
 
             // --- FINAL MOTOR POWER ---
-            powPID = feed + correction;
+            powPID = feed;
 
             // clamp to allowed range
             powPID = Math.max(0, Math.min(1, powPID));

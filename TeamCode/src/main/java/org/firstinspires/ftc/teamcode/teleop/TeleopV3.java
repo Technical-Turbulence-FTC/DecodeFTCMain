@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.utils.Servos.*;
+import static org.firstinspires.ftc.teamcode.utils.Servos.spin_scalar;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -13,10 +15,12 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
@@ -47,6 +51,9 @@ public class TeleopV3 extends LinearOpMode {
     public boolean circle = false;
     public boolean square = false;
     public boolean triangle = false;
+
+    PIDFController spinPID = new PIDFController(spinP, spinI, spinD, spinF);
+
     public TranslationalVelConstraint VEL_CONSTRAINT = new TranslationalVelConstraint(200);
     public ProfileAccelConstraint ACCEL_CONSTRAINT = new ProfileAccelConstraint(-Math.abs(60), 200);
     Robot robot;
@@ -85,7 +92,7 @@ public class TeleopV3 extends LinearOpMode {
     double turretPID = 0.0;
     double turretPos = 0.5;
     double spindexPID = 0.0;
-    double spindexPos = spindexer_intakePos1;
+    public static double spindexPos = spindexer_intakePos1;
     double error = 0.0;
     double spinCurrentPos = 0.0, spinInitPos = 0.0, intakeStamp = 0.0;
     boolean reverse = false;
@@ -96,6 +103,21 @@ public class TeleopV3 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+
+    public static double velPrediction(double distance) {
+        if (distance < 30) {
+            return 2750;
+        } else if (distance > 100) {
+            if (distance > 160) {
+                return 4200;
+            }
+            return 3700;
+        } else {
+            // linear interpolation between 40->2650 and 120->3600
+            double slope = (3700.0 - 2750.0) / (100.0 - 30);
+            return (int) Math.round(2750 + slope * (distance - 30));
+        }
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -180,11 +202,16 @@ public class TeleopV3 extends LinearOpMode {
 //            robot.turr1.setPower(turretPID);
 //            robot.turr2.setPower(-turretPID);
 
-//            if (!servo.spinEqual(spindexPos) && !gamepad1.right_bumper) {
-//                spindexPID = servo.setSpinPos(spindexPos);
-//                robot.spin1.setPower(spindexPID);
-//                robot.spin2.setPower(-spindexPID);
-//            }
+            if (!servo.spinEqual(spindexPos) && !gamepad1.right_bumper) {
+                spinCurrentPos = servo.getSpinPos();
+
+                double spindexPID = spinPID.calculate(spinCurrentPos, spindexPos);
+
+                robot.spin1.setPower(spindexPID);
+                robot.spin2.setPower(-spindexPID);
+
+            }
+
 
             //TODO: Use color sensors to switch between positions...switch after ball detected in
 
@@ -199,7 +226,7 @@ public class TeleopV3 extends LinearOpMode {
                     }
                     spinInitPos = spinCurrentPos;
                 }
-                if (reverse && intakeTicker % intakeJamSwap < (intakeJamSwap/2)) {
+                if (reverse && intakeTicker % intakeJamSwap < (intakeJamSwap / 2)) {
                     robot.spin1.setPower(1);
                     robot.spin2.setPower(-1);
                 } else if (reverse) {
@@ -214,8 +241,19 @@ public class TeleopV3 extends LinearOpMode {
                 TELE.addData("Reverse?", reverse);
                 TELE.update();
             } else {
-                robot.spin1.setPower(0);
-                robot.spin2.setPower(0);
+                if (!servo.spinEqual(spindexPos)) {
+                    spinCurrentPos = servo.getSpinPos();
+
+                    double spindexPID = spinPID.calculate(spinCurrentPos, spindexPos);
+
+                    robot.spin1.setPower(spindexPID);
+                    robot.spin2.setPower(-spindexPID);
+
+                } else {
+
+                    robot.spin1.setPower(0);
+                    robot.spin2.setPower(0);
+                }
 
                 if (getRuntime() - intakeStamp < 1) {
                     robot.intake.setPower(-(getRuntime() - intakeStamp) * 2);
@@ -225,41 +263,6 @@ public class TeleopV3 extends LinearOpMode {
 
                 intakeTicker = 0;
             }
-
-//            // INTAKE
-//            if (gamepad1.right_bumper) {
-//                robot.transferServo.setPosition(transferServo_out);
-////                intakeTicker++;
-////                if (intakeTicker % 16 == 0) {
-////                    spinCurrentPos = servo.getSpinPos();
-////                    if (Math.abs(spinCurrentPos - spinInitPos) == 0.0) {
-////                        reverse = !reverse;
-////                    }
-////                    spinInitPos = spinCurrentPos;
-////                }
-//                if (reverse) {
-//                    robot.spin1.setPower(spinningPow);
-//                    robot.spin2.setPower(-spinningPow);
-//                } else {
-//                    robot.spin1.setPower(-spinningPow);
-//                    robot.spin2.setPower(spinningPow);
-//                }
-//                robot.intake.setPower(1);
-//                intakeStamp = getRuntime();
-//                TELE.addData("Reverse?", reverse);
-//
-//            } else if (gamepad1.left_bumper) {
-//                robot.intake.setPower(-(getRuntime() - intakeStamp) * 2);
-//                spindexPos = spindexer_intakePos2;
-//                intakeTicker = 0;
-//            } else {
-//                if (getRuntime() - intakeStamp < 1) {
-//                    robot.intake.setPower(-(getRuntime() - intakeStamp) * 2);
-//                } else {
-//                    robot.intake.setPower(0);
-//                }
-//                intakeTicker = 0;
-//            }
 
             //COLOR:
 
@@ -276,8 +279,9 @@ public class TeleopV3 extends LinearOpMode {
                 double gP = green / (green + red + blue);
 
                 s1G.add(gP);
+                TELE.addData("gp1", gP);
 
-                if (gP >= 0.43) {
+                if (gP >= 0.36) {
                     s1.add(true);
                 } else {
                     s1.add(false);
@@ -296,6 +300,7 @@ public class TeleopV3 extends LinearOpMode {
                 double gP = green / (green + red + blue);
 
                 s2G.add(gP);
+                TELE.addData("gp2", gP);
 
                 if (gP >= 0.43) {
                     s2.add(true);
@@ -313,6 +318,8 @@ public class TeleopV3 extends LinearOpMode {
                 double blue = robot.color3.getNormalizedColors().blue;
 
                 double gP = green / (green + red + blue);
+
+                TELE.addData("gp3", gP);
 
                 s3G.add(gP);
 
@@ -336,42 +343,66 @@ public class TeleopV3 extends LinearOpMode {
                 green3 = checkGreen(s3, s3T);
             }
 
-//            //SHOOTER:
-//
-//            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-//
-//            robot.shooter1.setPower(powPID);
-//            robot.shooter2.setPower(powPID);
-//
-//            robot.transfer.setPower(1);
-//
-//            double offset;
-//
-//            double robX = drive.localizer.getPose().position.x;
-//            double robY = drive.localizer.getPose().position.y;
-//
-//            double robotX = robX - xOffset;
-//            double robotY = robY - yOffset;
-//            double robotHeading = drive.localizer.getPose().heading.toDouble();
-//
-//            double goalX = -10;
-//            double goalY = 0;
-//
-//            double dx = goalX - robotX;  // delta x from robot to goal
-//            double dy = goalY - robotY;  // delta y from robot to goal
-//
-//            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
-//
-//            desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
-//
-//            desiredTurretAngle += manualOffset;
-//
-//            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
-//
-//            if (offset > 135) {
-//                offset -= 360;
-//            }
-//
+            robot.transfer.setPower(1);
+
+            double offset;
+
+            double robX = drive.localizer.getPose().position.x;
+            double robY = drive.localizer.getPose().position.y;
+
+            double robotX = robX - xOffset;
+            double robotY = robY - yOffset;
+            double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+            double goalX = -10;
+            double goalY = 0;
+
+            double dx = goalX - robotX;  // delta x from robot to goal
+            double dy = goalY - robotY;  // delta y from robot to goal
+
+            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+            desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
+
+            desiredTurretAngle += manualOffset;
+
+            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
+
+            if (offset > 135) {
+                offset -= 360;
+            }
+
+            //SHOOTER:
+
+            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
+
+            robot.shooter1.setPower(powPID);
+            robot.shooter2.setPower(powPID);
+
+            //VELOCITY AUTOMATIC
+
+            if (autoVel) {
+                vel = velPrediction(distanceToGoal);
+            } else {
+                vel = manualVel;
+            }
+
+            if (gamepad2.right_stick_button) {
+                autoVel = true;
+            } else if (gamepad2.right_stick_y < -0.5) {
+                autoVel = false;
+                manualVel = 4600;
+            } else if (gamepad2.right_stick_y > 0.5) {
+                autoVel = false;
+                manualVel = 2700;
+            } else if (gamepad2.right_stick_x > 0.5) {
+                autoVel = false;
+                manualVel = 3600;
+            } else if (gamepad2.right_stick_x < -0.5) {
+                autoVel = false;
+                manualVel = 3100;
+            }
+
 //            //TODO: test the camera teleop code
 //            double pos = turrDefault + (error / 8); // adds the overall error to the default
 //
@@ -431,30 +462,7 @@ public class TeleopV3 extends LinearOpMode {
 //                manualOffset += 2;
 //            }
 //
-//            //VELOCITY AUTOMATIC
-//
-//            if (autoVel) {
-//                vel = velPrediction(distanceToGoal);
-//            } else {
-//                vel = manualVel;
-//            }
-//
-//            if (gamepad2.right_stick_button) {
-//                autoVel = true;
-//            } else if (gamepad2.right_stick_y < -0.5) {
-//                autoVel = false;
-//                manualVel = 4100;
-//            } else if (gamepad2.right_stick_y > 0.5) {
-//                autoVel = false;
-//                manualVel = 2700;
-//            } else if (gamepad2.right_stick_x > 0.5) {
-//                autoVel = false;
-//                manualVel = 3600;
-//            } else if (gamepad2.right_stick_x < -0.5) {
-//                autoVel = false;
-//                manualVel = 3100;
-//            }
-//
+
 //            //HOOD:
 //
 //            if (autoHood) {
@@ -682,9 +690,9 @@ public class TeleopV3 extends LinearOpMode {
                 hub.clearBulkCache();
             }
 //
-//                TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
-//                TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
-//                TELE.addData("Spin3Green", green3 + ": " + ballIn(3));
+            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
+            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
+            TELE.addData("Spin3Green", green3 + ": " + ballIn(3));
 
             TELE.addData("pose", drive.localizer.getPose());
             TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
@@ -864,19 +872,4 @@ public class TeleopV3 extends LinearOpMode {
 
         return times.get(times.size() - 1) > getRuntime() - 2;
     }
-
-//    public static double velPrediction(double distance) {
-//        if (distance < 30) {
-//            return 2750;
-//        } else if (distance > 100) {
-//            if (distance > 160) {
-//                return 4200;
-//            }
-//            return 3700;
-//        } else {
-//            // linear interpolation between 40->2650 and 120->3600
-//            double slope = (3700.0 - 2750.0) / (100.0 - 30);
-//            return (int) Math.round(2750 + slope * (distance - 30));
-//        }
-
 }
