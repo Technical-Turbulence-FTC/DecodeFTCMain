@@ -84,7 +84,7 @@ public class FlywheelV2 {
             double d = -0.289647;
             double h = -1.1569;
 
-            double feed = Math.log((a / (targetVelocity + c)) + d) / h;
+            double feed = Math.log10((a / (targetVelocity + c)) + d) / h;
 
             // --- PROPORTIONAL CORRECTION ---
             double error = targetVelocity - velo;
