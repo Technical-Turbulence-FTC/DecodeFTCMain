@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoPositions {
 
-    public static double spindexer_intakePos1 = 0.34;
+    public static double spindexer_intakePos1 = 0.39;
 
     public static double spindexer_intakePos2 = 0.5;
 

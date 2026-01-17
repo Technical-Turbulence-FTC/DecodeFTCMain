@@ -31,7 +31,7 @@ public class PIDServoTest extends LinearOpMode {
 
         PIDFController controller = new PIDFController(p, i, d, f);
 
-        controller.setTolerance(0);
+        controller.setTolerance(0.001);
         robot = new Robot(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -44,12 +44,14 @@ public class PIDServoTest extends LinearOpMode {
             controller.setPIDF(p, i, d, f);
 
             if (mode == 0) {
-                pos = robot.turr1Pos.getCurrentPosition();
+                pos = (double) ((double)robot.turr1Pos.getCurrentPosition() /1024.0) * ((double) 44.0 /(double)77.0);
+
 
                 double pid = controller.calculate(pos, target);
 
                 robot.turr1.setPower(pid);
                 robot.turr2.setPower(-pid);
+
             } else if (mode == 1) {
                 pos = scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3);
 
