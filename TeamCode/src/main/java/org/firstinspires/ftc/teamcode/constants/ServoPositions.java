@@ -24,7 +24,7 @@ public class ServoPositions {
 
     public static double hoodDefault = 0.6;
 
-    public static double hoodAuto = 0.25;
+    public static double hoodAuto = 0.27;
 
     public static double hoodAutoFar = 0.5; //TODO: change this;
 
