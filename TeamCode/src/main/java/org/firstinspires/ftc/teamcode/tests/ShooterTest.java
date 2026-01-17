@@ -60,10 +60,6 @@ public class ShooterTest extends LinearOpMode {
                 robot.hood.setPosition(hoodPos);
             }
 
-            if (turretPos != 0.501) {
-                robot.turr1.setPower(turretPos);
-                robot.turr2.setPower(turretPos);
-            }
 
             robot.transfer.setPower(transferPower);
             if (shoot) {

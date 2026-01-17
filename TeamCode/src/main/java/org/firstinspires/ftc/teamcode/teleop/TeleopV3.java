@@ -117,8 +117,8 @@ public class TeleopV3 extends LinearOpMode {
         if (distance < 30) {
             return 2750;
         } else if (distance > 100) {
-            if (distance > 160) {
-                return 4200;
+            if (distance > 120) {
+                return 4500;
             }
             return 3700;
         } else {
@@ -146,6 +146,8 @@ public class TeleopV3 extends LinearOpMode {
 
         tController.setTolerance(0.001);
 
+
+
         if (redAlliance) {
             robot.limelight.pipelineSwitch(3);
         } else {
@@ -156,6 +158,9 @@ public class TeleopV3 extends LinearOpMode {
 
         waitForStart();
         if (isStopRequested()) return;
+
+        robot.transferServo.setPosition(transferServo_out);
+
         while (opModeIsActive()) {
             //DRIVETRAIN:
 
@@ -228,6 +233,8 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
                 if (gamepad1.right_bumper) {
+
+                    robot.transferServo.setPosition(transferServo_out);
                     intakeTicker++;
 
                     if (intakeTicker % 4 == 0) {
@@ -381,11 +388,24 @@ public class TeleopV3 extends LinearOpMode {
 
             desiredTurretAngle += manualOffset;
 
-            offset = (desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset)));
+            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
 
             if (offset > 135) {
                 offset -= 360;
             }
+
+            double pos = turrDefault;
+
+            TELE.addData("offset", offset);
+
+            pos -= offset * ((double) 1 / 360);
+
+            if (pos < 0.13) {
+                pos = 0.13;
+            } else if (pos > 0.83) {
+                pos = 0.83;
+            }
+
 
             //SHOOTER:
 
@@ -419,19 +439,7 @@ public class TeleopV3 extends LinearOpMode {
             }
 
             //TODO: test the camera teleop code
-            double pos = turrDefault + (error / 8); // adds the overall error to the default
 
-            TELE.addData("offset", offset);
-
-            pos -= offset * (4.04 / 360);
-
-            TELE.addData("posS1", pos);
-
-            if (pos < -1.5) {
-                pos = -1.5;
-            } else if (pos > 1.8) {
-                pos = 1.8;
-            }
 
             TELE.addData("posS2", pos);
 
@@ -467,34 +475,27 @@ public class TeleopV3 extends LinearOpMode {
                 turretPos = pos;
             }
 
-            if (gamepad2.dpadRightWasPressed()) {
-                manualOffset += 2;
-            } else if (gamepad2.dpadLeftWasPressed()) {
-                manualOffset -= 2;
-            }
 
 
 
             TELE.addData("posS3", turretPos);
 
-            // PID SERVOS
-            double turrettopos = (double) ((double) robot.turr1Pos.getCurrentPosition() / 1024.0) * ((double) 44.0 / (double) 77.0);
-
-            TELE.addData("currentTpos", turrettopos);
-
-            double tPid;
-            if (!fixedTurret) {
-
-                tPid = tController.calculate(turrettopos, turretPos);
-            } else {
-                tPid = tController.calculate(turrettopos, (manualOffset/90));
-
+            if (manualTurret) {
+                pos = turrDefault + (manualOffset / 100);
             }
 
-            TELE.addData("tPID", tPid);
+            if (!overrideTurr) {
+                turretPos = pos;
+            }
 
-            robot.turr1.setPower(tPid);
-            robot.turr2.setPower(-tPid);
+            if (gamepad2.dpad_right || gamepad1.dpad_right) {
+                manualOffset -= 2;
+            } else if (gamepad2.dpad_left || gamepad1.dpad_left) {
+                manualOffset += 2;
+            }
+
+            robot.turr1.setPosition(pos);
+            robot.turr2.setPosition(1-pos);
 
             //HOOD:
 
@@ -504,11 +505,11 @@ public class TeleopV3 extends LinearOpMode {
                 robot.hood.setPosition(hoodDefaultPos + hoodOffset);
             }
 
-            if (gamepad2.dpadUpWasPressed()) {
+            if (gamepad2.dpadUpWasPressed() || gamepad1.dpadUpWasPressed()) {
                 hoodOffset -= 0.03;
                 autoHoodOffset -= 0.02;
 
-            } else if (gamepad2.dpadDownWasPressed()) {
+            } else if (gamepad2.dpadDownWasPressed() || gamepad1.dpadDownWasPressed()) {
                 hoodOffset += 0.03;
                 autoHoodOffset += 0.02;
 
@@ -799,20 +800,19 @@ public class TeleopV3 extends LinearOpMode {
 //    }
 //
     public double hoodAnglePrediction(double x) {
-        if (x < 34) {
-            double L = 1.04471;
-            double U = 0.711929;
-            double Q = 120.02263;
-            double B = 0.780982;
-            double M = 20.61191;
-            double v = 10.40506;
+        double a = 1.44304;
+        double b = 0.0313707;
+        double c = 0.0931136;
 
-            double inner = 1 + Q * Math.exp(-B * (x - M));
-            return L + (U - L) / Math.pow(inner, 1.0 / v);
+        double result = a * Math.exp(-b * x) + c;
 
+        // Clamp between min and max
+        if (result < 0.1) {
+            return 0.1;
+        } else if (result > 0.96) {
+            return 0.96;
         } else {
-            // x >= 34
-            return 1.94372 * Math.exp(-0.0528731 * x) + 0.39;
+            return result;
         }
     }
 

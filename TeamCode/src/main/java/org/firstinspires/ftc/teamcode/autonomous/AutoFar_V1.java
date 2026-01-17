@@ -103,18 +103,18 @@ public class AutoFar_V1 extends LinearOpMode {
                 if (gpp || pgp || ppg) {
                     if (redAlliance){
                         robot.limelight.pipelineSwitch(3);
-                        double turretPID = servo.setTurrPos(turret_redFar);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_redFar);
+                        robot.turr1.setPosition(turret_redFar);
+                        robot.turr2.setPosition(-turret_redFar);
 
                     } else {
                         robot.limelight.pipelineSwitch(2);
-                        double turretPID = servo.setTurrPos(turret_blueFar);
-                        robot.turr1.setPower(turretPID);
-                        robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_blueFar);
+
+                        robot.turr1.setPosition(turret_blueFar);
+                        robot.turr2.setPosition(-turret_blueFar);
+
                     }
+
+                    return false;
                 } else {
                     return true;
                 }
@@ -188,8 +188,8 @@ public class AutoFar_V1 extends LinearOpMode {
                     return true;
                 } else if (getRuntime() - transferStamp > waitTransfer + waitTransferOut && transferIn) {
                     robot.transferServo.setPosition(transferServo_out);
-                    robot.turr1.setPower(holdTurrPow);
-                    robot.turr2.setPower(holdTurrPow);
+                    robot.turr1.setPosition(holdTurrPow);
+                    robot.turr2.setPosition(holdTurrPow);
                     TELE.addData("Velocity", velo);
                     TELE.addLine("shot once");
                     TELE.update();
@@ -399,13 +399,13 @@ public class AutoFar_V1 extends LinearOpMode {
             double turrPID;
 
             if (redAlliance){
-                turrPID = servo.setTurrPos(turret_detectRedClose);
+                turrPID = turret_detectRedClose;
             } else {
-                turrPID = servo.setTurrPos(turret_detectBlueClose);
+                turrPID = turret_detectBlueClose;
             }
 
-            robot.turr1.setPower(turrPID);
-            robot.turr2.setPower(-turrPID);
+            robot.turr1.setPosition(turrPID);
+            robot.turr2.setPosition(-turrPID);
 
             robot.hood.setPosition(hoodAutoFar);
 
@@ -467,9 +467,9 @@ public class AutoFar_V1 extends LinearOpMode {
             }
         }
         double turretPos = servo.getTurrPos() - (bearing / 1300);
-        double turretPID = servo.setTurrPos(turretPos);
-        robot.turr1.setPower(turretPID);
-        robot.turr2.setPower(-turretPID);
+        double turretPID = turretPos;
+        robot.turr1.setPosition(turretPID);
+        robot.turr2.setPosition(-turretPID);
     }
 
     public void shootingSequence() {

@@ -44,16 +44,9 @@ public class PositionalServoProgrammer extends LinearOpMode {
                 robot.spin1.setPower(spindexPow);
                 robot.spin2.setPower(-spindexPow);
             }
-            if (turretPos != 0.501 && !servo.turretEqual(turretPos)){
-                double pos = servo.setTurrPos(turretPos);
-                robot.turr1.setPower(pos);
-                robot.turr2.setPower(-pos);
-            } else if (mode == 0){
-                robot.turr1.setPower(turrHoldPow);
-                robot.turr2.setPower(turrHoldPow);
-            } else {
-                robot.turr1.setPower(turretPow);
-                robot.turr2.setPower(-turretPow);
+            if (turretPos != 0.501){
+                robot.turr1.setPosition(turretPos);
+                robot.turr2.setPosition(1-turretPos);
             }
             if (transferPos != 0.501){
                 robot.transferServo.setPosition(transferPos);

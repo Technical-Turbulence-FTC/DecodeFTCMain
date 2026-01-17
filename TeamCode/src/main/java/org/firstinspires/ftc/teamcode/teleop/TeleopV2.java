@@ -158,10 +158,6 @@ public class TeleopV2 extends LinearOpMode {
             robot.frontRight.setPower(frontRightPower);
             robot.backRight.setPower(backRightPower);
 
-            // PID SERVOS
-            turretPID = servo.setTurrPos(turretPos);
-            robot.turr1.setPower(turretPID);
-            robot.turr2.setPower(-turretPID);
 
             //TODO: make sure changing position works throughout opmode
             if (!servo.spinEqual(spindexPos)){

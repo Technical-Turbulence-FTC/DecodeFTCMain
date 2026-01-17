@@ -27,8 +27,8 @@ public class Robot {
     public DcMotorEx shooter2;
     public Servo hood;
     public Servo transferServo;
-    public CRServo turr1;
-    public CRServo turr2;
+    public Servo turr1;
+    public Servo turr2;
     public CRServo spin1;
     public CRServo spin2;
     public AnalogInput spin1Pos;
@@ -74,9 +74,9 @@ public class Robot {
 
         hood = hardwareMap.get(Servo.class, "hood");
 
-        turr1 = hardwareMap.get(CRServo.class, "t1");
+        turr1 = hardwareMap.get(Servo.class, "t1");
 
-        turr2 = hardwareMap.get(CRServo.class, "t2");
+        turr2 = hardwareMap.get(Servo.class, "t2");
 
         turr1Pos = intake; // Encoder of turret plugged in intake port
 

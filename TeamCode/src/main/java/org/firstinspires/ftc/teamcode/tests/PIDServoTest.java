@@ -42,17 +42,7 @@ public class PIDServoTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             controller.setPIDF(p, i, d, f);
-
-            if (mode == 0) {
-                pos = (double) ((double)robot.turr1Pos.getCurrentPosition() /1024.0) * ((double) 44.0 /(double)77.0);
-
-
-                double pid = controller.calculate(pos, target);
-
-                robot.turr1.setPower(pid);
-                robot.turr2.setPower(-pid);
-
-            } else if (mode == 1) {
+            if (mode == 1) {
                 pos = scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3);
 
                 double pid = controller.calculate(pos, target);
