@@ -238,10 +238,11 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
     public Action intake(double intakeTime) {
         return new Action() {
-            double position = spindexer_intakePos1;
             double stamp = 0.0;
             int ticker = 0;
-            double pow = 1.0;
+            double spinCurrentPos = 0.0;
+            double spinInitPos = 0.0;
+            boolean reverse = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -250,59 +251,37 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 }
                 ticker++;
 
-                robot.intake.setPower(pow);
+                if (ticker % 12 < 3) {
 
-                double s1D = robot.color1.getDistance(DistanceUnit.MM);
-                double s2D = robot.color2.getDistance(DistanceUnit.MM);
-                double s3D = robot.color3.getDistance(DistanceUnit.MM);
+                    robot.spin1.setPower(-1);
+                    robot.spin2.setPower(1);
 
-                if (!servo.spinEqual(position, robot.spin1Pos.getVoltage())){
-                    double spinPID = servo.setSpinPos(position, robot.spin1Pos.getVoltage());
-                    robot.spin1.setPower(spinPID);
-                    robot.spin2.setPower(-spinPID);
+                } else if (reverse) {
+                    robot.spin1.setPower(1);
+                    robot.spin2.setPower(-1);
+                } else {
+                    robot.spin1.setPower(-0.15);
+                    robot.spin2.setPower(0.15);
                 }
-
-                if (s1D < 43 && servo.spinEqual(position, robot.spin1Pos.getVoltage()) && getRuntime() - stamp > 0.5){
-                    if (s2D > 60){
-                        if (servo.spinEqual(spindexer_intakePos1,robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos2;
-                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos1;
-                        }
-                    } else if (s3D > 33){
-                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos1;
-                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
-                            position = spindexer_intakePos2;
-                        }
-                    }
-                    stamp = getRuntime();
-                }
-
-                TELE.addData("Velocity", velo);
-                TELE.addLine("Intaking");
+                robot.intake.setPower(1);
+                TELE.addData("Reverse?", reverse);
                 TELE.update();
 
-                drive.updatePoseEstimate();
-
-                teleStart = drive.localizer.getPose();
-
-                robot.intake.setPower(1);
-                if ((s1D < 43.0 && s2D < 60.0 && s3D < 33.0) || getRuntime() - stamp > intakeTime) {
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
-                    if (getRuntime() - stamp - intakeTime < 1){
-                        pow = -2*(getRuntime() - stamp - intakeTime);
-                        return true;
+                if (getRuntime() - stamp > intakeTime){
+                    if (reverse){
+                        robot.spin1.setPower(-1);
+                        robot.spin2.setPower(1);
                     } else {
-                        robot.intake.setPower(0);
-                        return false;
+                        robot.spin1.setPower(1);
+                        robot.spin2.setPower(-1);
                     }
+                    return false;
                 } else {
+                    if (ticker % 4 == 0) {
+                        spinCurrentPos = servo.getSpinPos(robot.spin1Pos.getVoltage());
+                        reverse = Math.abs(spinCurrentPos - spinInitPos) < 0.02;
+                        spinInitPos = spinCurrentPos;
+                    }
                     return true;
                 }
             }
@@ -444,7 +423,11 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 redAlliance = !redAlliance;
             }
 
+
+            double turretPID;
             if (redAlliance){
+                turretPID = servo.setTurrPos(turret_redClose, robot.turr1Pos.getCurrentPosition());
+
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
@@ -462,6 +445,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
             } else {
+                turretPID = servo.setTurrPos(turret_blueClose, robot.turr1Pos.getCurrentPosition());
+
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
@@ -479,6 +464,9 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
             }
+
+            robot.turr1.setPower(turretPID);
+            robot.turr2.setPower(-turretPID);
 
             robot.hood.setPosition(hoodAuto);
 
