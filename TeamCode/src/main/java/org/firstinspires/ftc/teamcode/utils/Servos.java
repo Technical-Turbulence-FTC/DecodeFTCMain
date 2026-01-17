@@ -9,7 +9,7 @@ public class Servos {
     //PID constants
     // TODO: get PIDF constants
     public static double spinP = 3.3, spinI = 0, spinD = 0.1, spinF = 0.02;
-    public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0.01;
+    public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0;
     public static double spin_scalar = 1.0086;
     public static double spin_restPos = 0.0;
     public static double turret_scalar = 1.009;
@@ -44,7 +44,8 @@ public class Servos {
     }
 
     public double getTurrPos() {
-        return robot.turr1Pos.getCurrentPosition();
+        return (double) ((double) robot.turr1Pos.getCurrentPosition() / 1024.0) * ((double) 44.0 / (double) 77.0);
+
     }
 
     public double setTurrPos(double pos) {

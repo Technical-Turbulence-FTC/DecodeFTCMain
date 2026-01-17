@@ -40,6 +40,6 @@ public class ServoPositions {
     public static double turret_detectRedClose = 0.2;
 
     public static double turret_detectBlueClose = 0.6;
-    public static double turrDefault = 0.40;
+    public static double turrDefault = 0;
 
 }

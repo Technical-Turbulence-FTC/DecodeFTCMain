@@ -21,7 +21,6 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -47,6 +46,9 @@ public class TeleopV3 extends LinearOpMode {
     public static double spinningPow = 0.2;
     public static double spindexPos = spindexer_intakePos1;
     public static double spinPow = 0.08;
+    public static double bMult = -1, bDiv = 130000;
+    public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
+    public static boolean manualTurret = false;
     public double vel = 3000;
     public boolean autoVel = true;
     public double manualOffset = 0.0;
@@ -60,6 +62,7 @@ public class TeleopV3 extends LinearOpMode {
     public boolean triangle = false;
     public TranslationalVelConstraint VEL_CONSTRAINT = new TranslationalVelConstraint(200);
     public ProfileAccelConstraint ACCEL_CONSTRAINT = new ProfileAccelConstraint(-Math.abs(60), 200);
+    boolean fixedTurret = false;
     PIDFController spinPID = new PIDFController(spinP, spinI, spinD, spinF);
     Robot robot;
     MultipleTelemetry TELE;
@@ -67,6 +70,8 @@ public class TeleopV3 extends LinearOpMode {
     FlywheelV2 flywheel;
     MecanumDrive drive;
     double autoHoodOffset = 0.0;
+
+    int shooterTicker = 0;
     boolean intake = false;
     boolean reject = false;
     double xOffset = 0.0;
@@ -88,7 +93,6 @@ public class TeleopV3 extends LinearOpMode {
     boolean shootA = true;
     boolean shootB = true;
     boolean shootC = true;
-    boolean manualTurret = false;
     boolean autoSpintake = true;
     List<Integer> shootOrder = new ArrayList<>();
     boolean outtake1 = false;
@@ -96,7 +100,7 @@ public class TeleopV3 extends LinearOpMode {
     boolean outtake3 = false;
     boolean overrideTurr = false;
     double turretPID = 0.0;
-    double turretPos = 0.5;
+    double turretPos = 0;
     double spindexPID = 0.0;
     double error = 0.0;
     double spinCurrentPos = 0.0, spinInitPos = 0.0, intakeStamp = 0.0;
@@ -137,6 +141,10 @@ public class TeleopV3 extends LinearOpMode {
         servo = new Servos(hardwareMap);
         flywheel = new FlywheelV2();
         drive = new MecanumDrive(hardwareMap, teleStart);
+
+        PIDFController tController = new PIDFController(tp, ti, td, tf);
+
+        tController.setTolerance(0.001);
 
         if (redAlliance) {
             robot.limelight.pipelineSwitch(3);
@@ -204,11 +212,6 @@ public class TeleopV3 extends LinearOpMode {
                 robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             }
-
-            // PID SERVOS
-            turretPID = servo.setTurrPos(turretPos);
-            robot.turr1.setPower(turretPID);
-            robot.turr2.setPower(-turretPID);
 
             //TODO: Use color sensors to switch between positions...switch after ball detected in
 
@@ -378,7 +381,7 @@ public class TeleopV3 extends LinearOpMode {
 
             desiredTurretAngle += manualOffset;
 
-            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
+            offset = (desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset)));
 
             if (offset > 135) {
                 offset -= 360;
@@ -420,59 +423,78 @@ public class TeleopV3 extends LinearOpMode {
 
             TELE.addData("offset", offset);
 
-            pos -= offset * (0.9 / 360);
+            pos -= offset * (4.04 / 360);
 
-            if (pos < 0.02) {
-                pos = 0.02;
-            } else if (pos > 0.97) {
-                pos = 0.97;
+            TELE.addData("posS1", pos);
+
+            if (pos < -1.5) {
+                pos = -1.5;
+            } else if (pos > 1.8) {
+                pos = 1.8;
             }
 
-            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
-                double bearing;
+            TELE.addData("posS2", pos);
 
-                LLResult result = robot.limelight.getLatestResult();
-                if (result != null) {
-                    if (result.isValid()) {
-                        bearing = result.getTx();
-                        overrideTurr = true;
-                        turretPos = servo.getTurrPos() - (bearing / 1300);
-
-                        double bearingCorrection = bearing / 1300;
-
-                        // deadband: ignore tiny noise
-                        if (Math.abs(bearing) > 0.3 && camTicker < 8) {
-
-                            // only accumulate if bearing direction is consistent
-                            if (Math.signum(bearingCorrection) == Math.signum(error) ||
-                                    error == 0) {
-                                error += bearingCorrection;
-                            }
-                        }
-                        camTicker++;
-                        TELE.addData("tx", bearing);
-                        TELE.addData("ty", result.getTy());
-                    }
-                }
-
-            } else {
-                camTicker = 0;
-                overrideTurr = false;
-            }
-
-            if (manualTurret) {
-                pos = turrDefault + (manualOffset / 100);
-            }
+//            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
+//                double bearing;
+//
+//                LLResult result = robot.limelight.getLatestResult();
+//                if (result != null) {
+//                    if (result.isValid()) {
+//                        bearing = result.getTx() * bMult;
+//                        overrideTurr = true;
+//
+//                        double bearingCorrection = bearing / bDiv;
+//
+//                        // deadband: ignore tiny noise
+//                        if (Math.abs(bearing) > 0.3 && camTicker < 8) {
+//
+//                            error += bearingCorrection;
+//
+//                        }
+//                        camTicker++;
+//                        TELE.addData("tx", bearing);
+//                        TELE.addData("ty", result.getTy());
+//                    }
+//                }
+//
+//            } else {
+//                camTicker = 0;
+//                overrideTurr = false;
+//            }
 
             if (!overrideTurr) {
                 turretPos = pos;
             }
 
-            if (gamepad2.dpad_right) {
-                manualOffset -= 2;
-            } else if (gamepad2.dpad_left) {
+            if (gamepad2.dpadRightWasPressed()) {
                 manualOffset += 2;
+            } else if (gamepad2.dpadLeftWasPressed()) {
+                manualOffset -= 2;
             }
+
+
+
+            TELE.addData("posS3", turretPos);
+
+            // PID SERVOS
+            double turrettopos = (double) ((double) robot.turr1Pos.getCurrentPosition() / 1024.0) * ((double) 44.0 / (double) 77.0);
+
+            TELE.addData("currentTpos", turrettopos);
+
+            double tPid;
+            if (!fixedTurret) {
+
+                tPid = tController.calculate(turrettopos, turretPos);
+            } else {
+                tPid = tController.calculate(turrettopos, (manualOffset/90));
+
+            }
+
+            TELE.addData("tPID", tPid);
+
+            robot.turr1.setPower(tPid);
+            robot.turr2.setPower(-tPid);
 
             //HOOD:
 
@@ -492,17 +514,30 @@ public class TeleopV3 extends LinearOpMode {
 
             }
 //
-//            //TODO: FIX THIS GOOFY THING BECAUSE IT SUCKS @KeshavAnandCode
-//            if (gamepad2.left_stick_x > 0.5) {
-//                manualTurret = false;
-//            } else if (gamepad2.left_stick_x < -0.5) {
-//                manualOffset = 0;
-//                manualTurret = false;
-//                if (gamepad2.left_bumper) {
-//                    drive = new MecanumDrive(hardwareMap, new Pose2d(2, 0, 0));
-//                    sleep(1200);
-//                }
-//            }
+
+            if (gamepad2.cross) {
+                manualOffset = 0;
+                fixedTurret = true;
+            }
+
+            if (gamepad2.squareWasPressed()) {
+                drive = new MecanumDrive(hardwareMap, new Pose2d(20, 0, 0));
+                sleep(1500);
+            }
+
+            if (gamepad2.triangle) {
+                autoHood = false;
+                hoodOffset = 0;
+            }
+
+            if (gamepad2.circleWasPressed()) {
+                xOffset = robotX;
+                yOffset = robotY;
+                headingOffset = robotHeading;
+
+                autoHood = true;
+                fixedTurret = false;
+            }
 //
 //            if (gamepad2.left_stick_y < -0.5) {
 //                autoHood = true;
@@ -531,6 +566,8 @@ public class TeleopV3 extends LinearOpMode {
                 shootStamp = getRuntime();
                 shootAll = true;
                 spindexPos = spindexer_intakePos1;
+
+                shooterTicker = 0;
             }
 
             if (shootAll) {
@@ -540,9 +577,11 @@ public class TeleopV3 extends LinearOpMode {
                 intake = false;
                 reject = false;
 
+                shooterTicker++;
+
                 spindexPos = spindexer_intakePos1;
 
-                if (getRuntime() - shootStamp < 2.5) {
+                if (getRuntime() - shootStamp < 3.5) {
 
                     robot.transferServo.setPosition(transferServo_in);
 
