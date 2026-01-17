@@ -29,12 +29,12 @@ public class PositionalServoProgrammer extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        servo = new Servos(hardwareMap);
+        servo = new Servos();
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
-            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos) && mode == 0){
-                double pos = servo.setSpinPos(spindexPos);
+            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos, robot.spin1Pos.getVoltage()) && mode == 0){
+                double pos = servo.setSpinPos(spindexPos, robot.spin1Pos.getVoltage());
                 robot.spin1.setPower(pos);
                 robot.spin2.setPower(-pos);
             } else if (mode == 0){
@@ -44,8 +44,8 @@ public class PositionalServoProgrammer extends LinearOpMode {
                 robot.spin1.setPower(spindexPow);
                 robot.spin2.setPower(-spindexPow);
             }
-            if (turretPos != 0.501 && !servo.turretEqual(turretPos)){
-                double pos = servo.setTurrPos(turretPos);
+            if (turretPos != 0.501 && !servo.turretEqual(turretPos, robot.turr1Pos.getCurrentPosition())){
+                double pos = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
                 robot.turr1.setPower(pos);
                 robot.turr2.setPower(-pos);
             } else if (mode == 0){
@@ -72,8 +72,8 @@ public class PositionalServoProgrammer extends LinearOpMode {
                 // If "spindexer voltage 2" is closer to 0 than "spindexer voltage 1," swap the two spindexer analog inputs in the configuration, DO NOT TOUCH THE ACTUAL CODE
             //TODO: @KeshavAnandCode do the above please
 
-            TELE.addData("spindexer pos", servo.getSpinPos());
-            TELE.addData("turret pos", servo.getTurrPos());
+            TELE.addData("spindexer pos", servo.getSpinPos(robot.spin1Pos.getVoltage()));
+            TELE.addData("turret pos", servo.getTurrPos(robot.turr1Pos.getCurrentPosition()));
             TELE.addData("spindexer voltage 1", robot.spin1Pos.getVoltage());
             TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
             TELE.addData("hood pos", robot.hood.getPosition());

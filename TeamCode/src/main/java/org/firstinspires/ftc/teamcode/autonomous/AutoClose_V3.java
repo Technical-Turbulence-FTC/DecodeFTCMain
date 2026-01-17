@@ -103,17 +103,17 @@ public class AutoClose_V3 extends LinearOpMode {
                 if (gpp || pgp || ppg) {
                     if (redAlliance){
                         robot.limelight.pipelineSwitch(3);
-                        double turretPID = servo.setTurrPos(turret_redClose);
+                        double turretPID = servo.setTurrPos(turret_redClose, robot.turr1Pos.getCurrentPosition());
                         robot.turr1.setPower(turretPID);
                         robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_redClose);
+                        return !servo.turretEqual(turret_redClose, robot.turr1Pos.getCurrentPosition());
 
                     } else {
                         robot.limelight.pipelineSwitch(2);
-                        double turretPID = servo.setTurrPos(turret_blueClose);
+                        double turretPID = servo.setTurrPos(turret_blueClose, robot.turr1Pos.getCurrentPosition());
                         robot.turr1.setPower(turretPID);
                         robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_blueClose);
+                        return !servo.turretEqual(turret_blueClose, robot.turr1Pos.getCurrentPosition());
                     }
                 } else {
                     return true;
@@ -132,7 +132,7 @@ public class AutoClose_V3 extends LinearOpMode {
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
 
-                spinPID = servo.setSpinPos(spindexer);
+                spinPID = servo.setSpinPos(spindexer, robot.spin1Pos.getVoltage());
                 robot.spin1.setPower(spinPID);
                 robot.spin2.setPower(-spinPID);
                 TELE.addData("Velocity", velo);
@@ -142,7 +142,7 @@ public class AutoClose_V3 extends LinearOpMode {
                 drive.updatePoseEstimate();
                 teleStart = drive.localizer.getPose();
 
-                if (servo.spinEqual(spindexer)){
+                if (servo.spinEqual(spindexer, robot.spin1Pos.getVoltage())){
                     robot.spin1.setPower(0);
                     robot.spin2.setPower(0);
                     return false;
@@ -222,27 +222,27 @@ public class AutoClose_V3 extends LinearOpMode {
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
                 double s3D = robot.color3.getDistance(DistanceUnit.MM);
 
-                if (!servo.spinEqual(position)){
-                    double spinPID = servo.setSpinPos(position);
+                if (!servo.spinEqual(position, robot.spin1Pos.getVoltage())){
+                    double spinPID = servo.setSpinPos(position, robot.spin1Pos.getVoltage());
                     robot.spin1.setPower(spinPID);
                     robot.spin2.setPower(-spinPID);
                 }
 
-                if (s1D < 43 && servo.spinEqual(position) && getRuntime() - stamp > 0.5){
+                if (s1D < 43 && servo.spinEqual(position, robot.spin1Pos.getVoltage()) && getRuntime() - stamp > 0.5){
                     if (s2D > 60){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos2;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos1;
                         }
                     } else if (s3D > 33){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos1;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos2;
                         }
                     }
@@ -411,7 +411,7 @@ public class AutoClose_V3 extends LinearOpMode {
             double turrPID;
 
             if (redAlliance){
-                turrPID = servo.setTurrPos(turret_detectRedClose);
+                turrPID = servo.setTurrPos(turret_detectRedClose, robot.turr1Pos.getCurrentPosition());
 
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
@@ -430,7 +430,7 @@ public class AutoClose_V3 extends LinearOpMode {
                 shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
             } else {
-                turrPID = servo.setTurrPos(turret_detectBlueClose);
+                turrPID = servo.setTurrPos(turret_detectBlueClose, robot.turr1Pos.getCurrentPosition());
 
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
@@ -458,8 +458,8 @@ public class AutoClose_V3 extends LinearOpMode {
             robot.transferServo.setPosition(transferServo_out);
 
             TELE.addData("Velocity", velo);
-            TELE.addData("Turret Pos", servo.getTurrPos());
-            TELE.addData("Spin Pos", servo.getSpinPos());
+            TELE.addData("Turret Pos", servo.getTurrPos(robot.turr1Pos.getCurrentPosition()));
+            TELE.addData("Spin Pos", servo.getSpinPos(robot.spin1Pos.getVoltage()));
             TELE.update();
         }
 
@@ -565,8 +565,8 @@ public class AutoClose_V3 extends LinearOpMode {
                 bearing = result.getTx();
             }
         }
-        double turretPos = servo.getTurrPos() - (bearing / 1300);
-        double turretPID = servo.setTurrPos(turretPos);
+        double turretPos = servo.getTurrPos(robot.turr1Pos.getCurrentPosition()) - (bearing / 1300);
+        double turretPID = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
         robot.turr1.setPower(turretPID);
         robot.turr2.setPower(-turretPID);
     }

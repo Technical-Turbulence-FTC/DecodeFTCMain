@@ -98,7 +98,7 @@ public class TeleopV3 extends LinearOpMode {
 
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        servo = new Servos(hardwareMap);
+        servo = new Servos();
         flywheel = new FlywheelV2();
         drive = new MecanumDrive(hardwareMap, teleStart);
 
@@ -131,12 +131,12 @@ public class TeleopV3 extends LinearOpMode {
             robot.backRight.setPower(backRightPower);
 
             // PID SERVOS
-            turretPID = servo.setTurrPos(turretPos);
+            turretPID = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
             robot.turr1.setPower(turretPID);
             robot.turr2.setPower(-turretPID);
 
-            if (!servo.spinEqual(spindexPos) && !gamepad1.right_bumper) {
-                spindexPID = servo.setSpinPos(spindexPos);
+            if (!servo.spinEqual(spindexPos, robot.spin1Pos.getVoltage()) && !gamepad1.right_bumper) {
+                spindexPID = servo.setSpinPos(spindexPos, robot.spin1Pos.getVoltage());
                 robot.spin1.setPower(spindexPID);
                 robot.spin2.setPower(-spindexPID);
             } else {
@@ -149,7 +149,7 @@ public class TeleopV3 extends LinearOpMode {
                 robot.transferServo.setPosition(transferServo_out);
                 intakeTicker++;
                 if (intakeTicker % 16 == 0) {
-                    spinCurrentPos = servo.getSpinPos();
+                    spinCurrentPos = servo.getSpinPos(robot.spin1Pos.getVoltage());
                     if (Math.abs(spinCurrentPos - spinInitPos) == 0.0) {
                         reverse = !reverse;
                     }
@@ -311,7 +311,7 @@ public class TeleopV3 extends LinearOpMode {
                     if (result.isValid()) {
                         bearing = result.getTx();
                         overrideTurr = true;
-                        turretPos = servo.getTurrPos() - (bearing / 1300);
+                        turretPos = servo.getTurrPos(robot.turr1Pos.getCurrentPosition()) - (bearing / 1300);
 
                         double bearingCorrection = bearing / 1300;
 
@@ -427,13 +427,13 @@ public class TeleopV3 extends LinearOpMode {
                     boolean shootingDone = false;
 
                     if (!outtake1) {
-                        outtake1 = (servo.spinEqual(spindexer_outtakeBall1));
+                        outtake1 = (servo.spinEqual(spindexer_outtakeBall1, robot.spin1Pos.getVoltage()));
                     }
                     if (!outtake2) {
-                        outtake2 = (servo.spinEqual(spindexer_outtakeBall2));
+                        outtake2 = (servo.spinEqual(spindexer_outtakeBall2, robot.spin1Pos.getVoltage()));
                     }
                     if (!outtake3) {
-                        outtake3 = (servo.spinEqual(spindexer_outtakeBall3));
+                        outtake3 = (servo.spinEqual(spindexer_outtakeBall3, robot.spin1Pos.getVoltage()));
                     }
 
                     switch (currentSlot) {

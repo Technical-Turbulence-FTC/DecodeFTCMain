@@ -22,39 +22,38 @@ public class Servos {
     public static double turret_scalar = 1.009;
     public static double turret_restPos = 0.0;
 
-    public Servos(HardwareMap hardwareMap) {
-        robot = new Robot(hardwareMap);
+    public Servos() {
         spinPID = new PIDFController(spinP, spinI, spinD, spinF);
         turretPID = new PIDFController(turrP, turrI, turrD, turrF);
     }
 
     // In the code below, encoder = robot.servo.getVoltage()
 
-    public double getSpinPos() {
-        return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
+    public double getSpinPos(double voltage) {
+        return spin_scalar * ((voltage - spin_restPos) / 3.3);
     }
     //TODO: PID warp so 0 and 1 are usable positions
-    public double setSpinPos(double pos) {
+    public double setSpinPos(double pos, double voltage) {
         spinPID.setPIDF(spinP, spinI, spinD, spinF);
 
-        return spinPID.calculate(this.getSpinPos(), pos);
+        return spinPID.calculate(this.getSpinPos(voltage), pos);
     }
 
-    public boolean spinEqual(double pos) {
-        return Math.abs(pos - this.getSpinPos()) < 0.02;
+    public boolean spinEqual(double pos, double voltage) {
+        return Math.abs(pos - this.getSpinPos(voltage)) < 0.02;
     }
 
-    public double getTurrPos() {
-        return robot.turr1Pos.getCurrentPosition();
+    public double getTurrPos(double apos) {
+        return apos;
     }
 
-    public double setTurrPos(double pos) {
+    public double setTurrPos(double pos, double apos) {
         turretPID.setPIDF(turrP, turrI, turrD, turrF);
 
-        return spinPID.calculate(this.getTurrPos(), pos);
+        return spinPID.calculate(this.getTurrPos(apos), pos);
     }
 
-    public boolean turretEqual(double pos) {
-        return Math.abs(pos - this.getTurrPos()) < 0.01;
+    public boolean turretEqual(double pos, double apos) {
+        return Math.abs(pos - this.getTurrPos(apos)) < 0.01;
     }
 }

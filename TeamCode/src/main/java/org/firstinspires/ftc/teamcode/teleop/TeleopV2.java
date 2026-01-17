@@ -128,7 +128,7 @@ public class TeleopV2 extends LinearOpMode {
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
-        servo = new Servos(hardwareMap);
+        servo = new Servos();
         flywheel = new Flywheel();
 
         drive = new MecanumDrive(hardwareMap, teleStart);
@@ -159,13 +159,13 @@ public class TeleopV2 extends LinearOpMode {
             robot.backRight.setPower(backRightPower);
 
             // PID SERVOS
-            turretPID = servo.setTurrPos(turretPos);
+            turretPID = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
             robot.turr1.setPower(turretPID);
             robot.turr2.setPower(-turretPID);
 
             //TODO: make sure changing position works throughout opmode
-            if (!servo.spinEqual(spindexPos)){
-                spindexPID = servo.setSpinPos(spindexPos);
+            if (!servo.spinEqual(spindexPos, robot.spin1Pos.getVoltage())){
+                spindexPID = servo.setSpinPos(spindexPos, robot.spin1Pos.getVoltage());
                 robot.spin1.setPower(spindexPID);
                 robot.spin2.setPower(-spindexPID);
             } else{
@@ -348,7 +348,7 @@ public class TeleopV2 extends LinearOpMode {
                         bearing = d24.ftcPose.bearing;
                     }
                     overrideTurr = true;
-                    turretPos = servo.getTurrPos() - (bearing/1300);
+                    turretPos = servo.getTurrPos(robot.turr1Pos.getCurrentPosition()) - (bearing/1300);
                     TELE.addData("Bear", bearing);
 
                     double bearingCorrection = bearing / 1300;
@@ -481,13 +481,13 @@ public class TeleopV2 extends LinearOpMode {
                     boolean shootingDone = false;
 
                     if (!outtake1) {
-                        outtake1 = (servo.spinEqual(spindexer_outtakeBall1));
+                        outtake1 = (servo.spinEqual(spindexer_outtakeBall1, robot.spin1Pos.getVoltage()));
                     }
                     if (!outtake2) {
-                        outtake2 = (servo.spinEqual(spindexer_outtakeBall2));
+                        outtake2 = (servo.spinEqual(spindexer_outtakeBall2, robot.spin1Pos.getVoltage()));
                     }
                     if (!outtake3) {
-                        outtake3 = (servo.spinEqual(spindexer_outtakeBall3));
+                        outtake3 = (servo.spinEqual(spindexer_outtakeBall3, robot.spin1Pos.getVoltage()));
                     }
 
                     switch (currentSlot) {

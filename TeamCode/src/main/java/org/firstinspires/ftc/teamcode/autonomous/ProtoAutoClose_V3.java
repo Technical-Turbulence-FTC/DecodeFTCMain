@@ -103,17 +103,17 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 if (gpp || pgp || ppg) {
                     if (redAlliance){
                         robot.limelight.pipelineSwitch(3);
-                        double turretPID = servo.setTurrPos(turret_redClose);
+                        double turretPID = servo.setTurrPos(turret_redClose, robot.turr1Pos.getCurrentPosition());
                         robot.turr1.setPower(turretPID);
                         robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_redClose);
+                        return !servo.turretEqual(turret_redClose, robot.turr1Pos.getCurrentPosition());
 
                     } else {
                         robot.limelight.pipelineSwitch(2);
-                        double turretPID = servo.setTurrPos(turret_blueClose);
+                        double turretPID = servo.setTurrPos(turret_blueClose, robot.turr1Pos.getCurrentPosition());
                         robot.turr1.setPower(turretPID);
                         robot.turr2.setPower(-turretPID);
-                        return !servo.turretEqual(turret_blueClose);
+                        return !servo.turretEqual(turret_blueClose, robot.turr1Pos.getCurrentPosition());
                     }
                 } else {
                     return true;
@@ -132,7 +132,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
 
-                spinPID = servo.setSpinPos(spindexer);
+                spinPID = servo.setSpinPos(spindexer, robot.spin1Pos.getVoltage());
                 robot.spin1.setPower(spinPID);
                 robot.spin2.setPower(-spinPID);
                 TELE.addData("Velocity", velo);
@@ -142,7 +142,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 drive.updatePoseEstimate();
                 teleStart = drive.localizer.getPose();
 
-                if (servo.spinEqual(spindexer)){
+                if (servo.spinEqual(spindexer, robot.spin1Pos.getVoltage())){
                     robot.spin1.setPower(0);
                     robot.spin2.setPower(0);
                     return false;
@@ -178,13 +178,12 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 robot.turr2.setPower(holdTurrPow);
 
                 drive.updatePoseEstimate();
-                detectTag();
 
                 teleStart = drive.localizer.getPose();
 
                 if (ticker == 1){
                     robot.transferServo.setPosition(transferServo_in);
-                    initPos = servo.getSpinPos();
+                    initPos = servo.getSpinPos(robot.spin1Pos.getVoltage());
 
                     finalPos = initPos + 0.6;
 
@@ -205,7 +204,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 }
 
                 prevPos = currentPos;
-                currentPos = servo.getSpinPos();
+                currentPos = servo.getSpinPos(robot.spin1Pos.getVoltage());
                 if (zeroNeeded){
                     if (currentPos - prevPos < -0.5){
                         zeroPassed = true;
@@ -257,27 +256,27 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
                 double s3D = robot.color3.getDistance(DistanceUnit.MM);
 
-                if (!servo.spinEqual(position)){
-                    double spinPID = servo.setSpinPos(position);
+                if (!servo.spinEqual(position, robot.spin1Pos.getVoltage())){
+                    double spinPID = servo.setSpinPos(position, robot.spin1Pos.getVoltage());
                     robot.spin1.setPower(spinPID);
                     robot.spin2.setPower(-spinPID);
                 }
 
-                if (s1D < 43 && servo.spinEqual(position) && getRuntime() - stamp > 0.5){
+                if (s1D < 43 && servo.spinEqual(position, robot.spin1Pos.getVoltage()) && getRuntime() - stamp > 0.5){
                     if (s2D > 60){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1,robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos2;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos1;
                         }
                     } else if (s3D > 33){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos1;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             position = spindexer_intakePos2;
                         }
                     }
@@ -409,6 +408,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 0, 0, 0
         ));
 
+        servo = new Servos();
+
         robot.limelight.pipelineSwitch(1);
         robot.limelight.start();
 
@@ -443,11 +444,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 redAlliance = !redAlliance;
             }
 
-            double turrPID;
-
             if (redAlliance){
-                turrPID = servo.setTurrPos(turret_detectRedClose);
-
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
@@ -465,8 +462,6 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
             } else {
-                turrPID = servo.setTurrPos(turret_detectBlueClose);
-
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
@@ -485,16 +480,11 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
             }
 
-            robot.turr1.setPower(turrPID);
-            robot.turr2.setPower(-turrPID);
-
             robot.hood.setPosition(hoodAuto);
 
             robot.transferServo.setPosition(transferServo_out);
 
-            TELE.addData("Velocity", velo);
-            TELE.addData("Turret Pos", servo.getTurrPos());
-            TELE.addData("Spin Pos", servo.getSpinPos());
+            TELE.addData("Red?", redAlliance);
             TELE.update();
         }
 
@@ -507,8 +497,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             shoot0.build(),
-                            initShooter(AUTO_CLOSE_VEL),
-                            Obelisk()
+                            initShooter(AUTO_CLOSE_VEL)
                     )
             );
             drive.updatePoseEstimate();
@@ -598,8 +587,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 bearing = result.getTx();
             }
         }
-        double turretPos = servo.getTurrPos() - (bearing / 1300);
-        double turretPID = servo.setTurrPos(turretPos);
+        double turretPos = servo.getTurrPos(robot.turr1Pos.getCurrentPosition()) - (bearing / 1300);
+        double turretPID = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
         robot.turr1.setPower(turretPID);
         robot.turr2.setPower(-turretPID);
     }

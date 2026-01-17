@@ -169,10 +169,10 @@ public class Red_V2 extends LinearOpMode {
                 TELE.update();
 
                 if (gpp || pgp || ppg){
-                    double turretPID = servo.setTurrPos(turret_redClose);
+                    double turretPID = servo.setTurrPos(turret_redClose, robot.turr1Pos.getCurrentPosition());
                     robot.turr1.setPower(turretPID);
                     robot.turr2.setPower(-turretPID);
-                    return !servo.turretEqual(turret_redClose);
+                    return !servo.turretEqual(turret_redClose, robot.turr1Pos.getCurrentPosition());
                 } else {
                     return true;
                 }
@@ -199,7 +199,7 @@ public class Red_V2 extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                return !servo.spinEqual(spindexer);
+                return !servo.spinEqual(spindexer, robot.spin1Pos.getVoltage());
             }
         };
     }
@@ -461,7 +461,7 @@ public class Red_V2 extends LinearOpMode {
 
             aprilTag.update();
             TELE.addData("Velocity", velo);
-            TELE.addData("Turret Pos", servo.getTurrPos());
+            TELE.addData("Turret Pos", servo.getTurrPos(robot.turr1Pos.getCurrentPosition()));
             TELE.update();
         }
 
@@ -585,8 +585,8 @@ public class Red_V2 extends LinearOpMode {
             bearing = d24.ftcPose.bearing;
             TELE.addData("Bear", bearing);
         }
-        double turretPos = servo.getTurrPos() - (bearing / 1300);
-        double turretPID = servo.setTurrPos(turretPos);
+        double turretPos = servo.getTurrPos(robot.turr1Pos.getCurrentPosition()) - (bearing / 1300);
+        double turretPID = servo.setTurrPos(turretPos, robot.turr1Pos.getCurrentPosition());
         robot.turr1.setPower(turretPID);
         robot.turr2.setPower(-turretPID);
     }

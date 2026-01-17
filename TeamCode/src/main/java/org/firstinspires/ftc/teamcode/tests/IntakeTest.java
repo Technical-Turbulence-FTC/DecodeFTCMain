@@ -53,7 +53,7 @@ public class IntakeTest extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         robot = new Robot(hardwareMap);
-        servo = new Servos(hardwareMap);
+        servo = new Servos();
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
@@ -65,7 +65,7 @@ public class IntakeTest extends LinearOpMode {
                 if (gamepad1.right_bumper) {
                     ticker++;
                     if (ticker % 16 == 0){
-                        currentPos = servo.getSpinPos();
+                        currentPos = servo.getSpinPos(robot.spin1Pos.getVoltage());
                         if (Math.abs(currentPos - initPos) == 0.0){
                             reverse = !reverse;
                         }
@@ -109,19 +109,19 @@ public class IntakeTest extends LinearOpMode {
 
                 if (ballIn(1) && steadySpin && intake && getRuntime() - stamp > 0.5){
                     if (!ballIn(2)){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos2;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos1;
                         }
                     } else if (!ballIn(3)){
-                        if (servo.spinEqual(spindexer_intakePos1)){
+                        if (servo.spinEqual(spindexer_intakePos1, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos3;
-                        } else if (servo.spinEqual(spindexer_intakePos2)){
+                        } else if (servo.spinEqual(spindexer_intakePos2, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos1;
-                        } else if (servo.spinEqual(spindexer_intakePos3)){
+                        } else if (servo.spinEqual(spindexer_intakePos3, robot.spin1Pos.getVoltage())){
                             spindexerPos = spindexer_intakePos2;
                         }
                     }
@@ -158,7 +158,7 @@ public class IntakeTest extends LinearOpMode {
             TELE.addData("B1", ballIn(1));
             TELE.addData("B2", ballIn(2));
             TELE.addData("B3", ballIn(3));
-            TELE.addData("Spindex Pos", servo.getSpinPos());
+            TELE.addData("Spindex Pos", servo.getSpinPos(robot.spin1Pos.getVoltage()));
             TELE.update();
         }
     }
@@ -187,10 +187,10 @@ public class IntakeTest extends LinearOpMode {
     }
 
     public void spindexer() {
-        boolean atTarget = servo.spinEqual(spindexerPos);
+        boolean atTarget = servo.spinEqual(spindexerPos, robot.spin1Pos.getVoltage());
 
         if (!atTarget) {
-            powPID = servo.setSpinPos(spindexerPos);
+            powPID = servo.setSpinPos(spindexerPos, robot.spin1Pos.getVoltage());
             robot.spin1.setPower(powPID);
             robot.spin2.setPower(-powPID);
 
