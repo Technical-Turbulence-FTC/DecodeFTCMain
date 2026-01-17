@@ -1,43 +1,48 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.Poses.bh1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bh2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bh3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bh3b;
+import static org.firstinspires.ftc.teamcode.constants.Poses.bh4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.bh4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx3b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bx4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.bx4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.by1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.by2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.by2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.by3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.by3b;
+import static org.firstinspires.ftc.teamcode.constants.Poses.by4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.by4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rh1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rh2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rh3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rh3b;
+import static org.firstinspires.ftc.teamcode.constants.Poses.rh4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.rh4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rx1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rx2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rx3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.rx3b;
+import static org.firstinspires.ftc.teamcode.constants.Poses.rx4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.rx4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry1;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry2c;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry3a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry3b;
+import static org.firstinspires.ftc.teamcode.constants.Poses.ry4a;
+import static org.firstinspires.ftc.teamcode.constants.Poses.ry4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodAuto;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
@@ -48,6 +53,7 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferSe
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turret_blueClose;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turret_redClose;
 import static org.firstinspires.ftc.teamcode.constants.ShooterVars.AUTO_CLOSE_VEL;
+import static org.firstinspires.ftc.teamcode.teleop.TeleopV3.spinPow;
 
 import androidx.annotation.NonNull;
 
@@ -60,6 +66,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -82,6 +89,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
     public static double intake2Time = 3.0;
     public static double colorDetect = 3.0;
     public static double holdTurrPow = 0.01; // power to hold turret in place
+    public static double slowSpeed = 30.0;
     Robot robot;
     MultipleTelemetry TELE;
     MecanumDrive drive;
@@ -91,6 +99,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
     boolean gpp = false;
     boolean pgp = false;
     boolean ppg = false;
+    public static double spinUnjamTime = 0.6;
     double powPID = 0.0;
     double bearing = 0.0;
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
@@ -207,6 +216,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
             boolean zeroPassed = false;
             double currentPos = 0.0;
             double prevPos = 0.0;
+            double stamp = 0.0;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -224,54 +234,70 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 teleStart = drive.localizer.getPose();
 
                 if (ticker == 1) {
-                    robot.transferServo.setPosition(transferServo_in);
-                    initPos = servo.getSpinPos();
-
-                    finalPos = initPos + 0.6;
-
-                    if (finalPos > 1.0) {
-                        finalPos = finalPos - 1;
-                        zeroNeeded = true;
-                    } else if (finalPos > 0.95) {
-                        finalPos = 0.0;
-                        zeroNeeded = true;
-                    }
-                    currentPos = initPos;
+                    stamp = getRuntime();
                 }
                 ticker++;
 
-                if (ticker > 16) {
-                    robot.spin1.setPower(0.08);
-                    robot.spin2.setPower(-0.08);
-                }
+                robot.intake.setPower(0);
 
-                prevPos = currentPos;
-                currentPos = servo.getSpinPos();
-                if (zeroNeeded) {
-                    if (currentPos - prevPos < -0.5) {
-                        zeroPassed = true;
-                    }
-                    if (zeroPassed) {
-                        if (currentPos > finalPos) {
-                            robot.spin1.setPower(0);
-                            robot.spin2.setPower(0);
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    } else {
-                        return true;
-                    }
+                if (getRuntime() - stamp < 3) {
+
+                    robot.transferServo.setPosition(transferServo_in);
+
+                    robot.spin1.setPower(-spinPow);
+                    robot.spin2.setPower(spinPow);
+                    return true;
+
                 } else {
-                    if (currentPos > finalPos) {
-                        robot.spin1.setPower(0);
-                        robot.spin2.setPower(0);
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    robot.transferServo.setPosition(transferServo_out);
+                    return false;
                 }
 
+            }
+        };
+    }
+
+    public Action spindexUnjam(double jamTime) {
+        return new Action() {
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                ticker++;
+
+                if (ticker == 1) {
+                    stamp = getRuntime();
+                }
+
+                if (ticker % 12 < 6) {
+
+                    robot.spin1.setPower(-1);
+                    robot.spin2.setPower(1);
+
+                } else {
+                    robot.spin1.setPower(1);
+                    robot.spin2.setPower(-1);
+                }
+
+                if (getRuntime() - stamp > jamTime+0.4) {
+
+                    robot.intake.setPower(0);
+
+                    return false;
+                }
+                else if (getRuntime() - stamp > jamTime) {
+
+                    robot.intake.setPower(-(getRuntime()-stamp-jamTime)*2.5);
+
+                    return true;
+                }
+
+                else {
+                    robot.intake.setPower(1);
+                    return true;
+                }
             }
         };
     }
@@ -291,17 +317,22 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 }
                 ticker++;
 
-                if (ticker % 12 < 3) {
+                if (ticker % 60 < 12) {
 
                     robot.spin1.setPower(-1);
                     robot.spin2.setPower(1);
 
-                } else if (reverse) {
+                } else if (ticker % 60 < 30) {
+                    robot.spin1.setPower(-0.5);
+                    robot.spin2.setPower(0.5);
+                }
+                else if (ticker % 60 < 42) {
                     robot.spin1.setPower(1);
                     robot.spin2.setPower(-1);
-                } else {
-                    robot.spin1.setPower(-0.15);
-                    robot.spin2.setPower(0.15);
+                }
+                else {
+                    robot.spin1.setPower(0.5);
+                    robot.spin2.setPower(-0.5);
                 }
                 robot.intake.setPower(1);
                 TELE.addData("Reverse?", reverse);
@@ -319,9 +350,10 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 } else {
                     if (ticker % 4 == 0) {
                         spinCurrentPos = servo.getSpinPos();
-                        reverse = Math.abs(spinCurrentPos - spinInitPos) < 0.02;
+                        reverse = Math.abs(spinCurrentPos - spinInitPos) < 0.03;
                         spinInitPos = spinCurrentPos;
                     }
+
                     return true;
                 }
             }
@@ -438,24 +470,27 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
         TrajectoryActionBuilder pickup1 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                 .strafeToLinearHeading(new Vector2d(bx2a, by2a), bh2a)
-                .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b);
+                .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b,
+                new TranslationalVelConstraint(slowSpeed));
+//
+//        TrajectoryActionBuilder lever = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
+//                .strafeToLinearHeading(new Vector2d(bx2c, by2c), bh2c);
 
-        TrajectoryActionBuilder lever = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
-                .strafeToLinearHeading(new Vector2d(bx2c, by2c), bh2c);
-
-        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(bx2c, by2c, bh2c))
+        TrajectoryActionBuilder shoot1 = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
                 .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
         TrajectoryActionBuilder pickup2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                 .strafeToLinearHeading(new Vector2d(bx3a, by3a), bh3a)
-                .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b);
+                .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b,
+                        new TranslationalVelConstraint(slowSpeed));
 
         TrajectoryActionBuilder shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
                 .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
         TrajectoryActionBuilder pickup3 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                 .strafeToLinearHeading(new Vector2d(bx4a, by4a), bh4a)
-                .strafeToLinearHeading(new Vector2d(bx4b, by4b), bh4b);
+                .strafeToLinearHeading(new Vector2d(bx4b, by4b), bh4b,
+                        new TranslationalVelConstraint(slowSpeed));
         TrajectoryActionBuilder shoot3 = drive.actionBuilder(new Pose2d(bx4b, by4b, bh4b))
                 .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
@@ -482,26 +517,29 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 pickup1 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
                         .strafeToLinearHeading(new Vector2d(rx2a, ry2a), rh2a)
-                        .strafeToLinearHeading(new Vector2d(rx2b, ry2b), rh2b);
+                        .strafeToLinearHeading(new Vector2d(rx2b, ry2b), rh2b,
+                                new TranslationalVelConstraint(slowSpeed));
 
-                lever = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
-                        .strafeToLinearHeading(new Vector2d(rx2c, ry2c), rh2c);
+//                lever = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
+//                        .strafeToLinearHeading(new Vector2d(rx2c, ry2c), rh2c);
 
-                shoot1 = drive.actionBuilder(new Pose2d(rx2c, ry2c, rh2c))
+                shoot1 = drive.actionBuilder(new Pose2d(rx2b, ry2b, rh2b))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
                 pickup2 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
                         .strafeToLinearHeading(new Vector2d(rx3a, ry3a), rh3a)
-                        .strafeToLinearHeading(new Vector2d(rx3b, ry3b), rh3b);
+                        .strafeToLinearHeading(new Vector2d(rx3b, ry3b), rh3b,
+                                new TranslationalVelConstraint(slowSpeed));
 
                 shoot2 = drive.actionBuilder(new Pose2d(rx3b, ry3b, rh3b))
                         .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
-                pickup3 = drive.actionBuilder(new Pose2d(rx1,ry1, rh1))
+                pickup3 = drive.actionBuilder(new Pose2d(rx1, ry1, rh1))
                         .strafeToLinearHeading(new Vector2d(rx4a, ry4a), rh4a)
-                        .strafeToLinearHeading(new Vector2d(rx4b, ry4b), rh4b);
-                shoot3 = drive.actionBuilder(new Pose2d(bx4b, by4b, bh4b))
-                        .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
+                        .strafeToLinearHeading(new Vector2d(rx4b, ry4b), rh4b,
+                                new TranslationalVelConstraint(slowSpeed));
+                shoot3 = drive.actionBuilder(new Pose2d(rx4b, ry4b, rh4b))
+                        .strafeToLinearHeading(new Vector2d(rx1, ry1), rh1);
 
             } else {
                 turretPID = turret_blueClose;
@@ -511,14 +549,16 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 pickup1 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                         .strafeToLinearHeading(new Vector2d(bx2a, by2a), bh2a)
-                        .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b);
+                        .strafeToLinearHeading(new Vector2d(bx2b, by2b), bh2b,
+                                new TranslationalVelConstraint(slowSpeed));
 
-                shoot1 = drive.actionBuilder(new Pose2d(bx2c, by2c, bh2c))
+                shoot1 = drive.actionBuilder(new Pose2d(bx2b, by2b, bh2b))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
 
                 pickup2 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
                         .strafeToLinearHeading(new Vector2d(bx3a, by3a), bh3a)
-                        .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b);
+                        .strafeToLinearHeading(new Vector2d(bx3b, by3b), bh3b,
+                                new TranslationalVelConstraint(slowSpeed));
 
                 shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
@@ -573,8 +613,9 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
             Actions.runBlocking(
                     new SequentialAction(
-                            lever.build(),
-                            shoot1.build()
+                            shoot1.build(),
+                            spindexUnjam(spinUnjamTime)
+
                     )
             );
 
@@ -604,7 +645,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot2.build()
+                            shoot2.build(),
+                            spindexUnjam(spinUnjamTime)
                     )
             );
 
@@ -630,7 +672,9 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            shoot3.build()
+                            shoot3.build(),
+                            spindexUnjam(spinUnjamTime)
+
                     )
             );
 
