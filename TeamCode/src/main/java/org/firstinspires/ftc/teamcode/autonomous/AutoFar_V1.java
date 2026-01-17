@@ -52,7 +52,7 @@ public class AutoFar_V1 extends LinearOpMode {
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
     int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    public static double holdTurrPow = 0.1; // power to hold turret in place
+    public static double holdTurrPow = 0.01; // power to hold turret in place
 
     public Action initShooter(int vel) {
         return new Action() {

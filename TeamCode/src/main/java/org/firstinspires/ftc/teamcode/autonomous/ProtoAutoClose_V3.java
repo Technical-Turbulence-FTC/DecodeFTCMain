@@ -52,7 +52,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
     int b1 = 0; // 0 = no ball, 1 = green, 2 = purple
     int b2 = 0;// 0 = no ball, 1 = green, 2 = purple
     int b3 = 0;// 0 = no ball, 1 = green, 2 = purple
-    public static double holdTurrPow = 0.1; // power to hold turret in place
+    public static double holdTurrPow = 0.01; // power to hold turret in place
 
     public Action initShooter(int vel) {
         return new Action() {
@@ -173,6 +173,9 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
                 robot.shooter1.setPower(powPID);
                 robot.shooter2.setPower(powPID);
+
+                robot.turr1.setPower(holdTurrPow);
+                robot.turr2.setPower(holdTurrPow);
 
                 drive.updatePoseEstimate();
                 detectTag();
