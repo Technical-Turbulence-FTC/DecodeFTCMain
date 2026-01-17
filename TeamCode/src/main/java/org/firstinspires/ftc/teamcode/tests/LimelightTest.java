@@ -20,7 +20,7 @@ public class LimelightTest extends LinearOpMode {
     public static int mode = 0; //0 for bare testing, 1 for obelisk, 2 for blue track, 3 for red track
     @Override
     public void runOpMode() throws InterruptedException {
-        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         limelight.pipelineSwitch(pipeline);
         waitForStart();

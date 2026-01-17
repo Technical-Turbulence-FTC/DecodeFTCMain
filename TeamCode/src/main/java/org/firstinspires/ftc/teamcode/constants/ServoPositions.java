@@ -11,10 +11,10 @@ public class ServoPositions {
 
     public static double spindexer_intakePos3 = 0.66;
 
-    public static double spindexer_outtakeBall3 = 0.42;
+    public static double spindexer_outtakeBall3 = 0.47;
 
-    public static double spindexer_outtakeBall2 = 0.74;
-    public static double spindexer_outtakeBall1 = 0.58;
+    public static double spindexer_outtakeBall2 = 0.31;
+    public static double spindexer_outtakeBall1 = 0.15;
 
     public static double transferServo_out = 0.15;
 
@@ -24,7 +24,7 @@ public class ServoPositions {
 
     public static double hoodDefault = 0.6;
 
-    public static double hoodAuto = 0.43;
+    public static double hoodAuto = 0.25;
 
     public static double hoodAutoFar = 0.5; //TODO: change this;
 

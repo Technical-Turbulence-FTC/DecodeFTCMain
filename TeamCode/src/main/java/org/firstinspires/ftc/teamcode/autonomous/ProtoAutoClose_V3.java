@@ -233,6 +233,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
+                robot.intake.setPower(-0.3);
+
                 if (ticker == 1) {
                     stamp = getRuntime();
                 }
@@ -240,7 +242,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 robot.intake.setPower(0);
 
-                if (getRuntime() - stamp < 3) {
+                if (getRuntime() - stamp < 2.7) {
 
                     robot.transferServo.setPosition(transferServo_in);
 
@@ -265,6 +267,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
+
+
                 ticker++;
 
                 if (ticker == 1) {
@@ -283,7 +287,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 if (getRuntime() - stamp > jamTime+0.4) {
 
-                    robot.intake.setPower(0);
+                    robot.intake.setPower(0.5);
 
                     return false;
                 }
@@ -506,6 +510,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;
+
             }
 
             double turretPID;
@@ -561,6 +566,13 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                                 new TranslationalVelConstraint(slowSpeed));
 
                 shoot2 = drive.actionBuilder(new Pose2d(bx3b, by3b, bh3b))
+                        .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
+
+                pickup3 = drive.actionBuilder(new Pose2d(bx1, by1, bh1))
+                        .strafeToLinearHeading(new Vector2d(bx4a, by4a), bh4a)
+                        .strafeToLinearHeading(new Vector2d(bx4b, by4b), bh4b,
+                                new TranslationalVelConstraint(slowSpeed));
+                shoot3 = drive.actionBuilder(new Pose2d(bx4b, by4b, bh4b))
                         .strafeToLinearHeading(new Vector2d(bx1, by1), bh1);
             }
 
