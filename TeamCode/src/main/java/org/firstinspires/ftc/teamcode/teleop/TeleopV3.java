@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
@@ -68,7 +68,7 @@ public class TeleopV3 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     Servos servo;
-    FlywheelV2 flywheel;
+    Flywheel flywheel;
     MecanumDrive drive;
     double autoHoodOffset = 0.0;
 
@@ -140,7 +140,7 @@ public class TeleopV3 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
-        flywheel = new FlywheelV2();
+        flywheel = new Flywheel(hardwareMap);
         drive = new MecanumDrive(hardwareMap, teleStart);
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
@@ -400,10 +400,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //SHOOTER:
 
-            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-
-            robot.shooter1.setPower(powPID);
-            robot.shooter2.setPower(powPID);
+            flywheel.manageFlywheel(vel);
 
             //VELOCITY AUTOMATIC
 
@@ -784,8 +781,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("distanceToGoal", distanceToGoal);
             TELE.addData("hood", robot.hood.getPosition());
             TELE.addData("targetVel", vel);
-            TELE.addData("Velocity", flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition()));
-
+            TELE.addData("Velocity", flywheel.getVelo());
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
 

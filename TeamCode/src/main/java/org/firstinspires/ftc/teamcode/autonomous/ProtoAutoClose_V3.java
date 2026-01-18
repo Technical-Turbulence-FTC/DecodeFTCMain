@@ -76,7 +76,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
@@ -93,7 +93,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     MecanumDrive drive;
-    FlywheelV2 flywheel;
+    Flywheel flywheel;
     Servos servo;
     double velo = 0.0;
     boolean gpp = false;
@@ -109,10 +109,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
     public Action initShooter(int vel) {
         return new Action() {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                robot.shooter1.setPower(powPID);
-                robot.shooter2.setPower(powPID);
+                flywheel.manageFlywheel(vel);
+                velo = flywheel.getVelo();
 
                 TELE.addData("Velocity", velo);
                 TELE.update();
@@ -180,10 +178,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                robot.shooter1.setPower(powPID);
-                robot.shooter2.setPower(powPID);
+                flywheel.manageFlywheel(vel);
+                velo = flywheel.getVelo();
 
                 spinPID = servo.setSpinPos(spindexer);
                 robot.spin1.setPower(spinPID);
@@ -224,10 +220,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 TELE.addLine("shooting");
                 TELE.update();
 
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                robot.shooter1.setPower(powPID);
-                robot.shooter2.setPower(powPID);
+                flywheel.manageFlywheel(vel);
+                velo = flywheel.getVelo();
 
                 drive.updatePoseEstimate();
 
@@ -376,10 +370,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 }
                 ticker++;
 
-                powPID = flywheel.manageFlywheel(vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                velo = flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                robot.shooter1.setPower(powPID);
-                robot.shooter2.setPower(powPID);
+                flywheel.manageFlywheel(vel);
+                velo = flywheel.getVelo();
 
                 double s1D = robot.color1.getDistance(DistanceUnit.MM);
                 double s2D = robot.color2.getDistance(DistanceUnit.MM);
@@ -454,7 +446,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
         robot = new Robot(hardwareMap);
 
-        flywheel = new FlywheelV2();
+        flywheel = new Flywheel(hardwareMap);
 
         TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()

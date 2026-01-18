@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -23,6 +24,13 @@ public class Robot {
     public DcMotorEx backRight;
     public DcMotorEx intake;
     public DcMotorEx transfer;
+    public PIDFCoefficients shooterPIDF;
+    public double shooterPIDF_P = 10.0;
+    public double shooterPIDF_I = 0.6;
+    public double shooterPIDF_D = 5.0;
+    public double shooterPIDF_F = 10.0;
+
+    public double[] shooterPIDF_StepSizes = {10.0,1.0,0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
@@ -69,8 +77,11 @@ public class Robot {
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         //TODO: figure out which shooter motor is reversed using ShooterTest and change it in code @KeshavAnandCode
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterPIDF = new PIDFCoefficients(shooterPIDF_P,shooterPIDF_I , shooterPIDF_D, shooterPIDF_F);
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
 
         hood = hardwareMap.get(Servo.class, "hood");
 
