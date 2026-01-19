@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
+import org.firstinspires.ftc.teamcode.utils.Spindexer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,7 @@ public class TeleopV3 extends LinearOpMode {
     Servos servo;
     Flywheel flywheel;
     MecanumDrive drive;
+    Spindexer spindexer;
     double autoHoodOffset = 0.0;
 
     int shooterTicker = 0;
@@ -94,7 +96,8 @@ public class TeleopV3 extends LinearOpMode {
     boolean shootA = true;
     boolean shootB = true;
     boolean shootC = true;
-    boolean autoSpintake = true;
+    boolean autoSpintake = false;
+    boolean enableSpindexerManager = true;
     List<Integer> shootOrder = new ArrayList<>();
     boolean outtake1 = false;
     boolean outtake2 = false;
@@ -142,6 +145,7 @@ public class TeleopV3 extends LinearOpMode {
         servo = new Servos(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         drive = new MecanumDrive(hardwareMap, teleStart);
+        spindexer = new Spindexer(hardwareMap);
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
@@ -529,7 +533,7 @@ public class TeleopV3 extends LinearOpMode {
 //                }
 //            }
 
-            if (gamepad1.left_bumper) {
+            if (gamepad1.left_bumper && !enableSpindexerManager) {
 
                 robot.transferServo.setPosition(transferServo_out);
 
@@ -560,14 +564,14 @@ public class TeleopV3 extends LinearOpMode {
 
             }
 
-            if (gamepad1.leftBumperWasReleased()) {
+            if (gamepad1.leftBumperWasReleased() && !enableSpindexerManager) {
                 shootStamp = getRuntime();
                 shootAll = true;
 
                 shooterTicker = 0;
             }
 
-            if (shootAll) {
+            if (shootAll && !enableSpindexerManager) {
 
                 TELE.addData("100% works", shootOrder);
 
@@ -765,7 +769,57 @@ public class TeleopV3 extends LinearOpMode {
 //                }
 
             //EXTRA STUFFINESS:
+            if (enableSpindexerManager) {
+                if (!shootAll) {
+                    spindexer.processIntake();
+                }
 
+                // RIGHT_BUMPER
+                if (gamepad1.right_bumper) {
+                    robot.intake.setPower(1);
+
+                } else {
+                    robot.intake.setPower(0);
+                }
+
+                // LEFT_BUMPER
+                if (gamepad1.leftBumperWasReleased()) {
+                    shootStamp = getRuntime();
+                    shootAll = true;
+
+                    shooterTicker = 0;
+                }
+
+                if (shootAll) {
+
+                    TELE.addData("100% works", shootOrder);
+
+                    intake = false;
+                    reject = false;
+
+                    shooterTicker++;
+
+                    spindexPos = spindexer_intakePos1;
+
+                    if (getRuntime() - shootStamp < 3.5) {
+
+                        robot.transferServo.setPosition(transferServo_in);
+
+                        robot.spin1.setPower(-spinPow);
+                        robot.spin2.setPower(spinPow);
+
+                    } else {
+                        robot.transferServo.setPosition(transferServo_out);
+                        spindexPos = spindexer_intakePos1;
+
+                        shootAll = false;
+
+                        robot.transferServo.setPosition(transferServo_out);
+
+                        spindexer.resetSpindexer();
+                    }
+                }
+            }
             drive.updatePoseEstimate();
 
             for (LynxModule hub : allHubs) {
@@ -786,9 +840,11 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("oddColor", oddBallColor);
 
             TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
+            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
+            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
+            TELE.addData("spinTestCounter", spindexer.counter);
             TELE.addData("autoSpintake", autoSpintake);
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-
             TELE.update();
 
             ticker++;

@@ -1,0 +1,275 @@
+package org.firstinspires.ftc.teamcode.utils;
+
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
+import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
+import static org.firstinspires.ftc.teamcode.utils.Servos.spinF;
+import static org.firstinspires.ftc.teamcode.utils.Servos.spinI;
+import static org.firstinspires.ftc.teamcode.utils.Servos.spinP;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
+
+public class Spindexer {
+    Robot robot;
+    Servos servos;
+    Flywheel flywheel;
+    MecanumDrive drive;
+    double lastKnownSpinPos = 0.0;
+    MultipleTelemetry TELE;
+
+    PIDFController spinPID = new PIDFController(spinP, spinI, spinD, spinF);
+
+    double spinCurrentPos = 0.0;
+
+    public int commandedIntakePosition = 0;
+
+    enum IntakeState {
+        UNKNOWN,
+        INTAKE,
+        FINDNEXT,
+        MOVING,
+        FULL
+    };
+
+    public IntakeState currentIntakeState = IntakeState.UNKNOWN;
+
+    enum BallColor {
+        UNKNOWN,
+        GREEN,
+        PURPLE
+    };
+
+    class BallPosition {
+        boolean isEmpty = true;
+        BallColor ballColor = BallColor.UNKNOWN;
+    }
+
+    BallPosition[] ballPositions = new BallPosition[3];
+
+    public boolean init () {
+        return true;
+    }
+
+    public Spindexer(HardwareMap hardwareMap) {
+        robot = new Robot(hardwareMap);
+        servos = new Servos(hardwareMap);
+        flywheel = new Flywheel(hardwareMap);
+        //TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        lastKnownSpinPos = servos.getSpinPos();
+
+        ballPositions[0] = new BallPosition();
+        ballPositions[1] = new BallPosition();
+        ballPositions[2] = new BallPosition();
+
+
+    }
+
+
+    double[] outakePositions =
+            {spindexer_outtakeBall1, spindexer_outtakeBall2, spindexer_outtakeBall3};
+
+    double[] intakePositions =
+            {spindexer_intakePos1, spindexer_intakePos2, spindexer_intakePos3};
+
+    public int counter = 0;
+
+//    private double getTimeSeconds ()
+//    {
+//        return (double) System.currentTimeMillis()/1000.0;
+//    }
+
+//    public double getPos() {
+//        robot.spin1Pos.getVoltage();
+//        robot.spin1Pos.getMaxVoltage();
+//        return (robot.spin1Pos.getVoltage()/robot.spin1Pos.getMaxVoltage());
+//    }
+
+//    public void manageSpindexer() {
+//
+//    }
+
+    public void resetSpindexer () {
+        for (int i = 0; i < 3; i++) {
+            ballPositions[i].isEmpty = true;
+            ballPositions[i].ballColor = BallColor.UNKNOWN;
+        }
+        currentIntakeState = IntakeState.UNKNOWN;
+    }
+
+    // Detects if a ball is found and what color.
+    // Returns true is there was a new ball found in Position 1
+    public boolean detectBalls() {
+
+        boolean newPos1Detection = false;
+
+        // Read Distances
+        double s1D = robot.color1.getDistance(DistanceUnit.MM);
+        double s2D = robot.color2.getDistance(DistanceUnit.MM);
+        double s3D = robot.color3.getDistance(DistanceUnit.MM);
+
+        // Position 1
+        if (s1D < 43) {
+
+            // Mark Ball Found
+            newPos1Detection = ballPositions[commandedIntakePosition].isEmpty;
+
+            // Detect which color
+            double green = robot.color1.getNormalizedColors().green;
+            double red = robot.color1.getNormalizedColors().red;
+            double blue = robot.color1.getNormalizedColors().blue;
+
+            double gP = green / (green + red + blue);
+
+           // FIXIT - Add filtering to improve accuracy.
+           if (gP >= 0.4) {
+               ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
+           } else {
+               ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // purple
+           }
+        }
+// FIXIT - Need to find Position base on rotation
+//        // Position 2
+//        if (s2D < 60) {
+//
+//           double green = robot.color2.getNormalizedColors().green;
+//           double red = robot.color2.getNormalizedColors().red;
+//           double blue = robot.color2.getNormalizedColors().blue;
+//
+//           double gP = green / (green + red + blue);
+//
+//           if (gP >= 0.4) {
+//               b2 = 2;  // purple
+//           } else {
+//               b2 = 1;  // green
+//           }
+//        }
+//
+//        // Position 3
+//        if (s3D < 33) {
+//
+//           double green = robot.color3.getNormalizedColors().green;
+//           double red = robot.color3.getNormalizedColors().red;
+//           double blue = robot.color3.getNormalizedColors().blue;
+//
+//           double gP = green / (green + red + blue);
+//
+//           if (gP >= 0.4) {
+//               b3 = 2;  // purple
+//           } else {
+//               b3 = 1;  // green
+//           }
+//        }
+
+//      TELE.addData("Velocity", velo);
+//      TELE.addLine("Detecting");
+//      TELE.addData("Distance 1", s1D);
+//      TELE.addData("Distance 2", s2D);
+//      TELE.addData("Distance 3", s3D);
+//      TELE.addData("B1", b1);
+//      TELE.addData("B2", b2);
+//      TELE.addData("B3", b3);
+//      TELE.update();
+
+        return newPos1Detection;
+    }
+
+    public void moveSpindexerToPos(double pos) {
+        spinCurrentPos = servos.getSpinPos();
+
+        double spindexPID = spinPID.calculate(spinCurrentPos, pos);
+
+        robot.spin1.setPower(spindexPID);
+        robot.spin2.setPower(-spindexPID);
+    }
+
+    public void stopSpindexer() {
+        robot.spin1.setPower(0);
+        robot.spin2.setPower(0);
+    }
+
+    public boolean isFull () {
+        return (!ballPositions[0].isEmpty && !ballPositions[1].isEmpty && !ballPositions[2].isEmpty);
+    }
+    public boolean processIntake() {
+
+        switch (currentIntakeState) {
+            case UNKNOWN:
+                // For now just set position ONE if UNKNOWN
+                commandedIntakePosition = 0;
+                servos.setSpinPos(intakePositions[0]);
+                currentIntakeState = Spindexer.IntakeState.MOVING;
+                break;
+            case INTAKE:
+                // Ready for intake and Detecting a New Ball
+                if (detectBalls()) {
+                    ballPositions[commandedIntakePosition].isEmpty = false;
+                    currentIntakeState = Spindexer.IntakeState.FINDNEXT;
+                } else {
+                    // Maintain Position
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                }
+                break;
+            case FINDNEXT:
+                // Find Next Open Position and start movement
+                if (ballPositions[0].isEmpty) {
+                    // Position 1
+                    commandedIntakePosition = 0;
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
+                    currentIntakeState = Spindexer.IntakeState.MOVING;
+                } else if (ballPositions[1].isEmpty) {
+                    // Position 2
+                    commandedIntakePosition = 1;
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
+                    currentIntakeState = Spindexer.IntakeState.MOVING;
+                } else if (ballPositions[2].isEmpty) {
+                    // Position 3
+                    commandedIntakePosition = 2;
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
+                    currentIntakeState = Spindexer.IntakeState.MOVING;
+                } else {
+                    // Full
+                    currentIntakeState = Spindexer.IntakeState.FULL;
+                }
+                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                break;
+
+            case MOVING:
+                // Stopping when we get to the new position
+                if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
+                    currentIntakeState = Spindexer.IntakeState.INTAKE;
+                    stopSpindexer();
+                    detectBalls();
+                } else {
+                    // Keep moving the spindexer
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                }
+                break;
+
+            case FULL:
+                // Double Check Colors?
+                // Maintain Position
+                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+
+            default:
+                // Statements to execute if no case matches
+        }
+        //TELE.addData("commandedIntakePosition", commandedIntakePosition);
+        //TELE.update();
+        // Signal a successful intake
+        return false;
+    }
+
+    public void update()
+    {
+    }
+}
