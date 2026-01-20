@@ -336,21 +336,21 @@ public class Spindexer {
                     commandedIntakePosition = 0;
                     servos.setSpinPos(outakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
-                } else if (ballPositions[1].isEmpty) {
+                } else if (ballPositions[1].isEmpty) { // Possible error: should it be !ballPosition[1].isEmpty?
                     // Position 2
                     commandedIntakePosition = 1;
                     servos.setSpinPos(outakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
-                } else if (ballPositions[2].isEmpty) {
+                } else if (ballPositions[2].isEmpty) { // Possible error: should it be !ballPosition[2].isEmpty?
                     // Position 3
                     commandedIntakePosition = 2;
-                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
                     currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
                 } else {
                     // Empty return to intake state
                     currentIntakeState = IntakeState.FINDNEXT;
                 }
-                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                moveSpindexerToPos(intakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
                 break;
 
             case SHOOTMOVING:
@@ -369,7 +369,7 @@ public class Spindexer {
 
                 } else {
                     // Keep moving the spindexer
-                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
                 }
                 break;
 
