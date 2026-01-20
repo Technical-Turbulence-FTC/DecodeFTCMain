@@ -603,6 +603,63 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
             }
+
+            if (enableSpindexerManager) {
+                if (!shootAll) {
+                    spindexer.processIntake();
+                }
+
+                // RIGHT_BUMPER
+                if (gamepad1.right_bumper) {
+                    robot.intake.setPower(1);
+
+                } else {
+                    robot.intake.setPower(0);
+                }
+
+                // LEFT_BUMPER
+                if (!shootAll &&
+                        (gamepad1.leftBumperWasReleased() ||
+                                gamepad1.leftBumperWasPressed() ||
+                                gamepad1.left_bumper)) {
+                    shootStamp = getRuntime();
+                    shootAll = true;
+
+                    shooterTicker = 0;
+                }
+
+                if (shootAll) {
+
+                    intake = false;
+                    reject = false;
+
+                    shooterTicker++;
+
+                    // TODO: Change starting position based on desired order to shoot green ball
+                    spindexPos = spindexer_intakePos1;
+
+                    if (getRuntime() - shootStamp < 3.5) {
+
+                        robot.transferServo.setPosition(transferServo_in);
+
+                        robot.spin1.setPower(-spinPow);
+                        robot.spin2.setPower(spinPow);
+
+                    } else {
+                        robot.transferServo.setPosition(transferServo_out);
+                        //spindexPos = spindexer_intakePos1;
+
+                        shootAll = false;
+
+                        robot.transferServo.setPosition(transferServo_out);
+
+                        spindexer.resetSpindexer();
+                        spindexer.processIntake();
+                    }
+                }
+            }
+
+
 //
 //            if (shootAll) {
 //
@@ -769,57 +826,6 @@ public class TeleopV3 extends LinearOpMode {
 //                }
 
             //EXTRA STUFFINESS:
-            if (enableSpindexerManager) {
-                if (!shootAll) {
-                    spindexer.processIntake();
-                }
-
-                // RIGHT_BUMPER
-                if (gamepad1.right_bumper) {
-                    robot.intake.setPower(1);
-
-                } else {
-                    robot.intake.setPower(0);
-                }
-
-                // LEFT_BUMPER
-                if (gamepad1.leftBumperWasReleased()) {
-                    shootStamp = getRuntime();
-                    shootAll = true;
-
-                    shooterTicker = 0;
-                }
-
-                if (shootAll) {
-
-                    TELE.addData("100% works", shootOrder);
-
-                    intake = false;
-                    reject = false;
-
-                    shooterTicker++;
-
-                    spindexPos = spindexer_intakePos1;
-
-                    if (getRuntime() - shootStamp < 3.5) {
-
-                        robot.transferServo.setPosition(transferServo_in);
-
-                        robot.spin1.setPower(-spinPow);
-                        robot.spin2.setPower(spinPow);
-
-                    } else {
-                        robot.transferServo.setPosition(transferServo_out);
-                        spindexPos = spindexer_intakePos1;
-
-                        shootAll = false;
-
-                        robot.transferServo.setPosition(transferServo_out);
-
-                        spindexer.resetSpindexer();
-                    }
-                }
-            }
             drive.updatePoseEstimate();
 
             for (LynxModule hub : allHubs) {
@@ -844,6 +850,10 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("spinIntakeState", spindexer.currentIntakeState);
             TELE.addData("spinTestCounter", spindexer.counter);
             TELE.addData("autoSpintake", autoSpintake);
+            TELE.addData("distanceRearCenter", spindexer.distanceRearCenter);
+            TELE.addData("distanceFrontDriver", spindexer.distanceFrontDriver);
+            TELE.addData("distanceFrontPassenger", spindexer.distanceFrontPassenger);
+            TELE.addData("shootall commanded", shootAll);
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
             TELE.update();
 
