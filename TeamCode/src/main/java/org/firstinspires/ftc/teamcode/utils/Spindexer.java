@@ -136,6 +136,7 @@ public class Spindexer {
 
     // Detects if a ball is found and what color.
     // Returns true is there was a new ball found in Position 1
+    // FIXIT: Reduce number of times that we read the color sensors for loop times.
     public boolean detectBalls() {
 
         boolean newPos1Detection = false;
@@ -172,11 +173,12 @@ public class Spindexer {
         if (distanceFrontDriver < 60) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            double green = robot.color2.getNormalizedColors().green;
-            double red = robot.color2.getNormalizedColors().red;
-            double blue = robot.color2.getNormalizedColors().blue;
-
-            double gP = green / (green + red + blue);
+            // FIXIT: Comment out for now due to loop time concerns
+//            double green = robot.color2.getNormalizedColors().green;
+//            double red = robot.color2.getNormalizedColors().red;
+//            double blue = robot.color2.getNormalizedColors().blue;
+//
+//            double gP = green / (green + red + blue);
 
 //           if (gP >= 0.4) {
 //               b2 = 2;  // purple
@@ -199,11 +201,12 @@ public class Spindexer {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            double green = robot.color3.getNormalizedColors().green;
-            double red = robot.color3.getNormalizedColors().red;
-            double blue = robot.color3.getNormalizedColors().blue;
+            // FIXIT: Comment out for now due to loop time concerns
+//            double green = robot.color3.getNormalizedColors().green;
+//            double red = robot.color3.getNormalizedColors().red;
+//            double blue = robot.color3.getNormalizedColors().blue;
 
-            double gP = green / (green + red + blue);
+//            double gP = green / (green + red + blue);
 
 //           if (gP >= 0.4) {
 //               b3 = 2;  // purple
@@ -271,24 +274,32 @@ public class Spindexer {
             case FINDNEXT:
                 // Find Next Open Position and start movement
                 double currentSpindexerPos = servos.getSpinPos();
-                double travelDistance = 0.0;
-                if (ballPositions[0].isEmpty) {
+                double commandedtravelDistance = 2.0;
+                double proposedTravelDistance = Math.abs(intakePositions[0] - currentSpindexerPos);
+                if (ballPositions[0].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
                     // Position 1
                     commandedIntakePosition = 0;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-
-                } else if (ballPositions[1].isEmpty) {
+                    commandedtravelDistance = proposedTravelDistance;
+                }
+                proposedTravelDistance = Math.abs(intakePositions[1] - currentSpindexerPos);
+                if (ballPositions[1].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
                     // Position 2
                     commandedIntakePosition = 1;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-                } else if (ballPositions[2].isEmpty) {
+                    commandedtravelDistance = proposedTravelDistance;
+                }
+                proposedTravelDistance = Math.abs(intakePositions[2] - currentSpindexerPos);
+                if (ballPositions[2].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
                     // Position 3
                     commandedIntakePosition = 2;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-                } else {
+                    commandedtravelDistance = proposedTravelDistance;
+                }
+                if (currentIntakeState != Spindexer.IntakeState.MOVING) {
                     // Full
                     currentIntakeState = Spindexer.IntakeState.FULL;
                 }
