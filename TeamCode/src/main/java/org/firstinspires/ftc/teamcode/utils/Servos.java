@@ -43,4 +43,16 @@ public class Servos {
         return Math.abs(pos - this.getSpinPos()) < 0.02;
     }
 
+    public double getTurrPos() {
+        return 1.0;
+
+    }
+
+    public double setTurrPos(double pos) {
+        return 1.0;
+    }
+
+    public boolean turretEqual(double pos) {
+        return true;
+    }
 }
