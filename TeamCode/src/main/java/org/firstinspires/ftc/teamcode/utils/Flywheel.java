@@ -74,7 +74,7 @@ public class Flywheel {
 
         // Record Current Velocity
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
-        velo2 = TPS_to_RPM(robot.shooter1.getVelocity()); // Possible error: should it be shooter2 not shooter1?
+        velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
         velo = Math.max(velo1,velo2);
 
         // really should be a running average of the last 5
