@@ -7,9 +7,9 @@ public class ServoPositions {
 
     public static double spindexer_intakePos1 = 0.39;
 
-    public static double spindexer_intakePos2 = 0.5;
+    public static double spindexer_intakePos2 = 0.55;//0.5;
 
-    public static double spindexer_intakePos3 = 0.66;
+    public static double spindexer_intakePos3 = 0.71;//0.66;
 
     public static double spindexer_outtakeBall3 = 0.47;
 

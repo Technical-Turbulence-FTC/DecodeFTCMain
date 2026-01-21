@@ -129,7 +129,7 @@ public class TeleopV2 extends LinearOpMode {
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
         servo = new Servos(hardwareMap);
-        flywheel = new Flywheel();
+        flywheel = new Flywheel(hardwareMap);
 
         drive = new MecanumDrive(hardwareMap, teleStart);
 
@@ -282,12 +282,9 @@ public class TeleopV2 extends LinearOpMode {
 
             //SHOOTER:
 
-            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition());
+            double powPID = flywheel.manageFlywheel((int) vel);
 
-            robot.shooter1.setPower(powPID);
-            robot.shooter2.setPower(powPID);
-
-            robot.transfer.setPower(1);
+             robot.transfer.setPower(1);
 
             //TURRET:
 

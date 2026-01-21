@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
 @Config
@@ -21,12 +21,17 @@ public class ShooterTest extends LinearOpMode {
     // --- CONSTANTS YOU TUNE ---
 
     //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
+    public static double Velocity = 0.0;
+    public static double P = 40.0;
+    public static double I = 0.3;
+    public static double D = 7.0;
+    public static double F = 10.0;
     public static double transferPower = 1.0;
     public static double hoodPos = 0.501;
     public static double turretPos = 0.501;
     public static boolean shoot = false;
     Robot robot;
-    FlywheelV2 flywheel;
+    Flywheel flywheel;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,7 +39,7 @@ public class ShooterTest extends LinearOpMode {
         robot = new Robot(hardwareMap);
         DcMotorEx leftShooter = robot.shooter1;
         DcMotorEx rightShooter = robot.shooter2;
-        flywheel = new FlywheelV2();
+        flywheel = new Flywheel(hardwareMap);
 
         MultipleTelemetry TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -50,10 +55,8 @@ public class ShooterTest extends LinearOpMode {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-                double powPID = flywheel.manageFlywheel((int) parameter, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-                rightShooter.setPower(powPID);
-                leftShooter.setPower(powPID);
-                TELE.addData("PIDPower", powPID);
+                flywheel.setPIDF(P,I,D,F);
+                flywheel.manageFlywheel((int) Velocity);
             }
 
             if (hoodPos != 0.501) {
@@ -67,7 +70,7 @@ public class ShooterTest extends LinearOpMode {
             } else {
                 robot.transferServo.setPosition(transferServo_out);
             }
-            TELE.addData("Velocity", flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition()));
+            TELE.addData("Velocity", flywheel.getVelo());
             TELE.addData("Velocity 1", flywheel.getVelo1());
             TELE.addData("Velocity 2", flywheel.getVelo2());
             TELE.addData("Power", robot.shooter1.getPower());

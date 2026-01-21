@@ -29,9 +29,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.FlywheelV2;
+import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
+import org.firstinspires.ftc.teamcode.utils.Spindexer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,9 @@ public class TeleopV3 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     Servos servo;
-    FlywheelV2 flywheel;
+    Flywheel flywheel;
     MecanumDrive drive;
+    Spindexer spindexer;
     double autoHoodOffset = 0.0;
 
     int shooterTicker = 0;
@@ -96,7 +98,8 @@ public class TeleopV3 extends LinearOpMode {
     boolean shootA = true;
     boolean shootB = true;
     boolean shootC = true;
-    boolean autoSpintake = true;
+    boolean autoSpintake = false;
+    boolean enableSpindexerManager = true;
     List<Integer> shootOrder = new ArrayList<>();
     boolean outtake1 = false;
     boolean outtake2 = false;
@@ -142,8 +145,9 @@ public class TeleopV3 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
-        flywheel = new FlywheelV2();
+        flywheel = new Flywheel(hardwareMap);
         drive = new MecanumDrive(hardwareMap, teleStart);
+        spindexer = new Spindexer(hardwareMap);
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
@@ -402,10 +406,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //SHOOTER:
 
-            double powPID = flywheel.manageFlywheel((int) vel, robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition());
-
-            robot.shooter1.setPower(powPID);
-            robot.shooter2.setPower(powPID);
+            flywheel.manageFlywheel(vel);
 
             //VELOCITY AUTOMATIC
 
@@ -588,7 +589,7 @@ public class TeleopV3 extends LinearOpMode {
 //                }
 //            }
 
-            if (gamepad1.left_bumper) {
+            if (gamepad1.left_bumper && !enableSpindexerManager) {
 
                 robot.transferServo.setPosition(transferServo_out);
 
@@ -619,14 +620,14 @@ public class TeleopV3 extends LinearOpMode {
 
             }
 
-            if (gamepad1.leftBumperWasReleased()) {
+            if (gamepad1.leftBumperWasReleased() && !enableSpindexerManager) {
                 shootStamp = getRuntime();
                 shootAll = true;
 
                 shooterTicker = 0;
             }
 
-            if (shootAll) {
+            if (shootAll && !enableSpindexerManager) {
 
                 TELE.addData("100% works", shootOrder);
 
@@ -658,6 +659,63 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
             }
+
+            if (enableSpindexerManager) {
+                if (!shootAll) {
+                    spindexer.processIntake();
+                }
+
+                // RIGHT_BUMPER
+                if (gamepad1.right_bumper) {
+                    robot.intake.setPower(1);
+
+                } else {
+                    robot.intake.setPower(0);
+                }
+
+                // LEFT_BUMPER
+                if (!shootAll &&
+                        (gamepad1.leftBumperWasReleased() ||
+                                gamepad1.leftBumperWasPressed() ||
+                                gamepad1.left_bumper)) {
+                    shootStamp = getRuntime();
+                    shootAll = true;
+
+                    shooterTicker = 0;
+                }
+
+                if (shootAll) {
+
+                    intake = false;
+                    reject = false;
+
+                    shooterTicker++;
+
+                    // TODO: Change starting position based on desired order to shoot green ball
+                    spindexPos = spindexer_intakePos1;
+
+                    if (getRuntime() - shootStamp < 3.5) {
+
+                        robot.transferServo.setPosition(transferServo_in);
+
+                        robot.spin1.setPower(-spinPow);
+                        robot.spin2.setPower(spinPow);
+
+                    } else {
+                        robot.transferServo.setPosition(transferServo_out);
+                        //spindexPos = spindexer_intakePos1;
+
+                        shootAll = false;
+
+                        robot.transferServo.setPosition(transferServo_out);
+
+                        spindexer.resetSpindexer();
+                        spindexer.processIntake();
+                    }
+                }
+            }
+
+
 //
 //            if (shootAll) {
 //
@@ -824,7 +882,6 @@ public class TeleopV3 extends LinearOpMode {
 //                }
 
             //EXTRA STUFFINESS:
-
             drive.updatePoseEstimate();
 
             for (LynxModule hub : allHubs) {
@@ -840,15 +897,20 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("distanceToGoal", distanceToGoal);
             TELE.addData("hood", robot.hood.getPosition());
             TELE.addData("targetVel", vel);
-            TELE.addData("Velocity", flywheel.getVelo(robot.shooter1.getCurrentPosition(), robot.shooter2.getCurrentPosition()));
-
+            TELE.addData("Velocity", flywheel.getVelo());
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
 
             TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
+            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
+            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
+            TELE.addData("spinTestCounter", spindexer.counter);
             TELE.addData("autoSpintake", autoSpintake);
+            TELE.addData("distanceRearCenter", spindexer.distanceRearCenter);
+            TELE.addData("distanceFrontDriver", spindexer.distanceFrontDriver);
+            TELE.addData("distanceFrontPassenger", spindexer.distanceFrontPassenger);
+            TELE.addData("shootall commanded", shootAll);
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-
             TELE.update();
 
             ticker++;
