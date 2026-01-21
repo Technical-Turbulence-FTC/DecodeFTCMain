@@ -42,4 +42,8 @@ public class ServoPositions {
     public static double turret_detectBlueClose = 0.6;
     public static double turrDefault = 0.4;
 
+    public static double turrMin = 0.2;
+    public static double turrMax = 0.8;
+
+
 }

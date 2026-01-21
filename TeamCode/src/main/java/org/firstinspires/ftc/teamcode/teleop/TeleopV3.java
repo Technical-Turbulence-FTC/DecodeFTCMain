@@ -150,14 +150,14 @@ public class TeleopV3 extends LinearOpMode {
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
         tController.setTolerance(0.001);
+//
+//        if (redAlliance) {
+//            robot.limelight.pipelineSwitch(3);
+//        } else {
+//            robot.limelight.pipelineSwitch(2);
+//        }
 
-        if (redAlliance) {
-            robot.limelight.pipelineSwitch(3);
-        } else {
-            robot.limelight.pipelineSwitch(2);
-        }
-
-        robot.limelight.start();
+//        robot.limelight.start();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -434,28 +434,28 @@ public class TeleopV3 extends LinearOpMode {
 
             TELE.addData("posS2", pos);
 
-            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
-                double bearing;
-
-                LLResult result = robot.limelight.getLatestResult();
-                if (result != null) {
-                    if (result.isValid()) {
-                        bearing = result.getTx() * bMult;
-
-                        double bearingCorrection = bearing / bDiv;
-
-                        error += bearingCorrection;
-
-                        camTicker++;
-                        TELE.addData("tx", bearingCorrection);
-                        TELE.addData("ty", result.getTy());
-                    }
-                }
-
-            } else {
-                camTicker = 0;
-                overrideTurr = false;
-            }
+//            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
+//                double bearing;
+//
+//                LLResult result = robot.light.getLatestResult();
+//                if (result != null) {
+//                    if (result.isValid()) {
+//                        bearing = result.getTx() * bMult;
+//
+//                        double bearingCorrection = bearing / bDiv;
+//
+//                        error += bearingCorrection;
+//
+//                        camTicker++;
+//                        TELE.addData("tx", bearingCorrection);
+//                        TELE.addData("ty", result.getTy());
+//                    }
+//                }
+//
+//            } else {
+//                camTicker = 0;
+//                overrideTurr = false;
+//            }
 
             if (!overrideTurr) {
                 turretPos = pos;

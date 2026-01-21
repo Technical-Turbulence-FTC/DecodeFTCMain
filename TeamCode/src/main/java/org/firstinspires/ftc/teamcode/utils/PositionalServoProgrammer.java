@@ -71,7 +71,6 @@ public class PositionalServoProgrammer extends LinearOpMode {
             TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
             TELE.addData("hood pos", robot.hood.getPosition());
             TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
-            TELE.addData("turret voltage", robot.turr1Pos.getCurrentPosition());
             TELE.addData("spindexer pow", robot.spin1.getPower());
             TELE.update();
         }

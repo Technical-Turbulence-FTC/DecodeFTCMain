@@ -52,7 +52,6 @@ public class PIDServoTest extends LinearOpMode {
             }
 
             telemetry.addData("pos", pos);
-            telemetry.addData("Turret Voltage", robot.turr1Pos.getCurrentPosition());
             telemetry.addData("Spindex Voltage", robot.spin1Pos.getVoltage());
             telemetry.addData("target", target);
             telemetry.addData("Mode", mode);
