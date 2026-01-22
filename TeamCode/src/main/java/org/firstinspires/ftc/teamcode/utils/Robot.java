@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -14,10 +15,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+@Config
 public class Robot {
 
     //Initialize Public Components
 
+    public static boolean usingLimelight = false;
+    public static boolean usingCamera = true;
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
     public DcMotorEx backLeft;
@@ -29,8 +33,7 @@ public class Robot {
     public double shooterPIDF_I = 0.6;
     public double shooterPIDF_D = 5.0;
     public double shooterPIDF_F = 10.0;
-
-    public double[] shooterPIDF_StepSizes = {10.0,1.0,0.001, 0.0001};
+    public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
@@ -41,7 +44,7 @@ public class Robot {
     public CRServo spin2;
     public AnalogInput spin1Pos;
     public AnalogInput spin2Pos;
-    public DcMotorEx turr1Pos;
+    public AnalogInput turr1Pos;
     public AnalogInput transferServoPos;
     public AprilTagProcessor aprilTagProcessor;
     public WebcamName webcam;
@@ -49,10 +52,6 @@ public class Robot {
     public RevColorSensorV3 color2;
     public RevColorSensorV3 color3;
     public Limelight3A limelight;
-
-    public static boolean usingLimelight = true;
-
-    public static boolean usingCamera = true;
 
     public Robot(HardwareMap hardwareMap) {
 
@@ -77,7 +76,7 @@ public class Robot {
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         //TODO: figure out which shooter motor is reversed using ShooterTest and change it in code @KeshavAnandCode
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterPIDF = new PIDFCoefficients(shooterPIDF_P,shooterPIDF_I , shooterPIDF_D, shooterPIDF_F);
+        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -89,7 +88,7 @@ public class Robot {
 
         turr2 = hardwareMap.get(Servo.class, "t2");
 
-        turr1Pos = intake; // Encoder of turret plugged in intake port
+        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
 
         //TODO: check spindexer configuration (both servo and analog input) - check comments in PositionalServoProgrammer
         spin1 = hardwareMap.get(CRServo.class, "spin1");
@@ -118,9 +117,9 @@ public class Robot {
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
 
-        if (usingLimelight){
+        if (usingLimelight) {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        } else if (usingCamera){
+        } else if (usingCamera) {
             webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
             aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         }

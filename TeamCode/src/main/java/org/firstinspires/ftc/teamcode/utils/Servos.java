@@ -44,17 +44,15 @@ public class Servos {
     }
 
     public double getTurrPos() {
-        return (double) ((double) robot.turr1Pos.getCurrentPosition() / 1024.0) * ((double) 44.0 / (double) 77.0);
+        return 1.0;
 
     }
 
     public double setTurrPos(double pos) {
-        turretPID.setPIDF(turrP, turrI, turrD, turrF);
-
-        return spinPID.calculate(this.getTurrPos(), pos);
+        return 1.0;
     }
 
     public boolean turretEqual(double pos) {
-        return Math.abs(pos - this.getTurrPos()) < 0.01;
+        return true;
     }
 }

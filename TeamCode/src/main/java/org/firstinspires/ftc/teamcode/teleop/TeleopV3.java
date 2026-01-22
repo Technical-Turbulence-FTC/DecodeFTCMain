@@ -152,14 +152,14 @@ public class TeleopV3 extends LinearOpMode {
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
         tController.setTolerance(0.001);
+//
+//        if (redAlliance) {
+//            robot.limelight.pipelineSwitch(3);
+//        } else {
+//            robot.limelight.pipelineSwitch(2);
+//        }
 
-        if (redAlliance) {
-            robot.limelight.pipelineSwitch(3);
-        } else {
-            robot.limelight.pipelineSwitch(2);
-        }
-
-        robot.limelight.start();
+//        robot.limelight.start();
 
         waitForStart();
         if (isStopRequested()) return;

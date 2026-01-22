@@ -710,7 +710,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 bearing = result.getTx();
             }
         }
-        double turretPos = robot.turr1Pos.getCurrentPosition() - (bearing / 1300);
+        double turretPos = (bearing / 1300);
         robot.turr1.setPosition(turretPos);
         robot.turr2.setPosition(1 - turretPos);
     }
