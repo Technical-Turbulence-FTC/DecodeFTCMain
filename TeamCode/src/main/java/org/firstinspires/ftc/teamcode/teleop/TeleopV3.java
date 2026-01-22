@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
+import org.firstinspires.ftc.teamcode.utils.Targeting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,8 @@ public class TeleopV3 extends LinearOpMode {
     public static boolean manualTurret = true;
     public double vel = 3000;
     public boolean autoVel = true;
+    public boolean targetingVel = true;
+    public boolean targetingHood = true;
     public double manualOffset = 0.0;
     public boolean autoHood = true;
     public boolean green1 = false;
@@ -72,6 +75,8 @@ public class TeleopV3 extends LinearOpMode {
     Flywheel flywheel;
     MecanumDrive drive;
     Spindexer spindexer;
+    Targeting targeting;
+    Targeting.Settings targetingSettings;
     double autoHoodOffset = 0.0;
 
     int shooterTicker = 0;
@@ -146,6 +151,8 @@ public class TeleopV3 extends LinearOpMode {
         flywheel = new Flywheel(hardwareMap);
         drive = new MecanumDrive(hardwareMap, teleStart);
         spindexer = new Spindexer(hardwareMap);
+        targeting = new Targeting();
+        targetingSettings = new Targeting.Settings(0.0,0.0);
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
@@ -402,13 +409,14 @@ public class TeleopV3 extends LinearOpMode {
                 pos = 0.83;
             }
 
-            //SHOOTER:
 
-            flywheel.manageFlywheel(vel);
+            targetingSettings = targeting.calculateSettings
+                    (robotX,robotY,robotHeading,0.0);
 
             //VELOCITY AUTOMATIC
-
-            if (autoVel) {
+            if (targetingVel) {
+                vel = targetingSettings.flywheelRPM;
+            } else if (autoVel) {
                 vel = velPrediction(distanceToGoal);
             } else {
                 vel = manualVel;
@@ -429,6 +437,9 @@ public class TeleopV3 extends LinearOpMode {
                 autoVel = false;
                 manualVel = 3100;
             }
+
+            //SHOOTER:
+            flywheel.manageFlywheel(vel);
 
             //TODO: test the camera teleop code
 
@@ -480,7 +491,9 @@ public class TeleopV3 extends LinearOpMode {
 
             //HOOD:
 
-            if (autoHood) {
+            if (targetingHood) {
+                robot.hood.setPosition(targetingSettings.hoodAngle);
+            } else if (autoHood) {
                 robot.hood.setPosition(0.15 + hoodOffset);
             } else {
                 robot.hood.setPosition(hoodDefaultPos + hoodOffset);
@@ -845,16 +858,27 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
 
+            // Spindexer Debug
             TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
             TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
             TELE.addData("spinIntakeState", spindexer.currentIntakeState);
             TELE.addData("spinTestCounter", spindexer.counter);
             TELE.addData("autoSpintake", autoSpintake);
-            TELE.addData("distanceRearCenter", spindexer.distanceRearCenter);
-            TELE.addData("distanceFrontDriver", spindexer.distanceFrontDriver);
-            TELE.addData("distanceFrontPassenger", spindexer.distanceFrontPassenger);
+            //TELE.addData("distanceRearCenter", spindexer.distanceRearCenter);
+            //TELE.addData("distanceFrontDriver", spindexer.distanceFrontDriver);
+            //TELE.addData("distanceFrontPassenger", spindexer.distanceFrontPassenger);
             TELE.addData("shootall commanded", shootAll);
+            // Targeting Debug
+            TELE.addData("robotX", robotX);
+            TELE.addData( "robotY", robotY);
+            TELE.addData("robotInchesX", targeting.robotInchesX);
+            TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting GridX", targeting.robotGridX);
+            TELE.addData("Targeting GridY", targeting.robotGridY);
+            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+
             TELE.update();
 
             ticker++;
