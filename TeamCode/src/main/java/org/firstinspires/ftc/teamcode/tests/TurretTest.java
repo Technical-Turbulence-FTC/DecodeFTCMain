@@ -30,12 +30,20 @@ public class TurretTest extends LinearOpMode {
         Turret turret = new Turret(robot, TELE, webcam);
         waitForStart();
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(10, 0,0));
+
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(15, 0,0));
 
         while(opModeIsActive()){
 
             drive.updatePoseEstimate();
             turret.trackGoal(drive.localizer.getPose());
+
+            webcam.update();
+            webcam.displayAllTelemetry();
+
+
+
+            TELE.update();
         }
 
     }

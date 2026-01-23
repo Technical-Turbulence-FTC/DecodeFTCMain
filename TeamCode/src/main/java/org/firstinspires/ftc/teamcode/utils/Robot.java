@@ -79,8 +79,10 @@ public class Robot {
         shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter1.setVelocity(1400);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter2.setVelocity(1400);
 
         hood = hardwareMap.get(Servo.class, "hood");
 

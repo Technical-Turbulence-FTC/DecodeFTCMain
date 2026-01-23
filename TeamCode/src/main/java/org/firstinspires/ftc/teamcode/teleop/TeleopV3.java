@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.turrDefault;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinF;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinI;
@@ -21,7 +19,6 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -29,11 +26,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
+import org.firstinspires.ftc.teamcode.utils.Turret;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,7 +151,7 @@ public class TeleopV3 extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap, teleStart);
         spindexer = new Spindexer(hardwareMap);
         targeting = new Targeting();
-        targetingSettings = new Targeting.Settings(0.0,0.0);
+        targetingSettings = new Targeting.Settings(0.0, 0.0);
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
@@ -165,6 +164,12 @@ public class TeleopV3 extends LinearOpMode {
 //        }
 
 //        robot.limelight.start();
+
+        AprilTagWebcam webcam = new AprilTagWebcam();
+        webcam.init(robot, TELE);
+
+        Turret turret = new Turret(robot, TELE, webcam);
+        waitForStart();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -379,39 +384,21 @@ public class TeleopV3 extends LinearOpMode {
             double robotY = robY - yOffset;
             double robotHeading = drive.localizer.getPose().heading.toDouble();
 
-            double goalX = -10;
+            double goalX = -15;
             double goalY = 0;
 
-            double dx = goalX - robotX;  // delta x from robot to goal
-            double dy = goalY - robotY;  // delta y from robot to goal
+            double dx = robotX - goalX;  // delta x from robot to goal
+            double dy = robotY - goalY;  // delta y from robot to goal
+            Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
 
             double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
-            desiredTurretAngle = (Math.toDegrees(Math.atan2(dy, dx)) + 360) % 360;
-
-            desiredTurretAngle += manualOffset + error;
-
-            offset = desiredTurretAngle - 180 - (Math.toDegrees(robotHeading - headingOffset));
-
-            if (offset > 135) {
-                offset -= 360;
-            }
-
-            double pos = turrDefault;
-
-            TELE.addData("offset", offset);
-
-            pos -= offset * ((double) 1 / 360);
-
-            if (pos < 0.13) {
-                pos = 0.13;
-            } else if (pos > 0.83) {
-                pos = 0.83;
-            }
-
-
             targetingSettings = targeting.calculateSettings
-                    (robotX,robotY,robotHeading,0.0);
+                    (robotX, robotY, robotHeading, 0.0);
+
+            turret.trackGoal(deltaPose);
+
+            webcam.update();
 
             //VELOCITY AUTOMATIC
             if (targetingVel) {
@@ -443,8 +430,6 @@ public class TeleopV3 extends LinearOpMode {
 
             //TODO: test the camera teleop code
 
-            TELE.addData("posS2", pos);
-
 //            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
 //                double bearing;
 //
@@ -467,27 +452,6 @@ public class TeleopV3 extends LinearOpMode {
 //                camTicker = 0;
 //                overrideTurr = false;
 //            }
-
-            if (!overrideTurr) {
-                turretPos = pos;
-            }
-
-            TELE.addData("posS3", turretPos);
-
-            if (manualTurret) {
-                pos = turrDefault + (manualOffset / 100) + error;
-            }
-
-            if (!overrideTurr) {
-                turretPos = pos;
-            }
-
-            if (Math.abs(gamepad2.left_stick_x)>0.2) {
-                manualOffset += 1.35 * gamepad2.left_stick_x;
-            }
-
-            robot.turr1.setPosition(pos);
-            robot.turr2.setPosition(1 - pos);
 
             //HOOD:
 
@@ -671,7 +635,6 @@ public class TeleopV3 extends LinearOpMode {
                     }
                 }
             }
-
 
 //
 //            if (shootAll) {
@@ -870,9 +833,9 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
             TELE.addData("robotX", robotX);
-            TELE.addData( "robotY", robotY);
+            TELE.addData("robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("robotInchesY", targeting.robotInchesY);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);

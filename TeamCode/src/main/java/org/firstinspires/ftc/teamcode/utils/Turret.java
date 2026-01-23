@@ -13,12 +13,14 @@ public class Turret {
 
     public static double turretTolerance = 0.02;
     public static double turrPosScalar = 1.009;
-    public static double turret180Range = 0.6;
+    public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
-    public static double cameraBearingEqual = 1.5;
-    public static double errorLearningRate = 2;
+    public static double cameraBearingEqual = 1;
+    public static double errorLearningRate = 0.15;
     public static double turrMin = 0.2;
     public static double turrMax = 0.8;
+    public static double deltaAngleThreshold = 0.02;
+    public static double angleMultiplier = 0.0;
     Robot robot;
     MultipleTelemetry TELE;
     AprilTagWebcam webcam;
@@ -26,6 +28,8 @@ public class Turret {
     private double turrPos = 0.0;
     private double offset = 0.0;
     private double bearing = 0.0;
+
+
 
     public Turret(Robot rob, MultipleTelemetry tele, AprilTagWebcam cam) {
         this.TELE = tele;
@@ -85,9 +89,7 @@ public class Turret {
         return obeliskID;
     }
 
-    public void update() {
 
-    }
 
     /*
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading
@@ -107,15 +109,18 @@ public class Turret {
         // Turret angle needed relative to robot
         double turretAngleDeg = desiredTurretAngleDeg - robotHeadingDeg;
 
+        turretAngleDeg = -turretAngleDeg;
+
         // Normalize to [-180, 180]
         while (turretAngleDeg > 180) turretAngleDeg -= 360;
         while (turretAngleDeg < -180) turretAngleDeg += 360;
 
-        /* ---------------- APRILTAG CORRECTION ---------------- */
 
+        /* ---------------- APRILTAG CORRECTION ---------------- */
+//
         double tagBearingDeg = getBearing();  // + = target is to the left
 
-        if (tagBearingDeg != 1000.0 && Math.abs(tagBearingDeg) < cameraBearingEqual) {
+        if (tagBearingDeg != 1000.0 && Math.abs(tagBearingDeg) > cameraBearingEqual) {
             // Slowly learn turret offset (persistent calibration)
             offset -= tagBearingDeg * errorLearningRate;
         }
@@ -124,7 +129,7 @@ public class Turret {
 
         /* ---------------- ANGLE → SERVO ---------------- */
 
-        double turretPos = turrDefault + (turretAngleDeg / (turret180Range * 2.0));
+        double turretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
 
         // Clamp to servo range
         turretPos = Math.max(turrMin, Math.min(turretPos, turrMax));
