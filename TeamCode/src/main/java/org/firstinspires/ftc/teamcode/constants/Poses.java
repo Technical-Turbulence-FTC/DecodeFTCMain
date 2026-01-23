@@ -12,7 +12,7 @@ public class Poses {
 
     public static double relativeGoalHeight = goalHeight - turretHeight;
 
-    public static Pose2d goalPose = new Pose2d(-15, 0, 0);
+    public static Pose2d goalPose = new Pose2d(-10, 0, 0);
 
     public static double rx1 = 40, ry1 = -7, rh1 = 0;
     public static double rx2a = 41, ry2a = 18, rh2a = Math.toRadians(140);
@@ -38,6 +38,6 @@ public class Poses {
     public static double bx4b = 48, by4b = -79, bh4b = Math.toRadians(-140);
     public static double rfx1 = 10, rfy1 = 0, rfh1 = 0; //TODO: test this
 
-    public static Pose2d teleStart = new Pose2d(rx1, ry1, rh1);
+    public static Pose2d teleStart = new Pose2d(0, 0, 0);
 
 }
