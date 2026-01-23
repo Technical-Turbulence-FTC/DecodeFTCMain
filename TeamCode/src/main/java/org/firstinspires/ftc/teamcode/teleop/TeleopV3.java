@@ -50,6 +50,8 @@ public class TeleopV3 extends LinearOpMode {
     public static double spindexPos = spindexer_intakePos1;
     public static double spinPow = 0.09;
     public static double bMult = 1, bDiv = 2200;
+    public static double limelightKp = 0.001; // Proportional gain for limelight auto-aim
+    public static double limelightDeadband = 0.5; // Ignore tx values smaller than this
     public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
     public static boolean manualTurret = true;
     public double vel = 3000;
@@ -121,6 +123,7 @@ public class TeleopV3 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+    boolean turretInterpolate = true;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
@@ -411,7 +414,7 @@ public class TeleopV3 extends LinearOpMode {
 
 
             targetingSettings = targeting.calculateSettings
-                    (robotX,robotY,robotHeading,0.0);
+                    (robotX,robotY,robotHeading,0.0, turretInterpolate);
 
             //VELOCITY AUTOMATIC
             if (targetingVel) {
@@ -443,46 +446,100 @@ public class TeleopV3 extends LinearOpMode {
 
             //TODO: test the camera teleop code
 
+            // TODO: TEST THIS CODE
+
             TELE.addData("posS2", pos);
 
-//            if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) { //not moving
-//                double bearing;
-//
-//                LLResult result = robot.light.getLatestResult();
-//                if (result != null) {
-//                    if (result.isValid()) {
-//                        bearing = result.getTx() * bMult;
-//
-//                        double bearingCorrection = bearing / bDiv;
-//
-//                        error += bearingCorrection;
-//
-//                        camTicker++;
-//                        TELE.addData("tx", bearingCorrection);
-//                        TELE.addData("ty", result.getTy());
-//                    }
-//                }
-//
-//            } else {
-//                camTicker = 0;
-//                overrideTurr = false;
-//            }
+            LLResult result = robot.limelight.getLatestResult();
+            boolean limelightActive = false;
+            
+            double turretMin = 0.13;
+            double turretMax = 0.83;
+            
+            if (result != null && result.isValid()) {
+                double tx = result.getTx();
+                double ty = result.getTy();
+                
+                if (Math.abs(tx) > limelightDeadband) {
+                    limelightActive = true;
+                    overrideTurr = true;
+                    
+                    double currentTurretPos = servo.getTurrPos();
+                    
+                    // + tx means tag is right, so rotate right
+                    double adjustment = -tx * limelightKp;
+                    
+                    // calculate new position
+                    double newTurretPos = currentTurretPos + adjustment;
+                    
+                    if (newTurretPos < turretMin) {
+                        double forwardDist = turretMin - newTurretPos;
+                        double backwardDist = (currentTurretPos - turretMin) + (turretMax - newTurretPos);
+                        // check path distance
+                        if (backwardDist < forwardDist && backwardDist < (turretMax - turretMin) / 2) {
+                            newTurretPos = turretMax - (turretMin - newTurretPos);
+                        } else {
+                            newTurretPos = turretMin;
+                        }
+                    } else if (newTurretPos > turretMax) {
+                        double forwardDist = newTurretPos - turretMax;
+                        double backwardDist = (turretMax - currentTurretPos) + (newTurretPos - turretMin);
+                        if (backwardDist < forwardDist && backwardDist < (turretMax - turretMin) / 2) {
+                            newTurretPos = turretMin + (newTurretPos - turretMax);
+                        } else {
+                            newTurretPos = turretMax;
+                        }
+                    }
+                    
+                    // Final clamp 
+                    if (newTurretPos < turretMin) {
+                        newTurretPos = turretMin;
+                    } else if (newTurretPos > turretMax) {
+                        newTurretPos = turretMax;
+                    }
+                    
+                    pos = newTurretPos;
+                    turretPos = pos;
+                    
+                    camTicker++;
+                    TELE.addData("tx", tx);
+                    TELE.addData("ty", ty);
+                    TELE.addData("limelightAdjustment", adjustment);
+                    TELE.addData("limelightActive", true);
+                } else {
+                    limelightActive = true;
+                    overrideTurr = true;
+                    TELE.addData("tx", tx);
+                    TELE.addData("ty", ty);
+                    TELE.addData("limelightActive", true);
+                    TELE.addData("limelightStatus", "Centered");
+                }
+            } else {
+                if (y < 0.3 && y > -0.3 && x < 0.3 && x > -0.3 && rx < 0.3 && rx > -0.3) {
+                    TELE.addData("limelightActive", false);
+                    TELE.addData("limelightStatus", "No target");
+                } else {
+                    camTicker = 0;
+                    overrideTurr = false;
+                    limelightActive = false;
+                }
+            }
 
-            if (!overrideTurr) {
+            if (!limelightActive && !overrideTurr) {
                 turretPos = pos;
             }
 
             TELE.addData("posS3", turretPos);
 
-            if (manualTurret) {
+            if (manualTurret && !limelightActive) {
                 pos = turrDefault + (manualOffset / 100) + error;
             }
 
-            if (!overrideTurr) {
+            if (!overrideTurr && !limelightActive) {
                 turretPos = pos;
             }
 
-            if (Math.abs(gamepad2.left_stick_x)>0.2) {
+            if (Math.abs(gamepad2.left_stick_x)>0.2 && !limelightActive) {
                 manualOffset += 1.35 * gamepad2.left_stick_x;
             }
 
@@ -873,6 +930,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData( "robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
             TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting Interpolate", turretInterpolate);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
