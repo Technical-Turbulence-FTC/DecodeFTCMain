@@ -123,6 +123,7 @@ public class TeleopV3 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+    boolean turretInterpolate = true;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
@@ -413,7 +414,7 @@ public class TeleopV3 extends LinearOpMode {
 
 
             targetingSettings = targeting.calculateSettings
-                    (robotX,robotY,robotHeading,0.0);
+                    (robotX,robotY,robotHeading,0.0, turretInterpolate);
 
             //VELOCITY AUTOMATIC
             if (targetingVel) {
@@ -929,6 +930,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData( "robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
             TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting Interpolate", turretInterpolate);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
