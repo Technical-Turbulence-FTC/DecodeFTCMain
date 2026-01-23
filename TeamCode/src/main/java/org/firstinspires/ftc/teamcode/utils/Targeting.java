@@ -84,28 +84,58 @@ public class Targeting {
     {
     }
 
-    public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity) {
+    public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
 
         double cos45 = Math.cos(Math.toRadians(-45));
         double sin45 = Math.sin(Math.toRadians(-45));
-        double rotatedY = (robotX -40.0) * sin45 + (robotY +7.0) * cos45;
-        double rotatedX = (robotX -40.0) * cos45 - (robotY +7.0) * sin45;
+        double rotatedY = (robotX - 40.0) * sin45 + (robotY + 7.0) * cos45;
+        double rotatedX = (robotX - 40.0) * cos45 - (robotY + 7.0) * sin45;
 
         // Convert robot coordinates to inches
         robotInchesX = rotatedX * unitConversionFactor;
         robotInchesY = rotatedY * unitConversionFactor;
 
         // Find approximate location in the grid
-        robotGridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) +1);
+        robotGridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
         robotGridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
 
-        // Use Grid Location to perform lookup
-        // Keep it simple for now but may want to interpolate results
-        if ((robotGridY < 6) && (robotGridX <6)) {
-            recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridY][robotGridX].flywheelRPM;
-            recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridY][robotGridX].hoodAngle;
+        //clamp
+        robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+        robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
+
+        // basic search
+        if(!interpolate) {
+            if ((robotGridY < 6) && (robotGridX <6)) {
+                recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridY][robotGridX].flywheelRPM;
+                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridY][robotGridX].hoodAngle;
+            }
+            return recommendedSettings;
+        } else {
+
+            // bilinear interpolation
+            int x0 = robotGridX;
+            int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].length - 1);
+            int y0 = gridY;
+            int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
+
+            double x = (robotInchesX - (x0 * tileSize)) / tileSize;
+            double y = (robotInchesY - (y0 * tileSize)) / tileSize;
+
+            double rpm00 = KNOWNTARGETING[y0][x0].flywheelRPM;
+            double rpm10 = KNOWNTARGETING[y0][x1].flywheelRPM;
+            double rpm01 = KNOWNTARGETING[y1][x0].flywheelRPM;
+            double rpm11 = KNOWNTARGETING[y1][x1].flywheelRPM;
+
+            double angle00 = KNOWNTARGETING[y0][x0].hoodAngle;
+            double angle10 = KNOWNTARGETING[y0][x1].hoodAngle;
+            double angle01 = KNOWNTARGETING[y1][x0].hoodAngle;
+            double angle11 = KNOWNTARGETING[y1][x1].hoodAngle;
+
+            recommendedSettings.flywheelRPM = (1 - x) * (1 - y) * rpm00 + x * (1 - y) * rpm10 + (1 - x) * y * rpm01 + x * y * rpm11;
+            recommendedSettings.hoodAngle = (1 - x) * (1 - y) * angle00 + x * (1 - y) * angle10 + (1 - x) * y * angle01 + x * y * angle11;
+
+            return recommendedSettings;
         }
-        return recommendedSettings;
     }
 }
