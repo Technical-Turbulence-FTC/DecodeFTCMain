@@ -5,9 +5,13 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
 
 @Config
 public class Turret {
@@ -29,6 +33,10 @@ public class Turret {
     private double turrPos = 0.0;
     private double offset = 0.0;
     private double bearing = 0.0;
+    double tx = 0.0;
+    double ty = 0.0;
+    double limelightPosX = 0.0;
+    double limelightPosY = 0.0;
 
 
 
@@ -36,6 +44,7 @@ public class Turret {
         this.TELE = tele;
         this.robot = rob;
         this.webcam = cam;
+        webcam.start();
     }
 
     public double getTurrPos() {
@@ -52,36 +61,58 @@ public class Turret {
         return Math.abs(pos - this.getTurrPos()) < turretTolerance;
     }
 
-    public double getBearing() {
-        if (redAlliance) {
-            AprilTagDetection d24 = webcam.getTagById(24);
-            if (d24 != null) {
-                bearing = d24.ftcPose.bearing;
-                return bearing;
-            } else {
-                return 1000.0;
-            }
+    private void limelightRead(){ // only for tracking purposes, not general reads
+        if (redAlliance){
+            webcam.pipelineSwitch(3);
         } else {
-            AprilTagDetection d20 = webcam.getTagById(20);
-            if (d20 != null) {
-                bearing = d20.ftcPose.bearing;
-                return bearing;
-            } else {
-                return 1000.0;
+            webcam.pipelineSwitch(2);
+        }
+
+        LLResult result = webcam.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                tx = result.getTx();
+                ty = result.getTy();
+                // MegaTag1 code for receiving position
+                Pose3D botpose = result.getBotpose();
+                if (botpose != null){
+                    limelightPosX = botpose.getPosition().x;
+                    limelightPosY = botpose.getPosition().y;
+                }
+
             }
         }
     }
 
+    public double getBearing() {
+        tx = 1000;
+        limelightRead();
+        return tx;
+    }
+
+    public double getTy(){
+        limelightRead();
+        return ty;
+    }
+
+    public double getLimelightX(){
+        limelightRead();
+        return limelightPosX;
+    }
+
+    public double getLimelightY(){
+        limelightRead();
+        return limelightPosY;
+    }
+
     public int detectObelisk() {
-        AprilTagDetection id21 = webcam.getTagById(21);
-        AprilTagDetection id22 = webcam.getTagById(22);
-        AprilTagDetection id23 = webcam.getTagById(23);
-        if (id21 != null) {
-            obeliskID = 21;
-        } else if (id22 != null) {
-            obeliskID = 22;
-        } else if (id23 != null) {
-            obeliskID = 23;
+        webcam.pipelineSwitch(1);
+        LLResult result = webcam.getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                obeliskID = fiducial.getFiducialId();
+            }
         }
         return obeliskID;
     }
@@ -89,8 +120,6 @@ public class Turret {
     public int getObeliskID() {
         return obeliskID;
     }
-
-
 
     /*
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading

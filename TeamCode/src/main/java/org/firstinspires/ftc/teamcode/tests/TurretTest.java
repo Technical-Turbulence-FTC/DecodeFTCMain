@@ -8,10 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Turret;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous
 @Config
@@ -34,7 +32,6 @@ public class TurretTest extends LinearOpMode {
 
             drive.updatePoseEstimate();
             turret.trackGoal(drive.localizer.getPose());
-
 
             TELE.update();
         }
