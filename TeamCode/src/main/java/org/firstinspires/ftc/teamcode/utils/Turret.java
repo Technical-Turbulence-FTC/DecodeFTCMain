@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -23,7 +24,7 @@ public class Turret {
     public static double angleMultiplier = 0.0;
     Robot robot;
     MultipleTelemetry TELE;
-    AprilTagWebcam webcam;
+    Limelight3A webcam;
     private int obeliskID = 0;
     private double turrPos = 0.0;
     private double offset = 0.0;
@@ -31,7 +32,7 @@ public class Turret {
 
 
 
-    public Turret(Robot rob, MultipleTelemetry tele, AprilTagWebcam cam) {
+    public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
         this.robot = rob;
         this.webcam = cam;

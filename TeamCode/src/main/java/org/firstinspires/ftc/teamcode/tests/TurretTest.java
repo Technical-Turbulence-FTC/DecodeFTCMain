@@ -24,10 +24,7 @@ public class TurretTest extends LinearOpMode {
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
 
-        AprilTagWebcam webcam = new AprilTagWebcam();
-        webcam.init(robot, TELE);
-
-        Turret turret = new Turret(robot, TELE, webcam);
+        Turret turret = new Turret(robot, TELE, robot.limelight);
         waitForStart();
 
 
@@ -37,10 +34,6 @@ public class TurretTest extends LinearOpMode {
 
             drive.updatePoseEstimate();
             turret.trackGoal(drive.localizer.getPose());
-
-            webcam.update();
-            webcam.displayAllTelemetry();
-
 
 
             TELE.update();

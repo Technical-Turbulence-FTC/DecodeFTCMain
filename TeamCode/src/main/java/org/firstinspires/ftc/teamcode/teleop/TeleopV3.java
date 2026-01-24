@@ -19,6 +19,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -26,7 +27,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
@@ -165,10 +165,7 @@ public class TeleopV3 extends LinearOpMode {
 
 //        robot.limelight.start();
 
-        AprilTagWebcam webcam = new AprilTagWebcam();
-        webcam.init(robot, TELE);
-
-        Turret turret = new Turret(robot, TELE, webcam);
+        Turret turret = new Turret(robot, TELE, robot.limelight);
         waitForStart();
 
         waitForStart();
@@ -397,8 +394,6 @@ public class TeleopV3 extends LinearOpMode {
                     (robotX, robotY, robotHeading, 0.0);
 
             turret.trackGoal(deltaPose);
-
-            webcam.update();
 
             //VELOCITY AUTOMATIC
             if (targetingVel) {
