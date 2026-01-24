@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.utils;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
@@ -5,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -21,8 +23,22 @@ public class Turret {
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
     // TODO: tune these values for limelight
+// At the top with other static variables:
+    public static double kP = 0.015;  // Proportional gain - tune this first
+    public static double kI = 0.0005; // Integral gain - add slowly if needed
+    public static double kD = 0.002;  // Derivative gain - helps prevent overshoot
+
+    public static double kF = 0.002;  // Derivative gain - helps prevent overshoot
+
+    public static double maxOffset = 10; // degrees - safety limit
+
+    // Add these as instance variables:
+    private double lastTagBearing = 0.0;
+    private double offsetIntegral = 0.0;
+
     public static double cameraBearingEqual = 1;
-    public static double errorLearningRate = 0.15;
+
+
     public static double turrMin = 0.2;
     public static double turrMax = 0.8;
     public static double mult = 0.0;
@@ -32,6 +48,8 @@ public class Turret {
     Limelight3A webcam;
     private int obeliskID = 0;
     private double offset = 0.0;
+
+    private PIDFController controller = new PIDFController(kP, kI, kD, kF);
     double tx = 0.0;
     double ty = 0.0;
     double limelightPosX = 0.0;
@@ -141,6 +159,8 @@ public class Turret {
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading
      */
     public void trackGoal(Pose2d deltaPos) {
+
+        controller.setPIDF(kP, kI, kD, kF);
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
 
         // Angle from robot to goal in robot frame
@@ -183,8 +203,14 @@ public class Turret {
             turretPos = Math.max(turrMin, Math.min(turretPos, turrMax));
         } else { // TODO: add so it only adds error when standstill
             if (tagBearingDeg != 1000.0 && Math.abs(tagBearingDeg) > cameraBearingEqual && !lockOffset) {
-                // Slowly learn turret offset (persistent calibration)
-                offset -= tagBearingDeg * errorLearningRate;
+                // PID-based offset correction for faster, smoother tracking
+
+                // Proportional: respond to current error
+
+                 offset = -controller.calculate(tagBearingDeg);
+
+
+
             }
         }
 
