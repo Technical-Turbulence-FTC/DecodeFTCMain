@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -55,14 +56,13 @@ public class ShooterTest extends LinearOpMode {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-                flywheel.setPIDF(P,I,D,F);
+                flywheel.setPIDF(P, I, D, F);
                 flywheel.manageFlywheel((int) Velocity);
             }
 
             if (hoodPos != 0.501) {
                 robot.hood.setPosition(hoodPos);
             }
-
 
             robot.transfer.setPower(transferPower);
             if (shoot) {

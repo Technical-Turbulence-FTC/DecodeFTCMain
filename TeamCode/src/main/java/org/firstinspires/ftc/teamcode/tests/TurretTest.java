@@ -16,6 +16,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @Autonomous
 @Config
 public class TurretTest extends LinearOpMode {
+
+    public static boolean zeroTurr = false;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -40,6 +42,12 @@ public class TurretTest extends LinearOpMode {
 
             webcam.update();
             webcam.displayAllTelemetry();
+
+            TELE.addData("tpos", turret.getTurrPos());
+
+            if(zeroTurr){
+                turret.zeroTurretEncoder();
+            }
 
 
 

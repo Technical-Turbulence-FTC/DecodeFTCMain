@@ -8,6 +8,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
 @TeleOp
 @Config
 public class PositionalServoProgrammer extends LinearOpMode {
@@ -25,11 +27,19 @@ public class PositionalServoProgrammer extends LinearOpMode {
     public static double hoodPos = 0.501;
     public static int mode = 0; //0 for positional, 1 for power
 
+    Turret turret;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
+
+        AprilTagWebcam cam = new AprilTagWebcam();
+
+        cam.init(robot, TELE);
+
+        turret = new Turret(robot, TELE,cam );
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
@@ -66,12 +76,13 @@ public class PositionalServoProgrammer extends LinearOpMode {
             //TODO: @KeshavAnandCode do the above please
 
             TELE.addData("spindexer pos", servo.getSpinPos());
-            TELE.addData("turret pos", servo.getTurrPos());
+            TELE.addData("turret pos", robot.turr1.getPosition());
             TELE.addData("spindexer voltage 1", robot.spin1Pos.getVoltage());
             TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
             TELE.addData("hood pos", robot.hood.getPosition());
             TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
             TELE.addData("spindexer pow", robot.spin1.getPower());
+            TELE.addData("tpos ", turret.getTurrPos() );
             TELE.update();
         }
     }
