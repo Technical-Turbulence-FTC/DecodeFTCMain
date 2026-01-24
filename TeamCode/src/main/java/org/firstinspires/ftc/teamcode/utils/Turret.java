@@ -12,7 +12,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 public class Turret {
 
     public static double turretTolerance = 0.02;
-    public static double turrPosScalar = 1.009;
+    public static double turrPosScalar = 1;
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
     public static double cameraBearingEqual = 1;
@@ -38,7 +38,7 @@ public class Turret {
     }
 
     public double getTurrPos() {
-        return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3);
+        return turrPosScalar * (robot.intake.getCurrentPosition());
 
     }
 

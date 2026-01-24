@@ -807,6 +807,7 @@ public class TeleopV3 extends LinearOpMode {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
+
 //
             TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
             TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
