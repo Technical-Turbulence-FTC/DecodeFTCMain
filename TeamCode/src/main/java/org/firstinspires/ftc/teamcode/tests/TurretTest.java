@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous
 @Config
 public class TurretTest extends LinearOpMode {
+    public static boolean zeroTurr = false;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -25,13 +26,22 @@ public class TurretTest extends LinearOpMode {
         Turret turret = new Turret(robot, TELE, robot.limelight);
         waitForStart();
 
-
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(15, 0,0));
 
         while(opModeIsActive()){
 
             drive.updatePoseEstimate();
             turret.trackGoal(drive.localizer.getPose());
+
+            TELE.addData("tpos", turret.getTurrPos());
+            TELE.addData("Limelight tx", turret.getBearing());
+            TELE.addData("Limelight ty", turret.getTy());
+            TELE.addData("Limelight X", turret.getLimelightX());
+            TELE.addData("Limelight Y", turret.getLimelightY());
+
+            if(zeroTurr){
+                turret.zeroTurretEncoder();
+            }
 
             TELE.update();
         }

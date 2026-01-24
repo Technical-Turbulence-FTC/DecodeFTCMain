@@ -19,6 +19,8 @@ public class LimelightTest extends LinearOpMode {
     Robot robot;
     public static int pipeline = 0; //0 is for test; 1 for obelisk; 2 is for blue track; 3 is for red track
     public static int mode = 0; //0 for bare testing, 1 for obelisk, 2 for blue track, 3 for red track
+    public static boolean turretMode = false;
+    public static double turretPos = 0.501;
     @Override
     public void runOpMode() throws InterruptedException {
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -55,6 +57,13 @@ public class LimelightTest extends LinearOpMode {
             } else {
                 robot.limelight.pipelineSwitch(0);
             }
+
+            if (turretMode){
+                if (turretPos != 0.501){
+                    turret.manualSetTurret(turretPos);
+                }
+            }
+
         }
     }
 }
