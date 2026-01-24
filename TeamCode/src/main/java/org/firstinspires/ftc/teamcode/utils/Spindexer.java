@@ -52,7 +52,9 @@ public class Spindexer {
     }
 
     enum IntakeState {
-        UNKNOWN,
+        UNKNOWN_START,
+        UNKNOWN_MOVE,
+        UNKNOWN_DETECT,
         INTAKE,
         FINDNEXT,
         MOVING,
@@ -62,8 +64,8 @@ public class Spindexer {
         SHOOTWAIT,
     };
 
-    public IntakeState currentIntakeState = IntakeState.UNKNOWN;
-
+    public IntakeState currentIntakeState = IntakeState.UNKNOWN_START;
+    public int unknownColorDetect = 0;
     enum BallColor {
         UNKNOWN,
         GREEN,
@@ -131,13 +133,13 @@ public class Spindexer {
         for (int i = 0; i < 3; i++) {
             resetBallPosition(i);
         }
-        currentIntakeState = IntakeState.UNKNOWN;
+        currentIntakeState = IntakeState.UNKNOWN_START;
     }
 
     // Detects if a ball is found and what color.
     // Returns true is there was a new ball found in Position 1
     // FIXIT: Reduce number of times that we read the color sensors for loop times.
-    public boolean detectBalls() {
+    public boolean detectBalls(boolean detectRearColor, boolean detectFrontColor) {
 
         boolean newPos1Detection = false;
         int spindexerBallPos = 0;
@@ -153,18 +155,20 @@ public class Spindexer {
             // Mark Ball Found
             newPos1Detection = true;
 
-            // Detect which color
-            double green = robot.color1.getNormalizedColors().green;
-            double red = robot.color1.getNormalizedColors().red;
-            double blue = robot.color1.getNormalizedColors().blue;
+            if (detectRearColor) {
+                // Detect which color
+                double green = robot.color1.getNormalizedColors().green;
+                double red = robot.color1.getNormalizedColors().red;
+                double blue = robot.color1.getNormalizedColors().blue;
 
-            double gP = green / (green + red + blue);
+                double gP = green / (green + red + blue);
 
-           // FIXIT - Add filtering to improve accuracy.
-           if (gP >= 0.4) {
-               ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
-           } else {
-               ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // purple
+                // FIXIT - Add filtering to improve accuracy.
+                if (gP >= 0.4) {
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
+                } else {
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // purple
+                }
            }
         }
         // Position 2
@@ -173,18 +177,19 @@ public class Spindexer {
         if (distanceFrontDriver < 60) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            // FIXIT: Comment out for now due to loop time concerns
-//            double green = robot.color2.getNormalizedColors().green;
-//            double red = robot.color2.getNormalizedColors().red;
-//            double blue = robot.color2.getNormalizedColors().blue;
-//
-//            double gP = green / (green + red + blue);
+            if (detectFrontColor) {
+                double green = robot.color2.getNormalizedColors().green;
+                double red = robot.color2.getNormalizedColors().red;
+                double blue = robot.color2.getNormalizedColors().blue;
 
-//           if (gP >= 0.4) {
-//               b2 = 2;  // purple
-//           } else {
-//               b2 = 1;  // green
-//           }
+                double gP = green / (green + red + blue);
+
+                if (gP >= 0.4) {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                } else {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // purple
+                }
+            }
         } else {
             if (!ballPositions[spindexerBallPos].isEmpty) {
                 if (ballPositions[spindexerBallPos].foundEmpty > 3) {
@@ -201,18 +206,19 @@ public class Spindexer {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            // FIXIT: Comment out for now due to loop time concerns
-//            double green = robot.color3.getNormalizedColors().green;
-//            double red = robot.color3.getNormalizedColors().red;
-//            double blue = robot.color3.getNormalizedColors().blue;
+            if (detectFrontColor) {
+                double green = robot.color3.getNormalizedColors().green;
+                double red = robot.color3.getNormalizedColors().red;
+                double blue = robot.color3.getNormalizedColors().blue;
 
-//            double gP = green / (green + red + blue);
+                double gP = green / (green + red + blue);
 
-//           if (gP >= 0.4) {
-//               b3 = 2;  // purple
-//           } else {
-//               b3 = 1;  // green
-//           }
+                if (gP >= 0.4) {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                } else {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // purple
+                }
+            }
         } else {
             if (!ballPositions[spindexerBallPos].isEmpty) {
                 if (ballPositions[spindexerBallPos].foundEmpty > 3) {
@@ -255,15 +261,35 @@ public class Spindexer {
     public boolean processIntake() {
 
         switch (currentIntakeState) {
-            case UNKNOWN:
+            case UNKNOWN_START:
                 // For now just set position ONE if UNKNOWN
                 commandedIntakePosition = 0;
                 servos.setSpinPos(intakePositions[0]);
-                currentIntakeState = Spindexer.IntakeState.MOVING;
+                currentIntakeState = Spindexer.IntakeState.UNKNOWN_MOVE;
+                break;
+            case UNKNOWN_MOVE:
+                // Stopping when we get to the new position
+                if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
+                    currentIntakeState = Spindexer.IntakeState.UNKNOWN_DETECT;
+                    stopSpindexer();
+                    detectBalls(true, true);
+                    unknownColorDetect = 0;
+                } else {
+                    // Keep moving the spindexer
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                }
+                break;
+            case UNKNOWN_DETECT:
+                if (unknownColorDetect >5) {
+                    currentIntakeState = Spindexer.IntakeState.FINDNEXT;
+                } else {
+                    detectBalls(true, true);
+                    unknownColorDetect++;
+                }
                 break;
             case INTAKE:
                 // Ready for intake and Detecting a New Ball
-                if (detectBalls()) {
+                if (detectBalls(true, false)) {
                     ballPositions[commandedIntakePosition].isEmpty = false;
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
                 } else {
@@ -311,7 +337,7 @@ public class Spindexer {
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.INTAKE;
                     stopSpindexer();
-                    detectBalls();
+                    detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
                     moveSpindexerToPos(intakePositions[commandedIntakePosition]);
@@ -320,7 +346,7 @@ public class Spindexer {
 
             case FULL:
                 // Double Check Colors
-                detectBalls();
+                detectBalls(false, false); // Minimize hardware calls
                 if (ballPositions[0].isEmpty || ballPositions[1].isEmpty || ballPositions[2].isEmpty) {
                     // Error handling found an empty spot, get it ready for a ball
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
@@ -378,7 +404,7 @@ public class Spindexer {
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.INTAKE;
                     stopSpindexer();
-                    detectBalls();
+                    detectBalls(true, false);
                 } else {
                     // Keep moving the spindexer
                     moveSpindexerToPos(intakePositions[commandedIntakePosition]);
