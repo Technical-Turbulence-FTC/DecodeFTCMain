@@ -5,9 +5,14 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
 
 @Config
 public class Turret {
@@ -17,37 +22,60 @@ public class Turret {
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
     public static double cameraBearingEqual = 1;
-    public static double errorLearningRate = 0.15;
+    public static double errorLearningRate = -0.15;
     public static double turrMin = 0.2;
     public static double turrMax = 0.8;
     public static double mult = 0.0;
-    private boolean lockOffset = false;
+
+    public static double staticOffsetRate = -0.15;
     public static double deltaAngleThreshold = 0.02;
     public static double angleMultiplier = 0.0;
-    Robot robot;
-    MultipleTelemetry TELE;
-    AprilTagWebcam webcam;
-    private int obeliskID = 0;
-    private double turrPos = 0.0;
-    private double offset = 0.0;
-    private double bearing = 0.0;
+
+    public static double fastSeekThreshold = 5.0;      // Switch to medium mode below this
+    public static double mediumSeekThreshold = 2.0;    // Switch to fine mode below this
+    public static double fastCorrectionGain = 0.75;    // Correction gain for large errors
+    public static double mediumCorrectionGain = 0.4;   // Correction gain for medium errors
+    public static double fineCorrectionGain = 0.2;     // Correction gain for small errors
+    public static double maxOffsetChangePerCycle = 0.3; // Max offset change per cycle (degrees)
+    public static double finalInterpolation = 0.1;     // Final position interpolation factor
+
+
+    // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
+    Robot robot;
+    MultipleTelemetry TELE;
+    Limelight3A webcam;
 
-    public Turret(Robot rob, MultipleTelemetry tele, AprilTagWebcam cam) {
+    double tx = 0.0;
+    double ty = 0.0;
+    double limelightPosX = 0.0;
+    double limelightPosY = 0.0;
+    private boolean lockOffset = false;
+    private int obeliskID = 0;
+
+    private double offset = 0.0;
+
+    public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
         this.robot = rob;
         this.webcam = cam;
-    }
-
-    public double getTurrPos() {
-        return turrPosScalar * (robot.intake.getCurrentPosition()) + turrDefault;
-
+        webcam.start();
+        if (redAlliance) {
+            webcam.pipelineSwitch(3);
+        } else {
+            webcam.pipelineSwitch(2);
+        }
     }
 
     public void zeroTurretEncoder() {
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public double getTurrPos() {
+        return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
+
     }
 
     public void manualSetTurret(double pos) {
@@ -59,36 +87,58 @@ public class Turret {
         return Math.abs(pos - this.getTurrPos()) < turretTolerance;
     }
 
-    public double getBearing() {
+    private void limelightRead() { // only for tracking purposes, not general reads
         if (redAlliance) {
-            AprilTagDetection d24 = webcam.getTagById(24);
-            if (d24 != null) {
-                bearing = d24.ftcPose.bearing;
-                return bearing;
-            } else {
-                return 1000.0;
-            }
+            webcam.pipelineSwitch(3);
         } else {
-            AprilTagDetection d20 = webcam.getTagById(20);
-            if (d20 != null) {
-                bearing = d20.ftcPose.bearing;
-                return bearing;
-            } else {
-                return 1000.0;
+            webcam.pipelineSwitch(2);
+        }
+
+        LLResult result = webcam.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                tx = result.getTx();
+                ty = result.getTy();
+                // MegaTag1 code for receiving position
+                Pose3D botpose = result.getBotpose();
+                if (botpose != null) {
+                    limelightPosX = botpose.getPosition().x;
+                    limelightPosY = botpose.getPosition().y;
+                }
+
             }
         }
     }
 
+    public double getBearing() {
+        tx = 1000;
+        limelightRead();
+        return tx;
+    }
+
+    public double getTy() {
+        limelightRead();
+        return ty;
+    }
+
+    public double getLimelightX() {
+        limelightRead();
+        return limelightPosX;
+    }
+
+    public double getLimelightY() {
+        limelightRead();
+        return limelightPosY;
+    }
+
     public int detectObelisk() {
-        AprilTagDetection id21 = webcam.getTagById(21);
-        AprilTagDetection id22 = webcam.getTagById(22);
-        AprilTagDetection id23 = webcam.getTagById(23);
-        if (id21 != null) {
-            obeliskID = 21;
-        } else if (id22 != null) {
-            obeliskID = 22;
-        } else if (id23 != null) {
-            obeliskID = 23;
+        webcam.pipelineSwitch(1);
+        LLResult result = webcam.getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                obeliskID = fiducial.getFiducialId();
+            }
         }
         return obeliskID;
     }
@@ -108,6 +158,7 @@ public class Turret {
     /*
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading
      */
+
     public void trackGoal(Pose2d deltaPos) {
 
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
@@ -122,7 +173,6 @@ public class Turret {
 
         // Turret angle needed relative to robot
         double turretAngleDeg = desiredTurretAngleDeg - robotHeadingDeg;
-
         turretAngleDeg = -turretAngleDeg;
 
         // Normalize to [-180, 180]
@@ -130,43 +180,68 @@ public class Turret {
         while (turretAngleDeg < -180) turretAngleDeg += 360;
 
 
-        /* ---------------- APRILTAG CORRECTION ---------------- */
-//
+        /* ---------------- LIMELIGHT VISION CORRECTION ---------------- */
+
         double tagBearingDeg = getBearing();  // + = target is to the left
+        boolean hasValidTarget = (tagBearingDeg != 1000.0);
 
-
-
+        // Apply persistent offset from previous corrections
         turretAngleDeg += offset;
 
-        /* ---------------- ANGLE → SERVO ---------------- */
+        // Active correction if we see the target
+        if (hasValidTarget && !lockOffset) {
+            double bearingError = Math.abs(tagBearingDeg);
 
-        double turretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
+            if (bearingError > cameraBearingEqual) {
+                // Dual-mode correction: fast when far, gentle when close
+                double correctionGain;
+                if (bearingError > fastSeekThreshold) {
+                    correctionGain = fastCorrectionGain;
+                } else if (bearingError > mediumSeekThreshold) {
+                    correctionGain = mediumCorrectionGain;
+                } else {
+                    correctionGain = fineCorrectionGain;
+                }
 
-        double currentEncoderPos = this.getTurrPos();
+                // Immediate correction to turret angle
+                turretAngleDeg -= tagBearingDeg * correctionGain;
 
-        if (!turretEqual(turretPos)) {
-            double diff = turretPos - currentEncoderPos;
-            turretPos = turretPos + diff * mult;
-        }
+                // Learn offset slowly for persistent calibration
+                double offsetChange = -tagBearingDeg * errorLearningRate;
+                // Rate limit to prevent oscillation
+                offsetChange = Math.max(-maxOffsetChangePerCycle, Math.min(offsetChange, maxOffsetChangePerCycle));
+                offset += offsetChange;
 
-        if (currentEncoderPos < (turrMin + clampTolerance) || currentEncoderPos > (turrMax - clampTolerance)) {
-            // Clamp to servo range
-            turretPos = Math.max(turrMin, Math.min(turretPos, turrMax));
-        } else {
-            if (tagBearingDeg != 1000.0 && Math.abs(tagBearingDeg) > cameraBearingEqual && !lockOffset) {
-                // Slowly learn turret offset (persistent calibration)
-                offset -= tagBearingDeg * errorLearningRate;
+                TELE.addData("Correction Mode", bearingError > fastSeekThreshold ? "FAST" :
+                        bearingError > mediumSeekThreshold ? "MEDIUM" : "FINE");
             }
         }
 
+
+        /* ---------------- ANGLE → SERVO POSITION ---------------- */
+
+        double targetTurretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
+
+        // Clamp to physical servo limits
+        targetTurretPos = Math.max(turrMin, Math.min(targetTurretPos, turrMax));
+
+        // Interpolate towards target position
+        double currentPos = getTurrPos();
+        double turretPos = currentPos + (targetTurretPos - currentPos) * finalInterpolation;
+
+        // Set servo positions
         robot.turr1.setPosition(turretPos);
         robot.turr2.setPosition(1.0 - turretPos);
 
+
         /* ---------------- TELEMETRY ---------------- */
 
-        TELE.addData("Turret Angle", turretAngleDeg);
-        TELE.addData("Bearing", tagBearingDeg);
-        TELE.addData("Offset", offset);
+        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
+        TELE.addData("Target Pos", "%.3f", targetTurretPos);
+        TELE.addData("Current Pos", "%.3f", currentPos);
+        TELE.addData("Commanded Pos", "%.3f", turretPos);
+        TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
+        TELE.addData("Learned Offset", "%.2f", offset);
     }
 
 }

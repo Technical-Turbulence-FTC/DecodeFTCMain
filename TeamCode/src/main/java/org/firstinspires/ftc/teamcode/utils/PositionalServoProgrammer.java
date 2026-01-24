@@ -35,11 +35,9 @@ public class PositionalServoProgrammer extends LinearOpMode {
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
 
-        AprilTagWebcam cam = new AprilTagWebcam();
 
-        cam.init(robot, TELE);
 
-        turret = new Turret(robot, TELE,cam );
+        turret = new Turret(robot, TELE, robot.limelight );
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){

@@ -166,10 +166,7 @@ public class TeleopV3 extends LinearOpMode {
 
 //        robot.limelight.start();
 
-        AprilTagWebcam webcam = new AprilTagWebcam();
-        webcam.init(robot, TELE);
-
-        Turret turret = new Turret(robot, TELE, webcam);
+        Turret turret = new Turret(robot, TELE, robot.limelight);
         waitForStart();
 
         waitForStart();
@@ -399,7 +396,7 @@ public class TeleopV3 extends LinearOpMode {
 
             turret.trackGoal(deltaPose);
 
-            webcam.update();
+
 
             //VELOCITY AUTOMATIC
             if (targetingVel) {
