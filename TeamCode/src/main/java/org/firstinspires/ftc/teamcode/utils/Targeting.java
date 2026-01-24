@@ -97,8 +97,8 @@ public class Targeting {
         robotInchesY = rotatedY * unitConversionFactor;
 
         // Find approximate location in the grid
-        robotGridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
-        robotGridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
+        int gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
+        int gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
 
         //clamp
         robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));

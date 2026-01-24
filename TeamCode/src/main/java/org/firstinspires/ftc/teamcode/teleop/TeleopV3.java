@@ -120,7 +120,7 @@ public class TeleopV3 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
-    boolean turretInterpolate = true;
+    boolean turretInterpolate = false;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
