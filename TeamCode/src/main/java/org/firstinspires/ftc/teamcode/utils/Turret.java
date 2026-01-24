@@ -16,11 +16,11 @@ import java.util.List;
 
 @Config
 public class Turret {
-
     public static double turretTolerance = 0.02;
     public static double turrPosScalar = 0.00011264432;
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
+    // TODO: tune these values for limelight
     public static double cameraBearingEqual = 1;
     public static double errorLearningRate = 0.15;
     public static double turrMin = 0.2;
@@ -181,7 +181,7 @@ public class Turret {
         if (currentEncoderPos < (turrMin + clampTolerance) || currentEncoderPos > (turrMax - clampTolerance)) {
             // Clamp to servo range
             turretPos = Math.max(turrMin, Math.min(turretPos, turrMax));
-        } else {
+        } else { // TODO: add so it only adds error when standstill
             if (tagBearingDeg != 1000.0 && Math.abs(tagBearingDeg) > cameraBearingEqual && !lockOffset) {
                 // Slowly learn turret offset (persistent calibration)
                 offset -= tagBearingDeg * errorLearningRate;
