@@ -38,10 +38,14 @@ public class Flywheel {
 
     // Set the robot PIDF for the next cycle.
     public void setPIDF(double p, double i, double d, double f) {
-        robot.shooterPIDF.p = p;
-        robot.shooterPIDF.i = i;
-        robot.shooterPIDF.d = d;
-        robot.shooterPIDF.f = f;
+        shooterPIDF1.p = p;
+        shooterPIDF1.i = i;
+        shooterPIDF1.d = d;
+        shooterPIDF1.f = f;
+        shooterPIDF2.p = p;
+        shooterPIDF2.i = i;
+        shooterPIDF2.d = d;
+        shooterPIDF2.f = f;
     }
 
     // Convert from RPM to Ticks per Second

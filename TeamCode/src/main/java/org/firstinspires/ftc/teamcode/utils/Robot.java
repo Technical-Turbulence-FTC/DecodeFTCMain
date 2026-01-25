@@ -21,7 +21,7 @@ public class Robot {
     //Initialize Public Components
 
     public static boolean usingLimelight = true;
-    public static boolean usingCamera = true;
+    public static boolean usingCamera = false;
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
     public DcMotorEx backLeft;

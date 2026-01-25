@@ -277,7 +277,6 @@ public class Spindexer {
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.UNKNOWN_DETECT;
                     stopSpindexer();
-                    detectBalls(true, true);
                     unknownColorDetect = 0;
                 } else {
                     // Keep moving the spindexer
@@ -288,7 +287,7 @@ public class Spindexer {
                 if (unknownColorDetect >5) {
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
                 } else {
-                    detectBalls(true, true);
+                    //detectBalls(true, true);
                     unknownColorDetect++;
                 }
                 break;
@@ -343,7 +342,7 @@ public class Spindexer {
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.INTAKE;
                     stopSpindexer();
-                    detectBalls(false, false);
+                    //detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
                     moveSpindexerToPos(intakePositions[commandedIntakePosition]);
@@ -374,7 +373,7 @@ public class Spindexer {
 
             case SHOOT_ALL_READY:
                 // Double Check Colors
-                detectBalls(false, false); // Minimize hardware calls
+                //detectBalls(false, false); // Minimize hardware calls
                 if (ballPositions[0].isEmpty && ballPositions[1].isEmpty && ballPositions[2].isEmpty) {
                     // All ball shot move to intake state
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
@@ -422,7 +421,7 @@ public class Spindexer {
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.INTAKE;
                     stopSpindexer();
-                    detectBalls(true, false);
+                    //detectBalls(true, false);
                 } else {
                     // Keep moving the spindexer
                     moveSpindexerToPos(intakePositions[commandedIntakePosition]);

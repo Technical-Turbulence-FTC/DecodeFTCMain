@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Servos {
     //PID constants
     // TODO: get PIDF constants
-    public static double spinP = 3.3, spinI = 0, spinD = 0.1, spinF = 0.02;
+    public static double spinP = 2.0, spinI = 0, spinD = 0.3, spinF = 0.02;
     public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0;
     public static double spin_scalar = 1.0086;
     public static double spin_restPos = 0.0;
@@ -40,7 +40,7 @@ public class Servos {
     }
 
     public boolean spinEqual(double pos) {
-        return Math.abs(pos - this.getSpinPos()) < 0.02;
+        return Math.abs(pos - this.getSpinPos()) < 0.03;
     }
 
     public double getTurrPos() {
