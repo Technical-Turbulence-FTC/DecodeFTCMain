@@ -8,15 +8,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Turret;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous
 @Config
 public class TurretTest extends LinearOpMode {
-
     public static boolean zeroTurr = false;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -26,10 +23,8 @@ public class TurretTest extends LinearOpMode {
                 telemetry, FtcDashboard.getInstance().getTelemetry()
         );
 
-
         Turret turret = new Turret(robot, TELE, robot.limelight);
         waitForStart();
-
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(15, 0,0));
 
@@ -38,15 +33,15 @@ public class TurretTest extends LinearOpMode {
             drive.updatePoseEstimate();
             turret.trackGoal(drive.localizer.getPose());
 
-
-
             TELE.addData("tpos", turret.getTurrPos());
+            TELE.addData("Limelight tx", turret.getBearing());
+            TELE.addData("Limelight ty", turret.getTy());
+            TELE.addData("Limelight X", turret.getLimelightX());
+            TELE.addData("Limelight Y", turret.getLimelightY());
 
             if(zeroTurr){
                 turret.zeroTurretEncoder();
             }
-
-
 
             TELE.update();
         }

@@ -19,6 +19,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -26,7 +27,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
@@ -396,8 +396,6 @@ public class TeleopV3 extends LinearOpMode {
 
             turret.trackGoal(deltaPose);
 
-
-
             //VELOCITY AUTOMATIC
             if (targetingVel) {
                 vel = targetingSettings.flywheelRPM;
@@ -634,7 +632,6 @@ public class TeleopV3 extends LinearOpMode {
                 }
             }
 
-
 //
 //            if (shootAll) {
 //
@@ -806,7 +803,6 @@ public class TeleopV3 extends LinearOpMode {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
-
 //
             TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
             TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
@@ -833,7 +829,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
             TELE.addData("robotX", robotX);
-            TELE.addData( "robotY", robotY);
+            TELE.addData("robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
             TELE.addData( "robotInchesY", targeting.robotInchesY);
             TELE.addData("Targeting Interpolate", turretInterpolate);
