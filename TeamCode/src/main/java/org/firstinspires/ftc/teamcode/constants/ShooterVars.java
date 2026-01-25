@@ -21,4 +21,6 @@ public class ShooterVars {
     // VELOCITY CONSTANTS
     public static int AUTO_CLOSE_VEL = 3175; //3300;
     public static int AUTO_FAR_VEL = 4000; //TODO: test this
+
+    public static Types.Motif currentMotif = Types.Motif.NONE;
 }

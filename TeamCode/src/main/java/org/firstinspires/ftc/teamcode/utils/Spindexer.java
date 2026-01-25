@@ -16,9 +16,11 @@ import static org.firstinspires.ftc.teamcode.utils.Servos.spinI;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinP;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.constants.Types;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 
 public class Spindexer {
+
     Robot robot;
     Servos servos;
     Flywheel flywheel;
@@ -36,6 +38,7 @@ public class Spindexer {
     public double distanceFrontDriver = 0.0;
     public double distanceFrontPassenger = 0.0;
 
+    public Types.Motif desiredMotif = Types.Motif.NONE;
     // For Use
     enum RotatedBallPositionNames {
         REARCENTER,
@@ -62,6 +65,8 @@ public class Spindexer {
         SHOOTNEXT,
         SHOOTMOVING,
         SHOOTWAIT,
+        SHOOT_ALL_PREP,
+        SHOOT_ALL_READY
     };
 
     public IntakeState currentIntakeState = IntakeState.UNKNOWN_START;
@@ -327,6 +332,7 @@ public class Spindexer {
                 }
                 if (currentIntakeState != Spindexer.IntakeState.MOVING) {
                     // Full
+                    commandedIntakePosition = bestFitMotif();
                     currentIntakeState = Spindexer.IntakeState.FULL;
                 }
                 moveSpindexerToPos(intakePositions[commandedIntakePosition]);
@@ -349,6 +355,28 @@ public class Spindexer {
                 detectBalls(false, false); // Minimize hardware calls
                 if (ballPositions[0].isEmpty || ballPositions[1].isEmpty || ballPositions[2].isEmpty) {
                     // Error handling found an empty spot, get it ready for a ball
+                    currentIntakeState = Spindexer.IntakeState.FINDNEXT;
+                }
+                // Maintain Position
+                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                break;
+
+            case SHOOT_ALL_PREP:
+                // We get here with function call to prepareToShootMotif
+                // Stopping when we get to the new position
+                if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
+                    currentIntakeState = Spindexer.IntakeState.SHOOT_ALL_READY;
+                } else {
+                    // Keep moving the spindexer
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
+                }
+                break;
+
+            case SHOOT_ALL_READY:
+                // Double Check Colors
+                detectBalls(false, false); // Minimize hardware calls
+                if (ballPositions[0].isEmpty && ballPositions[1].isEmpty && ballPositions[2].isEmpty) {
+                    // All ball shot move to intake state
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
                 }
                 // Maintain Position
@@ -383,16 +411,6 @@ public class Spindexer {
                 // Stopping when we get to the new position
                 if (servos.spinEqual(outakePositions[commandedIntakePosition])) {
                     currentIntakeState = Spindexer.IntakeState.SHOOTWAIT;
-                    ballPositions[commandedIntakePosition].isEmpty = true;
-                    // Advance to next full position and wait
-//                    commandedIntakePosition++;
-//                    if (commandedIntakePosition > 2) {
-//                        commandedIntakePosition = 0;
-//                    }
-//                    // Continue moving to next position
-//                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
-//                    currentIntakeState = Spindexer.IntakeState.MOVING;
-
                 } else {
                     // Keep moving the spindexer
                     moveSpindexerToPos(intakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
@@ -418,6 +436,55 @@ public class Spindexer {
         //TELE.update();
         // Signal a successful intake
         return false;
+    }
+
+    public void setDesiredMotif (Types.Motif newMotif) {
+        desiredMotif = newMotif;
+    }
+
+    // Returns the best fit for the motiff
+    public int bestFitMotif () {
+        switch (desiredMotif) {
+            case GPP:
+                if (ballPositions[0].ballColor == BallColor.GREEN) {
+                    return 2;
+                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+                //break;
+            case PGP:
+                if (ballPositions[0].ballColor == BallColor.GREEN) {
+                    return 0;
+                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
+                    return 1;
+                } else {
+                    return 3;
+                }
+                //break;
+            case PPG:
+                if (ballPositions[0].ballColor == BallColor.GREEN) {
+                    return 1;
+                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
+                    return 0;
+                } else {
+                    return 2;
+                }
+                //break;
+            case NONE:
+                return 0;
+                //break;
+        }
+        return 0;
+    }
+
+    void prepareToShootMotif () {
+        commandedIntakePosition = bestFitMotif();
+    }
+
+    void shootAllToIntake () {
+        currentIntakeState = Spindexer.IntakeState.FINDNEXT;
     }
 
     public void update()
