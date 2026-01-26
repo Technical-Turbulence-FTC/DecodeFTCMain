@@ -21,24 +21,12 @@ public class Turret {
     public static double turrPosScalar = 0.00011264432;
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.4;
-    public static double cameraBearingEqual = 1;
-    public static double errorLearningRate = -0.15;
     public static double turrMin = 0.15;
     public static double turrMax = 0.85;
-    public static double mult = 0.0;
 
-    public static double staticOffsetRate = -0.15;
-    public static double deltaAngleThreshold = 0.02;
-    public static double angleMultiplier = 0.0;
-
-    public static double fastSeekThreshold = 10.0;      // Switch to medium mode below this
-    public static double mediumSeekThreshold = 3.0;    // Switch to fine mode below this
-    public static double fastCorrectionGain = 0.75;    // Correction gain for large errors
-    public static double mediumCorrectionGain = 0.4;   // Correction gain for medium errors
-    public static double fineCorrectionGain = 0.1;     // Correction gain for small errors
-    public static double maxOffsetChangePerCycle = 15; // Max offset change per cycle (degrees)
-    public static double finalInterpolation = 0.5;     // Final position interpolation factor
-
+    public static double visionCorrectionGain = 0.08;  // Single tunable gain
+    public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
+    public static double cameraBearingEqual = 0.5;      // Deadband
 
     // TODO: tune these values for limelight
 
@@ -183,47 +171,40 @@ public class Turret {
 
 
         /* ---------------- LIMELIGHT VISION CORRECTION ---------------- */
-
         double tagBearingDeg = getBearing();  // + = target is to the left
         boolean hasValidTarget = (tagBearingDeg != 1000.0);
 
-
         turretAngleDeg += permanentOffset;
-
 
         // Active correction if we see the target
         if (hasValidTarget && !lockOffset) {
             double bearingError = Math.abs(tagBearingDeg);
 
             if (bearingError > cameraBearingEqual) {
-                // Dual-mode correction: fast when far, gentle when close
-                double correctionGain;
-                if (bearingError > fastSeekThreshold) {
-                    correctionGain = fastCorrectionGain;
-                } else if (bearingError > mediumSeekThreshold) {
-                    correctionGain = mediumCorrectionGain;
-                } else {
-                    correctionGain = fineCorrectionGain;
-                }
+                // Apply sqrt scaling to reduce aggressive corrections at large errors
+                double filteredBearing = Math.signum(tagBearingDeg) * Math.sqrt(Math.abs(tagBearingDeg));
 
+                // Calculate correction
+                double offsetChange = visionCorrectionGain * filteredBearing;
 
+                // Limit rate of change to prevent jumps
+                offsetChange = Math.max(-maxOffsetChangePerCycle,
+                        Math.min(maxOffsetChangePerCycle, offsetChange));
 
-                offset = correctionGain*tagBearingDeg;
+                // Accumulate the correction
+                offset += offsetChange;
 
-
-                TELE.addData("offset", offset);
-                TELE.addData("offsetChange", offsetChange);
-
-
-                TELE.addData("Correction Mode", bearingError > fastSeekThreshold ? "FAST" :
-                        bearingError > mediumSeekThreshold ? "MEDIUM" : "FINE");
+                TELE.addData("Bearing Error", tagBearingDeg);
+                TELE.addData("Offset Change", offsetChange);
+                TELE.addData("Total Offset", offset);
             } else {
+                // When centered, lock in the learned offset
                 permanentOffset = offset;
+                offset = 0.0;
             }
         }
 
-
-        // Apply persistent offset from previous corrections
+// Apply accumulated offset
         turretAngleDeg += offset;
 
 
@@ -238,9 +219,9 @@ public class Turret {
         double currentPos = getTurrPos();
         double turretPos = targetTurretPos;
 
-        if (targetTurretPos == turrMin){
+        if (targetTurretPos == turrMin) {
             turretPos = turrMin;
-        } else if (targetTurretPos == turrMax){
+        } else if (targetTurretPos == turrMax) {
             turretPos = turrMax;
         }
 
