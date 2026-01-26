@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -64,7 +65,7 @@ public class Turret {
     }
 
     public double getTurrPos() {
-        return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
+        return turrPosScalar * (robot.intake.getCurrentPosition()) + turrDefault;
 
     }
 

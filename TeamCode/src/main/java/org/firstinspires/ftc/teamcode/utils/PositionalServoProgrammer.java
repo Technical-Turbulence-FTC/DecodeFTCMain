@@ -74,7 +74,7 @@ public class PositionalServoProgrammer extends LinearOpMode {
             //TODO: @KeshavAnandCode do the above please
 
             TELE.addData("spindexer pos", servo.getSpinPos());
-            TELE.addData("turret pos", robot.turr1.getPosition());
+            TELE.addData("turret pos", robot.intake.getCurrentPosition());
             TELE.addData("spindexer voltage 1", robot.spin1Pos.getVoltage());
             TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
             TELE.addData("hood pos", robot.hood.getPosition());
