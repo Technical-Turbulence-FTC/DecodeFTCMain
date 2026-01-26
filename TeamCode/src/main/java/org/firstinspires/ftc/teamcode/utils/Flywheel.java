@@ -9,8 +9,8 @@ public class Flywheel {
     Robot robot;
     public PIDFCoefficients shooterPIDF1, shooterPIDF2;
     double velo = 0.0;
-    double velo1 = 0.0;
-    double velo2 = 0.0;
+    public double velo1 = 0.0;
+    public double velo2 = 0.0;
     double targetVelocity = 0.0;
     double powPID = 0.0;
     boolean steady = false;
@@ -38,10 +38,14 @@ public class Flywheel {
 
     // Set the robot PIDF for the next cycle.
     public void setPIDF(double p, double i, double d, double f) {
-        robot.shooterPIDF.p = p;
-        robot.shooterPIDF.i = i;
-        robot.shooterPIDF.d = d;
-        robot.shooterPIDF.f = f;
+        shooterPIDF1.p = p;
+        shooterPIDF1.i = i;
+        shooterPIDF1.d = d;
+        shooterPIDF1.f = f;
+        shooterPIDF2.p = p;
+        shooterPIDF2.i = i;
+        shooterPIDF2.d = d;
+        shooterPIDF2.f = f;
     }
 
     // Convert from RPM to Ticks per Second
@@ -54,10 +58,6 @@ public class Flywheel {
         targetVelocity = commandedVelocity;
 
         // Add code here to set PIDF based on desired RPM
-        //robot.shooterPIDF.p = P;
-        //robot.shooterPIDF.i = I;
-        //robot.shooterPIDF.d = D;
-        //robot.shooterPIDF.f = F;
 
         robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
         robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);

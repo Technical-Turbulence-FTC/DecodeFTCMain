@@ -120,6 +120,7 @@ public class TeleopV3 extends LinearOpMode {
     private double transferStamp = 0.0;
     private int tickerA = 1;
     private boolean transferIn = false;
+    boolean turretInterpolate = false;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
@@ -391,7 +392,7 @@ public class TeleopV3 extends LinearOpMode {
             double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
             targetingSettings = targeting.calculateSettings
-                    (robotX, robotY, robotHeading, 0.0);
+                    (robotX,robotY,robotHeading,0.0, turretInterpolate);
 
             turret.trackGoal(deltaPose);
 
@@ -813,6 +814,8 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("hood", robot.hood.getPosition());
             TELE.addData("targetVel", vel);
             TELE.addData("Velocity", flywheel.getVelo());
+            TELE.addData("Velo1", flywheel.velo1);
+            TELE.addData("Velo2", flywheel.velo2);
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
 
@@ -830,7 +833,8 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("robotX", robotX);
             TELE.addData("robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData("robotInchesY", targeting.robotInchesY);
+            TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting Interpolate", turretInterpolate);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
