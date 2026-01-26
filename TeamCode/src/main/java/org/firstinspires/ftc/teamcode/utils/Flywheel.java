@@ -9,8 +9,8 @@ public class Flywheel {
     Robot robot;
     public PIDFCoefficients shooterPIDF1, shooterPIDF2;
     double velo = 0.0;
-    double velo1 = 0.0;
-    double velo2 = 0.0;
+    public double velo1 = 0.0;
+    public double velo2 = 0.0;
     double targetVelocity = 0.0;
     double powPID = 0.0;
     boolean steady = false;
@@ -58,10 +58,6 @@ public class Flywheel {
         targetVelocity = commandedVelocity;
 
         // Add code here to set PIDF based on desired RPM
-        //robot.shooterPIDF.p = P;
-        //robot.shooterPIDF.i = I;
-        //robot.shooterPIDF.d = D;
-        //robot.shooterPIDF.f = F;
 
         robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
         robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);

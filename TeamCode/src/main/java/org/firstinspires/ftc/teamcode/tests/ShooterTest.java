@@ -18,17 +18,16 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 @Config
 @TeleOp
 public class ShooterTest extends LinearOpMode {
-
     public static int mode = 1;
     public static double parameter = 0.0;
     // --- CONSTANTS YOU TUNE ---
 
     //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
     public static double Velocity = 0.0;
-    public static double P = 40.0;
-    public static double I = 0.3;
-    public static double D = 7.0;
-    public static double F = 10.0;
+    public static double P = 255.0;
+    public static double I = 0.0;
+    public static double D = 0.0;
+    public static double F = 7.5;
     public static double transferPower = 1.0;
     public static double hoodPos = 0.501;
     public static double turretPos = 0.501;
@@ -43,6 +42,9 @@ public class ShooterTest extends LinearOpMode {
 
     public double spinPow = 0.09;
 
+    public static boolean enableHoodAutoOpen = false;
+    public double hoodAdjust = 0.0;
+    public static double hoodAdjustFactor = 1.0;
     Spindexer spindexer ;
 
     @Override
@@ -73,7 +75,11 @@ public class ShooterTest extends LinearOpMode {
             }
 
             if (hoodPos != 0.501) {
-                robot.hood.setPosition(hoodPos);
+                if (enableHoodAutoOpen) {
+                    robot.hood.setPosition(hoodPos+(hoodAdjustFactor*(flywheel.getVelo()/Velocity)));
+                } else {
+                    robot.hood.setPosition(hoodPos);
+                }
             }
 
             if (intake) {

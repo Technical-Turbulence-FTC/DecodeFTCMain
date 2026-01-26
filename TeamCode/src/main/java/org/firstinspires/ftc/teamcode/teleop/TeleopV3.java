@@ -814,6 +814,8 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("hood", robot.hood.getPosition());
             TELE.addData("targetVel", vel);
             TELE.addData("Velocity", flywheel.getVelo());
+            TELE.addData("Velo1", flywheel.velo1);
+            TELE.addData("Velo2", flywheel.velo2);
             TELE.addData("shootOrder", shootOrder);
             TELE.addData("oddColor", oddBallColor);
 

@@ -29,10 +29,10 @@ public class Robot {
     public DcMotorEx intake;
     public DcMotorEx transfer;
     public PIDFCoefficients shooterPIDF;
-    public double shooterPIDF_P = 10.0;
-    public double shooterPIDF_I = 0.6;
-    public double shooterPIDF_D = 5.0;
-    public double shooterPIDF_F = 10.0;
+    public double shooterPIDF_P = 255.0;
+    public double shooterPIDF_I = 0.0;
+    public double shooterPIDF_D = 0.0;
+    public double shooterPIDF_F = 7.5;
     public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
