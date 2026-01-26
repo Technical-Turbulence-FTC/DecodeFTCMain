@@ -23,21 +23,21 @@ public class Turret {
     public static double turrDefault = 0.4;
     public static double cameraBearingEqual = 1;
     public static double errorLearningRate = -0.15;
-    public static double turrMin = 0.2;
-    public static double turrMax = 0.8;
+    public static double turrMin = 0.15;
+    public static double turrMax = 0.85;
     public static double mult = 0.0;
 
     public static double staticOffsetRate = -0.15;
     public static double deltaAngleThreshold = 0.02;
     public static double angleMultiplier = 0.0;
 
-    public static double fastSeekThreshold = 5.0;      // Switch to medium mode below this
-    public static double mediumSeekThreshold = 2.0;    // Switch to fine mode below this
+    public static double fastSeekThreshold = 10.0;      // Switch to medium mode below this
+    public static double mediumSeekThreshold = 3.0;    // Switch to fine mode below this
     public static double fastCorrectionGain = 0.75;    // Correction gain for large errors
     public static double mediumCorrectionGain = 0.4;   // Correction gain for medium errors
-    public static double fineCorrectionGain = 0.2;     // Correction gain for small errors
+    public static double fineCorrectionGain = 0.1;     // Correction gain for small errors
     public static double maxOffsetChangePerCycle = 0.3; // Max offset change per cycle (degrees)
-    public static double finalInterpolation = 0.1;     // Final position interpolation factor
+    public static double finalInterpolation = 0.5;     // Final position interpolation factor
 
 
     // TODO: tune these values for limelight
@@ -228,6 +228,12 @@ public class Turret {
         // Interpolate towards target position
         double currentPos = getTurrPos();
         double turretPos = currentPos + (targetTurretPos - currentPos) * finalInterpolation;
+
+        if (targetTurretPos == turrMin){
+            turretPos = turrMin;
+        } else if (targetTurretPos == turrMax){
+            turretPos = turrMax;
+        }
 
         // Set servo positions
         robot.turr1.setPosition(turretPos);
