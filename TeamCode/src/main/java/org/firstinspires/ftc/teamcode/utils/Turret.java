@@ -24,6 +24,7 @@ public class Turret {
     public static double turrDefault = 0.4;
     public static double turrMin = 0.15;
     public static double turrMax = 0.85;
+    public static double proportionalGain = 0.75;
 
     public static double visionCorrectionGain = 0.08;  // Single tunable gain
     public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
@@ -218,7 +219,7 @@ public class Turret {
 
         // Interpolate towards target position
         double currentPos = getTurrPos();
-        double turretPos = targetTurretPos;
+        double turretPos = currentPos + (proportionalGain*(targetTurretPos - currentPos)); // added
 
         if (targetTurretPos == turrMin) {
             turretPos = turrMin;
