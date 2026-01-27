@@ -39,6 +39,8 @@ public class Spindexer {
     public double distanceFrontDriver = 0.0;
     public double distanceFrontPassenger = 0.0;
 
+    private double prevPos = 0.0;
+
     public Types.Motif desiredMotif = Types.Motif.NONE;
     // For Use
     enum RotatedBallPositionNames {
@@ -246,10 +248,21 @@ public class Spindexer {
 
         return newPos1Detection;
     }
-
-    public void moveSpindexerToPos(double pos) {
+    // Has code to unjam spindexer
+    private void moveSpindexerToPos(double pos) {
         robot.spin1.setPosition(pos);
         robot.spin2.setPosition(1-pos);
+        double currentPos = servos.getSpinPos();
+        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
+            if (currentPos > pos){
+                robot.spin1.setPosition(1);
+                robot.spin2.setPosition(0);
+            } else {
+                robot.spin1.setPosition(0);
+                robot.spin2.setPosition(1);
+            }
+        }
+        prevPos = currentPos;
     }
 
     public void stopSpindexer() {

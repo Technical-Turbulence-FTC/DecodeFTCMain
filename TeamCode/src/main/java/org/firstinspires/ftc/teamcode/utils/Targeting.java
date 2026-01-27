@@ -67,19 +67,19 @@ public class Targeting {
         KNOWNTARGETING[3][4] = new Settings (3100.0, 0.47);
         KNOWNTARGETING[3][5] = new Settings (3100.0, 0.47);
         // ROW 4
-        KNOWNTARGETING[4][0] = new Settings (4540.0, 0.1);
-        KNOWNTARGETING[4][1] = new Settings (4541.0, 0.1);
-        KNOWNTARGETING[4][2] = new Settings (4542.0, 0.1);
-        KNOWNTARGETING[4][3] = new Settings (4543.0, 0.1);
-        KNOWNTARGETING[4][4] = new Settings (4544.0, 0.1);
-        KNOWNTARGETING[4][5] = new Settings (4545.0, 0.1);
-        // ROW 1
-        KNOWNTARGETING[5][0] = new Settings (4550.0, 0.1);
-        KNOWNTARGETING[5][1] = new Settings (4551.0, 0.1);
-        KNOWNTARGETING[5][2] = new Settings (4552.0, 0.1);
-        KNOWNTARGETING[5][3] = new Settings (4553.0, 0.1);
-        KNOWNTARGETING[5][4] = new Settings (4554.0, 0.1);
-        KNOWNTARGETING[5][5] = new Settings (4555.0, 0.1);
+        KNOWNTARGETING[4][0] = new Settings (3100, 0.49);
+        KNOWNTARGETING[4][1] = new Settings (3100, 0.49);
+        KNOWNTARGETING[4][2] = new Settings (3100, 0.5);
+        KNOWNTARGETING[4][3] = new Settings (3200, 0.5);
+        KNOWNTARGETING[4][4] = new Settings (3250, 0.49);
+        KNOWNTARGETING[4][5] = new Settings (3300, 0.49);
+        // ROW 5
+        KNOWNTARGETING[5][0] = new Settings (3200, 0.48);
+        KNOWNTARGETING[5][1] = new Settings (3200, 0.48);
+        KNOWNTARGETING[5][2] = new Settings (3300, 0.48);
+        KNOWNTARGETING[5][3] = new Settings (3350, 0.48);
+        KNOWNTARGETING[5][4] = new Settings (3350, 0.48);
+        KNOWNTARGETING[5][5] = new Settings (3350, 0.48);
     }
 
     public Targeting()

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
@@ -123,6 +124,7 @@ public class TeleopV3 extends LinearOpMode {
     private boolean transferIn = false;
     boolean turretInterpolate = false;
     public static double spinSpeedIncrease = 0.04;
+    public static int resetSpinTicks = 20;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
@@ -582,8 +584,12 @@ public class TeleopV3 extends LinearOpMode {
 //            }
 
             if (enableSpindexerManager) {
-                if (!shootAll) {
+                // Gives some time to reset spindexer
+                if (!shootAll && intakeTicker > resetSpinTicks) {
                     spindexer.processIntake();
+                } else {
+                    robot.spin1.setPosition(spindexer_intakePos1);
+                    robot.spin2.setPosition(1-spindexer_intakePos1);
                 }
 
                 // RIGHT_BUMPER
@@ -606,15 +612,16 @@ public class TeleopV3 extends LinearOpMode {
                     spindexPos = spinStartPos;// TODO: Change starting position based on desired order to shoot green ball
 
                 }
-
+                intakeTicker++;
                 if (shootAll) {
-
+                    intakeTicker = 0;
                     intake = false;
                     reject = false;
 
-                    if (getRuntime() - shootStamp < 3.5) {
+                    if (getRuntime() - shootStamp < 3.5 && servo.getSpinPos() < spindexer_outtakeBall3 + 0.1) {
 
                         if (shooterTicker == 0 && !servo.spinEqual(spindexPos)){
+                            robot.transferServo.setPosition(transferServo_out);
                             robot.spin1.setPosition(spindexPos);
                             robot.spin2.setPosition(1-spindexPos);
                         } else {
