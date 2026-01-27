@@ -14,6 +14,8 @@ public class Targeting {
     double unitConversionFactor = 0.95;
 
     int tileSize = 24; //inches
+    public final int TILE_UPPER_QUARTILE = 18;
+    public final int TILE_LOWER_QUARTILE = 6;
 
     public double robotInchesX, robotInchesY = 0.0;
 
@@ -100,6 +102,60 @@ public class Targeting {
         int gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
         int gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
 
+        int remX = Math.floorMod((int)robotInchesX, tileSize);
+        int remY = Math.floorMod((int)robotInchesX, tileSize);
+
+        // Determine if we need to interpolate based on tile position.
+        // if near upper or lower quarter or tile interpolate with next tile.
+        int x1 = 0;
+        int y1 = 0;
+//        interpolate = false;
+//        if ((remX > TILE_UPPER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
+//                (robotGridX < 5) && (robotGridY <5)) {
+//            // +X, +Y
+//            interpolate = true;
+//            x1 = robotGridX + 1;
+//            y1 = robotGridY + 1;
+//        } else if ((remX < TILE_LOWER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
+//                (robotGridX > 0) && (robotGridY > 0)) {
+//            // -X, -Y
+//            interpolate = true;
+//            x1 = robotGridX - 1;
+//            y1 = robotGridY - 1;
+//        } else if ((remX > TILE_UPPER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
+//                (robotGridX < 5) && (robotGridY > 0)) {
+//            // +X, -Y
+//            interpolate = true;
+//            x1 = robotGridX + 1;
+//            y1 = robotGridY - 1;
+//        } else if ((remX < TILE_LOWER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
+//                (robotGridX > 0) && (robotGridY < 5)) {
+//            // -X, +Y
+//            interpolate = true;
+//            x1 = robotGridX - 1;
+//            y1 = robotGridY + 1;
+//        } else if ((remX < TILE_LOWER_QUARTILE) && (robotGridX > 0)) {
+//            // -X, Y
+//            interpolate = true;
+//            x1 = robotGridX - 1;
+//            y1 = robotGridY;
+//        } else if ((remY < TILE_LOWER_QUARTILE) && (robotGridY > 0)) {
+//            // X, -Y
+//            interpolate = true;
+//            x1 = robotGridX;
+//            y1 = robotGridY - 1;
+//        } else if ((remX > TILE_UPPER_QUARTILE) && (robotGridX < 5)) {
+//            // +X, Y
+//            interpolate = true;
+//            x1 = robotGridX + 1;
+//            y1 = robotGridY;
+//        } else if ((remY > TILE_UPPER_QUARTILE) && (robotGridY < 5)) {
+//            // X, +Y
+//            interpolate = true;
+//            x1 = robotGridX;
+//            y1 = robotGridY + 1;
+//        }
+
         //clamp
         robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
         robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
@@ -115,9 +171,9 @@ public class Targeting {
 
             // bilinear interpolation
             int x0 = robotGridX;
-            int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].length - 1);
-            int y0 = gridY;
-            int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
+            //int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].length - 1);
+            int y0 = robotGridY;
+            //int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
 
             double x = (robotInchesX - (x0 * tileSize)) / tileSize;
             double y = (robotInchesY - (y0 * tileSize)) / tileSize;

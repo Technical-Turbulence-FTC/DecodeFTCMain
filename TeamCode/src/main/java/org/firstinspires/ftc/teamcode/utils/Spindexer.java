@@ -305,33 +305,32 @@ public class Spindexer {
                 // Find Next Open Position and start movement
                 double currentSpindexerPos = servos.getSpinPos();
                 double commandedtravelDistance = 2.0;
-                double proposedTravelDistance = Math.abs(intakePositions[0] - currentSpindexerPos);
-                if (ballPositions[0].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
+                //double proposedTravelDistance = Math.abs(intakePositions[0] - currentSpindexerPos);
+                //if (ballPositions[0].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
+                if (ballPositions[0].isEmpty) {
                     // Position 1
                     commandedIntakePosition = 0;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-                    commandedtravelDistance = proposedTravelDistance;
                 }
-                proposedTravelDistance = Math.abs(intakePositions[1] - currentSpindexerPos);
-                if (ballPositions[1].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
+                //proposedTravelDistance = Math.abs(intakePositions[1] - currentSpindexerPos);
+                //if (ballPositions[1].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
+                if (ballPositions[1].isEmpty) {
                     // Position 2
                     commandedIntakePosition = 1;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-                    commandedtravelDistance = proposedTravelDistance;
                 }
-                proposedTravelDistance = Math.abs(intakePositions[2] - currentSpindexerPos);
-                if (ballPositions[2].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
+                //proposedTravelDistance = Math.abs(intakePositions[2] - currentSpindexerPos);
+                if (ballPositions[2].isEmpty) {
                     // Position 3
                     commandedIntakePosition = 2;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                     currentIntakeState = Spindexer.IntakeState.MOVING;
-                    commandedtravelDistance = proposedTravelDistance;
                 }
                 if (currentIntakeState != Spindexer.IntakeState.MOVING) {
                     // Full
-                    commandedIntakePosition = bestFitMotif();
+                    //commandedIntakePosition = bestFitMotif();
                     currentIntakeState = Spindexer.IntakeState.FULL;
                 }
                 moveSpindexerToPos(intakePositions[commandedIntakePosition]);
