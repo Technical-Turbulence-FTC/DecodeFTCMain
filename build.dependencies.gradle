@@ -29,7 +29,7 @@ dependencies {
     implementation "com.acmerobotics.roadrunner:ftc:0.1.25" //RR
     implementation "com.acmerobotics.roadrunner:core:1.0.1" //RR
     implementation "com.acmerobotics.roadrunner:actions:1.0.1" //RR
-    implementation "com.acmerobotics.dashboard:dashboard:0.4.17" //FTC Dash
+    implementation "com.acmerobotics.dashboard:dashboard:0.5.1" //FTC Dash
 
     implementation 'org.ftclib.ftclib:core:2.1.1' // FTC LIB
 
