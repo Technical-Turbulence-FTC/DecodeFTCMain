@@ -33,6 +33,8 @@ public class Turret {
     // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
+    public static double filteredBearing = 1000;
+    public static double filterAlphaConstant = 0.3;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
@@ -54,7 +56,7 @@ public class Turret {
         this.webcam = cam;
         webcam.start();
         if (redAlliance) {
-            webcam.pipelineSwitch(3);
+            webcam.pipelineSwitch(4);
         } else {
             webcam.pipelineSwitch(2);
         }
@@ -79,12 +81,7 @@ public class Turret {
         return Math.abs(pos - this.getTurrPos()) < turretTolerance;
     }
 
-    private void limelightRead() { // only for tracking purposes, not general reads
-        if (redAlliance) {
-            webcam.pipelineSwitch(3);
-        } else {
-            webcam.pipelineSwitch(2);
-        }
+    private void limelightRead() {
 
         LLResult result = webcam.getLatestResult();
         if (result != null) {
@@ -101,10 +98,15 @@ public class Turret {
             }
         }
     }
-
+    // Uses exponential-average filter TODO: tune the filterAlphaConstant if necessary
     public double getBearing() {
         tx = 1000;
         limelightRead();
+        if (filteredBearing != 1000 && tx != 1000) {
+            filteredBearing = (filterAlphaConstant * tx) + ((1 - filterAlphaConstant) * filteredBearing);
+        } else {
+            filteredBearing = tx;
+        }
         return tx;
     }
 
@@ -152,6 +154,11 @@ public class Turret {
      */
 
     public void trackGoal(Pose2d deltaPos) {
+        if (redAlliance){
+            webcam.pipelineSwitch(4);
+        } else {
+            webcam.pipelineSwitch(2);
+        }
 
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
 
@@ -183,11 +190,9 @@ public class Turret {
             double bearingError = Math.abs(tagBearingDeg);
 
             if (bearingError > cameraBearingEqual) {
-                // Apply sqrt scaling to reduce aggressive corrections at large errors
-                double filteredBearing = Math.signum(tagBearingDeg) * Math.sqrt(Math.abs(tagBearingDeg));
 
                 // Calculate correction
-                double offsetChange = visionCorrectionGain * filteredBearing;
+                double offsetChange = visionCorrectionGain * tagBearingDeg;
 
                 // Limit rate of change to prevent jumps
                 offsetChange = Math.max(-maxOffsetChangePerCycle,

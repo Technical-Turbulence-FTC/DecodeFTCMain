@@ -30,8 +30,8 @@ public class LimelightTest extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
+            robot.limelight.pipelineSwitch(pipeline);
             if (mode == 0){
-                robot.limelight.pipelineSwitch(pipeline);
                 LLResult result = robot.limelight.getLatestResult();
                 if (result != null) {
                     if (result.isValid()) {
