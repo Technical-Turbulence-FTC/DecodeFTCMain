@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.teleop.TeleopV3.spinSpeedIncrease;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -13,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 
 @Config
@@ -36,6 +40,7 @@ public class ShooterTest extends LinearOpMode {
     public static boolean intake = false;
     Robot robot;
     Flywheel flywheel;
+    Servos servo;
 
     double shootStamp = 0.0;
     boolean shootAll = false;
@@ -45,6 +50,7 @@ public class ShooterTest extends LinearOpMode {
     public static boolean enableHoodAutoOpen = false;
     public double hoodAdjust = 0.0;
     public static double hoodAdjustFactor = 1.0;
+    private int shooterTicker = 0;
     Spindexer spindexer ;
 
     @Override
@@ -55,6 +61,7 @@ public class ShooterTest extends LinearOpMode {
         DcMotorEx rightShooter = robot.shooter2;
         flywheel = new Flywheel(hardwareMap);
         spindexer = new Spindexer(hardwareMap);
+        servo = new Servos(hardwareMap);
 
         MultipleTelemetry TELE = new MultipleTelemetry(
                 telemetry, FtcDashboard.getInstance().getTelemetry()
@@ -95,6 +102,7 @@ public class ShooterTest extends LinearOpMode {
                 shootAll = true;
                 shoot = false;
                 robot.transfer.setPower(transferPower);
+                shooterTicker = 0;
             }
             if (shootAll) {
 
@@ -103,24 +111,31 @@ public class ShooterTest extends LinearOpMode {
 
                 // TODO: Change starting position based on desired order to shoot green ball
                 //spindexPos = spindexer_intakePos1;
-
                 if (getRuntime() - shootStamp < 3.5) {
 
-                    robot.transferServo.setPosition(transferServo_in);
+                    if (shooterTicker == 0 && !servo.spinEqual(spinStartPos)){
+                        robot.spin1.setPosition(spinStartPos);
+                        robot.spin2.setPosition(1-spinStartPos);
+                    } else {
+                        robot.transferServo.setPosition(transferServo_in);
+                        shooterTicker++;
+                        double prevSpinPos = robot.spin1.getPosition();
+                        robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
+                        robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
+                    }
 
-                    robot.spin1.setPower(-spinPow);
-                    robot.spin2.setPower(spinPow);
+
 
                 } else {
                     robot.transferServo.setPosition(transferServo_out);
                     //spindexPos = spindexer_intakePos1;
 
                     shootAll = false;
+                    shooterTicker = 0;
 
                     robot.transferServo.setPosition(transferServo_out);
                     robot.transfer.setPower(0);
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
+
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();

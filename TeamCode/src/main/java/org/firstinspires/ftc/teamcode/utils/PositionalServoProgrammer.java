@@ -18,14 +18,10 @@ public class PositionalServoProgrammer extends LinearOpMode {
     Servos servo;
 
     public static double spindexPos = 0.501;
-    public static double spindexPow = 0.0;
-    public static double spinHoldPow = 0.0;
     public static double turretPos = 0.501;
-    public static double turretPow = 0.0;
-    public static double turrHoldPow = 0.0;
     public static double transferPos = 0.501;
     public static double hoodPos = 0.501;
-    public static int mode = 0; //0 for positional, 1 for power
+    public static double light = 0.501;
 
     Turret turret;
 
@@ -35,22 +31,13 @@ public class PositionalServoProgrammer extends LinearOpMode {
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
 
-
-
         turret = new Turret(robot, TELE, robot.limelight );
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
-            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos) && mode == 0){
-                double pos = servo.setSpinPos(spindexPos);
-                robot.spin1.setPower(pos);
-                robot.spin2.setPower(-pos);
-            } else if (mode == 0){
-                robot.spin1.setPower(spinHoldPow);
-                robot.spin2.setPower(spinHoldPow);
-            } else {
-                robot.spin1.setPower(spindexPow);
-                robot.spin2.setPower(-spindexPow);
+            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos)){
+                robot.spin1.setPosition(spindexPos);
+                robot.spin2.setPosition(1-spindexPos);
             }
             if (turretPos != 0.501){
                 robot.turr1.setPosition(turretPos);
@@ -61,6 +48,9 @@ public class PositionalServoProgrammer extends LinearOpMode {
             }
             if (hoodPos != 0.501){
                 robot.hood.setPosition(hoodPos);
+            }
+            if (light !=0.501){
+                robot.light.setPosition(light);
             }
             // To check configuration of spindexer:
             // Set "mode" to 1 and spindexPow to 0.1
@@ -79,7 +69,6 @@ public class PositionalServoProgrammer extends LinearOpMode {
             TELE.addData("spindexer voltage 2", robot.spin2Pos.getVoltage());
             TELE.addData("hood pos", robot.hood.getPosition());
             TELE.addData("transferServo voltage", robot.transferServoPos.getVoltage());
-            TELE.addData("spindexer pow", robot.spin1.getPower());
             TELE.addData("tpos ", turret.getTurrPos() );
             TELE.update();
         }

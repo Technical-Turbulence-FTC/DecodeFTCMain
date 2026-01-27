@@ -5,16 +5,18 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoPositions {
 
-    public static double spindexer_intakePos1 = 0.18;
+    public static double spindexer_intakePos1 = 0.13;
 
-    public static double spindexer_intakePos2 = 0.36;//0.5;
+    public static double spindexer_intakePos2 = 0.33;//0.5;
 
-    public static double spindexer_intakePos3 = 0.54;//0.66;
+    public static double spindexer_intakePos3 = 0.53;//0.66;
 
-    public static double spindexer_outtakeBall3 = 0.47;
+    public static double spindexer_outtakeBall3 = 0.8;
 
-    public static double spindexer_outtakeBall2 = 0.31;
-    public static double spindexer_outtakeBall1 = 0.15;
+    public static double spindexer_outtakeBall2 = 0.6;
+    public static double spindexer_outtakeBall1 = 0.4;
+    public static double spinStartPos = spindexer_outtakeBall1 - 0.08;
+
 
     public static double transferServo_out = 0.15;
 

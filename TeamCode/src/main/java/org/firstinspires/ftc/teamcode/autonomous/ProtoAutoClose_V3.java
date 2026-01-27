@@ -182,8 +182,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 velo = flywheel.getVelo();
 
                 spinPID = servo.setSpinPos(spindexer);
-                robot.spin1.setPower(spinPID);
-                robot.spin2.setPower(-spinPID);
+                robot.spin1.setPosition(spinPID);
+                robot.spin2.setPosition(-spinPID);
                 TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
@@ -192,8 +192,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
                 teleStart = drive.localizer.getPose();
 
                 if (servo.spinEqual(spindexer)) {
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
+                    robot.spin1.setPosition(0);
+                    robot.spin2.setPosition(0);
 
                     return false;
                 } else {
@@ -240,8 +240,8 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                     robot.transferServo.setPosition(transferServo_in);
 
-                    robot.spin1.setPower(-spinPow);
-                    robot.spin2.setPower(spinPow);
+                    robot.spin1.setPosition(-spinPow);
+                    robot.spin2.setPosition(spinPow);
                     return true;
 
                 } else {
@@ -271,12 +271,12 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 if (ticker % 12 < 6) {
 
-                    robot.spin1.setPower(-1);
-                    robot.spin2.setPower(1);
+                    robot.spin1.setPosition(-1);
+                    robot.spin2.setPosition(1);
 
                 } else {
-                    robot.spin1.setPower(1);
-                    robot.spin2.setPower(-1);
+                    robot.spin1.setPosition(1);
+                    robot.spin2.setPosition(-1);
                 }
 
                 if (getRuntime() - stamp > jamTime+0.4) {
@@ -317,20 +317,20 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 if (ticker % 60 < 12) {
 
-                    robot.spin1.setPower(-1);
-                    robot.spin2.setPower(1);
+                    robot.spin1.setPosition(-1);
+                    robot.spin2.setPosition(1);
 
                 } else if (ticker % 60 < 30) {
-                    robot.spin1.setPower(-0.5);
-                    robot.spin2.setPower(0.5);
+                    robot.spin1.setPosition(-0.5);
+                    robot.spin2.setPosition(0.5);
                 }
                 else if (ticker % 60 < 42) {
-                    robot.spin1.setPower(1);
-                    robot.spin2.setPower(-1);
+                    robot.spin1.setPosition(1);
+                    robot.spin2.setPosition(-1);
                 }
                 else {
-                    robot.spin1.setPower(0.5);
-                    robot.spin2.setPower(-0.5);
+                    robot.spin1.setPosition(0.5);
+                    robot.spin2.setPosition(-0.5);
                 }
                 robot.intake.setPower(1);
                 TELE.addData("Reverse?", reverse);
@@ -338,11 +338,11 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
 
                 if (getRuntime() - stamp > intakeTime) {
                     if (reverse) {
-                        robot.spin1.setPower(-1);
-                        robot.spin2.setPower(1);
+                        robot.spin1.setPosition(-1);
+                        robot.spin2.setPosition(1);
                     } else {
-                        robot.spin1.setPower(1);
-                        robot.spin2.setPower(-1);
+                        robot.spin1.setPosition(1);
+                        robot.spin2.setPosition(-1);
                     }
                     return false;
                 } else {

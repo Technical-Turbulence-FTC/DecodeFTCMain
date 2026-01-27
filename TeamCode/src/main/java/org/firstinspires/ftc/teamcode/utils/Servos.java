@@ -10,8 +10,8 @@ public class Servos {
     // TODO: get PIDF constants
     public static double spinP = 2.0, spinI = 0, spinD = 0.3, spinF = 0.02;
     public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0;
-    public static double spin_scalar = 1.0086;
-    public static double spin_restPos = 0.0;
+    public static double spin_scalar = 1.112;
+    public static double spin_restPos = 0.155;
     public static double turret_scalar = 1.009;
     public static double turret_restPos = 0.0;
     Robot robot;
@@ -27,16 +27,14 @@ public class Servos {
     }
 
     // In the code below, encoder = robot.servo.getVoltage()
-
+    // TODO: set the restPos and scalar
     public double getSpinPos() {
         return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
     }
 
-    //TODO: PID warp so 0 and 1 are usable positions
     public double setSpinPos(double pos) {
-        spinPID.setPIDF(spinP, spinI, spinD, spinF);
 
-        return spinPID.calculate(this.getSpinPos(), pos);
+        return pos;
     }
 
     public boolean spinEqual(double pos) {
@@ -45,7 +43,6 @@ public class Servos {
 
     public double getTurrPos() {
         return 1.0;
-
     }
 
     public double setTurrPos(double pos) {

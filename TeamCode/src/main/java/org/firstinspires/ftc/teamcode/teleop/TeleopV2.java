@@ -162,11 +162,11 @@ public class TeleopV2 extends LinearOpMode {
             //TODO: make sure changing position works throughout opmode
             if (!servo.spinEqual(spindexPos)){
                 spindexPID = servo.setSpinPos(spindexPos);
-                robot.spin1.setPower(spindexPID);
-                robot.spin2.setPower(-spindexPID);
+                robot.spin1.setPosition(spindexPID);
+                robot.spin2.setPosition(-spindexPID);
             } else{
-                robot.spin1.setPower(0);
-                robot.spin2.setPower(0);
+                robot.spin1.setPosition(0);
+                robot.spin2.setPosition(0);
             }
 
             //INTAKE:

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import static org.firstinspires.ftc.teamcode.constants.Color.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos3;
@@ -67,7 +68,7 @@ public class Spindexer {
         SHOOTWAIT,
         SHOOT_ALL_PREP,
         SHOOT_ALL_READY
-    };
+    }
 
     public IntakeState currentIntakeState = IntakeState.UNKNOWN_START;
     public int unknownColorDetect = 0;
@@ -75,7 +76,7 @@ public class Spindexer {
         UNKNOWN,
         GREEN,
         PURPLE
-    };
+    }
 
     class BallPosition {
         boolean isEmpty = true;
@@ -247,17 +248,34 @@ public class Spindexer {
     }
 
     public void moveSpindexerToPos(double pos) {
-        spinCurrentPos = servos.getSpinPos();
-
-        double spindexPID = spinPID.calculate(spinCurrentPos, pos);
-
-        robot.spin1.setPower(spindexPID);
-        robot.spin2.setPower(-spindexPID);
+        robot.spin1.setPosition(pos);
+        robot.spin2.setPosition(1-pos);
     }
 
     public void stopSpindexer() {
-        robot.spin1.setPower(0);
-        robot.spin2.setPower(0);
+
+    }
+
+    public void ballCounterLight(){
+        int counter = 0;
+        if (!ballPositions[0].isEmpty){
+            counter++;
+        }
+        if (!ballPositions[1].isEmpty){
+            counter++;
+        }
+        if (!ballPositions[2].isEmpty){
+            counter++;
+        }
+        if (counter == 3){
+            robot.light.setPosition(Light3);
+        } else if (counter == 2){
+            robot.light.setPosition(Light2);
+        } else if (counter == 1){
+            robot.light.setPosition(Light1);
+        } else {
+            robot.light.setPosition(Light0);
+        }
     }
 
     public boolean isFull () {

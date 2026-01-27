@@ -16,8 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.Servos;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
-@TeleOp
+
 public class IntakeTest extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
@@ -72,19 +71,19 @@ public class IntakeTest extends LinearOpMode {
                         initPos = currentPos;
                     }
                     if (reverse){
-                        robot.spin1.setPower(manualPow);
-                        robot.spin2.setPower(-manualPow);
+                        robot.spin1.setPosition(manualPow);
+                        robot.spin2.setPosition(-manualPow);
                     } else {
-                        robot.spin1.setPower(-manualPow);
-                        robot.spin2.setPower(manualPow);
+                        robot.spin1.setPosition(-manualPow);
+                        robot.spin2.setPosition(manualPow);
                     }
                     robot.intake.setPower(1);
                     stamp = getRuntime();
                     TELE.addData("Reverse?", reverse);
                     TELE.update();
                 } else {
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
+                    robot.spin1.setPosition(0);
+                    robot.spin2.setPosition(0);
 
                     if (getRuntime() - stamp < 1) {
                         robot.intake.setPower(-(getRuntime() - stamp)*2);
@@ -191,15 +190,15 @@ public class IntakeTest extends LinearOpMode {
 
         if (!atTarget) {
             powPID = servo.setSpinPos(spindexerPos);
-            robot.spin1.setPower(powPID);
-            robot.spin2.setPower(-powPID);
+            robot.spin1.setPosition(powPID);
+            robot.spin2.setPosition(-powPID);
 
             steadySpin = false;
             wasMoving = true;   // remember we were moving
             stamp = getRuntime();
         } else {
-            robot.spin1.setPower(0);
-            robot.spin2.setPower(0);
+            robot.spin1.setPosition(0);
+            robot.spin2.setPosition(0);
             steadySpin = true;
             wasMoving = false;
         }

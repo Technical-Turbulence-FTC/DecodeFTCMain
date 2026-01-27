@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
-@TeleOp
-@Config
 public class PIDServoTest extends LinearOpMode {
 
     public static double p = 2, i = 0, d = 0, f = 0;
@@ -47,8 +45,8 @@ public class PIDServoTest extends LinearOpMode {
 
                 double pid = controller.calculate(pos, target);
 
-                robot.spin1.setPower(pid);
-                robot.spin2.setPower(-pid);
+                robot.spin1.setPosition(pid);
+                robot.spin2.setPosition(-pid);
             }
 
             telemetry.addData("pos", pos);

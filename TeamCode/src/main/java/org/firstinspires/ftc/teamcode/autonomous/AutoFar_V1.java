@@ -31,8 +31,7 @@ import org.firstinspires.ftc.teamcode.utils.Servos;
 
 import java.util.List;
 
-@Config
-@Autonomous(preselectTeleOp = "TeleopV3")
+
 public class AutoFar_V1 extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
@@ -133,8 +132,8 @@ public class AutoFar_V1 extends LinearOpMode {
                 robot.shooter2.setPower(powPID);
 
                 spinPID = servo.setSpinPos(spindexer);
-                robot.spin1.setPower(spinPID);
-                robot.spin2.setPower(-spinPID);
+                robot.spin1.setPosition(spinPID);
+                robot.spin2.setPosition(-spinPID);
                 TELE.addData("Velocity", velo);
                 TELE.addLine("spindex");
                 TELE.update();
@@ -143,8 +142,8 @@ public class AutoFar_V1 extends LinearOpMode {
                 teleStart = drive.localizer.getPose();
 
                 if (servo.spinEqual(spindexer)){
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
+                    robot.spin1.setPosition(0);
+                    robot.spin2.setPosition(0);
                     return false;
                 } else {
                     return true;
@@ -224,8 +223,8 @@ public class AutoFar_V1 extends LinearOpMode {
 
                 if (!servo.spinEqual(position)){
                     double spinPID = servo.setSpinPos(position);
-                    robot.spin1.setPower(spinPID);
-                    robot.spin2.setPower(-spinPID);
+                    robot.spin1.setPosition(spinPID);
+                    robot.spin2.setPosition(-spinPID);
                 }
 
                 if (s1D < 43 && servo.spinEqual(position) && getRuntime() - stamp > 0.5){
@@ -259,8 +258,8 @@ public class AutoFar_V1 extends LinearOpMode {
 
                 robot.intake.setPower(1);
                 if ((s1D < 43.0 && s2D < 60.0 && s3D < 33.0) || getRuntime() - stamp > intakeTime) {
-                    robot.spin1.setPower(0);
-                    robot.spin2.setPower(0);
+                    robot.spin1.setPosition(0);
+                    robot.spin2.setPosition(0);
                     if (getRuntime() - stamp - intakeTime < 1){
                         pow = -2*(getRuntime() - stamp - intakeTime);
                         return true;

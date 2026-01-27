@@ -40,8 +40,10 @@ public class Robot {
     public Servo transferServo;
     public Servo turr1;
     public Servo turr2;
-    public CRServo spin1;
-    public CRServo spin2;
+
+    public Servo spin1;
+
+    public Servo spin2;
     public AnalogInput spin1Pos;
     public AnalogInput spin2Pos;
     public AnalogInput turr1Pos;
@@ -52,6 +54,7 @@ public class Robot {
     public RevColorSensorV3 color2;
     public RevColorSensorV3 color3;
     public Limelight3A limelight;
+    public Servo light;
 
     public Robot(HardwareMap hardwareMap) {
 
@@ -93,16 +96,13 @@ public class Robot {
         turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
 
         //TODO: check spindexer configuration (both servo and analog input) - check comments in PositionalServoProgrammer
-        spin1 = hardwareMap.get(CRServo.class, "spin1");
+        spin1 = hardwareMap.get(Servo.class, "spin2");
 
         spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
 
-        spin2 = hardwareMap.get(CRServo.class, "spin2");
+        spin2 = hardwareMap.get(Servo.class, "spin1");
 
         spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
-
-        spin1.setDirection(DcMotorSimple.Direction.REVERSE);
-        spin2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
@@ -125,5 +125,7 @@ public class Robot {
             webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
             aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         }
+
+        light = hardwareMap.get(Servo.class, "light");
     }
 }
