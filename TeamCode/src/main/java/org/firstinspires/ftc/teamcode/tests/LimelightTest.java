@@ -17,7 +17,7 @@ public class LimelightTest extends LinearOpMode {
     MultipleTelemetry TELE;
     Turret turret;
     Robot robot;
-    public static int pipeline = 0; //0 is for test; 1 for obelisk; 2 is for blue track; 3 is for red track
+    public static int pipeline = 0; //0 is for test; 1 for obelisk; 2 is for blue track; 4 is for red track; DO NOT USE 3
     public static int mode = 0; //0 for bare testing, 1 for obelisk, 2 for blue track, 3 for red track
     public static boolean turretMode = false;
     public static double turretPos = 0.501;

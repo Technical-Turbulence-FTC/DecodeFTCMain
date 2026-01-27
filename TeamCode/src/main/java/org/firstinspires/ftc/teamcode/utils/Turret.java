@@ -63,7 +63,7 @@ public class Turret {
         this.webcam = cam;
         webcam.start();
         if (redAlliance) {
-            webcam.pipelineSwitch(3);
+            webcam.pipelineSwitch(4);
         } else {
             webcam.pipelineSwitch(2);
         }
