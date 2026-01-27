@@ -203,6 +203,7 @@ public class ProtoAutoClose_V3 extends LinearOpMode {
         };
     }
 
+
     public Action Shoot(int vel) {
         return new Action() {
             int ticker = 1;
