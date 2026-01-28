@@ -291,6 +291,10 @@ public class Spindexer {
         }
     }
 
+    public boolean slotIsEmpty(int slot){
+        return !ballPositions[slot].isEmpty;
+    }
+
     public boolean isFull () {
         return (!ballPositions[0].isEmpty && !ballPositions[1].isEmpty && !ballPositions[2].isEmpty);
     }
