@@ -1,7 +1,14 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.*;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bHGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShoot1Tangent;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootH;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootX;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootY;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bXGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bYGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh1;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2b;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2c;
@@ -16,6 +23,13 @@ import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by1;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2b;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rHGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShoot1Tangent;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootH;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootX;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootY;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rXGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rYGate;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh1;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh2a;
 import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh2b;
@@ -62,46 +76,44 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 @Autonomous(preselectTeleOp = "TeleopV3")
 @Config
-public class Auto_LT extends LinearOpMode {
-
-    public int motif = 0;
+public class Auto_LT_Unindexed extends LinearOpMode {
 
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.014;
+
+    public static double spindexerSpeedIncrease = 0.02;
+
     public static double obeliskTurrPos = 0.53;
-
+    public static double gatePickupTime = 3.0;
     public static double shoot1Turr = 0.57;
-
     public static double shoot0XTolerance = 1.0;
-    public static double shoot0Time = 1.8;
-
-    public static double intake1Time = 5.0;
-
+    public static double turretShootPos = 0.72;
+    public static double shootAllTime = 1.8;
+    public static double shoot0Time = 1.6;
+    public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 20.0;
-
+    public static double pickup1Speed = 80.0;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
-
+    
+    public static double shootAllVelocity = 2500;
+    public static double shootAllHood = 0.78;
     // ---- PICKUP TIMING ----
     public static double pickup1Time = 3.0;
-
     // ---- PICKUP POSITION TOLERANCES ----
     public static double pickup1XTolerance = 2.0;
     public static double pickup1YTolerance = 2.0;
-
     // ---- OBELISK DETECTION ----
     public static double obelisk1Time = 1.5;
     public static double obelisk1XTolerance = 2.0;
     public static double obelisk1YTolerance = 2.0;
-
     public static double shoot1ToleranceX = 2.0;
     public static double shoot1ToleranceY = 2.0;
     public static double shoot1Time = 2.0;
-
-
+    public static double shootCycleTime = 2.5;
+    public int motif = 0;
     Robot robot;
     MultipleTelemetry TELE;
     MecanumDrive drive;
@@ -109,14 +121,19 @@ public class Auto_LT extends LinearOpMode {
     Spindexer spindexer;
     Flywheel flywheel;
     Turret turret;
+    Targeting targeting;
+    Targeting.Settings targetingSettings;
     private double x1, y1, h1;
 
     private double x2a, y2a, h2a, t2a;
 
     private double x2b, y2b, h2b, t2b;
     private double x2c, y2c, h2c, t2c;
-    
+
     private double xShoot, yShoot, hShoot;
+    private double xGate, yGate, hGate;
+
+    private double shoot1Tangent;
 
     public Action prepareShootAll(double time) {
         return new Action() {
@@ -130,25 +147,22 @@ public class Auto_LT extends LinearOpMode {
                 }
                 ticker++;
 
-                robot.turr1.setPosition(shoot1Turr);
-                robot.turr1.setPosition(1-shoot1Turr);
-
-
                 robot.spin1.setPosition(autoSpinStartPos);
                 robot.spin2.setPosition(1 - autoSpinStartPos);
 
                 robot.transferServo.setPosition(transferServo_out);
 
-                robot.intake.setPower(-((System.currentTimeMillis() - stamp))/1000);
+                turret.manualSetTurret(turretShootPos);
+
+                robot.intake.setPower(-((System.currentTimeMillis() - stamp)) / 1000);
 
                 return (System.currentTimeMillis() - stamp) < (time * 1000);
-
 
             }
         };
     }
 
-    public Action shootAll(int vel, double shootTime) {
+    public Action shootAll(int vel, double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
 
@@ -189,8 +203,69 @@ public class Auto_LT extends LinearOpMode {
                         robot.transferServo.setPosition(transferServo_in);
                         shooterTicker++;
                         double prevSpinPos = robot.spin1.getPosition();
-                        robot.spin1.setPosition(prevSpinPos + shoot0SpinSpeedIncrease);
-                        robot.spin2.setPosition(1 - prevSpinPos - shoot0SpinSpeedIncrease);
+                        robot.spin1.setPosition(prevSpinPos + spindexSpeed);
+                        robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                    }
+
+                    return true;
+
+                } else {
+                    robot.transferServo.setPosition(transferServo_out);
+                    //spindexPos = spindexer_intakePos1;
+
+                    spindexer.resetSpindexer();
+                    spindexer.processIntake();
+
+                    return false;
+
+                }
+
+            }
+        };
+    }
+
+    public Action shootAllAuto(double shootTime, double spindexSpeed) {
+        return new Action() {
+            int ticker = 1;
+
+            double stamp = 0.0;
+
+            double velo = 0.0;
+
+            int shooterTicker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                TELE.addData("Velocity", velo);
+                TELE.addLine("shooting");
+                TELE.update();
+
+                velo = flywheel.getVelo();
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                robot.intake.setPower(-0.3);
+
+                if (ticker == 1) {
+                    stamp = getRuntime();
+                }
+                ticker++;
+
+                robot.intake.setPower(0);
+
+                if (getRuntime() - stamp < shootTime) {
+
+                    if (shooterTicker == 0 && !servos.spinEqual(autoSpinStartPos)) {
+                        robot.spin1.setPosition(autoSpinStartPos);
+                        robot.spin2.setPosition(1 - autoSpinStartPos);
+                    } else {
+                        robot.transferServo.setPosition(transferServo_in);
+                        shooterTicker++;
+                        double prevSpinPos = robot.spin1.getPosition();
+                        robot.spin1.setPosition(prevSpinPos + spindexSpeed);
+                        robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
                     }
 
                     return true;
@@ -226,14 +301,14 @@ public class Auto_LT extends LinearOpMode {
                 robot.intake.setPower(1);
 
                 motif = turret.detectObelisk();
+                
+                spindexer.ballCounterLight();
 
                 return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
-
 
             }
         };
     }
-
 
     public Action detectObelisk(
             double time,
@@ -328,6 +403,133 @@ public class Auto_LT extends LinearOpMode {
         };
     }
 
+    public Action manageShooterAuto(
+            double time,
+            double posX,
+            double posY,
+            double posXTolerance,
+            double posYTolerance
+    ) {
+
+        boolean timeFallback = (time != 0.501);
+        boolean posXFallback = (posX != 0.501);
+        boolean posYFallback = (posY != 0.501);
+
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                double robotX = drive.localizer.getPose().position.x;
+                double robotY = drive.localizer.getPose().position.y;
+
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robotX - goalX;  // delta x from robot to goal
+                double dy = robotY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robotX, robotY, robotHeading, 0.0, false);
+
+                turret.trackGoal(deltaPose);
+
+                robot.hood.setPosition(targetingSettings.hoodAngle);
+
+                flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+
+                boolean shouldFinish = timeDone || xDone || yDone;
+
+                return !shouldFinish;
+
+            }
+        };
+    }
+
+    public Action manageFlywheelAuto(
+            double time,
+            double posX,
+            double posY,
+            double posXTolerance,
+            double posYTolerance
+    ) {
+
+        boolean timeFallback = (time != 0.501);
+        boolean posXFallback = (posX != 0.501);
+        boolean posYFallback = (posY != 0.501);
+
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                double robotX = drive.localizer.getPose().position.x;
+                double robotY = drive.localizer.getPose().position.y;
+
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robotX - goalX;  // delta x from robot to goal
+                double dy = robotY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robotX, robotY, robotHeading, 0.0, false);
+
+
+                robot.hood.setPosition(targetingSettings.hoodAngle);
+
+                flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+
+                boolean shouldFinish = timeDone || xDone || yDone;
+
+                return !shouldFinish;
+
+            }
+        };
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -341,8 +543,8 @@ public class Auto_LT extends LinearOpMode {
 
         flywheel = new Flywheel(hardwareMap);
 
-        Targeting targeting = new Targeting();
-        Targeting.Settings targetingSettings = new Targeting.Settings(0.0, 0.0);
+        targeting = new Targeting();
+        targetingSettings = new Targeting.Settings(0.0, 0.0);
 
         spindexer = new Spindexer(hardwareMap);
 
@@ -356,10 +558,11 @@ public class Auto_LT extends LinearOpMode {
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        TrajectoryActionBuilder shoot0;
-
-        TrajectoryActionBuilder pickup1;
-        TrajectoryActionBuilder shoot1;
+        TrajectoryActionBuilder shoot0 = null;
+        TrajectoryActionBuilder pickup1 = null;
+        TrajectoryActionBuilder shoot1 = null;
+        TrajectoryActionBuilder gatePickup = null;
+        TrajectoryActionBuilder shootCycle = null;
 
         robot.spin1.setPosition(autoSpinStartPos);
         robot.spin2.setPosition(1 - autoSpinStartPos);
@@ -397,10 +600,16 @@ public class Auto_LT extends LinearOpMode {
                 y2c = ry2c;
                 h2c = rh2c;
                 t2c = rt2c;
-                
+
                 xShoot = rShootX;
                 yShoot = rShootY;
                 hShoot = rShootH;
+                shoot1Tangent = rShoot1Tangent;
+                
+                xGate = rXGate;
+                yGate = rYGate;
+                hGate = rHGate;
+                
 
             } else {
                 robot.light.setPosition(0.6);
@@ -427,7 +636,14 @@ public class Auto_LT extends LinearOpMode {
                 xShoot = bShootX;
                 yShoot = bShootY;
                 hShoot = bShootH;
+
+                shoot1Tangent = bShoot1Tangent;
+
+                xGate = bXGate;
+                yGate = bYGate;
+                hGate = bHGate;
             }
+
             shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                     .strafeToLinearHeading(new Vector2d(x1, y1), h1);
 
@@ -436,19 +652,18 @@ public class Auto_LT extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b,
                             new TranslationalVelConstraint(pickup1Speed));
             shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+                    .setReversed(true)
+                    .splineTo(new Vector2d(x2a, y2a), shoot1Tangent)
+                    .splineToSplineHeading(new Pose2d(xShoot, yShoot, hShoot), shoot1Tangent);
             
+            gatePickup = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
+                    .strafeToLinearHeading(new Vector2d(xGate, yGate), hGate);
+
+            shootCycle = drive.actionBuilder(new Pose2d(xGate, yGate, hGate))
+                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
 
         }
 
-        shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeToLinearHeading(new Vector2d(x1, y1), h1);
-        pickup1 = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                .strafeToLinearHeading(new Vector2d(x2a, y2a), h2a)
-                .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b,
-                        new TranslationalVelConstraint(pickup1Speed));
-        shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
         waitForStart();
 
         if (isStopRequested()) return;
@@ -456,6 +671,8 @@ public class Auto_LT extends LinearOpMode {
         if (opModeIsActive()) {
 
             robot.transfer.setPower(1);
+
+            assert shoot0 != null;
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -474,15 +691,15 @@ public class Auto_LT extends LinearOpMode {
             );
 
             Actions.runBlocking(
-                    shootAll((int) shoot0Vel, shoot0Time)
+                    shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
             );
 
             Actions.runBlocking(
                     new ParallelAction(
                             pickup1.build(),
                             manageFlywheel(
-                                    shoot1Vel,
-                                    shoot1Hood,
+                                    shootAllVelocity, 
+                                    shootAllHood,
                                     pickup1Time,
                                     x2b,
                                     y2b,
@@ -506,13 +723,13 @@ public class Auto_LT extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             manageFlywheel(
-                                    shoot1Vel,
-                                    shoot1Hood,
+                                    shootAllVelocity, 
+                                    shootAllHood,
                                     shoot1Time,
-                                    xShoot,
-                                    yShoot,
-                                    shoot1ToleranceX,
-                                    shoot1ToleranceY
+                                    0.501,
+                                    0.501,
+                                    0.501,
+                                    0.501
                             ),
                             shoot1.build(),
                             prepareShootAll(shoot1Time)
@@ -520,19 +737,67 @@ public class Auto_LT extends LinearOpMode {
             );
 
             Actions.runBlocking(
-                    shootAll((int) shoot1Vel, shoot0Time)
+                    new ParallelAction(
+                            manageShooterAuto(
+                                    shootAllTime,
+                                    0.501,
+                                    0.501,
+                                    0.501,
+                                    0.501
+                            ),
+                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                    )
+
             );
 
+            while (opModeIsActive()) {
+
+                Actions.runBlocking(
+                        new ParallelAction(
+                                gatePickup.build(),
+                                manageShooterAuto(
+                                        gatePickupTime,
+                                        x2b,
+                                        y2b,
+                                        pickup1XTolerance,
+                                        pickup1YTolerance
+                                ),
+                                intake(gatePickupTime)
+
+                        )
+                );
+
+                Actions.runBlocking(
+                        new ParallelAction(
+                                manageFlywheelAuto(
+                                        shootCycleTime,
+                                        0.501,
+                                        0.501,
+                                        0.501,
+                                        0.501
+                                ),
+                                shootCycle.build(),
+                                prepareShootAll(shootCycleTime)
+                        )
+                );
+
+                Actions.runBlocking(
+                        new ParallelAction(
+                                manageShooterAuto(
+                                        shootAllTime,
+                                        0.501,
+                                        0.501,
+                                        0.501,
+                                        0.501
+                                ),
+                                shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        )
+
+                );
+
+            }
 
 
-
-            TELE.addData("ID", motif);
-
-            TELE.update();
-
-            robot.intake.setPower(0);
-
-            sleep(5000);
         }
 
     }
