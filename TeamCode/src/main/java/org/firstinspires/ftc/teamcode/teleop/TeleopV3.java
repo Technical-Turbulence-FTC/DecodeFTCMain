@@ -635,11 +635,12 @@ public class TeleopV3 extends LinearOpMode {
                     if (shooterTicker == 0) {
                         shooterTicker++;
                         spindexer.prepareShootAll();
+                        TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
                         robot.transferServo.setPosition(transferServo_in);
                         shooterTicker++;
                         spindexer.shootAll();
-                        TELE.addLine("starting to shoot");
+                        TELE.addLine("shoot");
                     } else {
                         robot.transferServo.setPosition(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
@@ -851,11 +852,11 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("oddColor", oddBallColor);
 //
 //            // Spindexer Debug
-//            TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
-//            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
-//            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
-//            TELE.addData("spinTestCounter", spindexer.counter);
-//            TELE.addData("autoSpintake", autoSpintake);
+            TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
+            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
+            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
+            TELE.addData("spinTestCounter", spindexer.counter);
+            TELE.addData("autoSpintake", autoSpintake);
 //
 //            TELE.addData("shootall commanded", shootAll);
 //            // Targeting Debug
