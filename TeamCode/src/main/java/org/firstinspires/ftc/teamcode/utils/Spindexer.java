@@ -255,17 +255,17 @@ public class Spindexer {
     private void moveSpindexerToPos(double pos) {
         robot.spin1.setPosition(pos);
         robot.spin2.setPosition(1-pos);
-        double currentPos = servos.getSpinPos();
-        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
-            if (currentPos > pos){
-                robot.spin1.setPosition(servos.getSpinPos() + 0.05);
-                robot.spin2.setPosition(1 - servos.getSpinPos() - 0.05);
-            } else {
-                robot.spin1.setPosition(servos.getSpinPos() - 0.05);
-                robot.spin2.setPosition(1 - servos.getSpinPos() + 0.05);
-            }
-        }
-        prevPos = currentPos;
+//        double currentPos = servos.getSpinPos();
+//        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
+//            if (currentPos > pos){
+//                robot.spin1.setPosition(servos.getSpinPos() + 0.05);
+//                robot.spin2.setPosition(1 - servos.getSpinPos() - 0.05);
+//            } else {
+//                robot.spin1.setPosition(servos.getSpinPos() - 0.05);
+//                robot.spin2.setPosition(1 - servos.getSpinPos() + 0.05);
+//            }
+//        }
+//        prevPos = currentPos;
     }
 
     public void stopSpindexer() {
