@@ -633,25 +633,25 @@ public class TeleopV3 extends LinearOpMode {
 //                            TELE.addLine("shooting");
 //                        }
                     if (shooterTicker == 0) {
-                        shooterTicker++;
                         spindexer.prepareShootAll();
+                        TELE.addLine("preparing to shoot");
+                    } else if (shooterTicker == 2) {
+                        robot.transferServo.setPosition(transferServo_in);
+                        spindexer.shootAll();
                         TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
                         robot.transferServo.setPosition(transferServo_in);
-                        shooterTicker++;
-                        spindexer.shootAll();
                         TELE.addLine("shoot");
                     } else {
                         robot.transferServo.setPosition(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
-
                         shootAll = false;
-
                         spindexer.resetSpindexer();
                         //spindexer.processIntake();
                         TELE.addLine("stop shooting");
                     }
-                    spindexer.processIntake();
+                    shooterTicker++;
+                    //spindexer.processIntake();
                 }
 
                 if (gamepad1.left_stick_button){
