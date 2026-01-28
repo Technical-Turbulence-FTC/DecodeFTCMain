@@ -1,51 +1,51 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bHGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShoot1Tangent;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootH;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootX;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bShootY;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bXGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bYGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bh2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bt2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bt2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bt2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bx1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bx2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.bx2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.by2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rHGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShoot1Tangent;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootH;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootX;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rShootY;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rXGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rYGate;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rh2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rt2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rt2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rt2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rx1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rx2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.rx2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.ry1;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.ry2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.ry2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.ry2c;
-import static org.firstinspires.ftc.teamcode.constants.Poses_V2.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bHGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bShoot1Tangent;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bShootH;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bShootX;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bShootY;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bXGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bYGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bh1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bh2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bh2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bh2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bt2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bt2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bt2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bx1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bx2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bx2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.bx2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.by1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.by2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.by2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.by2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rHGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rShoot1Tangent;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rShootH;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rShootX;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rShootY;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rXGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rYGate;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rh1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rh2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rh2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rh2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rt2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rt2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rt2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rx1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rx2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rx2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.rx2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.ry1;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.ry2a;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.ry2b;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.ry2c;
+import static org.firstinspires.ftc.teamcode.constants.Poses_LT_Indexed.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 
@@ -58,6 +58,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -73,6 +74,9 @@ import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Autonomous(preselectTeleOp = "TeleopV3")
 @Config
@@ -93,11 +97,14 @@ public class Auto_LT_Indexed extends LinearOpMode {
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 80.0;
+    public static double pickup1Speed = 20.0;
+    public static double pickup2Speed = 20.0;
+    public static double pickup3Speed = 20.0;
+
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
-    
+
     public static double shootAllVelocity = 2500;
     public static double shootAllHood = 0.78;
     // ---- PICKUP TIMING ----
@@ -113,6 +120,11 @@ public class Auto_LT_Indexed extends LinearOpMode {
     public static double shoot1ToleranceY = 2.0;
     public static double shoot1Time = 2.0;
     public static double shootCycleTime = 2.5;
+
+    List<Boolean> s1 = new ArrayList<>();
+
+    List<Boolean> s2 = new ArrayList<>();
+    List<Boolean> s3 = new ArrayList<>();
     public int motif = 0;
     Robot robot;
     MultipleTelemetry TELE;
@@ -135,10 +147,31 @@ public class Auto_LT_Indexed extends LinearOpMode {
 
     private double shoot1Tangent;
 
-    public Action prepareShootAll(double time) {
+    // ---- OPEN GATE / MIDFIELD ----
+    private double x3, y3, h3, t3;
+
+    // ---- PICKUP 2 ----
+    private double x4a, y4a, h4a;
+    private double x4b, y4b, h4b;
+
+    // ---- PICKUP 3 ----
+    private double x5a, y5a, h5a;
+    private double x5b, y5b, h5b;
+
+    // ---- PARK ----
+    private double xPark, yPark, hPark;
+
+    public Action prepareShootIndexed(double time) {
         return new Action() {
             double stamp = 0.0;
             int ticker = 0;
+
+            boolean testColor = false;
+
+            int s1Green = 0;
+            int s2Green = 0;
+            int s3Green = 0;
+
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -147,8 +180,56 @@ public class Auto_LT_Indexed extends LinearOpMode {
                 }
                 ticker++;
 
-                robot.spin1.setPosition(autoSpinStartPos);
-                robot.spin2.setPosition(1 - autoSpinStartPos);
+                if ((System.currentTimeMillis() - stamp) < (goToDetectTime)) { //0.25-0.4 ish???
+                    robot.spin1.setPosition(colorDetectPos); //0.43
+                    robot.spin2.setPosition(1 - colorDetectPos);
+                } else if ((System.currentTimeMillis() - stamp) < (colorSenseTime + goToDetectTime)) {
+
+
+                    double green1 = robot.color1.getNormalizedColors().green;
+                    double red1 = robot.color1.getNormalizedColors().red;
+                    double blue1 = robot.color1.getNormalizedColors().blue;
+
+                    double gP1 = green1 / (green1 + red1 + blue1);
+
+
+                    if (gP1 >= color1Thresh) {
+                        s1Green ++;
+                    }
+
+                    double green2 = robot.color2.getNormalizedColors().green;
+                    double red2 = robot.color2.getNormalizedColors().red;
+                    double blue2 = robot.color2.getNormalizedColors().blue;
+
+                    double gP2 = green2 / (green2 + red2 + blue2);
+
+                    if (gP2 >= color2Thresh) {
+                        s2Green ++;
+                    }
+
+
+                    double green3 = robot.color3.getNormalizedColors().green;
+                    double red3 = robot.color3.getNormalizedColors().red;
+                    double blue3 = robot.color3.getNormalizedColors().blue;
+
+                    double gP3 = green3 / (green3 + red3 + blue3);
+
+                    if (gP3 >= color3Thresh) {
+                        s3Green ++;
+                    }
+
+
+                    testColor = true;
+
+
+
+                } else {
+
+                    double spindexPos;
+                    if (motif == 21) {
+                        spindexPos =
+                    }
+                }
 
                 robot.transferServo.setPosition(transferServo_out);
 
@@ -301,7 +382,7 @@ public class Auto_LT_Indexed extends LinearOpMode {
                 robot.intake.setPower(1);
 
                 motif = turret.detectObelisk();
-                
+
                 spindexer.ballCounterLight();
 
                 return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
@@ -513,7 +594,6 @@ public class Auto_LT_Indexed extends LinearOpMode {
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-
                 robot.hood.setPosition(targetingSettings.hoodAngle);
 
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
@@ -559,10 +639,15 @@ public class Auto_LT_Indexed extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         TrajectoryActionBuilder shoot0 = null;
+
         TrajectoryActionBuilder pickup1 = null;
         TrajectoryActionBuilder shoot1 = null;
-        TrajectoryActionBuilder gatePickup = null;
-        TrajectoryActionBuilder shootCycle = null;
+        TrajectoryActionBuilder pickup2 = null;
+        TrajectoryActionBuilder shoot2 = null;
+        TrajectoryActionBuilder pickup3 = null;
+        TrajectoryActionBuilder shoot3 = null;
+        TrajectoryActionBuilder openGate = null;
+        TrajectoryActionBuilder park = null;
 
         robot.spin1.setPosition(autoSpinStartPos);
         robot.spin2.setPosition(1 - autoSpinStartPos);
@@ -582,63 +667,69 @@ public class Auto_LT_Indexed extends LinearOpMode {
             if (redAlliance) {
                 robot.light.setPosition(0.28);
 
-                // ---- FIRST SHOT ----
+                // ===== FIRST SHOT =====
                 x1 = rx1;
                 y1 = ry1;
                 h1 = rh1;
 
-                // ---- PICKUP PATH ----
+                // ===== PICKUP PATH =====
                 x2a = rx2a;
                 y2a = ry2a;
                 h2a = rh2a;
                 t2a = rt2a;
+
                 x2b = rx2b;
                 y2b = ry2b;
                 h2b = rh2b;
                 t2b = rt2b;
+
                 x2c = rx2c;
                 y2c = ry2c;
                 h2c = rh2c;
                 t2c = rt2c;
 
+                // ===== SHOOT POSE =====
                 xShoot = rShootX;
                 yShoot = rShootY;
                 hShoot = rShootH;
                 shoot1Tangent = rShoot1Tangent;
-                
+
+                // ===== GATE =====
                 xGate = rXGate;
                 yGate = rYGate;
                 hGate = rHGate;
-                
 
             } else {
                 robot.light.setPosition(0.6);
 
-                // ---- FIRST SHOT ----
+                // ===== FIRST SHOT =====
                 x1 = bx1;
                 y1 = by1;
                 h1 = bh1;
 
-                // ---- PICKUP PATH ----
+                // ===== PICKUP PATH =====
                 x2a = bx2a;
                 y2a = by2a;
                 h2a = bh2a;
                 t2a = bt2a;
+
                 x2b = bx2b;
                 y2b = by2b;
                 h2b = bh2b;
                 t2b = bt2b;
+
                 x2c = bx2c;
                 y2c = by2c;
                 h2c = bh2c;
                 t2c = bt2c;
 
+                // ===== SHOOT POSE =====
                 xShoot = bShootX;
                 yShoot = bShootY;
                 hShoot = bShootH;
-
                 shoot1Tangent = bShoot1Tangent;
 
+                // ===== GATE =====
                 xGate = bXGate;
                 yGate = bYGate;
                 hGate = bHGate;
@@ -651,16 +742,29 @@ public class Auto_LT_Indexed extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x2a, y2a), h2a)
                     .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b,
                             new TranslationalVelConstraint(pickup1Speed));
-            shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                    .setReversed(true)
-                    .splineTo(new Vector2d(x2a, y2a), shoot1Tangent)
-                    .splineToSplineHeading(new Pose2d(xShoot, yShoot, hShoot), shoot1Tangent);
-            
-            gatePickup = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
-                    .strafeToLinearHeading(new Vector2d(xGate, yGate), hGate);
 
-            shootCycle = drive.actionBuilder(new Pose2d(xGate, yGate, hGate))
+            openGate = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
+                    .setReversed(true)
+                    .splineToConstantHeading(new Vector2d(x3, y3), t3);
+
+            shoot1 = drive.actionBuilder(new Pose2d(x3, y3, h2b))
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+
+            pickup2 = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
+                    .strafeToLinearHeading(new Vector2d(x4a, y4a), h4a)
+                    .strafeToLinearHeading(new Vector2d(x4b, y4b), h4b,
+                            new TranslationalVelConstraint(pickup2Speed));
+            shoot2 = drive.actionBuilder(new Pose2d(x4b, y4b, h4b))
+                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+
+            pickup3 = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
+                    .strafeToLinearHeading(new Vector2d(x5a, y5a), h5a)
+                    .strafeToLinearHeading(new Vector2d(x5b, y5b), h5b,
+                            new TranslationalVelConstraint(pickup3Speed));
+            shoot3 = drive.actionBuilder(new Pose2d(x5b, y5b, h5b))
+                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+            park = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
+                    .strafeToLinearHeading(new Vector2d(xPark, yPark), hPark);
 
         }
 
@@ -694,36 +798,46 @@ public class Auto_LT_Indexed extends LinearOpMode {
                     shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
             );
 
+            //WORKING SHOOT ALL for the preload
+
+            //Pickup first pile
+
             Actions.runBlocking(
-                    new ParallelAction(
-                            pickup1.build(),
-                            manageFlywheel(
-                                    shootAllVelocity, 
-                                    shootAllHood,
-                                    pickup1Time,
-                                    x2b,
-                                    y2b,
-                                    pickup1XTolerance,
-                                    pickup1YTolerance
+                    new SequentialAction(
+                            new ParallelAction(
+                                    pickup1.build(),
+                                    manageFlywheel(
+                                            shootAllVelocity,
+                                            shootAllHood,
+                                            pickup1Time,
+                                            x2b,
+                                            y2b,
+                                            pickup1XTolerance,
+                                            pickup1YTolerance
+                                    ),
+                                    intake(intake1Time),
+                                    detectObelisk(
+                                            obelisk1Time,
+                                            x2b,
+                                            y2c,
+                                            obelisk1XTolerance,
+                                            obelisk1YTolerance,
+                                            obeliskTurrPos
+                                    )
                             ),
-                            intake(intake1Time),
-                            detectObelisk(
-                                    obelisk1Time,
-                                    x2b,
-                                    y2c,
-                                    obelisk1XTolerance,
-                                    obelisk1YTolerance,
-                                    obeliskTurrPos
+                            new ParallelAction(
+                                    openGate.build() //TODO: Add other managing stuff here
                             )
                     )
+
             );
 
-            motif = turret.detectObelisk();
+            motif = turret.detectObelisk(); //Detect Obelisk if not alr
 
             Actions.runBlocking(
                     new ParallelAction(
                             manageFlywheel(
-                                    shootAllVelocity, 
+                                    shootAllVelocity,
                                     shootAllHood,
                                     shoot1Time,
                                     0.501,
@@ -732,7 +846,7 @@ public class Auto_LT_Indexed extends LinearOpMode {
                                     0.501
                             ),
                             shoot1.build(),
-                            prepareShootAll(shoot1Time)
+                            prepareShootIndexed(shoot1Time)
                     )
             );
 
@@ -745,58 +859,12 @@ public class Auto_LT_Indexed extends LinearOpMode {
                                     0.501,
                                     0.501
                             ),
-                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                            shootAllIndexed(shootAllTime, spindexerSpeedIncrease)
                     )
 
             );
 
-            while (opModeIsActive()) {
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                gatePickup.build(),
-                                manageShooterAuto(
-                                        gatePickupTime,
-                                        x2b,
-                                        y2b,
-                                        pickup1XTolerance,
-                                        pickup1YTolerance
-                                ),
-                                intake(gatePickupTime)
-
-                        )
-                );
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageFlywheelAuto(
-                                        shootCycleTime,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shootCycle.build(),
-                                prepareShootAll(shootCycleTime)
-                        )
-                );
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageShooterAuto(
-                                        shootAllTime,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                        )
-
-                );
-
-            }
-
+            //Shoot from first pile
 
         }
 
