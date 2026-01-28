@@ -587,18 +587,14 @@ public class TeleopV3 extends LinearOpMode {
 //            }
 
             if (enableSpindexerManager) {
+                spindexer.processIntake();
+
                 // RIGHT_BUMPER
                 if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
                     robot.intake.setPower(1);
-                    spindexer.processIntake();
                 } else {
                     robot.intake.setPower(0);
-                    if (spindexer.isFull() && intakeTicker > resetSpinTicks*5){
-                        robot.spin1.setPosition(spinStartPos);
-                        robot.spin2.setPosition(1-spinStartPos);
-                    } else {
-                        spindexer.processIntake();
-                    }
+
                 }
 
                 // LEFT_BUMPER
@@ -618,7 +614,7 @@ public class TeleopV3 extends LinearOpMode {
                     intake = false;
                     reject = false;
 
-                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4 || shooterTicker == 0) {
+                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
 
                         if (shooterTicker == 0){
                             robot.transferServo.setPosition(transferServo_out);
