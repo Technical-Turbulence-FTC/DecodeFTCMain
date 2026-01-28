@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.stopSpinPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
@@ -614,7 +615,7 @@ public class TeleopV3 extends LinearOpMode {
                     intake = false;
                     reject = false;
 
-                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
+                    if (servo.getSpinPos() < stopSpinPos) {
 
                         if (shooterTicker == 0){
                             robot.transferServo.setPosition(transferServo_out);
