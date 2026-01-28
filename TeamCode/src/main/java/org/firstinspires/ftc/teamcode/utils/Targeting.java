@@ -107,61 +107,81 @@ public class Targeting {
 
         // Determine if we need to interpolate based on tile position.
         // if near upper or lower quarter or tile interpolate with next tile.
+        int x0 = 0;
+        int y0 = 0;
         int x1 = 0;
         int y1 = 0;
-//        interpolate = false;
-//        if ((remX > TILE_UPPER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
-//                (robotGridX < 5) && (robotGridY <5)) {
-//            // +X, +Y
-//            interpolate = true;
-//            x1 = robotGridX + 1;
-//            y1 = robotGridY + 1;
-//        } else if ((remX < TILE_LOWER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
-//                (robotGridX > 0) && (robotGridY > 0)) {
-//            // -X, -Y
-//            interpolate = true;
-//            x1 = robotGridX - 1;
-//            y1 = robotGridY - 1;
-//        } else if ((remX > TILE_UPPER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
-//                (robotGridX < 5) && (robotGridY > 0)) {
-//            // +X, -Y
-//            interpolate = true;
-//            x1 = robotGridX + 1;
-//            y1 = robotGridY - 1;
-//        } else if ((remX < TILE_LOWER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
-//                (robotGridX > 0) && (robotGridY < 5)) {
-//            // -X, +Y
-//            interpolate = true;
-//            x1 = robotGridX - 1;
-//            y1 = robotGridY + 1;
-//        } else if ((remX < TILE_LOWER_QUARTILE) && (robotGridX > 0)) {
-//            // -X, Y
-//            interpolate = true;
-//            x1 = robotGridX - 1;
-//            y1 = robotGridY;
-//        } else if ((remY < TILE_LOWER_QUARTILE) && (robotGridY > 0)) {
-//            // X, -Y
-//            interpolate = true;
-//            x1 = robotGridX;
-//            y1 = robotGridY - 1;
-//        } else if ((remX > TILE_UPPER_QUARTILE) && (robotGridX < 5)) {
-//            // +X, Y
-//            interpolate = true;
-//            x1 = robotGridX + 1;
-//            y1 = robotGridY;
-//        } else if ((remY > TILE_UPPER_QUARTILE) && (robotGridY < 5)) {
-//            // X, +Y
-//            interpolate = true;
-//            x1 = robotGridX;
-//            y1 = robotGridY + 1;
-//        }
+        interpolate = false;
+        if ((remX > TILE_UPPER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
+                (robotGridX < 5) && (robotGridY <5)) {
+            // +X, +Y
+            interpolate = true;
+            x0 = robotGridX;
+            x1 = robotGridX + 1;
+            y0 = robotGridY;
+            y1 = robotGridY + 1;
+        } else if ((remX < TILE_LOWER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
+                (robotGridX > 0) && (robotGridY > 0)) {
+            // -X, -Y
+            interpolate = true;
+            x0 = robotGridX - 1;
+            x1 = robotGridX;
+            y0 = robotGridY - 1;
+            y1 = robotGridY;
+        } else if ((remX > TILE_UPPER_QUARTILE) && (remY < TILE_LOWER_QUARTILE) &&
+                (robotGridX < 5) && (robotGridY > 0)) {
+            // +X, -Y
+            interpolate = true;
+            x0 = robotGridX;
+            x1 = robotGridX + 1;
+            y0 = robotGridY - 1;
+            y1 = robotGridY;
+        } else if ((remX < TILE_LOWER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
+                (robotGridX > 0) && (robotGridY < 5)) {
+            // -X, +Y
+            interpolate = true;
+            x0 = robotGridX - 1;
+            x1 = robotGridX;
+            y0 = robotGridY;
+            y1 = robotGridY + 1;
+        } else if ((remX < TILE_LOWER_QUARTILE) && (robotGridX > 0)) {
+            // -X, Y
+            interpolate = true;
+            x0 = robotGridX - 1;
+            x1 = robotGridX;
+            y0 = robotGridY;
+            y1 = robotGridY;
+        } else if ((remY < TILE_LOWER_QUARTILE) && (robotGridY > 0)) {
+            // X, -Y
+            interpolate = true;
+            x0 = robotGridX;
+            x1 = robotGridX;
+            y0 = robotGridY - 1;
+            y1 = robotGridY;
+        } else if ((remX > TILE_UPPER_QUARTILE) && (robotGridX < 5)) {
+            // +X, Y
+            interpolate = true;
+            x0 = robotGridX;
+            x1 = robotGridX + 1;
+            y0 = robotGridY;
+            y1 = robotGridY;
+        } else if ((remY > TILE_UPPER_QUARTILE) && (robotGridY < 5)) {
+            // X, +Y
+            interpolate = true;
+            x0 = robotGridX;
+            x1 = robotGridX;
+            y0 = robotGridY;
+            y1 = robotGridY + 1;
+        } else {
+            interpolate = false;
+        }
 
         //clamp
         robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
         robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
 
         // basic search
-        if(!interpolate) {
+        if(true) { //!interpolate) {
             if ((robotGridY < 6) && (robotGridX <6)) {
                 recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridX][robotGridY].flywheelRPM;
                 recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle;
@@ -170,27 +190,29 @@ public class Targeting {
         } else {
 
             // bilinear interpolation
-            int x0 = robotGridX;
+            //int x0 = robotGridX;
             //int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].length - 1);
-            int y0 = robotGridY;
+            //int y0 = robotGridY;
             //int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
 
-            double x = (robotInchesX - (x0 * tileSize)) / tileSize;
-            double y = (robotInchesY - (y0 * tileSize)) / tileSize;
+//            double x = (robotInchesX - (x0 * tileSize)) / tileSize;
+//            double y = (robotInchesY - (y0 * tileSize)) / tileSize;
 
-            double rpm00 = KNOWNTARGETING[y0][x0].flywheelRPM;
-            double rpm10 = KNOWNTARGETING[y0][x1].flywheelRPM;
-            double rpm01 = KNOWNTARGETING[y1][x0].flywheelRPM;
-            double rpm11 = KNOWNTARGETING[y1][x1].flywheelRPM;
+//            double rpm00 = KNOWNTARGETING[y0][x0].flywheelRPM;
+//            double rpm10 = KNOWNTARGETING[y0][x1].flywheelRPM;
+//            double rpm01 = KNOWNTARGETING[y1][x0].flywheelRPM;
+//            double rpm11 = KNOWNTARGETING[y1][x1].flywheelRPM;
+//
+//            double angle00 = KNOWNTARGETING[y0][x0].hoodAngle;
+//            double angle10 = KNOWNTARGETING[y0][x1].hoodAngle;
+//            double angle01 = KNOWNTARGETING[y1][x0].hoodAngle;
+//            double angle11 = KNOWNTARGETING[y1][x1].hoodAngle;
 
-            double angle00 = KNOWNTARGETING[y0][x0].hoodAngle;
-            double angle10 = KNOWNTARGETING[y0][x1].hoodAngle;
-            double angle01 = KNOWNTARGETING[y1][x0].hoodAngle;
-            double angle11 = KNOWNTARGETING[y1][x1].hoodAngle;
-
-            recommendedSettings.flywheelRPM = (1 - x) * (1 - y) * rpm00 + x * (1 - y) * rpm10 + (1 - x) * y * rpm01 + x * y * rpm11;
-            recommendedSettings.hoodAngle = (1 - x) * (1 - y) * angle00 + x * (1 - y) * angle10 + (1 - x) * y * angle01 + x * y * angle11;
-
+//            recommendedSettings.flywheelRPM = (1 - x) * (1 - y) * rpm00 + x * (1 - y) * rpm10 + (1 - x) * y * rpm01 + x * y * rpm11;
+//            recommendedSettings.hoodAngle = (1 - x) * (1 - y) * angle00 + x * (1 - y) * angle10 + (1 - x) * y * angle01 + x * y * angle11;
+            // Average target tiles
+            recommendedSettings.flywheelRPM = (KNOWNTARGETING[x0][y0].flywheelRPM + KNOWNTARGETING[x1][y1].flywheelRPM)/2.0;
+            recommendedSettings.hoodAngle = (KNOWNTARGETING[x0][y0].hoodAngle + KNOWNTARGETING[x1][y1].hoodAngle)/2.0;
             return recommendedSettings;
         }
     }

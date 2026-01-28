@@ -614,25 +614,32 @@ public class TeleopV3 extends LinearOpMode {
                     intake = false;
                     reject = false;
 
-                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
-
-                        if (shooterTicker == 0){
-                            robot.transferServo.setPosition(transferServo_out);
-                            robot.spin1.setPosition(spinStartPos);
-                            robot.spin2.setPosition(1-spinStartPos);
-                            if (servo.spinEqual(spinStartPos)){
-                                shooterTicker++;
-                            }
-                            TELE.addLine("starting to shoot");
-                        } else {
-                            robot.transferServo.setPosition(transferServo_in);
-                            shooterTicker++;
-                            double prevSpinPos = servo.getSpinPos();
-                            robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
-                            robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
-                            TELE.addLine("shooting");
-                        }
-
+//                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
+//
+//                        if (shooterTicker == 0){
+//                            robot.transferServo.setPosition(transferServo_out);
+//                            robot.spin1.setPosition(spinStartPos);
+//                            robot.spin2.setPosition(1-spinStartPos);
+//                            if (servo.spinEqual(spinStartPos)){
+//                                shooterTicker++;
+//                            }
+//                            TELE.addLine("starting to shoot");
+//                        } else {
+//                            robot.transferServo.setPosition(transferServo_in);
+//                            shooterTicker++;
+//                            double prevSpinPos = servo.getSpinPos();
+//                            robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
+//                            robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
+//                            TELE.addLine("shooting");
+//                        }
+                    if (shooterTicker == 0) {
+                        shooterTicker++;
+                        spindexer.prepareShootAll();
+                    } else if (!spindexer.shootAllComplete()) {
+                        robot.transferServo.setPosition(transferServo_in);
+                        shooterTicker++;
+                        spindexer.shootAll();
+                        TELE.addLine("starting to shoot");
                     } else {
                         robot.transferServo.setPosition(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
@@ -640,9 +647,10 @@ public class TeleopV3 extends LinearOpMode {
                         shootAll = false;
 
                         spindexer.resetSpindexer();
-                        spindexer.processIntake();
+                        //spindexer.processIntake();
                         TELE.addLine("stop shooting");
                     }
+                    spindexer.processIntake();
                 }
 
                 if (gamepad1.left_stick_button){
