@@ -184,6 +184,9 @@ public class TeleopV3 extends LinearOpMode {
         robot.transferServo.setPosition(transferServo_out);
 
         while (opModeIsActive()) {
+            //LIMELIGHT START
+            TELE.addData("Is limelight on?", robot.limelight.getStatus());
+
             // LIGHT COLORS
             spindexer.ballCounterLight();
 

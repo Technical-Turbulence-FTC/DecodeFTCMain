@@ -161,7 +161,7 @@ public class Spindexer {
         distanceFrontPassenger = robot.color3.getDistance(DistanceUnit.MM);
 
         // Position 1
-        if (distanceRearCenter < 43) {
+        if (distanceRearCenter < 50) {
 
             // Mark Ball Found
             newPos1Detection = true;
@@ -175,17 +175,17 @@ public class Spindexer {
                 double gP = green / (green + red + blue);
 
                 // FIXIT - Add filtering to improve accuracy.
-                if (gP >= 0.4) {
-                    ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
+                if (gP >= 0.38) {
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // purple
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
                 }
            }
         }
         // Position 2
         // Find which ball position this is in the spindexer
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTDRIVER.ordinal()];
-        if (distanceFrontDriver < 60) {
+        if (distanceFrontDriver < 50) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
             if (detectFrontColor) {
@@ -196,9 +196,9 @@ public class Spindexer {
                 double gP = green / (green + red + blue);
 
                 if (gP >= 0.4) {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // purple
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {
@@ -213,7 +213,7 @@ public class Spindexer {
 
         // Position 3
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTPASSENGER.ordinal()];
-        if (distanceFrontPassenger < 33) {
+        if (distanceFrontPassenger < 25) {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
@@ -224,10 +224,10 @@ public class Spindexer {
 
                 double gP = green / (green + red + blue);
 
-                if (gP >= 0.4) {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                if (gP >= 0.42) {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // purple
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {
