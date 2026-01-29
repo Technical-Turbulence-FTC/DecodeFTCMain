@@ -25,5 +25,9 @@ allprojects {
 }
 
 repositories {
-    mavenCentral()
+    repositories {
+        mavenCentral()
+        google()
+        maven { url 'https://maven.pedropathing.com' }
+    }
 }

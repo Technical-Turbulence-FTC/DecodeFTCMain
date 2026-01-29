@@ -1,0 +1,62 @@
+package org.firstinspires.ftc.teamcode.tests;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.utils.Robot;
+
+public class PIDServoTest extends LinearOpMode {
+
+    public static double p = 2, i = 0, d = 0, f = 0;
+
+    public static double target = 0.5;
+
+    public static int mode = 0; //0 is for turret, 1 is for spindexer
+
+    public static double scalar = 1.01;
+    public static double restPos = 0.0;
+
+    Robot robot;
+
+    double pos = 0.0;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        PIDFController controller = new PIDFController(p, i, d, f);
+
+        controller.setTolerance(0.001);
+        robot = new Robot(hardwareMap);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        while (opModeIsActive()) {
+            controller.setPIDF(p, i, d, f);
+            if (mode == 1) {
+                pos = scalar * ((robot.spin1Pos.getVoltage() - restPos) / 3.3);
+
+                double pid = controller.calculate(pos, target);
+
+                robot.spin1.setPosition(pid);
+                robot.spin2.setPosition(-pid);
+            }
+
+            telemetry.addData("pos", pos);
+            telemetry.addData("Spindex Voltage", robot.spin1Pos.getVoltage());
+            telemetry.addData("target", target);
+            telemetry.addData("Mode", mode);
+            telemetry.update();
+
+        }
+
+    }
+
+}

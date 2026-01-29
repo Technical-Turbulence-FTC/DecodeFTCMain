@@ -1,89 +1,66 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+@Config
 public class Robot {
 
     //Initialize Public Components
 
+    public static boolean usingLimelight = true;
+    public static boolean usingCamera = false;
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
-
     public DcMotorEx backLeft;
-
     public DcMotorEx backRight;
-
     public DcMotorEx intake;
-
     public DcMotorEx transfer;
-
+    public PIDFCoefficients shooterPIDF;
+    public double shooterPIDF_P = 255.0;
+    public double shooterPIDF_I = 0.0;
+    public double shooterPIDF_D = 0.0;
+    public double shooterPIDF_F = 7.5;
+    public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;
-
     public Servo transferServo;
-
-    public Servo rejecter;
-
     public Servo turr1;
-
     public Servo turr2;
 
     public Servo spin1;
 
     public Servo spin2;
-
-    public DigitalChannel pin0;
-
-    public DigitalChannel pin1;
-    public DigitalChannel pin2;
-    public DigitalChannel pin3;
-    public DigitalChannel pin4;
-
-    public DigitalChannel pin5;
-
-    public AnalogInput analogInput;
-
-    public AnalogInput analogInput2;
-
     public AnalogInput spin1Pos;
-
     public AnalogInput spin2Pos;
-
-    public AnalogInput hoodPos;
-
     public AnalogInput turr1Pos;
-
-    public AnalogInput turr2Pos;
-
     public AnalogInput transferServoPos;
-
     public AprilTagProcessor aprilTagProcessor;
-
     public WebcamName webcam;
-
-    public DcMotorEx shooterEncoder;
-
     public RevColorSensorV3 color1;
-
     public RevColorSensorV3 color2;
-
     public RevColorSensorV3 color3;
+    public Limelight3A limelight;
+    public Servo light;
 
     public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
-
+        //TODO: fix the configuration of these - I trust you to figure it out yourself @KeshavAnandCode
         frontLeft = hardwareMap.get(DcMotorEx.class, "fl");
         frontRight = hardwareMap.get(DcMotorEx.class, "fr");
         backLeft = hardwareMap.get(DcMotorEx.class, "bl");
@@ -97,51 +74,36 @@ public class Robot {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
-        rejecter = hardwareMap.get(Servo.class, "rejecter");
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
 
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-
+        //TODO: figure out which shooter motor is reversed using ShooterTest and change it in code @KeshavAnandCode
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        shooterEncoder = shooter1;
+        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F);
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter1.setVelocity(0);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter2.setVelocity(0);
 
         hood = hardwareMap.get(Servo.class, "hood");
 
-        hoodPos = hardwareMap.get(AnalogInput.class, "hoodPos");
-
         turr1 = hardwareMap.get(Servo.class, "t1");
-
-        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos");
 
         turr2 = hardwareMap.get(Servo.class, "t2");
 
-        turr2Pos = hardwareMap.get(AnalogInput.class, "t2Pos");
+        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
 
-        spin1 = hardwareMap.get(Servo.class, "spin1");
+        //TODO: check spindexer configuration (both servo and analog input) - check comments in PositionalServoProgrammer
+        spin1 = hardwareMap.get(Servo.class, "spin2");
 
         spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
 
-        spin2 = hardwareMap.get(Servo.class, "spin2");
+        spin2 = hardwareMap.get(Servo.class, "spin1");
 
         spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
-
-        pin0 = hardwareMap.get(DigitalChannel.class, "pin0");
-
-        pin1 = hardwareMap.get(DigitalChannel.class, "pin1");
-
-        pin2 = hardwareMap.get(DigitalChannel.class, "pin2");
-
-        pin3 = hardwareMap.get(DigitalChannel.class, "pin3");
-
-        pin4 = hardwareMap.get(DigitalChannel.class, "pin4");
-
-        pin5 = hardwareMap.get(DigitalChannel.class, "pin5");
-
-        analogInput = hardwareMap.get(AnalogInput.class, "analog");
-
-        analogInput2 = hardwareMap.get(AnalogInput.class, "analog2");
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
@@ -150,15 +112,21 @@ public class Robot {
         transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
 
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-
-        webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
 
         color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
 
         color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
+
+        if (usingLimelight) {
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        } else if (usingCamera) {
+            webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+            aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+        }
+
+        light = hardwareMap.get(Servo.class, "light");
     }
 }

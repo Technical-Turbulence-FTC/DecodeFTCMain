@@ -1,0 +1,55 @@
+package org.firstinspires.ftc.teamcode.utils;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+@Config
+public class Servos {
+    //PID constants
+    // TODO: get PIDF constants
+    public static double spinP = 2.0, spinI = 0, spinD = 0.3, spinF = 0.02;
+    public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0;
+    public static double spin_scalar = 1.112;
+    public static double spin_restPos = 0.155;
+    public static double turret_scalar = 1.009;
+    public static double turret_restPos = 0.0;
+    Robot robot;
+    PIDFController spinPID;
+    PIDFController turretPID;
+
+    public Servos(HardwareMap hardwareMap) {
+        robot = new Robot(hardwareMap);
+        spinPID = new PIDFController(spinP, spinI, spinD, spinF);
+        turretPID = new PIDFController(turrP, turrI, turrD, turrF);
+
+        turretPID.setTolerance(0.001);
+    }
+
+    // In the code below, encoder = robot.servo.getVoltage()
+    // TODO: set the restPos and scalar
+    public double getSpinPos() {
+        return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
+    }
+
+    public double setSpinPos(double pos) {
+
+        return pos;
+    }
+
+    public boolean spinEqual(double pos) {
+        return Math.abs(pos - this.getSpinPos()) < 0.03;
+    }
+
+    public double getTurrPos() {
+        return 1.0;
+    }
+
+    public double setTurrPos(double pos) {
+        return 1.0;
+    }
+
+    public boolean turretEqual(double pos) {
+        return true;
+    }
+}
