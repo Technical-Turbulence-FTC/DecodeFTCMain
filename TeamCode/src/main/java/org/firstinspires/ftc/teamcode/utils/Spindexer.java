@@ -415,22 +415,17 @@ public class Spindexer {
                 break;
 
             case SHOOTNEXT:
-                // Find Next Open Position and start movement
                 if (!ballPositions[1].isEmpty) {
-                    // Position 1
                     commandedIntakePosition = 1;
-                    currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
+                    currentIntakeState = IntakeState.SHOOTMOVING;
                 } else if (!ballPositions[2].isEmpty) {
-                    // Position 2
                     commandedIntakePosition = 2;
-                    currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
+                    currentIntakeState = IntakeState.SHOOTMOVING;
                 } else if (!ballPositions[0].isEmpty) {
-                    // Position 3
                     commandedIntakePosition = 0;
-                    currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
+                    currentIntakeState = IntakeState.SHOOTMOVING;
                 } else {
-                    // Empty return to intake state
-                    currentIntakeState = IntakeState.FINDNEXT;
+                    currentIntakeState = IntakeState.FINDNEXT; 
                 }
                 moveSpindexerToPos(outakePositions[commandedIntakePosition]);
                 break;
@@ -483,37 +478,20 @@ public class Spindexer {
     public int bestFitMotif () {
         switch (desiredMotif) {
             case GPP:
-                if (ballPositions[0].ballColor == BallColor.GREEN) {
-                    return 2;
-                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-                //break;
+                if (ballPositions[0].ballColor == BallColor.GREEN) return 2;
+                else if (ballPositions[1].ballColor == BallColor.GREEN) return 0;
+                else return 1;
             case PGP:
-                if (ballPositions[0].ballColor == BallColor.GREEN) {
-                    return 0;
-                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
-                    return 1;
-                } else {
-                    return 3;
-                }
-                //break;
+                if (ballPositions[0].ballColor == BallColor.GREEN) return 0;
+                else if (ballPositions[1].ballColor == BallColor.GREEN) return 1;
+                else return 2; // Fixed: was 3 (out of bounds)
             case PPG:
-                if (ballPositions[0].ballColor == BallColor.GREEN) {
-                    return 1;
-                } else if (ballPositions[1].ballColor == BallColor.GREEN) {
-                    return 0;
-                } else {
-                    return 2;
-                }
-                //break;
-            case NONE:
+                if (ballPositions[0].ballColor == BallColor.GREEN) return 1;
+                else if (ballPositions[1].ballColor == BallColor.GREEN) return 0;
+                else return 2;
+            default:
                 return 0;
-                //break;
         }
-        return 0;
     }
 
     void prepareToShootMotif () {
