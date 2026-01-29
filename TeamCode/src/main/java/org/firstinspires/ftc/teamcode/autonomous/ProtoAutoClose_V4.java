@@ -97,7 +97,7 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
     public static double normalIntakeTime = 3.0;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double turretShootPos = 0.6;
+    public static double turretShootPos = 0.5;
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
@@ -608,6 +608,8 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
         TrajectoryActionBuilder shoot2 = null;
         TrajectoryActionBuilder pickup3 = null;
         TrajectoryActionBuilder shoot3 = null;
+
+        robot.limelight.start();
 
         robot.light.setPosition(1);
 
