@@ -97,12 +97,12 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
     public static double normalIntakeTime = 3.0;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double turretShootPos = 0.5;
+    public static double turretShootPos = 0.53;
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 20;
+    public static double pickup1Speed = 25;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
@@ -175,6 +175,10 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
+
                 return (System.currentTimeMillis() - stamp) < (time * 1000);
 
             }
@@ -193,8 +197,8 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                TELE.addData("Velocity", velo);
-                TELE.addLine("shooting");
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
                 flywheel.manageFlywheel(vel);
@@ -258,8 +262,8 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                TELE.addData("Velocity", velo);
-                TELE.addLine("shooting");
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
                 velo = flywheel.getVelo();
@@ -331,6 +335,9 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
 
                 return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
 
@@ -381,6 +388,9 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
 
                 return !shouldFinish;
 
@@ -430,6 +440,9 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
 
                 return !shouldFinish;
 
@@ -497,6 +510,9 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
 
                 return !shouldFinish;
 
@@ -563,6 +579,9 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
 
                 return !shouldFinish;
 
