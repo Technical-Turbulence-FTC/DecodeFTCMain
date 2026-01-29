@@ -502,7 +502,7 @@ public class Spindexer {
                 } else if (ballPositions[1].ballColor == BallColor.GREEN) {
                     return 1;
                 } else {
-                    return 3;
+                    return 2;
                 }
                 //break;
             case PPG:
