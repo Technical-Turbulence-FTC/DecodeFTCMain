@@ -161,12 +161,15 @@ public class Spindexer {
         int spindexerBallPos = 0;
 
         // Read Distances
-        distanceRearCenter = robot.color1.getDistance(DistanceUnit.MM);
-        distanceFrontDriver = robot.color2.getDistance(DistanceUnit.MM);
-        distanceFrontPassenger = robot.color3.getDistance(DistanceUnit.MM);
+        double dRearCenter = robot.color1.getDistance(DistanceUnit.MM);
+        distanceRearCenter = (colorFilterAlpha * dRearCenter) + ((1-colorFilterAlpha) * distanceRearCenter);
+        double dFrontDriver = robot.color2.getDistance(DistanceUnit.MM);
+        distanceFrontDriver = (colorFilterAlpha * dFrontDriver) + ((1-colorFilterAlpha) * distanceFrontDriver);
+        double dFrontPassenger = robot.color3.getDistance(DistanceUnit.MM);
+        distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 50) {
+        if (distanceRearCenter < 60) {
 
             // Mark Ball Found
             newPos1Detection = true;
@@ -218,7 +221,7 @@ public class Spindexer {
 
         // Position 3
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTPASSENGER.ordinal()];
-        if (distanceFrontPassenger < 25) {
+        if (distanceFrontPassenger < 29) {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
@@ -260,8 +263,8 @@ public class Spindexer {
     private void moveSpindexerToPos(double pos) {
         robot.spin1.setPosition(pos);
         robot.spin2.setPosition(1-pos);
-//        double currentPos = servos.getSpinPos();
-//        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
+        double currentPos = servos.getSpinPos();
+        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
 //            if (currentPos > pos){
 //                robot.spin1.setPosition(servos.getSpinPos() + 0.05);
 //                robot.spin2.setPosition(1 - servos.getSpinPos() - 0.05);
@@ -269,8 +272,8 @@ public class Spindexer {
 //                robot.spin1.setPosition(servos.getSpinPos() - 0.05);
 //                robot.spin2.setPosition(1 - servos.getSpinPos() + 0.05);
 //            }
-//        }
-//        prevPos = currentPos;
+        }
+        prevPos = currentPos;
     }
 
     public void stopSpindexer() {
@@ -341,7 +344,8 @@ public class Spindexer {
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
                 } else {
                     // Maintain Position
-                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                    spindexerWiggle *= -1.0;
+                    moveSpindexerToPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
                 }
                 break;
             case FINDNEXT:

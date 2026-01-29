@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
@@ -178,6 +179,15 @@ public class TeleopV3 extends LinearOpMode {
 
         Turret turret = new Turret(robot, TELE, robot.limelight);
         robot.light.setPosition(1);
+        while (opModeInInit()){
+            robot.limelight.start();
+            if (redAlliance) {
+                robot.limelight.pipelineSwitch(4);
+            } else {
+                robot.limelight.pipelineSwitch(2);
+            }
+        }
+
         waitForStart();
         if (isStopRequested()) return;
 
