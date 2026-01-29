@@ -76,7 +76,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 @Autonomous(preselectTeleOp = "TeleopV3")
 @Config
-public class Auto_LT_Unindexed extends LinearOpMode {
+public class Auto_LT_Close_GateCycle extends LinearOpMode {
 
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;

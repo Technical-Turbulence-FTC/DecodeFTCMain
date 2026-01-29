@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.disabled;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.bh1;
@@ -72,6 +72,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -81,7 +82,7 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
 import java.util.List;
-
+@Disabled
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class ProtoAutoClose_V3 extends LinearOpMode {

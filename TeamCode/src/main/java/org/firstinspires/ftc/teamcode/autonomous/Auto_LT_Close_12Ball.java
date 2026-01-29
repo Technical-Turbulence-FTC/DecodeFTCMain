@@ -86,7 +86,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
-public class ProtoAutoClose_V4 extends LinearOpMode {
+public class Auto_LT_Close_12Ball extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.014;

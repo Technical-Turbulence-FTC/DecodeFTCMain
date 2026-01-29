@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.disabled;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.*;
 import static org.firstinspires.ftc.teamcode.constants.Poses.*;
@@ -21,6 +21,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -30,7 +31,9 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
 import java.util.List;
-
+@Disabled
+@Config
+@Autonomous
 
 public class AutoFar_V1 extends LinearOpMode {
     Robot robot;
