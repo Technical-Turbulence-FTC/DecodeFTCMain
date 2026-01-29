@@ -119,17 +119,14 @@ public class Turret {
     }
 
     public double getTy() {
-        limelightRead();
         return ty;
     }
 
     public double getLimelightX() {
-        limelightRead();
         return limelightPosX;
     }
 
     public double getLimelightY() {
-        limelightRead();
         return limelightPosY;
     }
 

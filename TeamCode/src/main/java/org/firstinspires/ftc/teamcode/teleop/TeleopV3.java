@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
@@ -122,7 +126,8 @@ public class TeleopV3 extends LinearOpMode {
     private int tickerA = 1;
     private boolean transferIn = false;
     boolean turretInterpolate = false;
-    public static double spinSpeedIncrease = 0.04;
+    public static double spinSpeedIncrease = 0.03;
+    public static int resetSpinTicks = 4;
 
     public static double velPrediction(double distance) {
         if (distance < 30) {
@@ -582,16 +587,14 @@ public class TeleopV3 extends LinearOpMode {
 //            }
 
             if (enableSpindexerManager) {
-                if (!shootAll) {
-                    spindexer.processIntake();
-                }
+                spindexer.processIntake();
 
                 // RIGHT_BUMPER
-                if (gamepad1.right_bumper) {
+                if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
                     robot.intake.setPower(1);
-
                 } else {
                     robot.intake.setPower(0);
+
                 }
 
                 // LEFT_BUMPER
@@ -603,37 +606,52 @@ public class TeleopV3 extends LinearOpMode {
                     shootAll = true;
 
                     shooterTicker = 0;
-                    spindexPos = spinStartPos;// TODO: Change starting position based on desired order to shoot green ball
 
                 }
-
+                intakeTicker++;
                 if (shootAll) {
-
+                    intakeTicker = 0;
                     intake = false;
                     reject = false;
 
-                    if (getRuntime() - shootStamp < 3.5) {
-
-                        if (shooterTicker == 0 && !servo.spinEqual(spindexPos)){
-                            robot.spin1.setPosition(spindexPos);
-                            robot.spin2.setPosition(1-spindexPos);
-                        } else {
-                            robot.transferServo.setPosition(transferServo_in);
-                            shooterTicker++;
-                            double prevSpinPos = robot.spin1.getPosition();
-                            robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
-                            robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
-                        }
-
+//                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
+//
+//                        if (shooterTicker == 0){
+//                            robot.transferServo.setPosition(transferServo_out);
+//                            robot.spin1.setPosition(spinStartPos);
+//                            robot.spin2.setPosition(1-spinStartPos);
+//                            if (servo.spinEqual(spinStartPos)){
+//                                shooterTicker++;
+//                            }
+//                            TELE.addLine("starting to shoot");
+//                        } else {
+//                            robot.transferServo.setPosition(transferServo_in);
+//                            shooterTicker++;
+//                            double prevSpinPos = servo.getSpinPos();
+//                            robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
+//                            robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
+//                            TELE.addLine("shooting");
+//                        }
+                    if (shooterTicker == 0) {
+                        spindexer.prepareShootAll();
+                        TELE.addLine("preparing to shoot");
+                    } else if (shooterTicker == 2) {
+                        robot.transferServo.setPosition(transferServo_in);
+                        spindexer.shootAll();
+                        TELE.addLine("starting to shoot");
+                    } else if (!spindexer.shootAllComplete()) {
+                        robot.transferServo.setPosition(transferServo_in);
+                        TELE.addLine("shoot");
                     } else {
                         robot.transferServo.setPosition(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
-
                         shootAll = false;
-
                         spindexer.resetSpindexer();
-                        spindexer.processIntake();
+                        //spindexer.processIntake();
+                        TELE.addLine("stop shooting");
                     }
+                    shooterTicker++;
+                    //spindexer.processIntake();
                 }
 
                 if (gamepad1.left_stick_button){
@@ -818,42 +836,40 @@ public class TeleopV3 extends LinearOpMode {
                 hub.clearBulkCache();
             }
 //
-            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
-            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
-            TELE.addData("Spin3Green", green3 + ": " + ballIn(3));
-
-            TELE.addData("pose", drive.localizer.getPose());
-            TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
-            TELE.addData("distanceToGoal", distanceToGoal);
-            TELE.addData("hood", robot.hood.getPosition());
-            TELE.addData("targetVel", vel);
-            TELE.addData("Velocity", flywheel.getVelo());
-            TELE.addData("Velo1", flywheel.velo1);
-            TELE.addData("Velo2", flywheel.velo2);
-            TELE.addData("shootOrder", shootOrder);
-            TELE.addData("oddColor", oddBallColor);
-
-            // Spindexer Debug
+//            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
+//            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
+//            TELE.addData("Spin3Green", green3 + ": " + ballIn(3));
+//
+//            TELE.addData("pose", drive.localizer.getPose());
+//            TELE.addData("heading", drive.localizer.getPose().heading.toDouble());
+//            TELE.addData("distanceToGoal", distanceToGoal);
+//            TELE.addData("hood", robot.hood.getPosition());
+//            TELE.addData("targetVel", vel);
+//            TELE.addData("Velocity", flywheel.getVelo());
+//            TELE.addData("Velo1", flywheel.velo1);
+//            TELE.addData("Velo2", flywheel.velo2);
+//            TELE.addData("shootOrder", shootOrder);
+//            TELE.addData("oddColor", oddBallColor);
+//
+//            // Spindexer Debug
             TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
             TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
             TELE.addData("spinIntakeState", spindexer.currentIntakeState);
             TELE.addData("spinTestCounter", spindexer.counter);
             TELE.addData("autoSpintake", autoSpintake);
-            //TELE.addData("distanceRearCenter", spindexer.distanceRearCenter);
-            //TELE.addData("distanceFrontDriver", spindexer.distanceFrontDriver);
-            //TELE.addData("distanceFrontPassenger", spindexer.distanceFrontPassenger);
-            TELE.addData("shootall commanded", shootAll);
-            // Targeting Debug
-            TELE.addData("robotX", robotX);
-            TELE.addData("robotY", robotY);
-            TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData( "robotInchesY", targeting.robotInchesY);
-            TELE.addData("Targeting Interpolate", turretInterpolate);
-            TELE.addData("Targeting GridX", targeting.robotGridX);
-            TELE.addData("Targeting GridY", targeting.robotGridY);
-            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
-            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+//
+//            TELE.addData("shootall commanded", shootAll);
+//            // Targeting Debug
+//            TELE.addData("robotX", robotX);
+//            TELE.addData("robotY", robotY);
+//            TELE.addData("robotInchesX", targeting.robotInchesX);
+//            TELE.addData( "robotInchesY", targeting.robotInchesY);
+//            TELE.addData("Targeting Interpolate", turretInterpolate);
+//            TELE.addData("Targeting GridX", targeting.robotGridX);
+//            TELE.addData("Targeting GridY", targeting.robotGridY);
+//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+//            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
 
             TELE.update();
 
