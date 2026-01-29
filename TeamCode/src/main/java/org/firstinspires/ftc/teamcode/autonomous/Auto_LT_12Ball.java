@@ -80,7 +80,7 @@ import java.util.List;
 
 @Autonomous(preselectTeleOp = "TeleopV3")
 @Config
-public class Auto_LT_Indexed extends LinearOpMode {
+public class Auto_LT_12Ball extends LinearOpMode {
 
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;
@@ -161,17 +161,10 @@ public class Auto_LT_Indexed extends LinearOpMode {
     // ---- PARK ----
     private double xPark, yPark, hPark;
 
-    public Action prepareShootIndexed(double time) {
+    public Action prepareShootAll(double time) {
         return new Action() {
             double stamp = 0.0;
             int ticker = 0;
-
-            boolean testColor = false;
-
-            int s1Green = 0;
-            int s2Green = 0;
-            int s3Green = 0;
-
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -180,56 +173,8 @@ public class Auto_LT_Indexed extends LinearOpMode {
                 }
                 ticker++;
 
-                if ((System.currentTimeMillis() - stamp) < (goToDetectTime)) { //0.25-0.4 ish???
-                    robot.spin1.setPosition(colorDetectPos); //0.43
-                    robot.spin2.setPosition(1 - colorDetectPos);
-                } else if ((System.currentTimeMillis() - stamp) < (colorSenseTime + goToDetectTime)) {
-
-
-                    double green1 = robot.color1.getNormalizedColors().green;
-                    double red1 = robot.color1.getNormalizedColors().red;
-                    double blue1 = robot.color1.getNormalizedColors().blue;
-
-                    double gP1 = green1 / (green1 + red1 + blue1);
-
-
-                    if (gP1 >= color1Thresh) {
-                        s1Green ++;
-                    }
-
-                    double green2 = robot.color2.getNormalizedColors().green;
-                    double red2 = robot.color2.getNormalizedColors().red;
-                    double blue2 = robot.color2.getNormalizedColors().blue;
-
-                    double gP2 = green2 / (green2 + red2 + blue2);
-
-                    if (gP2 >= color2Thresh) {
-                        s2Green ++;
-                    }
-
-
-                    double green3 = robot.color3.getNormalizedColors().green;
-                    double red3 = robot.color3.getNormalizedColors().red;
-                    double blue3 = robot.color3.getNormalizedColors().blue;
-
-                    double gP3 = green3 / (green3 + red3 + blue3);
-
-                    if (gP3 >= color3Thresh) {
-                        s3Green ++;
-                    }
-
-
-                    testColor = true;
-
-
-
-                } else {
-
-                    double spindexPos;
-                    if (motif == 21) {
-                        spindexPos =
-                    }
-                }
+                robot.spin1.setPosition(autoSpinStartPos);
+                robot.spin2.setPosition(1 - autoSpinStartPos);
 
                 robot.transferServo.setPosition(transferServo_out);
 
@@ -242,7 +187,6 @@ public class Auto_LT_Indexed extends LinearOpMode {
             }
         };
     }
-
     public Action shootAll(int vel, double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
@@ -846,7 +790,7 @@ public class Auto_LT_Indexed extends LinearOpMode {
                                     0.501
                             ),
                             shoot1.build(),
-                            prepareShootIndexed(shoot1Time)
+                            prepareShootAll(shoot1Time)
                     )
             );
 
@@ -859,7 +803,7 @@ public class Auto_LT_Indexed extends LinearOpMode {
                                     0.501,
                                     0.501
                             ),
-                            shootAllIndexed(shootAllTime, spindexerSpeedIncrease)
+                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                     )
 
             );
