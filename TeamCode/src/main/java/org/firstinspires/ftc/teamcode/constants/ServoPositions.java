@@ -12,6 +12,7 @@ public class ServoPositions {
     public static double spindexer_intakePos3 = 0.43; //0.53;//0.66;
 
     public static double spindexer_outtakeBall3 = 0.71; //0.65; //0.24;
+    public static double spindexer_outtakeBall3b = 0.15; //0.65; //0.24;
 
     public static double spindexer_outtakeBall2 = 0.53; //0.46; //0.6;
     public static double spindexer_outtakeBall1 = 0.35; //0.27; //0.4;
