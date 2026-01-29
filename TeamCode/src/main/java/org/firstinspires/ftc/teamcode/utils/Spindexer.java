@@ -39,8 +39,11 @@ public class Spindexer {
     public double distanceFrontDriver = 0.0;
     public double distanceFrontPassenger = 0.0;
 
-    private double prevPos = 0.0;
+    public double spindexerWiggle = 0.01;
 
+    public double spindexerOuttakeWiggle = 0.01;
+    private double prevPos = 0.0;
+    public double spindexerPosOffset = 0.00;
     public Types.Motif desiredMotif = Types.Motif.NONE;
     // For Use
     enum RotatedBallPositionNames {
@@ -112,7 +115,9 @@ public class Spindexer {
 
 
     double[] outakePositions =
-            {spindexer_outtakeBall1, spindexer_outtakeBall2, spindexer_outtakeBall3};
+            {spindexer_outtakeBall1+spindexerPosOffset,
+                    spindexer_outtakeBall2+spindexerPosOffset,
+                    spindexer_outtakeBall3+spindexerPosOffset};
 
     double[] intakePositions =
             {spindexer_intakePos1, spindexer_intakePos2, spindexer_intakePos3};
@@ -391,7 +396,8 @@ public class Spindexer {
                     currentIntakeState = Spindexer.IntakeState.FINDNEXT;
                 }
                 // Maintain Position
-                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                spindexerWiggle *= -1.0;
+                moveSpindexerToPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
                 break;
 
             case SHOOT_ALL_PREP:
@@ -447,7 +453,7 @@ public class Spindexer {
                 break;
 
             case SHOOTWAIT:
-                double shootWaitMax = 3;
+                double shootWaitMax = 4;
                 // Stopping when we get to the new position
                 if (prevIntakeState != currentIntakeState) {
                     if (commandedIntakePosition==2) {
@@ -466,7 +472,8 @@ public class Spindexer {
                     //detectBalls(true, false);
                 }
                 // Keep moving the spindexer
-                //moveSpindexerToPos(outakePositions[commandedIntakePosition]+(shootWaitCount*0.02));
+                spindexerOuttakeWiggle *= -1.01;
+                moveSpindexerToPos(outakePositions[commandedIntakePosition]+spindexerOuttakeWiggle);
                 break;
 
             default:
