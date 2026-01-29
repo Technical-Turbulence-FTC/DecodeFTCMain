@@ -61,12 +61,6 @@ public class Turret {
         this.TELE = tele;
         this.robot = rob;
         this.webcam = cam;
-        webcam.start();
-        if (redAlliance) {
-            webcam.pipelineSwitch(4);
-        } else {
-            webcam.pipelineSwitch(2);
-        }
         bearingPID = new PIDController(B_PID_P, B_PID_I, B_PID_D);
     }
 
@@ -119,17 +113,14 @@ public class Turret {
     }
 
     public double getTy() {
-        limelightRead();
         return ty;
     }
 
     public double getLimelightX() {
-        limelightRead();
         return limelightPosX;
     }
 
     public double getLimelightY() {
-        limelightRead();
         return limelightPosY;
     }
 
