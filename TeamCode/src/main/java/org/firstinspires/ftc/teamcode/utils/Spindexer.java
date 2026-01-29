@@ -77,7 +77,7 @@ public class Spindexer {
     public IntakeState currentIntakeState = IntakeState.UNKNOWN_START;
     public IntakeState prevIntakeState = IntakeState.UNKNOWN_START;
     public int unknownColorDetect = 0;
-    enum BallColor {
+    public enum BallColor {
         UNKNOWN,
         GREEN,
         PURPLE
@@ -397,6 +397,7 @@ public class Spindexer {
             case SHOOT_ALL_PREP:
                 // We get here with function call to prepareToShootMotif
                 // Stopping when we get to the new position
+                commandedIntakePosition = 0;
                 if (!servos.spinEqual(outakePositions[commandedIntakePosition])) {
                     // Keep moving the spindexer
                     moveSpindexerToPos(outakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
@@ -416,17 +417,17 @@ public class Spindexer {
 
             case SHOOTNEXT:
                 // Find Next Open Position and start movement
-                if (!ballPositions[1].isEmpty) {
+                if (!ballPositions[0].isEmpty) {
                     // Position 1
+                    commandedIntakePosition = 0;
+                    currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
+                } else if (!ballPositions[1].isEmpty) {
+                    // Position 2
                     commandedIntakePosition = 1;
                     currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
                 } else if (!ballPositions[2].isEmpty) {
-                    // Position 2
-                    commandedIntakePosition = 2;
-                    currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
-                } else if (!ballPositions[0].isEmpty) {
                     // Position 3
-                    commandedIntakePosition = 0;
+                    commandedIntakePosition = 2;
                     currentIntakeState = Spindexer.IntakeState.SHOOTMOVING;
                 } else {
                     // Empty return to intake state
@@ -446,14 +447,18 @@ public class Spindexer {
                 break;
 
             case SHOOTWAIT:
+                double shootWaitMax = 3;
                 // Stopping when we get to the new position
                 if (prevIntakeState != currentIntakeState) {
+                    if (commandedIntakePosition==2) {
+                        shootWaitMax = 5;
+                    }
                     shootWaitCount = 0;
                 } else {
                     shootWaitCount++;
                 }
                 // wait 10 cycles
-                if (shootWaitCount > 2) {
+                if (shootWaitCount > shootWaitMax) {
                     currentIntakeState = Spindexer.IntakeState.SHOOTNEXT;
                     ballPositions[commandedIntakePosition].isEmpty = true;
                     shootWaitCount = 0;
@@ -461,7 +466,7 @@ public class Spindexer {
                     //detectBalls(true, false);
                 }
                 // Keep moving the spindexer
-                moveSpindexerToPos(outakePositions[commandedIntakePosition]+(shootWaitCount*0.01));
+                //moveSpindexerToPos(outakePositions[commandedIntakePosition]+(shootWaitCount*0.02));
                 break;
 
             default:
@@ -524,7 +529,10 @@ public class Spindexer {
         currentIntakeState = Spindexer.IntakeState.SHOOT_ALL_PREP;
     }
     public void shootAll () {
-        currentIntakeState = Spindexer.IntakeState.SHOOTWAIT;
+        ballPositions[0].isEmpty = false;
+        ballPositions[1].isEmpty = false;
+        ballPositions[2].isEmpty = false;
+        currentIntakeState = Spindexer.IntakeState.SHOOTNEXT;
     }
 
     public boolean shootAllComplete ()
@@ -542,5 +550,17 @@ public class Spindexer {
 
     public void update()
     {
+    }
+
+    public BallColor GetFrontDriverColor () {
+        return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTDRIVER.ordinal()]].ballColor;
+    }
+
+    public BallColor GetFrontPassengerColor () {
+        return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTPASSENGER.ordinal()]].ballColor;
+    }
+
+    public BallColor GetRearCenterColor () {
+        return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.REARCENTER.ordinal()]].ballColor;
     }
 }

@@ -309,7 +309,6 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
                     return false;
 
                 }
-
             }
         };
     }
