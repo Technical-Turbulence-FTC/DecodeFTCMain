@@ -122,6 +122,7 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
     public static double shoot1ToleranceY = 2.0;
     public static double shoot1Time = 2.0;
     public static double shootCycleTime = 2.5;
+    public static boolean useNextBestMotif = true;
     public int motif = 0;
     Robot robot;
     MultipleTelemetry TELE;
@@ -220,32 +221,57 @@ public class ProtoAutoClose_V4 extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                if (getRuntime() - stamp < shootTime) {
+                if (!useNextBestMotif) {
+                    if (getRuntime() - stamp < shootTime) {
 
-                    if (shooterTicker == 0 && !servos.spinEqual(autoSpinStartPos)) {
-                        robot.spin1.setPosition(autoSpinStartPos);
-                        robot.spin2.setPosition(1 - autoSpinStartPos);
+                        if (shooterTicker == 0 && !servos.spinEqual(autoSpinStartPos)) {
+                            robot.spin1.setPosition(autoSpinStartPos);
+                            robot.spin2.setPosition(1 - autoSpinStartPos);
+                        } else {
+                            robot.transferServo.setPosition(transferServo_in);
+                            shooterTicker++;
+                            double prevSpinPos = robot.spin1.getPosition();
+                            robot.spin1.setPosition(prevSpinPos + spindexSpeed);
+                            robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                        }
+
+                        return true;
+
                     } else {
-                        robot.transferServo.setPosition(transferServo_in);
-                        shooterTicker++;
-                        double prevSpinPos = robot.spin1.getPosition();
-                        robot.spin1.setPosition(prevSpinPos + spindexSpeed);
-                        robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                        robot.transferServo.setPosition(transferServo_out);
+                        //spindexPos = spindexer_intakePos1;
+
+                        spindexer.resetSpindexer();
+                        spindexer.processIntake();
+
+                        return false;
+
                     }
-
-                    return true;
-
                 } else {
-                    robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
+                    if (getRuntime() - stamp < shooTime || shooterTicker != 3) {
+                        // get next best motif shot and move spindexer to that position
+                        spindexer.prepareToShootMotif();
+                        boolean notAligned = spindexer.processIntake();
 
-                    spindexer.resetSpindexer();
-                    spindexer.processIntake();
+                        if (!notAligned) {
+                            shooterTicker++; 
+                            // TODO: add a wait here if needed
+                            robot.transferServo.setPosition(transferServo_in);
+                            spindexer.updateBallState(true);
+                        }
 
-                    return false;
+                        return true;
+                    } else {
+                        robot.transferServo.setPosition(transferServo_out);
+                        //spindexPos = spindexer_intakePos1;
 
-                }
+                        spindexer.resetSpindexer();
+                        spindexer.processIntake();
 
+                        return false;
+
+                    }
+                }    
             }
         };
     }

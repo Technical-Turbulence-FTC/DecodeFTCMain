@@ -110,6 +110,10 @@ public class Spindexer {
 
     }
 
+    public void updateBallState(boolean isEmpty) {
+        ballPositions[commandedIntakePosition].isEmpty = isEmpty;
+    }
+
 
     double[] outakePositions =
             {spindexer_outtakeBall1, spindexer_outtakeBall2, spindexer_outtakeBall3};
@@ -397,7 +401,7 @@ public class Spindexer {
             case SHOOT_ALL_PREP:
                 // We get here with function call to prepareToShootMotif
                 // Stopping when we get to the new position
-                commandedIntakePosition = 0;
+                // commandedIntakePosition = 0;
                 if (!servos.spinEqual(outakePositions[commandedIntakePosition])) {
                     // Keep moving the spindexer
                     moveSpindexerToPos(outakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
@@ -521,8 +525,42 @@ public class Spindexer {
         return 0;
     }
 
-    void prepareToShootMotif () {
-        commandedIntakePosition = bestFitMotif();
+    public void prepareToShootMotif () {
+        // commandedIntakePosition = bestFitMotif();
+        commandedIntakePosition = getNextBestMotif();
+        currentIntakeState = Spindexer.IntakeState.SHOOT_ALL_PREP;
+    }
+
+    private int getNextBestMotif() {
+        BallColor[] motifOrder;
+        switch (desiredMotif) {
+            case GPP:
+                motifOrder = new BallColor[]{BallColor.GREEN, BallColor.PURPLE, BallColor.PURPLE};
+                break;
+            case PGP:
+                motifOrder = new BallColor[]{BallColor.PURPLE, BallColor.GREEN, BallColor.PURPLE};
+                break;
+            case PPG:
+                motifOrder = new BallColor[]{BallColor.PURPLE, BallColor.PURPLE, BallColor.GREEN};
+                break;
+            default:
+                motifOrder = new BallColor[]{BallColor.GREEN, BallColor.PURPLE, BallColor.PURPLE};
+                break;
+        }
+
+        for (BallColor color : motifOrder) {
+            for (int i = 0; i < ballPositions.length; i++) {
+                if (!ballPositions[i].isEmpty && ballPositions[i].ballColor == color) {
+                    return i;
+                }
+            }
+        }
+
+        for (int i = 0; i < ballPositions.length; i++) {
+            if (!ballPositions[i].isEmpty) return i;
+        }
+
+        return 0;
     }
 
     public void prepareShootAll(){
