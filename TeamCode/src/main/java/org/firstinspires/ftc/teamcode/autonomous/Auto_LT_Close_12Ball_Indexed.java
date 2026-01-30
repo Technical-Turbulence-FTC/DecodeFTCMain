@@ -96,7 +96,7 @@ import java.util.Objects;
 public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;
-    public static double shoot0SpinSpeedIncrease = 0.022;
+    public static double shoot0SpinSpeedIncrease = 0.015;
 
     public static double spindexerSpeedIncrease = 0.03;
 
@@ -106,12 +106,12 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double normalIntakeTime = 3.0;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double turretShootPos = 0.53;
+    public static double turretShootPos = 0.52;
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 17;
+    public static double pickup1Speed = 19;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
@@ -128,12 +128,12 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double obelisk1YTolerance = 2.0;
     public static double shoot1ToleranceX = 2.0;
     public static double shoot1ToleranceY = 2.0;
-    public static double shoot1Time = 2.5;
-    public static double shoot2Time = 2.5;
-    public static double shoot3Time = 2.5;
-    public static double colorSenseTime = 0.8;
+    public static double shoot1Time = 2;
+    public static double shoot2Time = 2;
+    public static double shoot3Time = 2;
+    public static double colorSenseTime = 1.2;
 
-    public static double firstShootTime = 0.5;
+    public static double firstShootTime = 0.3;
     public int motif = 0;
 
     Robot robot;
@@ -488,8 +488,13 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 }
 
                 ticker++;
-
+                robot.limelight.pipelineSwitch(1);
                 motif = turret.detectObelisk();
+                if (redAlliance){
+                    robot.limelight.pipelineSwitch(4);
+                } else {
+                    robot.limelight.pipelineSwitch(2);
+                }
 
                 robot.turr1.setPosition(turrPos);
                 robot.turr2.setPosition(1 - turrPos);

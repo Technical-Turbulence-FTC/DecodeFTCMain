@@ -23,8 +23,8 @@ public class Poses {
     public static double rx3a = 55, ry3a = 39, rh3a = Math.toRadians(140);
     public static double rx3b = 38, ry3b = 56, rh3b = Math.toRadians(140.1);
 
-    public static double rx4a = 72, ry4a = 65, rh4a = Math.toRadians(145);
-    public static double rx4b = 37, ry4b = 85, rh4b = Math.toRadians(145.1);
+    public static double rx4a = 72, ry4a = 50, rh4a = Math.toRadians(145);
+    public static double rx4b = 42, ry4b = 80, rh4b = Math.toRadians(145.1);
 
     public static double bx1 = 40, by1 = 7, bh1 = 0;
     public static double bx2a = 45, by2a = -18, bh2a = Math.toRadians(-140);
