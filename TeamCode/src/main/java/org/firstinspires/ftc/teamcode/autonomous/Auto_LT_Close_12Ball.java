@@ -102,7 +102,7 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 25;
+    public static double pickup1Speed = 17;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
@@ -720,7 +720,6 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
                             new TranslationalVelConstraint(pickup1Speed));
 
             shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                    .strafeToLinearHeading(new Vector2d(xPrep, yPrep), hPrep)
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
 
             pickup2 = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
@@ -729,7 +728,6 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
                             new TranslationalVelConstraint(pickup1Speed));
 
             shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
-                    .strafeToLinearHeading(new Vector2d(xPrep, yPrep), hPrep)
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
 
             pickup3 = drive.actionBuilder(new Pose2d(x1, y1, h1))
@@ -737,7 +735,6 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x4b, y4b), h4b,
                             new TranslationalVelConstraint(pickup1Speed));
             shoot3 = drive.actionBuilder(new Pose2d(x4b, y4b, h4b))
-                    .strafeToLinearHeading(new Vector2d(xPrep, yPrep), hPrep)
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
 
 

@@ -5,6 +5,9 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.shootAllSpindexerSpeedIncrease;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos3;
@@ -72,7 +75,9 @@ public class Spindexer {
         SHOOTMOVING,
         SHOOTWAIT,
         SHOOT_ALL_PREP,
-        SHOOT_ALL_READY
+        SHOOT_ALL_READY,
+        SHOOT_PREP_CONTINOUS,
+        SHOOT_CONTINOUS
     }
 
     int shootWaitCount = 0;
@@ -143,6 +148,9 @@ public class Spindexer {
         ballPositions[pos].isEmpty = true;
         ballPositions[pos].foundEmpty = 0;
         ballPositions[pos].ballColor = BallColor.UNKNOWN;
+        distanceRearCenter = 61;
+        distanceFrontDriver = 61;
+        distanceFrontPassenger = 61;
     }
 
     public void resetSpindexer () {
@@ -263,8 +271,8 @@ public class Spindexer {
     private void moveSpindexerToPos(double pos) {
         robot.spin1.setPosition(pos);
         robot.spin2.setPosition(1-pos);
-        double currentPos = servos.getSpinPos();
-        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
+//        double currentPos = servos.getSpinPos();
+//        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
 //            if (currentPos > pos){
 //                robot.spin1.setPosition(servos.getSpinPos() + 0.05);
 //                robot.spin2.setPosition(1 - servos.getSpinPos() - 0.05);
@@ -272,8 +280,8 @@ public class Spindexer {
 //                robot.spin1.setPosition(servos.getSpinPos() - 0.05);
 //                robot.spin2.setPosition(1 - servos.getSpinPos() + 0.05);
 //            }
-        }
-        prevPos = currentPos;
+//        }
+//        prevPos = currentPos;
     }
 
     public void stopSpindexer() {
@@ -309,6 +317,8 @@ public class Spindexer {
     public boolean isFull () {
         return (!ballPositions[0].isEmpty && !ballPositions[1].isEmpty && !ballPositions[2].isEmpty);
     }
+
+    private double intakeTicker = 0;
     public boolean processIntake() {
 
         switch (currentIntakeState) {
@@ -359,15 +369,15 @@ public class Spindexer {
                     commandedIntakePosition = 0;
                     currentIntakeState = Spindexer.IntakeState.MOVING;
                 }
-                proposedTravelDistance = Math.abs(intakePositions[1] - currentSpindexerPos);
+                //proposedTravelDistance = Math.abs(intakePositions[1] - currentSpindexerPos);
                 //if (ballPositions[1].isEmpty && (proposedTravelDistance < commandedtravelDistance)) {
-                if (ballPositions[1].isEmpty) {
+                else if (ballPositions[1].isEmpty) {
                     // Position 2
                     commandedIntakePosition = 1;
                     currentIntakeState = Spindexer.IntakeState.MOVING;
                 }
-                proposedTravelDistance = Math.abs(intakePositions[2] - currentSpindexerPos);
-                if (ballPositions[2].isEmpty) {
+                //proposedTravelDistance = Math.abs(intakePositions[2] - currentSpindexerPos);
+                else if (ballPositions[2].isEmpty) {
                     // Position 3
                     commandedIntakePosition = 2;
                     currentIntakeState = Spindexer.IntakeState.MOVING;
@@ -383,8 +393,13 @@ public class Spindexer {
             case MOVING:
                 // Stopping when we get to the new position
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
-                    currentIntakeState = Spindexer.IntakeState.INTAKE;
-                    stopSpindexer();
+                    if (intakeTicker > 1){
+                        currentIntakeState = Spindexer.IntakeState.INTAKE;
+                        stopSpindexer();
+                        intakeTicker = 0;
+                    } else {
+                        intakeTicker++;
+                    }
                     //detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
@@ -476,8 +491,31 @@ public class Spindexer {
                     //detectBalls(true, false);
                 }
                 // Keep moving the spindexer
-                spindexerOuttakeWiggle *= -1.01;
+                spindexerOuttakeWiggle *= -1.0;
                 moveSpindexerToPos(outakePositions[commandedIntakePosition]+spindexerOuttakeWiggle);
+                break;
+
+            case SHOOT_PREP_CONTINOUS:
+                if (servos.spinEqual(spinStartPos)){
+                    currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
+                } else {
+                    moveSpindexerToPos(spinStartPos);
+                }
+                break;
+
+            case SHOOT_CONTINOUS:
+                ballPositions[0].isEmpty = false;
+                ballPositions[1].isEmpty = false;
+                ballPositions[2].isEmpty = false;
+                if (servos.getSpinPos() > spinEndPos){
+                    currentIntakeState = IntakeState.FINDNEXT;
+                } else {
+                    double spinPos = robot.spin1.getPosition() + shootAllSpindexerSpeedIncrease;
+                    if (spinPos > spinEndPos + 0.03){
+                        spinPos = spinEndPos + 0.03;
+                    }
+                    moveSpindexerToPos(spinPos);
+                }
                 break;
 
             default:
@@ -539,11 +577,20 @@ public class Spindexer {
     public void prepareShootAll(){
         currentIntakeState = Spindexer.IntakeState.SHOOT_ALL_PREP;
     }
+    public void prepareShootAllContinous(){
+        currentIntakeState = Spindexer.IntakeState.SHOOT_PREP_CONTINOUS;
+    }
     public void shootAll () {
         ballPositions[0].isEmpty = false;
         ballPositions[1].isEmpty = false;
         ballPositions[2].isEmpty = false;
         currentIntakeState = Spindexer.IntakeState.SHOOTNEXT;
+    }
+    public void shootAllContinous(){
+        ballPositions[0].isEmpty = false;
+        ballPositions[1].isEmpty = false;
+        ballPositions[2].isEmpty = false;
+        currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
     }
 
     public boolean shootAllComplete ()
@@ -552,7 +599,9 @@ public class Spindexer {
                 (currentIntakeState != Spindexer.IntakeState.SHOOT_ALL_READY) &&
                 (currentIntakeState != Spindexer.IntakeState.SHOOTMOVING) &&
                 (currentIntakeState != Spindexer.IntakeState.SHOOTNEXT) &&
-                (currentIntakeState != Spindexer.IntakeState.SHOOTWAIT));
+                (currentIntakeState != Spindexer.IntakeState.SHOOTWAIT) &&
+                (currentIntakeState != Spindexer.IntakeState.SHOOT_PREP_CONTINOUS) &&
+                (currentIntakeState != Spindexer.IntakeState.SHOOT_CONTINOUS));
     }
 
     void shootAllToIntake () {
