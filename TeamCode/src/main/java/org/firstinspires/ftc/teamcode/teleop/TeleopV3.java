@@ -329,6 +329,8 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+//
+//            TELE.update();
 
             ticker++;
         }

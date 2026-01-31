@@ -24,7 +24,7 @@ public class Poses {
 
     public static double rx3aG = 60, ry3aG = 34, rh3aG = Math.toRadians(140);
 
-    public static double rx3b = 38, ry3b = 56, rh3b = Math.toRadians(140.1);
+    public static double rx3b = 36, ry3b = 58, rh3b = Math.toRadians(140.1);
 
     public static double rx4a = 75, ry4a = 53, rh4a = Math.toRadians(140);
     public static double rx4b = 45, ry4b = 83, rh4b = Math.toRadians(140.1);

@@ -208,7 +208,7 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
 
                 drive.updatePoseEstimate();
 
-                Poses_V2.teleStart = drive.localizer.getPose();
+                teleStart = drive.localizer.getPose();
 
                 robot.intake.setPower(-0.3);
 
@@ -272,7 +272,7 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
 
                 drive.updatePoseEstimate();
 
-                Poses_V2.teleStart = drive.localizer.getPose();
+                teleStart = drive.localizer.getPose();
 
                 robot.intake.setPower(-0.3);
 

@@ -98,7 +98,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
 
-    public static double gateIntakeTime = 5.0;
+    public static double gateIntakeTime = 5.0; //TODO: Increase ig
 
     public static double spindexerSpeedIncrease = 0.03;
 
@@ -113,7 +113,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 19;
+    public static double pickup1Speed = 25;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
@@ -137,7 +137,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
     public static double firstShootTime = 0.3;
     public static double shootGateTime = 3.0;
-    public static double gaitWait = 0.8;
+    public static double gaitWait = 0.45;
     public int motif = 0;
 
     Robot robot;
@@ -321,7 +321,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 drive.updatePoseEstimate();
 
-                Poses_V2.teleStart = drive.localizer.getPose();
+                teleStart = drive.localizer.getPose();
 
                 robot.intake.setPower(-0.3);
 
@@ -385,7 +385,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 drive.updatePoseEstimate();
 
-                Poses_V2.teleStart = drive.localizer.getPose();
+                teleStart = drive.localizer.getPose();
 
                 robot.intake.setPower(-0.3);
 
