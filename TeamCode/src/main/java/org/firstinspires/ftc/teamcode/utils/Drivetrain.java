@@ -37,6 +37,7 @@ public class Drivetrain {
 
             x = x* 1.1; // Counteract imperfect strafing
 
+
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (y + x + rx) / denominator;
             double backLeftPower = (y - x + rx) / denominator;
