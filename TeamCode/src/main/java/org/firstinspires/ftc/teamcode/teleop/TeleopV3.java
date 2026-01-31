@@ -186,7 +186,7 @@ public class TeleopV3 extends LinearOpMode {
         robot.transferServo.setPosition(transferServo_out);
 
         while (opModeIsActive()) {
-            //LIMELIGHT START
+
             TELE.addData("Is limelight on?", robot.limelight.getStatus());
 
             // LIGHT COLORS
@@ -256,85 +256,6 @@ public class TeleopV3 extends LinearOpMode {
 
             }
 
-            //COLOR:
-
-            double s1D = robot.color1.getDistance(DistanceUnit.MM);
-            double s2D = robot.color2.getDistance(DistanceUnit.MM);
-            double s3D = robot.color3.getDistance(DistanceUnit.MM);
-
-            if (s1D < 43) {
-
-                double green = robot.color1.getNormalizedColors().green;
-                double red = robot.color1.getNormalizedColors().red;
-                double blue = robot.color1.getNormalizedColors().blue;
-
-                double gP = green / (green + red + blue);
-
-                s1G.add(gP);
-                TELE.addData("gp1", gP);
-
-                if (gP >= 0.36) {
-                    s1.add(true);
-                } else {
-                    s1.add(false);
-                }
-
-                s1T.add(getRuntime());
-
-            }
-
-            if (s2D < 60) {
-
-                double green = robot.color2.getNormalizedColors().green;
-                double red = robot.color2.getNormalizedColors().red;
-                double blue = robot.color2.getNormalizedColors().blue;
-
-                double gP = green / (green + red + blue);
-
-                s2G.add(gP);
-                TELE.addData("gp2", gP);
-
-                if (gP >= 0.43) {
-                    s2.add(true);
-                } else {
-                    s2.add(false);
-                }
-
-                s2T.add(getRuntime());
-            }
-
-            if (s3D < 33) {
-
-                double green = robot.color3.getNormalizedColors().green;
-                double red = robot.color3.getNormalizedColors().red;
-                double blue = robot.color3.getNormalizedColors().blue;
-
-                double gP = green / (green + red + blue);
-
-                TELE.addData("gp3", gP);
-
-                s3G.add(gP);
-
-                if (gP >= 0.43) {
-                    s3.add(true);
-                } else {
-                    s3.add(false);
-                }
-
-                s3T.add(getRuntime());
-            }
-
-            if (!s1.isEmpty()) {
-                green1 = checkGreen(s1, s1T);
-            }
-            if (!s2.isEmpty()) {
-                green2 = checkGreen(s2, s2T);
-
-            }
-            if (!s3.isEmpty()) {
-                green3 = checkGreen(s3, s3T);
-            }
-
             robot.transfer.setPower(1);
 
             double offset;
@@ -361,11 +282,9 @@ public class TeleopV3 extends LinearOpMode {
             turret.trackGoal(deltaPose);
 
             //VELOCITY AUTOMATIC
-            if (targetingVel) {
+            if (autoVel) {
                 vel = targetingSettings.flywheelRPM;
-            } else if (autoVel) {
-                vel = velPrediction(distanceToGoal);
-            } else {
+            }  else {
                 vel = manualVel;
             }
 
@@ -392,9 +311,7 @@ public class TeleopV3 extends LinearOpMode {
 
             if (targetingHood) {
                 robot.hood.setPosition(targetingSettings.hoodAngle);
-            } else if (autoHood) {
-                robot.hood.setPosition(0.15 + hoodOffset);
-            } else {
+            }  else {
                 robot.hood.setPosition(hoodDefaultPos + hoodOffset);
             }
 
@@ -431,18 +348,6 @@ public class TeleopV3 extends LinearOpMode {
                 autoHood = true;
                 fixedTurret = false;
             }
-//
-//            if (gamepad2.left_stick_y < -0.5) {
-//                autoHood = true;
-//            } else if (gamepad2.left_stick_y > 0.5) {
-//                autoHood = false;
-//                hoodOffset = 0;
-//                if (gamepad2.left_bumper) {
-//                    xOffset = robotX;
-//                    yOffset = robotY;
-//                    headingOffset = robotHeading;
-//                }
-//            }
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -470,50 +375,6 @@ public class TeleopV3 extends LinearOpMode {
                     intakeTicker = 0;
                     intake = false;
                     reject = false;
-
-//                    if (servo.getSpinPos() < spindexer_outtakeBall2 + 0.4) {
-//
-//                        if (shooterTicker == 0){
-//                            robot.transferServo.setPosition(transferServo_out);
-//                            robot.spin1.setPosition(spinStartPos);
-//                            robot.spin2.setPosition(1-spinStartPos);
-//                            if (servo.spinEqual(spinStartPos)){
-//                                shooterTicker++;
-//                            }
-//                            TELE.addLine("starting to shoot");
-//                        } else {
-//                            robot.transferServo.setPosition(transferServo_in);
-//                            shooterTicker++;
-//                            double prevSpinPos = servo.getSpinPos();
-//                            robot.spin1.setPosition(prevSpinPos + spinSpeedIncrease);
-//                            robot.spin2.setPosition(1 - prevSpinPos - spinSpeedIncrease);
-//                            TELE.addLine("shooting");
-//                        }
-
-//                    //robot.intake.setPower(-0.3);
-//                    if (getRuntime() - shootStamp < 3.0) {
-//
-//                        if (shooterTicker == 0 && !servo.spinEqual(ServoPositions.shootAllAutoSpinStartPos)) {
-//                            robot.spin1.setPosition(ServoPositions.shootAllAutoSpinStartPos);
-//                            robot.spin2.setPosition(1 - ServoPositions.shootAllAutoSpinStartPos);
-//                        } else {
-//                            shooterTicker++;
-//                            //robot.intake.setPower(0.0);
-//                            robot.transferServo.setPosition(transferServo_in);
-//                            double prevSpinPos = robot.spin1.getPosition();
-//                            robot.spin1.setPosition(prevSpinPos + ServoPositions.shootAllSpindexerSpeedIncrease);
-//                            robot.spin2.setPosition(1 - prevSpinPos - ServoPositions.shootAllAutoSpinStartPos);
-//                        }
-//
-//                    } else {
-//                        robot.transferServo.setPosition(transferServo_out);
-//                        //spindexPos = spindexer_intakePos1;
-//                        shootAll = false;
-//                        spindexer.resetSpindexer();
-//                        spindexer.processIntake();
-//
-//                    }
-
 
                     if (shooterTicker == 0) {
                         spindexer.prepareShootAllContinous();
@@ -546,170 +407,7 @@ public class TeleopV3 extends LinearOpMode {
                 }
             }
 
-//
-//            if (shootAll) {
-//
-//                TELE.addData("100% works", shootOrder);
-//
-//                intake = false;
-//                reject = false;
-//
-//                shooterTicker++;
-//
-//                spindexPos = spindexer_intakePos1;
-//
-//                if (getRuntime() - shootStamp < 1) {
-//
-//                    if (servo.spinEqual(spindexer_outtakeBall3) || ((getRuntime()-shootStamp)>0.4)){
-//                        robot.transferServo.setPosition(transferServo_in);
-//
-//                    } else {
-//                        robot.transferServo.setPosition(transferServo_out);
-//
-//                    }
-//
-//
-//                    autoSpintake = true;
-//
-//                    spindexPos = spindexer_outtakeBall3;
-//                    robot.intake.setPower(0.5);
-//
-//                }
-//
-//                else if (getRuntime() - shootStamp < 1.8) {
-//
-//                    robot.transferServo.setPosition(transferServo_in);
-//
-//                    autoSpintake = true;
-//                    robot.intake.setPower(0);
-//
-//                    spindexPos = spindexer_outtakeBall2;
-//
-//                }
-//                else if (getRuntime() - shootStamp < 2.6) {
-//
-//                    robot.transferServo.setPosition(transferServo_in);
-//
-//                    autoSpintake = false;
-//
-//                    robot.spin1.setPower(1);
-//                    robot.spin2.setPower(-1);
-//
-//                }
-//
-//                else {
-//                    robot.transferServo.setPosition(transferServo_out);
-//                    spindexPos = spindexer_intakePos1;
-//
-//                    shootAll = false;
-//
-//                    autoSpintake = true;
-//
-//                    robot.transferServo.setPosition(transferServo_out);
-//                }
-//
-//            }
 
-//                if (gamepad1.squareWasPressed()) {
-//                    square = true;
-//                    shootStamp = getRuntime();
-//                    shootStamp2 = getRuntime();
-//                    outtake1 = false;
-//                    outtake2 = false;
-//                    outtake3 = false;
-//                }
-//
-//                if (gamepad1.circleWasPressed()) {
-//                    circle = true;
-//                    shootStamp = getRuntime();
-//                    shootStamp2 = getRuntime();
-//
-//                    outtake1 = false;
-//                    outtake2 = false;
-//                    outtake3 = false;
-//
-//                }
-//
-//                if (gamepad1.triangleWasPressed()) {
-//                    triangle = true;
-//                    shootStamp = getRuntime();
-//                    shootStamp2 = getRuntime();
-//
-//                    outtake1 = false;
-//                    outtake2 = false;
-//                    outtake3 = false;
-//
-//                }
-//
-//                if (square || circle || triangle) {
-//
-//                    // Count green balls
-//                    int greenCount = 0;
-//                    if (green1) greenCount++;
-//                    if (green2) greenCount++;
-//                    if (green3) greenCount++;
-//
-//                    // Determine the odd ball color
-//                    oddBallColor = greenCount < 2; // true = green, false = purple
-//
-//                    shootOrder.clear();
-//
-//                    // Determine shooting order based on button pressed
-//                    // square = odd ball first, triangle = odd ball second, circle = odd ball third
-//                    if (square) {
-//                        // Odd ball first
-//                        addOddThenRest(shootOrder, oddBallColor);
-//
-//                    } else if (triangle) {
-//                        // Odd ball second
-//                        addOddInMiddle(shootOrder, oddBallColor);
-//                    } else if (circle) {
-//                        // Odd ball last
-//                        addOddLast(shootOrder, oddBallColor);
-//                    }
-//
-//                    circle = false;
-//                    square = false;
-//                    triangle = false;
-//
-//                }
-//
-//                // Right bumper shoots all balls fastest, ignoring colors
-//                if (gamepad1.crossWasPressed()) {
-//                    shootOrder.clear();
-//                    shootStamp = getRuntime();
-//
-//                    outtake1 = false;
-//                    outtake2 = false;
-//                    outtake3 = false;
-//
-//                    // Fastest order (example: slot 3 → 2 → 1)
-//                    if (ballIn(3)) {
-//                        shootOrder.add(3);
-//                    }
-//
-//                    if (ballIn(2)) {
-//                        shootOrder.add(2);
-//                    }
-//
-//                    if (ballIn(1)) {
-//                        shootOrder.add(1);
-//                    }
-//
-//                    if (!shootOrder.contains(3)) {
-//                        shootOrder.add(3);
-//                    }
-//
-//                    if (!shootOrder.contains(2)) {
-//                        shootOrder.add(2);
-//                    }
-//
-//                    if (!shootOrder.contains(1)) {
-//                        shootOrder.add(1);
-//                    }
-//
-//                    shootAll = true;
-//                }
 
             //EXTRA STUFFINESS:
             drive.updatePoseEstimate();
