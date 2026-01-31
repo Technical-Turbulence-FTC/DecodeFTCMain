@@ -102,13 +102,20 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
     public static double spindexerSpeedIncrease = 0.03;
 
-    public static double obeliskTurrPos1 = 0.52;
-    public static double obeliskTurrPos2 = 0.53;
-    public static double obeliskTurrPos3 = 0.54;
+    public static double redObeliskTurrPos1 = 0.52;
+    public static double redObeliskTurrPos2 = 0.53;
+    public static double blueObeliskTurrPos1 = 0.28;
+    public static double blueObeliskTurrPos2 = 0.27;
+    double obeliskTurrPos1 = 0.52;
+    double obeliskTurrPos2 = 0.53;
     public static double normalIntakeTime = 3.0;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double turretShootPos = 0.52;
+    public static double redTurretShootPos = 0.52;
+    public static double blueTurretShootPos = 0.26;
+
+    double turretShootPos = 0.52;
+
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
@@ -817,6 +824,11 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 yGate = Poses_V2.rYGate;
                 hGate = Poses_V2.rHGate;
 
+                obeliskTurrPos1 = redObeliskTurrPos1;
+                obeliskTurrPos2 = redObeliskTurrPos2;
+
+                turretShootPos = redTurretShootPos;
+
             } else {
                 robot.light.setPosition(0.6);
 
@@ -864,6 +876,10 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 yGate = Poses_V2.bYGate;
                 hGate = Poses_V2.bHGate;
 
+                obeliskTurrPos1 = blueObeliskTurrPos1;
+                obeliskTurrPos2 = blueObeliskTurrPos2;
+
+                turretShootPos = blueTurretShootPos;
             }
 
             shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
@@ -1057,7 +1073,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                                     0.501,
                                     obelisk1XTolerance,
                                     obelisk1YTolerance,
-                                    obeliskTurrPos3
+                                    obeliskTurrPos1
                             )
 
                     )
