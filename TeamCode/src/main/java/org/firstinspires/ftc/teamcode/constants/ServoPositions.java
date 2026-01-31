@@ -20,7 +20,7 @@ public class ServoPositions {
     public static double spinEndPos = 0.85;
 
     public static double shootAllAutoSpinStartPos = 0.2;
-    public static double shootAllSpindexerSpeedIncrease = 0.02;
+    public static double shootAllSpindexerSpeedIncrease = 0.014;
     public static double shootAllTime = 1.8;
 
     public static double transferServo_out = 0.15;

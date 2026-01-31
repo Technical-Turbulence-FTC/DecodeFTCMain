@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
+import static org.firstinspires.ftc.teamcode.teleop.TeleopV3.manualOffset;
 
 import static java.lang.Math.abs;
 
@@ -26,6 +27,7 @@ public class Turret {
     public static double turrDefault = 0.4;
     public static double turrMin = 0.15;
     public static double turrMax = 0.85;
+    public static boolean limelightUsed = true;
 
     public static double visionCorrectionGain = 0.08;  // Single tunable gain
     public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
@@ -54,7 +56,7 @@ public class Turret {
     LLResult result;
 
     private PIDController bearingPID;
-    public static double B_PID_P = 0.15, B_PID_I = 0.0, B_PID_D = 0.025;
+    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
     boolean bearingAligned = false;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
@@ -84,11 +86,6 @@ public class Turret {
     }
 
     private void limelightRead() { // only for tracking purposes, not general reads
-        if (redAlliance) {
-            webcam.pipelineSwitch(4);
-        } else {
-            webcam.pipelineSwitch(2);
-        }
 
         result = webcam.getLatestResult();
         if (result != null) {
@@ -223,7 +220,7 @@ public class Turret {
 
         limelightRead();
         // Active correction if we see the target
-        if (result.isValid() && !lockOffset) {
+        if (result.isValid() && !lockOffset && limelightUsed) {
             currentTrackOffset += bearingAlign(result);
             currentTrackCount++;
 //            double bearingError = Math.abs(tagBearingDeg);
@@ -282,8 +279,8 @@ public class Turret {
         }
 
         // Set servo positions
-        robot.turr1.setPosition(turretPos);
-        robot.turr2.setPosition(1.0 - turretPos);
+        robot.turr1.setPosition(turretPos + manualOffset);
+        robot.turr2.setPosition(1.0 - turretPos - manualOffset);
 
 
         /* ---------------- TELEMETRY ---------------- */

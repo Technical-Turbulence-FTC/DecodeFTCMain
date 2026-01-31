@@ -485,16 +485,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
+                    robot.limelight.pipelineSwitch(1);
                 }
 
                 ticker++;
-                robot.limelight.pipelineSwitch(1);
                 motif = turret.detectObelisk();
-                if (redAlliance){
-                    robot.limelight.pipelineSwitch(4);
-                } else {
-                    robot.limelight.pipelineSwitch(2);
-                }
 
                 robot.turr1.setPosition(turrPos);
                 robot.turr2.setPosition(1 - turrPos);
@@ -511,7 +506,16 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
-                return !shouldFinish;
+                if (shouldFinish){
+                    if (redAlliance){
+                        robot.limelight.pipelineSwitch(4);
+                    } else {
+                        robot.limelight.pipelineSwitch(2);
+                    }
+                    return false;
+                } else {
+                    return true;
+                }
 
             }
         };

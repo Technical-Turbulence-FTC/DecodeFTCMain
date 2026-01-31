@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -39,10 +40,12 @@ public class TeleopV3 extends LinearOpMode {
     public double vel = 3000;
     public boolean autoVel = true;
     public boolean targetingHood = true;
-    public double manualOffset = 0.0;
+    public static double manualOffset = 0.0;
     public boolean autoHood = true;
 
     public double shootStamp = 0.0;
+    public static double hoodSpeedOffset = 0.01;
+    public static double turretSpeedOffset = 0.01;
 
     boolean fixedTurret = false;
     Robot robot;
@@ -191,43 +194,40 @@ public class TeleopV3 extends LinearOpMode {
             //HOOD:
 
             if (targetingHood) {
-                robot.hood.setPosition(targetingSettings.hoodAngle);
+                robot.hood.setPosition(targetingSettings.hoodAngle + autoHoodOffset);
             } else {
                 robot.hood.setPosition(hoodDefaultPos + hoodOffset);
             }
 
-            if (gamepad2.dpadUpWasPressed() || gamepad1.dpadUpWasPressed()) {
-                hoodOffset -= 0.03;
-                autoHoodOffset -= 0.02;
+            if (gamepad2.dpadUpWasPressed()) {
+                hoodOffset -= hoodSpeedOffset;
+                autoHoodOffset -= hoodSpeedOffset;
+                gamepad2.rumble(80);
 
-            } else if (gamepad2.dpadDownWasPressed() || gamepad1.dpadDownWasPressed()) {
-                hoodOffset += 0.03;
-                autoHoodOffset += 0.02;
-
+            } else if (gamepad2.dpadDownWasPressed()) {
+                hoodOffset += hoodSpeedOffset;
+                autoHoodOffset += hoodSpeedOffset;
+                gamepad2.rumble(80);
             }
 
-            if (gamepad2.cross) {
-                manualOffset = 0;
-                overrideTurr = true;
+            if (gamepad2.dpadLeftWasPressed()){
+                manualOffset -= turretSpeedOffset;
+                gamepad2.rumble(80);
+            } else if (gamepad2.dpadRightWasPressed()){
+                manualOffset += turretSpeedOffset;
+                gamepad2.rumble(80);
             }
 
-            if (gamepad2.squareWasPressed()) {
-                drive = new MecanumDrive(hardwareMap, new Pose2d(20, 0, 0));
-                sleep(1500);
+            if (gamepad2.rightBumperWasPressed()){
+                limelightUsed = true;
+                gamepad2.rumble(80);
+            } else if (gamepad2.leftBumperWasPressed()){
+                limelightUsed = false;
+                gamepad2.rumble(80);
             }
 
-            if (gamepad2.triangle) {
-                autoHood = false;
-                hoodOffset = 0;
-            }
+            if (gamepad2.crossWasPressed()){
 
-            if (gamepad2.circleWasPressed()) {
-                xOffset = robotX;
-                yOffset = robotY;
-                headingOffset = robotHeading;
-
-                autoHood = true;
-                fixedTurret = false;
             }
 
             if (enableSpindexerManager) {
@@ -329,8 +329,6 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-
-//            TELE.update();
 
             ticker++;
         }
