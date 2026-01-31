@@ -226,8 +226,8 @@ public class TeleopV3 extends LinearOpMode {
                 gamepad2.rumble(80);
             }
 
-            if (gamepad2.crossWasPressed()){
-
+            if (gamepad2.crossWasPressed()) {
+                drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
             }
 
             if (enableSpindexerManager) {
