@@ -54,7 +54,7 @@ public class Turret {
     LLResult result;
 
     private PIDController bearingPID;
-    public static double B_PID_P = 0.3, B_PID_I = 0.0, B_PID_D = 0.05;
+    public static double B_PID_P = 0.15, B_PID_I = 0.0, B_PID_D = 0.025;
     boolean bearingAligned = false;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
@@ -288,15 +288,15 @@ public class Turret {
 
         /* ---------------- TELEMETRY ---------------- */
 
-        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
-        TELE.addData("Target Pos", "%.3f", targetTurretPos);
-        TELE.addData("Current Pos", "%.3f", currentPos);
-        TELE.addData("Commanded Pos", "%.3f", turretPos);
-        TELE.addData("LL Valid", result.isValid());
-        TELE.addData("LL getTx", result.getTx());
-        TELE.addData("LL Offset", offset);
-        //TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
-        TELE.addData("Learned Offset", "%.2f", offset);
+//        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
+//        TELE.addData("Target Pos", "%.3f", targetTurretPos);
+//        TELE.addData("Current Pos", "%.3f", currentPos);
+//        TELE.addData("Commanded Pos", "%.3f", turretPos);
+//        TELE.addData("LL Valid", result.isValid());
+//        TELE.addData("LL getTx", result.getTx());
+//        TELE.addData("LL Offset", offset);
+//        TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
+//        TELE.addData("Learned Offset", "%.2f", offset);
     }
 
 }

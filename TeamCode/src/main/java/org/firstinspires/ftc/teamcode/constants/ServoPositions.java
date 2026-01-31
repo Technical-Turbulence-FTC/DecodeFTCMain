@@ -16,11 +16,11 @@ public class ServoPositions {
 
     public static double spindexer_outtakeBall2 = 0.53; //0.46; //0.6;
     public static double spindexer_outtakeBall1 = 0.35; //0.27; //0.4;
-    public static double spinStartPos = 0.25;
+    public static double spinStartPos = 0.22;
     public static double spinEndPos = 0.85;
 
     public static double shootAllAutoSpinStartPos = 0.2;
-    public static double shootAllSpindexerSpeedIncrease = 0.04;
+    public static double shootAllSpindexerSpeedIncrease = 0.02;
     public static double shootAllTime = 1.8;
 
     public static double transferServo_out = 0.15;

@@ -49,16 +49,25 @@ public class Targeting {
         KNOWNTARGETING[1][0] = new Settings (2300.0, 0.93);
         KNOWNTARGETING[1][1] = new Settings (2300.0, 0.93);
         KNOWNTARGETING[1][2] = new Settings (2600.0, 0.78);
-        KNOWNTARGETING[1][3] = new Settings (2800.0, 0.62);
-        KNOWNTARGETING[1][4] = new Settings (3000.0, 0.55);
+//        KNOWNTARGETING[1][3] = new Settings (2800.0, 0.62);
+//        KNOWNTARGETING[1][4] = new Settings (3000.0, 0.55);
+//        KNOWNTARGETING[1][5] = new Settings (3200.0, 0.50);
+        KNOWNTARGETING[1][3] = new Settings (2800.0, 0.68);  // Real settings replaced with (0,3) new Settings (2800.0, 0.62);
+        KNOWNTARGETING[1][4] = new Settings (3000.0, 0.58);  // Real setting replaced with (0,4)  new Settings (3000.0, 0.55);
         KNOWNTARGETING[1][5] = new Settings (3200.0, 0.50);
         // ROW 2
+//        KNOWNTARGETING[2][0] = new Settings (2500.0, 0.78);
+//        KNOWNTARGETING[2][1] = new Settings (2500.0, 0.78);
+//        KNOWNTARGETING[2][2] = new Settings (2700.0, 0.60);
+//        KNOWNTARGETING[2][3] = new Settings (2900.0, 0.53);
+//        KNOWNTARGETING[2][4] = new Settings (3100.0, 0.50);
+//        KNOWNTARGETING[2][5] = new Settings (3100.0, 0.50);
         KNOWNTARGETING[2][0] = new Settings (2500.0, 0.78);
         KNOWNTARGETING[2][1] = new Settings (2500.0, 0.78);
         KNOWNTARGETING[2][2] = new Settings (2700.0, 0.60);
-        KNOWNTARGETING[2][3] = new Settings (2900.0, 0.53);
-        KNOWNTARGETING[2][4] = new Settings (3100.0, 0.50);
-        KNOWNTARGETING[2][5] = new Settings (3100.0, 0.50);
+        KNOWNTARGETING[2][3] = new Settings (2800.0, 0.62);  // Real settings replaced with (1,3) new Settings (2900.0, 0.53);
+        KNOWNTARGETING[2][4] = new Settings (3000.0, 0.55);  // real settings replaces with (1,4) new Settings (3100.0, 0.50);
+        KNOWNTARGETING[2][5] = new Settings (3200.0, 0.50);  // real settings replaced with (1,5) new Settings (3100.0, 0.50);
         // ROW 3
         KNOWNTARGETING[3][0] = new Settings (2900.0, 0.50);
         KNOWNTARGETING[3][1] = new Settings (2900.0, 0.50);

@@ -117,7 +117,7 @@ public class TeleopV3 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            TELE.addData("Is limelight on?", robot.limelight.getStatus());
+            //TELE.addData("Is limelight on?", robot.limelight.getStatus());
 
             // LIGHT COLORS
             spindexer.ballCounterLight();
@@ -259,21 +259,21 @@ public class TeleopV3 extends LinearOpMode {
 
                     if (shooterTicker == 0) {
                         spindexer.prepareShootAllContinous();
-                        TELE.addLine("preparing to shoot");
+                        //TELE.addLine("preparing to shoot");
 //                    } else if (shooterTicker == 2) {
 //                        //robot.transferServo.setPosition(transferServo_in);
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
                         robot.transferServo.setPosition(transferServo_in);
-                        TELE.addLine("shoot");
+                        //TELE.addLine("shoot");
                     } else {
                         robot.transferServo.setPosition(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
                         shootAll = false;
                         spindexer.resetSpindexer();
                         //spindexer.processIntake();
-                        TELE.addLine("stop shooting");
+                        //TELE.addLine("stop shooting");
                     }
                     shooterTicker++;
                     //spindexer.processIntake();
@@ -311,11 +311,11 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("oddColor", oddBallColor);
 //
 //            // Spindexer Debug
-            TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
-            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
-            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
-            TELE.addData("spinTestCounter", spindexer.counter);
-            TELE.addData("autoSpintake", autoSpintake);
+//            TELE.addData("spinEqual", servo.spinEqual(spindexer_intakePos1));
+//            TELE.addData("spinCommmandedPos", spindexer.commandedIntakePosition);
+//            TELE.addData("spinIntakeState", spindexer.currentIntakeState);
+//            TELE.addData("spinTestCounter", spindexer.counter);
+//            TELE.addData("autoSpintake", autoSpintake);
 //
 //            TELE.addData("shootall commanded", shootAll);
 //            // Targeting Debug
@@ -324,13 +324,13 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("robotInchesX", targeting.robotInchesX);
 //            TELE.addData( "robotInchesY", targeting.robotInchesY);
 //            TELE.addData("Targeting Interpolate", turretInterpolate);
-            TELE.addData("Targeting GridX", targeting.robotGridX);
-            TELE.addData("Targeting GridY", targeting.robotGridY);
-            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+//            TELE.addData("Targeting GridX", targeting.robotGridX);
+//            TELE.addData("Targeting GridY", targeting.robotGridY);
+//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
 
-            TELE.update();
+//            TELE.update();
 
             ticker++;
         }
