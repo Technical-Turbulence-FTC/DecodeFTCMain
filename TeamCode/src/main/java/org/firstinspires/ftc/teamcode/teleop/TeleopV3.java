@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
@@ -37,16 +36,14 @@ public class TeleopV3 extends LinearOpMode {
     public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
     public static double spinSpeedIncrease = 0.03;
     public static int resetSpinTicks = 4;
+    public static double manualOffset = 0.0;
+    public static double hoodSpeedOffset = 0.01;
+    public static double turretSpeedOffset = 0.01;
     public double vel = 3000;
     public boolean autoVel = true;
     public boolean targetingHood = true;
-    public static double manualOffset = 0.0;
     public boolean autoHood = true;
-
     public double shootStamp = 0.0;
-    public static double hoodSpeedOffset = 0.01;
-    public static double turretSpeedOffset = 0.01;
-
     boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
@@ -112,6 +109,9 @@ public class TeleopV3 extends LinearOpMode {
                 robot.limelight.pipelineSwitch(2);
             }
         }
+
+        limelightUsed= true;
+
 
         waitForStart();
         if (isStopRequested()) return;
@@ -210,18 +210,18 @@ public class TeleopV3 extends LinearOpMode {
                 gamepad2.rumble(80);
             }
 
-            if (gamepad2.dpadLeftWasPressed()){
+            if (gamepad2.dpadLeftWasPressed()) {
                 manualOffset -= turretSpeedOffset;
                 gamepad2.rumble(80);
-            } else if (gamepad2.dpadRightWasPressed()){
+            } else if (gamepad2.dpadRightWasPressed()) {
                 manualOffset += turretSpeedOffset;
                 gamepad2.rumble(80);
             }
 
-            if (gamepad2.rightBumperWasPressed()){
+            if (gamepad2.rightBumperWasPressed()) {
                 limelightUsed = true;
                 gamepad2.rumble(80);
-            } else if (gamepad2.leftBumperWasPressed()){
+            } else if (gamepad2.leftBumperWasPressed()) {
                 limelightUsed = false;
                 gamepad2.rumble(80);
             }
@@ -238,6 +238,9 @@ public class TeleopV3 extends LinearOpMode {
                 // RIGHT_BUMPER
                 if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
                     robot.intake.setPower(1);
+                } else if (gamepad1.cross) {
+                    robot.intake.setPower(-1);
+
                 } else {
                     robot.intake.setPower(0);
 

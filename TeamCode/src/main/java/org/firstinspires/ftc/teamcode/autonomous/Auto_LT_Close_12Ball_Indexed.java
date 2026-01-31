@@ -99,6 +99,8 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double shoot0SpinSpeedIncrease = 0.015;
 
     public static double spindexerSpeedIncrease = 0.03;
+    public static double finalSpindexerSpeedIncrease = 0.025;
+
 
     public static double redObeliskTurrPos1 = 0.52;
     public static double redObeliskTurrPos2 = 0.53;
@@ -117,6 +119,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double blueTurretShootPos = 0.26;
     double turretShootPos = 0.0;
 
+    public static double finalShootAllTime = 3.0;
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.3;
@@ -125,7 +128,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double intake3Time = 4.2;
 
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 19;
+    public static double pickup1Speed = 23;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shoot1Hood = 0.93;
@@ -1071,13 +1074,13 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             manageShooterAuto(
-                                    shootAllTime,
+                                    finalShootAllTime,
                                     0.501,
                                     0.501,
                                     0.501,
                                     0.501
                             ),
-                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                            shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
                     )
 
             );

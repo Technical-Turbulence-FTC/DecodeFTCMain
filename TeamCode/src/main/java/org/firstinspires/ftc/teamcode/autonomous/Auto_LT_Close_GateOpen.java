@@ -98,7 +98,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
 
-    public static double gateIntakeTime = 5.0; //TODO: Increase ig
+    public static double gateIntakeTime = 5.9; //TODO: Increase ig
 
     public static double spindexerSpeedIncrease = 0.03;
 
@@ -116,9 +116,11 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
     double turretShootPos = 0.52;
 
-    public static double shootAllTime = 1.8;
+    public static double shootAllTime = 1.9;
     public static double shoot0Time = 1.6;
-    public static double intake1Time = 3.0;
+    public static double intake1Time = 3.3;
+    public static double intake2Time = 3.6;
+
     public static double flywheel0Time = 3.5;
     public static double pickup1Speed = 25;
     // ---- SECOND SHOT / PICKUP ----
@@ -768,6 +770,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
         TrajectoryActionBuilder pickup3 = null;
         TrajectoryActionBuilder shoot3 = null;
 
+        Turret.limelightUsed = false;
+
         robot.light.setPosition(1);
 
         while (opModeInInit()) {
@@ -952,7 +956,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                             manageFlywheel(
                                     shootAllVelocity,
                                     shootAllHood,
-                                    normalIntakeTime,
+                                    intake2Time,
                                     0.501,
                                     0.501,
                                     0.501,
@@ -960,7 +964,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                             ),
                             intake(intake1Time),
                             detectObelisk(
-                                    intake1Time,
+                                    intake2Time,
                                     0.501,
                                     0.501,
                                     obelisk1XTolerance,
@@ -1010,8 +1014,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                             gatePickup.build(),
                             manageShooterAuto(
                                     gateIntakeTime,
-                                    x2b,
-                                    y2b,
+                                    0.501,
+                                    0.501,
                                     pickup1XTolerance,
                                     pickup1YTolerance
                             ),
@@ -1060,15 +1064,15 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                     new ParallelAction(
                             pickup1.build(),
                             manageShooterAuto(
-                                    normalIntakeTime,
+                                    intake1Time,
                                     0.501,
                                     0.501,
                                     pickup1XTolerance,
                                     pickup1YTolerance
                             ),
-                            intake(normalIntakeTime),
+                            intake(intake1Time),
                             detectObelisk(
-                                    normalIntakeTime,
+                                    intake1Time,
                                     0.501,
                                     0.501,
                                     obelisk1XTolerance,
