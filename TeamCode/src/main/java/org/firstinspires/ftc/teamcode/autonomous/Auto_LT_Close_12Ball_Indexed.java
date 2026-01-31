@@ -100,13 +100,23 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
     public static double spindexerSpeedIncrease = 0.03;
 
-    public static double obeliskTurrPos1 = 0.52;
-    public static double obeliskTurrPos2 = 0.53;
-    public static double obeliskTurrPos3 = 0.54;
+    public static double redObeliskTurrPos1 = 0.52;
+    public static double redObeliskTurrPos2 = 0.53;
+    public static double redObeliskTurrPos3 = 0.54;
+
+    public static double blueObeliskTurrPos1 = 0.28;
+    public static double blueObeliskTurrPos2 = 0.27;
+    public static double blueObeliskTurrPos3 = 0.26;
+    double obeliskTurrPos1 = 0.0;
+    double obeliskTurrPos2 = 0.0;
+    double obeliskTurrPos3 = 0.0;
     public static double normalIntakeTime = 3.0;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double turretShootPos = 0.52;
+    public static double redTurretShootPos = 0.52;
+    public static double blueTurretShootPos = 0.26;
+    double turretShootPos = 0.0;
+
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.0;
@@ -799,6 +809,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 yShoot = rShootY;
                 hShoot = rShootH;
 
+                obeliskTurrPos1 = redObeliskTurrPos1;
+                obeliskTurrPos2 = redObeliskTurrPos2;
+                obeliskTurrPos3 = redObeliskTurrPos3;
+                turretShootPos = redTurretShootPos;
+
             } else {
                 robot.light.setPosition(0.6);
 
@@ -833,6 +848,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 xShoot = bShootX;
                 yShoot = bShootY;
                 hShoot = bShootH;
+
+                obeliskTurrPos1 = blueObeliskTurrPos1;
+                obeliskTurrPos2 = blueObeliskTurrPos2;
+                obeliskTurrPos3 = blueObeliskTurrPos3;
+                turretShootPos = blueTurretShootPos;
 
             }
 
