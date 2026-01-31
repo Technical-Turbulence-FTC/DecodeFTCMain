@@ -16,11 +16,14 @@ public class Poses {
 
     public static double rx1 = 20, ry1 = 0.5, rh1 = Math.toRadians(0.1);
     public static double rx2a = 41, ry2a = 18, rh2a = Math.toRadians(140);
-    public static double rx2b = 23, ry2b = 36, rh2b = Math.toRadians(140.1);
+    public static double rx2b = 19, ry2b = 40, rh2b = Math.toRadians(140.1);
 
     public static double rx2c = 34, ry2c = 50, rh2c = Math.toRadians(140);
 
     public static double rx3a = 55, ry3a = 39, rh3a = Math.toRadians(140);
+
+    public static double rx3aG = 60, ry3aG = 34, rh3aG = Math.toRadians(140);
+
     public static double rx3b = 38, ry3b = 56, rh3b = Math.toRadians(140.1);
 
     public static double rx4a = 75, ry4a = 53, rh4a = Math.toRadians(140);
@@ -32,6 +35,8 @@ public class Poses {
     public static double bx2c = 34, by2c = -50, bh2c = Math.toRadians(-140);
 
     public static double bx3a = 55, by3a = -43, bh3a = Math.toRadians(-140);
+    public static double bx3aG = 55, by3aG = -43, bh3aG = Math.toRadians(-140);
+
     public static double bx3b = 37, by3b = -61, bh3b = Math.toRadians(-140);
 
     public static double bx4a = 72, by4a = -55, bh4a = Math.toRadians(-140);

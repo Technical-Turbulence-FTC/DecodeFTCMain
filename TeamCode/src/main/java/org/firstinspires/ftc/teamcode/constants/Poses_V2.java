@@ -20,6 +20,10 @@ public class Poses_V2 {
 
     public static double rx2c = 34, ry2c = 50, rh2c = Math.toRadians(140), rt2c  = Math.toRadians(Math.PI/2);
 
+    public static double rXGateA = 27, rYGateA = 56, rHGateA = Math.toRadians(160);
+
+    public static double rXGateB = 40, rYGateB = 43, rHGateB = Math.toRadians(159);
+
     public static double rXGate = 30, rYGate = 63, rHGate = Math.toRadians(179);
 
     public static double rx3a = 55, ry3a = 39, rh3a = Math.toRadians(140);
@@ -36,6 +40,10 @@ public class Poses_V2 {
     public static double rShootX = 40, rShootY = 7, rShootH = Math.toRadians(140);
 
     public static double bShootX = 20, bShootY = 30, bShootH = Math.toRadians(140);
+
+    public static double bXGateA = 33, bYGateA = 61, bHGateA = Math.toRadians(165);
+    public static double bXGateB = 33, bYGateB = 61, bHGateB = Math.toRadians(165);
+
     public static double bXGate = 25, bYGate = 69, bHGate = Math.toRadians(165);
 
 
