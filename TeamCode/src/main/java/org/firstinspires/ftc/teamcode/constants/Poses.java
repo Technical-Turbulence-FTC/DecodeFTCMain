@@ -31,16 +31,16 @@ public class Poses {
 
     public static double bx1 = 20, by1 = 0.5, bh1 = Math.toRadians(0.1);
     public static double bx2a = 41, by2a = -18, bh2a = Math.toRadians(-140);
-    public static double bx2b = 23, by2b = -36, bh2b = Math.toRadians(-140.1);
+    public static double bx2b = 19, by2b = -40, bh2b = Math.toRadians(-140.1);
     public static double bx2c = 34, by2c = -50, bh2c = Math.toRadians(-140);
 
     public static double bx3a = 55, by3a = -39, bh3a = Math.toRadians(-140);
-    public static double bx3b = 38, by3b = -56, bh3b = Math.toRadians(-140.1);
+    public static double bx3b = 41, by3b = -59, bh3b = Math.toRadians(-140.1);
     public static double bx3aG = 55, by3aG = -43, bh3aG = Math.toRadians(-140);
 
 
     public static double bx4a = 75, by4a = -53, bh4a = Math.toRadians(-140);
-    public static double bx4b = 45, by4b = -83, bh4b = Math.toRadians(-140.1);
+    public static double bx4b = 47, by4b = -85, bh4b = Math.toRadians(-140.1);
     public static double rfx1 = 10, rfy1 = 0, rfh1 = 0; //TODO: test this
 
     public static double rShootX = 40, rShootY = -7, rShootH = Math.toRadians(50);

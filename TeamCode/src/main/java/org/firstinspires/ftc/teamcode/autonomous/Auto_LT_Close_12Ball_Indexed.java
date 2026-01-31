@@ -110,7 +110,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
-    public static double normalIntakeTime = 3.0;
+    public static double normalIntakeTime = 3.3;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
     public static double redTurretShootPos = 0.52;
@@ -119,7 +119,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
     public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
-    public static double intake1Time = 3.0;
+    public static double intake1Time = 3.3;
+    public static double intake2Time = 3.8;
+
+    public static double intake3Time = 4.2;
+
     public static double flywheel0Time = 3.5;
     public static double pickup1Speed = 19;
     // ---- SECOND SHOT / PICKUP ----
@@ -127,8 +131,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double shoot1Hood = 0.93;
     public static double shootAllVelocity = 2500;
     public static double shootAllHood = 0.78;
-    // ---- PICKUP TIMING ----
-    public static double pickup1Time = 3.0;
     // ---- PICKUP POSITION TOLERANCES ----
     public static double pickup1XTolerance = 2.0;
     public static double pickup1YTolerance = 2.0;
@@ -922,7 +924,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                             manageFlywheel(
                                     shootAllVelocity,
                                     shootAllHood,
-                                    pickup1Time,
+                                    intake1Time,
                                     x2b,
                                     y2b,
                                     pickup1XTolerance,
@@ -982,15 +984,15 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     new ParallelAction(
                             pickup2.build(),
                             manageShooterAuto(
-                                    normalIntakeTime,
+                                    intake2Time,
                                     x2b,
                                     y2b,
                                     pickup1XTolerance,
                                     pickup1YTolerance
                             ),
-                            intake(normalIntakeTime),
+                            intake(intake2Time),
                             detectObelisk(
-                                    normalIntakeTime,
+                                    intake2Time,
                                     0.501,
                                     0.501,
                                     obelisk1XTolerance,
@@ -1033,15 +1035,15 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     new ParallelAction(
                             pickup3.build(),
                             manageShooterAuto(
-                                    normalIntakeTime,
+                                    intake3Time,
                                     x2b,
                                     y2b,
                                     pickup1XTolerance,
                                     pickup1YTolerance
                             ),
-                            intake(normalIntakeTime),
+                            intake(intake3Time),
                             detectObelisk(
-                                    normalIntakeTime,
+                                    intake3Time,
                                     0.501,
                                     0.501,
                                     obelisk1XTolerance,
