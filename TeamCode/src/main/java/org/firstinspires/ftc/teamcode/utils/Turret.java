@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.teleop.TeleopV3.manualOffset;
-
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -24,10 +21,12 @@ public class Turret {
     public static double turretTolerance = 0.02;
     public static double turrPosScalar = 0.00011264432;
     public static double turret180Range = 0.4;
-    public static double turrDefault = 0.4;
+    public static double turrDefault = 0.39;
     public static double turrMin = 0.15;
     public static double turrMax = 0.85;
     public static boolean limelightUsed = true;
+
+    public static double manualOffset = 0.0;
 
     public static double visionCorrectionGain = 0.08;  // Single tunable gain
     public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
@@ -36,28 +35,23 @@ public class Turret {
     // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
+    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
-
     double tx = 0.0;
     double ty = 0.0;
     double limelightPosX = 0.0;
     double limelightPosY = 0.0;
+    LLResult result;
+    boolean bearingAligned = false;
     private boolean lockOffset = false;
     private int obeliskID = 0;
-
     private double offset = 0.0;
     private double currentTrackOffset = 0.0;
     private int currentTrackCount = 0;
-
     private double permanentOffset = 0.0;
-
-    LLResult result;
-
     private PIDController bearingPID;
-    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
-    boolean bearingAligned = false;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
@@ -149,8 +143,7 @@ public class Turret {
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading
      */
 
-
-    private double bearingAlign (LLResult llResult) {
+    private double bearingAlign(LLResult llResult) {
         double bearingOffset = 0.0;
         double targetTx = llResult.getTx();   // How far left or right the target is (degrees)
         final double MIN_OFFSET_POWER = 0.15;
@@ -166,8 +159,7 @@ public class Turret {
         }
 
         // Only with valid data and if too far off target
-        if (llResult.isValid() && !bearingAligned)
-        {
+        if (llResult.isValid() && !bearingAligned) {
 
             // Adjust Robot Speed based on how far the target is located
             // Only drive at half speed max
@@ -188,7 +180,6 @@ public class Turret {
 
         return bearingOffset;
     }
-
 
     public void trackGoal(Pose2d deltaPos) {
 

@@ -56,6 +56,7 @@ import static org.firstinspires.ftc.teamcode.constants.Poses.ry4a;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ry4b;
 import static org.firstinspires.ftc.teamcode.constants.Poses.ryPrep;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
@@ -95,7 +96,7 @@ import java.util.Objects;
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
-    public static double shoot0Vel = 2300, shoot0Hood = 0.93;
+    public static double shoot0Vel = 2300, shoot0Hood = 0.93 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
 
@@ -132,9 +133,8 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double pickup1Speed = 23;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
-    public static double shoot1Hood = 0.93;
     public static double shootAllVelocity = 2500;
-    public static double shootAllHood = 0.78;
+    public static double shootAllHood = 0.78 + hoodOffset;
     // ---- PICKUP POSITION TOLERANCES ----
     public static double pickup1XTolerance = 2.0;
     public static double pickup1YTolerance = 2.0;

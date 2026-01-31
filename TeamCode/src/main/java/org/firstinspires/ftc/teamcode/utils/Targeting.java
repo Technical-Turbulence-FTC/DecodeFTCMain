@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
+import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+
 public class Targeting {
     // Known settings discovered using shooter test.
     // Keep the fidelity at 1 floor tile for now but we could also half it if more
@@ -183,7 +185,7 @@ public class Targeting {
         if (true) { //!interpolate) {
             if ((robotGridY < 6) && (robotGridX < 6)) {
                 recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridX][robotGridY].flywheelRPM;
-                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle;
+                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle + ServoPositions.hoodOffset;
             }
             return recommendedSettings;
         } else {

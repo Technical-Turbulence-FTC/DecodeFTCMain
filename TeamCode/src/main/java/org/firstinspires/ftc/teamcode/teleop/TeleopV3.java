@@ -36,7 +36,6 @@ public class TeleopV3 extends LinearOpMode {
     public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
     public static double spinSpeedIncrease = 0.03;
     public static int resetSpinTicks = 4;
-    public static double manualOffset = 0.0;
     public static double hoodSpeedOffset = 0.01;
     public static double turretSpeedOffset = 0.01;
     public double vel = 3000;
@@ -63,7 +62,6 @@ public class TeleopV3 extends LinearOpMode {
     double headingOffset = 0.0;
     int ticker = 0;
 
-    double hoodOffset = 0.0;
 
     boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
@@ -196,25 +194,23 @@ public class TeleopV3 extends LinearOpMode {
             if (targetingHood) {
                 robot.hood.setPosition(targetingSettings.hoodAngle + autoHoodOffset);
             } else {
-                robot.hood.setPosition(hoodDefaultPos + hoodOffset);
+                robot.hood.setPosition(hoodDefaultPos);
             }
 
             if (gamepad2.dpadUpWasPressed()) {
-                hoodOffset -= hoodSpeedOffset;
                 autoHoodOffset -= hoodSpeedOffset;
                 gamepad2.rumble(80);
 
             } else if (gamepad2.dpadDownWasPressed()) {
-                hoodOffset += hoodSpeedOffset;
                 autoHoodOffset += hoodSpeedOffset;
                 gamepad2.rumble(80);
             }
 
             if (gamepad2.dpadLeftWasPressed()) {
-                manualOffset -= turretSpeedOffset;
+                Turret.manualOffset -= turretSpeedOffset;
                 gamepad2.rumble(80);
             } else if (gamepad2.dpadRightWasPressed()) {
-                manualOffset += turretSpeedOffset;
+                Turret.manualOffset += turretSpeedOffset;
                 gamepad2.rumble(80);
             }
 
@@ -229,6 +225,8 @@ public class TeleopV3 extends LinearOpMode {
             if (gamepad2.crossWasPressed()) {
                 drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
             }
+
+
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -320,20 +318,20 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("spinTestCounter", spindexer.counter);
 //            TELE.addData("autoSpintake", autoSpintake);
 //
-//            TELE.addData("shootall commanded", shootAll);
-//            // Targeting Debug
-//            TELE.addData("robotX", robotX);
-//            TELE.addData("robotY", robotY);
-//            TELE.addData("robotInchesX", targeting.robotInchesX);
-//            TELE.addData( "robotInchesY", targeting.robotInchesY);
-//            TELE.addData("Targeting Interpolate", turretInterpolate);
-//            TELE.addData("Targeting GridX", targeting.robotGridX);
-//            TELE.addData("Targeting GridY", targeting.robotGridY);
-//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
-//            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-//
-//            TELE.update();
+            TELE.addData("shootall commanded", shootAll);
+            // Targeting Debug
+            TELE.addData("robotX", robotX);
+            TELE.addData("robotY", robotY);
+            TELE.addData("robotInchesX", targeting.robotInchesX);
+            TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting Interpolate", turretInterpolate);
+            TELE.addData("Targeting GridX", targeting.robotGridX);
+            TELE.addData("Targeting GridY", targeting.robotGridY);
+            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+
+            TELE.update();
 
             ticker++;
         }
