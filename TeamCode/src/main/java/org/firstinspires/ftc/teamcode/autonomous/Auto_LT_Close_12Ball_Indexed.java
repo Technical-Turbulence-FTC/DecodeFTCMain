@@ -63,6 +63,7 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
 
 import androidx.annotation.NonNull;
 
@@ -102,21 +103,21 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double finalSpindexerSpeedIncrease = 0.025;
 
 
-    public static double redObeliskTurrPos1 = 0.52;
-    public static double redObeliskTurrPos2 = 0.53;
-    public static double redObeliskTurrPos3 = 0.54;
+    public static double redObeliskTurrPos1 = turrDefault + 0.12;
+    public static double redObeliskTurrPos2 = turrDefault + 0.13;
+    public static double redObeliskTurrPos3 = turrDefault + 0.14;
 
-    public static double blueObeliskTurrPos1 = 0.28;
-    public static double blueObeliskTurrPos2 = 0.27;
-    public static double blueObeliskTurrPos3 = 0.26;
+    public static double blueObeliskTurrPos1 = turrDefault - 0.12;
+    public static double blueObeliskTurrPos2 = turrDefault - 0.13;
+    public static double blueObeliskTurrPos3 = turrDefault - 0.14;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
     public static double normalIntakeTime = 3.3;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double redTurretShootPos = 0.52;
-    public static double blueTurretShootPos = 0.26;
+    public static double redTurretShootPos = turrDefault + 0.12;
+    public static double blueTurretShootPos = turrDefault - 0.14;
     double turretShootPos = 0.0;
 
     public static double finalShootAllTime = 3.0;
@@ -752,7 +753,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
         turret = new Turret(robot, TELE, robot.limelight);
 
-        turret.manualSetTurret(0.4);
+        turret.manualSetTurret(turrDefault);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
@@ -775,10 +776,32 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
         while (opModeInInit()) {
 
             robot.hood.setPosition(shoot0Hood);
+            turret.manualSetTurret(turrDefault);
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;
             }
+
+            if (gamepad2.dpadLeftWasPressed()) {
+                turrDefault -=0.01;
+            }
+
+            if (gamepad2.dpadRightWasPressed()) {
+                turrDefault +=0.01;
+            }
+
+            redObeliskTurrPos1 = turrDefault + 0.12;
+            redObeliskTurrPos2 = turrDefault + 0.13;
+            redObeliskTurrPos3 = turrDefault + 0.14;
+
+            blueObeliskTurrPos1 = turrDefault - 0.12;
+            blueObeliskTurrPos2 = turrDefault - 0.13;
+            blueObeliskTurrPos3 = turrDefault - 0.14;
+
+            redTurretShootPos = turrDefault + 0.12;
+            blueTurretShootPos = turrDefault - 0.14;
+
+
 
             if (redAlliance) {
                 robot.light.setPosition(0.28);
@@ -888,6 +911,10 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
 
             TELE.addData("Red?", redAlliance);
+            TELE.addData("Turret Default", turrDefault);
+
+
+
             TELE.update();
         }
 
