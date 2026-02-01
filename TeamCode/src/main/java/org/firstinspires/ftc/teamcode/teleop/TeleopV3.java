@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
+import static org.firstinspires.ftc.teamcode.constants.Poses.teleEnd;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
@@ -287,6 +288,12 @@ public class TeleopV3 extends LinearOpMode {
                     shootAll = false;
                     spindexer.resetSpindexer();
                 }
+            }
+
+            if (gamepad2.square) {
+                teleEnd = drive.localizer.getPose();
+                gamepad2.rumble(1000);
+
             }
 
             //EXTRA STUFFINESS:

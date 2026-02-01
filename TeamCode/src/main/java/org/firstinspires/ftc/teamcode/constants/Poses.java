@@ -52,4 +52,7 @@ public class Poses {
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
 
+    public static Pose2d teleEnd = new Pose2d(0, 0, 0);
+
+
 }
