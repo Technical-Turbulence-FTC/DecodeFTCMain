@@ -19,25 +19,17 @@ public class ServoPositions {
     public static double spinStartPos = 0.22;
     public static double spinEndPos = 0.85;
 
-    public static double shootAllAutoSpinStartPos = 0.2;
     public static double shootAllSpindexerSpeedIncrease = 0.014;
-    public static double shootAllTime = 1.8;
 
     public static double transferServo_out = 0.15;
 
     public static double transferServo_in = 0.38;
 
-    public static double turret_range = 0.9;
-
-    public static double hoodDefault = 0.6;
-
     public static double hoodAuto = 0.27;
 
-public static double hoodOffset = -0.05;
+    public static double hoodOffset = -0.05;
 
     public static double turret_redClose = 0.42;
     public static double turret_blueClose = 0.38;
-
-
 
 }
