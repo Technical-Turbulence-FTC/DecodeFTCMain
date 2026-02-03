@@ -291,6 +291,8 @@ public class TeleopV3 extends LinearOpMode {
             }
 
             if (gamepad2.square) {
+                drive.updatePoseEstimate();
+
                 teleEnd = drive.localizer.getPose();
                 gamepad2.rumble(1000);
 

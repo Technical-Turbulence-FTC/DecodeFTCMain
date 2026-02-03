@@ -23,7 +23,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -41,7 +40,7 @@ import java.util.Objects;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
-public class Auto_LT_Far_Indexed extends LinearOpMode {
+public class Auto_LT_Far_Red2 extends LinearOpMode {
     public static double shoot0Vel = 3200, shoot0Hood = 0.5 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
@@ -97,7 +96,7 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
 
     public static double firstShootTime = 0.3;
 
-    public static int fwdTime = 200, strafeTime = 2300;
+    public static int fwdTime = 200, strafeTime = 4000, strafeRTime = 2500;
     public int motif = 0;
 
     Robot robot;
@@ -618,6 +617,83 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
         };
     }
 
+    public Action fwd(){
+        return new Action() {
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                if (System.currentTimeMillis() - stamp < strafeTime) {
+                    robot.frontLeft.setPower(0.4);
+                    robot.frontRight.setPower(0.4);
+                    robot.backLeft.setPower(0.4);
+                    robot.backRight.setPower(0.4);
+
+                  return true;
+                } else {
+
+                    robot.frontLeft.setPower(0);
+                    robot.frontRight.setPower(0);
+                    robot.backLeft.setPower(0);
+                    robot.backRight.setPower(0);
+
+                    return false;
+                }
+
+            }
+        };
+    }
+
+    public Action bwd(){
+        return new Action() {
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                if (System.currentTimeMillis() - stamp < strafeRTime) {
+                    robot.frontLeft.setPower(-0.4);
+                    robot.frontRight.setPower(-0.4);
+                    robot.backLeft.setPower(-0.4);
+                    robot.backRight.setPower(-0.4);
+
+                    return true;
+                } else {
+
+                    robot.frontLeft.setPower(0);
+                    robot.frontRight.setPower(0);
+                    robot.backLeft.setPower(0);
+                    robot.backRight.setPower(0);
+
+                    return false;
+                }
+
+            }
+        };
+    }
+
+
     public Action manageFlywheelAuto(
             double time,
             double posX,
@@ -685,6 +761,8 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
             }
         };
     }
+
+    public static double angle = 90;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -816,7 +894,7 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
                             manageFlywheel(
                                     shoot0Vel,
                                     shoot0Hood,
-                                    9,
+                                    5.5,
                                     0.501,
                                     0.501,
                                     shoot0XTolerance,
@@ -826,12 +904,8 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
                     )
             );
 
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
             Actions.runBlocking(
-                    shootAll((int) shoot0Vel, 6, shoot0SpinSpeedIncrease)
+                    shootAll((int) shoot0Vel, 3.5, shoot0SpinSpeedIncrease)
             );
 
             robot.frontLeft.setPower(-0.4);
@@ -848,21 +922,79 @@ public class Auto_LT_Far_Indexed extends LinearOpMode {
 
             sleep (sleepTime);
 
-            robot.frontLeft.setPower(-0.4);
-            robot.frontRight.setPower(0.4);
-            robot.backLeft.setPower(0.4);
-            robot.backRight.setPower(-0.4);
+            drive.updatePoseEstimate();
+
+            TrajectoryActionBuilder turn  = drive.actionBuilder(drive.localizer.getPose())
+                    .turn(Math.toRadians(angle));
+
+            Actions.runBlocking(
+                   turn.build()
+            );
+
+            sleep(sleepTime);
 
             drive.updatePoseEstimate();
 
-            teleStart = drive.localizer.getPose();
 
-            sleep (strafeTime);
+            Actions.runBlocking(
+                    new ParallelAction(
+                            fwd(),
+                            manageShooterAuto(
+                                    intake1Time,
+                                    0.501,
+                                    0.501,
+                                    pickup1XTolerance,
+                                    pickup1YTolerance
+                            ),
+                            intake(intake1Time),
+                            manageFlywheel(
+                                    shoot0Vel,
+                                    shoot0Hood,
+                                    intake1Time,
+                                    0.501,
+                                    0.501,
+                                    shoot0XTolerance,
+                                    0.501
+                            )
 
-            robot.frontLeft.setPower(0);
-            robot.frontRight.setPower(0);
-            robot.backLeft.setPower(0);
-            robot.backRight.setPower(0);
+                    )
+            );
+
+            sleep (sleepTime);
+
+            drive.updatePoseEstimate();
+
+            TrajectoryActionBuilder comeBack  = drive.actionBuilder(drive.localizer.getPose())
+                    .strafeToLinearHeading(new Vector2d(teleEnd.position.x, teleEnd.position.y), teleEnd.heading.toDouble());
+
+            Actions.runBlocking(
+                    new ParallelAction(
+                            bwd(),
+                            manageShooterAuto(
+                                    intake2Time,
+                                    0.501,
+                                    0.501,
+                                    pickup1XTolerance,
+                                    pickup1YTolerance
+                            ),
+                            intake(intake2Time),
+                            manageFlywheel(
+                                    shoot0Vel,
+                                    shoot0Hood,
+                                    intake2Time,
+                                    0.501,
+                                    0.501,
+                                    shoot0XTolerance,
+                                    0.501
+                            )
+
+                    )
+            );
+
+            Actions.runBlocking(
+                    shootAll((int) shoot0Vel, 3.5, shoot0SpinSpeedIncrease)
+            );
+
 
             while(opModeIsActive()) {
 
