@@ -103,22 +103,22 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public static double spindexerSpeedIncrease = 0.03;
     public static double finalSpindexerSpeedIncrease = 0.025;
 
+    // These values are ADDED to turrDefault
+    public static double redObeliskTurrPos1 = 0.12;
+    public static double redObeliskTurrPos2 = 0.13;
+    public static double redObeliskTurrPos3 = 0.14;
+    public static double blueObeliskTurrPos1 = -0.12;
+    public static double blueObeliskTurrPos2 = -0.13;
+    public static double blueObeliskTurrPos3 = -0.14;
+    public static double redTurretShootPos = 0.12;
+    public static double blueTurretShootPos = -0.14;
 
-    public static double redObeliskTurrPos1 = turrDefault + 0.12;
-    public static double redObeliskTurrPos2 = turrDefault + 0.13;
-    public static double redObeliskTurrPos3 = turrDefault + 0.14;
-
-    public static double blueObeliskTurrPos1 = turrDefault - 0.12;
-    public static double blueObeliskTurrPos2 = turrDefault - 0.13;
-    public static double blueObeliskTurrPos3 = turrDefault - 0.14;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
     public static double normalIntakeTime = 3.3;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double redTurretShootPos = turrDefault + 0.12;
-    public static double blueTurretShootPos = turrDefault - 0.14;
     double turretShootPos = 0.0;
 
     public static double finalShootAllTime = 3.0;
@@ -231,6 +231,7 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     if (Objects.equals(spindexer.GetFrontPassengerColor(), Spindexer.BallColor.GREEN)) {
                         passengerSlotGreen++;
                     }
+
                     if (Objects.equals(spindexer.GetRearCenterColor(), Spindexer.BallColor.GREEN)) {
                         rearSlotGreen++;
                     }
@@ -249,8 +250,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     } else {
                         mostGreenSlot = 1;
                     }
-
-
 
                     decideGreenSlot = false;
 
@@ -293,10 +292,8 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
                     return true;
                 } else if ((System.currentTimeMillis() - stamp) < (time * 1000)) {
-
-                    TELE.addData("MostGreenSlot", mostGreenSlot);
-
-
+//                    TELE.addData("MostGreenSlot", mostGreenSlot);
+//                    TELE.update();
                     robot.intake.setPower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
 
                     robot.spin1.setPosition(firstSpindexShootPos);
@@ -314,11 +311,8 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
     public Action shootAll(int vel, double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
-
             double stamp = 0.0;
-
             double velo = vel;
-
             int shooterTicker = 0;
 
             @Override
@@ -363,7 +357,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
                 } else {
                     robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -434,7 +427,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
                 } else {
                     robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -470,7 +462,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 TELE.update();
 
                 return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
-
             }
         };
     }
@@ -783,25 +774,12 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
             }
 
             if (gamepad2.dpadLeftWasPressed()) {
-                turrDefault -=0.01;
+                turrDefault -= 0.01;
             }
 
             if (gamepad2.dpadRightWasPressed()) {
-                turrDefault +=0.01;
+                turrDefault += 0.01;
             }
-
-            redObeliskTurrPos1 = turrDefault + 0.12;
-            redObeliskTurrPos2 = turrDefault + 0.13;
-            redObeliskTurrPos3 = turrDefault + 0.14;
-
-            blueObeliskTurrPos1 = turrDefault - 0.12;
-            blueObeliskTurrPos2 = turrDefault - 0.13;
-            blueObeliskTurrPos3 = turrDefault - 0.14;
-
-            redTurretShootPos = turrDefault + 0.12;
-            blueTurretShootPos = turrDefault - 0.14;
-
-
 
             if (redAlliance) {
                 robot.light.setPosition(0.28);
@@ -837,10 +815,10 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 yShoot = rShootY;
                 hShoot = rShootH;
 
-                obeliskTurrPos1 = redObeliskTurrPos1;
-                obeliskTurrPos2 = redObeliskTurrPos2;
-                obeliskTurrPos3 = redObeliskTurrPos3;
-                turretShootPos = redTurretShootPos;
+                obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
+                obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
+                obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
+                turretShootPos = turrDefault + redTurretShootPos;
 
             } else {
                 robot.light.setPosition(0.6);
@@ -877,10 +855,10 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                 yShoot = bShootY;
                 hShoot = bShootH;
 
-                obeliskTurrPos1 = blueObeliskTurrPos1;
-                obeliskTurrPos2 = blueObeliskTurrPos2;
-                obeliskTurrPos3 = blueObeliskTurrPos3;
-                turretShootPos = blueTurretShootPos;
+                obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
+                obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
+                obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
+                turretShootPos = turrDefault + blueTurretShootPos;
 
             }
 
@@ -912,8 +890,6 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
-
-
 
             TELE.update();
         }
@@ -975,9 +951,8 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
             motif = turret.getObeliskID();
 
-
             if (motif == 0) motif = 22;
-
+            int prevMotif = motif;
 
             Actions.runBlocking(
                     new ParallelAction(
@@ -1033,6 +1008,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     )
             );
 
+            motif = turret.getObeliskID();
+
+            if (motif == 0) motif = prevMotif;
+            prevMotif = motif;
+
             Actions.runBlocking(
                     new ParallelAction(
                             manageFlywheelAuto(
@@ -1084,6 +1064,11 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
                     )
             );
 
+            motif = turret.getObeliskID();
+
+            if (motif == 0) motif = prevMotif;
+            prevMotif = motif;
+
             Actions.runBlocking(
                     new ParallelAction(
                             manageFlywheelAuto(
@@ -1112,14 +1097,15 @@ public class Auto_LT_Close_12Ball_Indexed extends LinearOpMode {
 
             );
 
-            drive.updatePoseEstimate();
+            while (opModeIsActive()) {
 
-            teleStart = drive.localizer.getPose();
+                drive.updatePoseEstimate();
 
-            TELE.addLine("finished");
-            TELE.update();
+                teleStart = drive.localizer.getPose();
 
-            sleep(2000);
+                TELE.addLine("finished");
+                TELE.update();
+            }
 
         }
 

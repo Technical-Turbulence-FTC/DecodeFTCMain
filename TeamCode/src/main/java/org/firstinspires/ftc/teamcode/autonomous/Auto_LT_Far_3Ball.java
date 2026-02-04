@@ -4,6 +4,11 @@ import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleEnd;
 import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
@@ -29,24 +34,17 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
+import java.util.Objects;
+
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Far_3Ball extends LinearOpMode {
     public static double shoot0Vel = 3200, shoot0Hood = 0.5 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
-
-    public static double redObeliskTurrPos1 = turrDefault + 0.12;
-    public static double redObeliskTurrPos2 = turrDefault + 0.13;
-    public static double redObeliskTurrPos3 = turrDefault + 0.14;
-
-    public static double blueObeliskTurrPos1 = turrDefault - 0.12;
-    public static double blueObeliskTurrPos2 = turrDefault - 0.13;
-    public static double blueObeliskTurrPos3 = turrDefault - 0.14;
-
     public static double shoot0XTolerance = 1.0;
-    public static double redTurretShootPos = turrDefault;
-    public static double blueTurretShootPos = turrDefault;
+    public static double redTurretShootPos = 0.05;
+    public static double blueTurretShootPos = -0.05;
     public static int fwdTime = 200, strafeTime = 2300;
     public static double rPickupGateX = 1, rPickupGateY = 1, rPickupGateH = 1;
     public static double rPickupZoneX = 1, rPickupZoneY = 1, rPickupZoneH = 1;
@@ -75,15 +73,134 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
     private int mostGreenSlot = 0;
     private double pickupGateX = 0, pickupGateY = 0, pickupGateH = 0;
     private double pickupZoneX = 0, pickupZoneY = 0, pickupZoneH = 0;
+    public static double firstShootTime = 0.3;
+
+    public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
+        return new Action() {
+            double stamp = 0.0;
+            int ticker = 0;
+
+            double spindexerWiggle = 0.01;
+
+            boolean decideGreenSlot = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+                ticker++;
+                robot.transferServo.setPosition(transferServo_out);
+
+                turret.manualSetTurret(turretShootPos);
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.addData("motif", motif_id);
+                TELE.update();
+
+                if ((System.currentTimeMillis() - stamp) < (colorSenseTime * 1000)) {
+
+                    spindexerWiggle *= -1.0;
+
+                    robot.spin1.setPosition(spindexer_intakePos1 + spindexerWiggle);
+                    robot.spin2.setPosition(1 - spindexer_intakePos1 - spindexerWiggle);
+
+                    spindexer.detectBalls(true, true);
+
+                    if (Objects.equals(spindexer.GetFrontDriverColor(), Spindexer.BallColor.GREEN)) {
+                        driverSlotGreen++;
+                    }
+
+                    if (Objects.equals(spindexer.GetFrontPassengerColor(), Spindexer.BallColor.GREEN)) {
+                        passengerSlotGreen++;
+                    }
+
+                    if (Objects.equals(spindexer.GetRearCenterColor(), Spindexer.BallColor.GREEN)) {
+                        rearSlotGreen++;
+                    }
+
+                    robot.intake.setPower(1);
+
+                    decideGreenSlot = true;
+
+                    return true;
+                } else if (decideGreenSlot) {
+
+                    if (driverSlotGreen >= passengerSlotGreen && driverSlotGreen >= rearSlotGreen) {
+                        mostGreenSlot = 3;
+                    } else if (passengerSlotGreen >= driverSlotGreen && passengerSlotGreen >= rearSlotGreen) {
+                        mostGreenSlot = 2;
+                    } else {
+                        mostGreenSlot = 1;
+                    }
+
+                    decideGreenSlot = false;
+
+                    if (motif_id == 21) {
+                        if (mostGreenSlot == 1) {
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = true;
+                        } else if (mostGreenSlot == 2) {
+                            firstSpindexShootPos = spindexer_outtakeBall2;
+                            shootForward = false;
+                        } else {
+                            firstSpindexShootPos = spindexer_outtakeBall3;
+                            shootForward = false;
+                        }
+                    } else if (motif_id == 22) {
+                        if (mostGreenSlot == 1) {
+                            firstSpindexShootPos = spindexer_outtakeBall2;
+                            shootForward = false;
+                        } else if (mostGreenSlot == 2) {
+                            firstSpindexShootPos = spindexer_outtakeBall3;
+                            shootForward = false;
+                        } else {
+                            firstSpindexShootPos = spindexer_outtakeBall2;
+                            shootForward = true;
+                        }
+
+                    } else {
+                        if (mostGreenSlot == 1) {
+                            firstSpindexShootPos = spindexer_outtakeBall3;
+                            shootForward = false;
+                        } else if (mostGreenSlot == 2) {
+                            firstSpindexShootPos = spindexer_outtakeBall3b;
+                            shootForward = true;
+                        } else {
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = true;
+                        }
+
+                    }
+
+                    return true;
+                } else if ((System.currentTimeMillis() - stamp) < (time * 1000)) {
+//                    TELE.addData("MostGreenSlot", mostGreenSlot);
+//                    TELE.update();
+                    robot.intake.setPower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
+
+                    robot.spin1.setPosition(firstSpindexShootPos);
+                    robot.spin2.setPosition(1 - firstSpindexShootPos);
+
+                    return true;
+                } else {
+                    return false;
+                }
+
+            }
+        };
+    }
 
     public Action shootAll(int vel, double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
-
             double stamp = 0.0;
-
             double velo = vel;
-
             int shooterTicker = 0;
 
             @Override
@@ -128,7 +245,6 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
 
                 } else {
                     robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -137,6 +253,75 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
 
                 }
 
+            }
+        };
+    }
+
+    public Action shootAllAuto(double shootTime, double spindexSpeed) {
+        return new Action() {
+            int ticker = 1;
+
+            double stamp = 0.0;
+
+            double velo = 0.0;
+
+            int shooterTicker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
+
+                velo = flywheel.getVelo();
+
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                robot.intake.setPower(-0.3);
+
+                if (ticker == 1) {
+                    stamp = getRuntime();
+                }
+                ticker++;
+
+                robot.intake.setPower(0);
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                if (getRuntime() - stamp < shootTime) {
+
+                    if (getRuntime() - stamp < firstShootTime) {
+                        robot.transferServo.setPosition(transferServo_in);
+                        robot.spin1.setPosition(firstSpindexShootPos);
+                        robot.spin2.setPosition(1 - firstSpindexShootPos);
+                    } else {
+                        robot.transferServo.setPosition(transferServo_in);
+                        shooterTicker++;
+                        double prevSpinPos = robot.spin1.getPosition();
+
+                        if (shootForward) {
+                            robot.spin1.setPosition(prevSpinPos + spindexSpeed);
+                            robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                        } else {
+                            robot.spin1.setPosition(prevSpinPos - spindexSpeed);
+                            robot.spin2.setPosition(1 - prevSpinPos + spindexSpeed);
+                        }
+                    }
+
+                    return true;
+
+                } else {
+                    robot.transferServo.setPosition(transferServo_out);
+
+                    spindexer.resetSpindexer();
+                    spindexer.processIntake();
+
+                    return false;
+
+                }
             }
         };
     }
@@ -165,6 +350,67 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
                 TELE.update();
 
                 return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
+            }
+        };
+    }
+
+    public Action detectObelisk(
+            double time,
+            double posX,
+            double posY,
+            double posXTolerance,
+            double posYTolerance,
+            double turrPos
+    ) {
+
+        boolean timeFallback = (time != 0.501);
+        boolean posXFallback = (posX != 0.501);
+        boolean posYFallback = (posY != 0.501);
+
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                    robot.limelight.pipelineSwitch(1);
+                }
+
+                ticker++;
+                motif = turret.detectObelisk();
+
+                robot.turr1.setPosition(turrPos);
+                robot.turr2.setPosition(1 - turrPos);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+
+                boolean shouldFinish = timeDone || xDone || yDone;
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
+
+                if (shouldFinish){
+                    if (redAlliance){
+                        robot.limelight.pipelineSwitch(4);
+                    } else {
+                        robot.limelight.pipelineSwitch(2);
+                    }
+                    return false;
+                } else {
+                    return true;
+                }
 
             }
         };
@@ -222,6 +468,145 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
         };
     }
 
+    public Action manageShooterAuto(
+            double time,
+            double posX,
+            double posY,
+            double posXTolerance,
+            double posYTolerance
+    ) {
+
+        boolean timeFallback = (time != 0.501);
+        boolean posXFallback = (posX != 0.501);
+        boolean posYFallback = (posY != 0.501);
+
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                double robotX = drive.localizer.getPose().position.x;
+                double robotY = drive.localizer.getPose().position.y;
+
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robotX - goalX;  // delta x from robot to goal
+                double dy = robotY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robotX, robotY, robotHeading, 0.0, false);
+
+                turret.trackGoal(deltaPose);
+
+                robot.hood.setPosition(targetingSettings.hoodAngle);
+
+                flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+
+                boolean shouldFinish = timeDone || xDone || yDone;
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
+
+                return !shouldFinish;
+
+            }
+        };
+    }
+
+    public Action manageFlywheelAuto(
+            double time,
+            double posX,
+            double posY,
+            double posXTolerance,
+            double posYTolerance
+    ) {
+
+        boolean timeFallback = (time != 0.501);
+        boolean posXFallback = (posX != 0.501);
+        boolean posYFallback = (posY != 0.501);
+
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                double robotX = drive.localizer.getPose().position.x;
+                double robotY = drive.localizer.getPose().position.y;
+
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robotX - goalX;  // delta x from robot to goal
+                double dy = robotY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robotX, robotY, robotHeading, 0.0, false);
+
+                robot.hood.setPosition(targetingSettings.hoodAngle);
+
+                flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+
+                boolean shouldFinish = timeDone || xDone || yDone;
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+                TELE.addData("Velocity", flywheel.getVelo());
+                TELE.addData("Hood", robot.hood.getPosition());
+                TELE.update();
+
+                return !shouldFinish;
+
+            }
+        };
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -248,7 +633,7 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
 
         turret.manualSetTurret(turrDefault);
 
-        drive = new MecanumDrive(hardwareMap, teleEnd);
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
         robot.spin1.setPosition(autoSpinStartPos);
         robot.spin2.setPosition(1 - autoSpinStartPos);
@@ -258,6 +643,13 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
         robot.light.setPosition(1);
 
         while (opModeInInit()) {
+
+            // Recalibration in initialization
+            drive.updatePoseEstimate();
+            if (gamepad2.square) {
+                teleEnd = drive.localizer.getPose(); // use this position as starting position
+                gamepad2.rumble(1000);
+            }
 
             robot.hood.setPosition(shoot0Hood);
             turret.manualSetTurret(turretShootPos);
@@ -274,16 +666,6 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
                 turrDefault += 0.01;
             }
 
-            redObeliskTurrPos1 = turrDefault + 0.12;
-            redObeliskTurrPos2 = turrDefault + 0.13;
-            redObeliskTurrPos3 = turrDefault + 0.14;
-
-            blueObeliskTurrPos1 = turrDefault - 0.12;
-            blueObeliskTurrPos2 = turrDefault - 0.13;
-            blueObeliskTurrPos3 = turrDefault - 0.14;
-
-            redTurretShootPos = turrDefault + 0.05;
-
             if (redAlliance) {
                 robot.light.setPosition(0.28);
 
@@ -299,8 +681,7 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
                 yShoot = rShootY;
                 hShoot = rShootH;
 
-                turretShootPos = redTurretShootPos;
-
+                turretShootPos = turrDefault + redTurretShootPos;
             } else {
                 robot.light.setPosition(0.6);
 
@@ -316,13 +697,13 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
                 yShoot = bShootY;
                 hShoot = bShootH;
 
-                turretShootPos = blueTurretShootPos;
-
+                turretShootPos = turrDefault + blueTurretShootPos;
             }
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
-
+            TELE.addData("Start Position", teleEnd);
+            TELE.addData("Current Position", drive.localizer.getPose()); // use this to test standstill drift
             TELE.update();
         }
 
@@ -330,6 +711,7 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        // Currently only shoots; keep this start and modify times and then add extra paths
         if (opModeIsActive()) {
 
             robot.transfer.setPower(1);
@@ -357,36 +739,7 @@ public class Auto_LT_Far_3Ball extends LinearOpMode {
                     shootAll((int) shoot0Vel, 6, shoot0SpinSpeedIncrease)
             );
 
-            robot.frontLeft.setPower(-0.4);
-            robot.frontRight.setPower(-0.4);
-            robot.backLeft.setPower(-0.4);
-            robot.backRight.setPower(-0.4);
-
-            sleep(fwdTime);
-
-            robot.frontLeft.setPower(0);
-            robot.frontRight.setPower(0);
-            robot.backLeft.setPower(0);
-            robot.backRight.setPower(0);
-
-            sleep(sleepTime);
-
-            robot.frontLeft.setPower(-0.4);
-            robot.frontRight.setPower(0.4);
-            robot.backLeft.setPower(0.4);
-            robot.backRight.setPower(-0.4);
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            sleep(strafeTime);
-
-            robot.frontLeft.setPower(0);
-            robot.frontRight.setPower(0);
-            robot.backLeft.setPower(0);
-            robot.backRight.setPower(0);
-
+            // Actual way to end autonomous in to find final position
             while (opModeIsActive()) {
 
                 drive.updatePoseEstimate();

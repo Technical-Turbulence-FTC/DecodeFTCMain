@@ -284,18 +284,9 @@ public class TeleopV3 extends LinearOpMode {
                 if (gamepad1.left_stick_button) {
                     robot.transferServo.setPosition(transferServo_out);
                     //spindexPos = spindexer_intakePos1;
-
                     shootAll = false;
                     spindexer.resetSpindexer();
                 }
-            }
-
-            if (gamepad2.square) {
-                drive.updatePoseEstimate();
-
-                teleEnd = drive.localizer.getPose();
-                gamepad2.rumble(1000);
-
             }
 
             //EXTRA STUFFINESS:
