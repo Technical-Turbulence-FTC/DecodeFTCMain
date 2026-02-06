@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
 @Config
-@TeleOp
+
 public class Turret {
 
     public static double turretTolerance = 0.02;
