@@ -763,6 +763,8 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
+                flywheel.manageFlywheel(0);
+
                 TELE.addLine("finished");
                 TELE.update();
             }

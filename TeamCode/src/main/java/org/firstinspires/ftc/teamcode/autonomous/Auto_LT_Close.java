@@ -72,6 +72,7 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
+import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
 
 import androidx.annotation.NonNull;
@@ -137,7 +138,7 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double intake3Time = 4.2;
 
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 23;
+    public static double pickup1Speed = 15;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
     public static double shootAllVelocity = 2500;
@@ -214,11 +215,27 @@ public class Auto_LT_Close extends LinearOpMode {
                 ticker++;
                 robot.transferServo.setPosition(transferServo_out);
 
-                turret.manualSetTurret(turretShootPos);
-
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
 
                 TELE.addData("Velocity", flywheel.getVelo());
                 TELE.addData("Hood", robot.hood.getPosition());
@@ -504,6 +521,9 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
+                TELE.addData("Full?", spindexer.isFull());
+                TELE.update();
+
                 return ((System.currentTimeMillis() - stamp) < (intakeTime * 1000)) && !spindexer.isFull();
             }
         };
@@ -780,11 +800,6 @@ public class Auto_LT_Close extends LinearOpMode {
 
         servos = new Servos(hardwareMap);
 
-        robot.limelight.start();
-
-        robot.limelight.pipelineSwitch(1);
-
-
         turret = new Turret(robot, TELE, robot.limelight);
 
         turret.manualSetTurret(turrDefault);
@@ -795,6 +810,8 @@ public class Auto_LT_Close extends LinearOpMode {
         robot.spin2.setPosition(1 - autoSpinStartPos);
 
         robot.transferServo.setPosition(transferServo_out);
+
+        limelightUsed = false;
 
         TrajectoryActionBuilder shoot0 = null;
         TrajectoryActionBuilder pickup1 = null;
@@ -829,6 +846,11 @@ public class Auto_LT_Close extends LinearOpMode {
             }
             if (gamepad2.leftBumperWasPressed()){
                 ballCycles--;
+            }
+
+            if (gamepad2.squareWasPressed()){
+                robot.limelight.start();
+                robot.limelight.pipelineSwitch(1);
             }
 
             if (redAlliance) {
@@ -1176,6 +1198,8 @@ public class Auto_LT_Close extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+
+                flywheel.manageFlywheel(0);
 
                 TELE.addLine("finished");
                 TELE.update();

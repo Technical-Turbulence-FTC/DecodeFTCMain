@@ -26,12 +26,11 @@ public class ShooterTest extends LinearOpMode {
     public static double parameter = 0.0;
     // --- CONSTANTS YOU TUNE ---
 
-    //TODO: @Daniel FIX THE BELOW CONSTANTS A LITTLE IF NEEDED
     public static double Velocity = 0.0;
     public static double P = 255.0;
     public static double I = 0.0;
     public static double D = 0.0;
-    public static double F = 7.5;
+    public static double F = 90;
     public static double transferPower = 1.0;
     public static double hoodPos = 0.501;
     public static double turretPos = 0.501;
@@ -73,11 +72,13 @@ public class ShooterTest extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            double voltage = robot.voltage.getVoltage();
+
             if (mode == 0) {
                 rightShooter.setPower(parameter);
                 leftShooter.setPower(parameter);
             } else if (mode == 1) {
-                flywheel.setPIDF(P, I, D, F);
+                flywheel.setPIDF(P, I, D, F / voltage);
                 flywheel.manageFlywheel((int) Velocity);
             }
 
@@ -109,7 +110,6 @@ public class ShooterTest extends LinearOpMode {
                 //intake = false;
                 //reject = false;
 
-                // TODO: Change starting position based on desired order to shoot green ball
                 //spindexPos = spindexer_intakePos1;
                 if (getRuntime() - shootStamp < 3.5) {
 
@@ -150,6 +150,7 @@ public class ShooterTest extends LinearOpMode {
             TELE.addData("Power", robot.shooter1.getPower());
             TELE.addData("Steady?", flywheel.getSteady());
             TELE.addData("Position", robot.shooter1.getCurrentPosition());
+            TELE.addData("Voltage", voltage);
 
             TELE.update();
 

@@ -97,7 +97,10 @@ public class TeleopV3 extends LinearOpMode {
         tController.setTolerance(0.001);
 
         Turret turret = new Turret(robot, TELE, robot.limelight);
+        limelightUsed = true;
+
         robot.light.setPosition(1);
+
         while (opModeInInit()) {
             robot.limelight.start();
             if (redAlliance) {
@@ -106,9 +109,6 @@ public class TeleopV3 extends LinearOpMode {
                 robot.limelight.pipelineSwitch(2);
             }
         }
-
-        limelightUsed= true;
-
 
         waitForStart();
         if (isStopRequested()) return;
@@ -186,6 +186,8 @@ public class TeleopV3 extends LinearOpMode {
             }
 
             //SHOOTER:
+            double voltage = robot.voltage.getVoltage();
+            flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
             flywheel.manageFlywheel(vel);
 
             //HOOD:
@@ -224,8 +226,6 @@ public class TeleopV3 extends LinearOpMode {
             if (gamepad2.crossWasPressed()) {
                 drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
             }
-
-
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -328,7 +328,7 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-            TELE.addData("Voltage", robot.voltage.getVoltage());
+            TELE.addData("Voltage", robot.voltage.getVoltage()); // returns alleged recorded voltage (not same as driver hub)
 
             TELE.update();
 
