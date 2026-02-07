@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Poses.teleEnd;
-import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -70,8 +70,6 @@ public class TeleopV3 extends LinearOpMode {
     boolean overrideTurr = false;
 
     int intakeTicker = 0;
-
-    boolean turretInterpolate = false;
     private boolean shootAll = false;
 
     @Override
@@ -141,7 +139,7 @@ public class TeleopV3 extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            double offset;
+            //TURRET TRACKING
 
             double robX = drive.localizer.getPose().position.x;
             double robY = drive.localizer.getPose().position.y;
@@ -318,18 +316,19 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("spinTestCounter", spindexer.counter);
 //            TELE.addData("autoSpintake", autoSpintake);
 //
-            TELE.addData("shootall commanded", shootAll);
+//            TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
-            TELE.addData("robotX", robotX);
-            TELE.addData("robotY", robotY);
-            TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData( "robotInchesY", targeting.robotInchesY);
-            TELE.addData("Targeting Interpolate", turretInterpolate);
-            TELE.addData("Targeting GridX", targeting.robotGridX);
-            TELE.addData("Targeting GridY", targeting.robotGridY);
-            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
-            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+//            TELE.addData("robotX", robotX);
+//            TELE.addData("robotY", robotY);
+//            TELE.addData("robotInchesX", targeting.robotInchesX);
+//            TELE.addData( "robotInchesY", targeting.robotInchesY);
+//            TELE.addData("Targeting Interpolate", turretInterpolate);
+//            TELE.addData("Targeting GridX", targeting.robotGridX);
+//            TELE.addData("Targeting GridY", targeting.robotGridY);
+//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+//            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+            TELE.addData("Voltage", robot.voltage.getVoltage());
 
             TELE.update();
 

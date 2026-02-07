@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -56,11 +57,11 @@ public class Robot {
     public RevColorSensorV3 color3;
     public Limelight3A limelight;
     public Servo light;
+    public VoltageSensor voltage;
 
     public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
-        //TODO: fix the configuration of these - I trust you to figure it out yourself @KeshavAnandCode
         frontLeft = hardwareMap.get(DcMotorEx.class, "fl");
         frontRight = hardwareMap.get(DcMotorEx.class, "fr");
         backLeft = hardwareMap.get(DcMotorEx.class, "bl");
@@ -78,7 +79,7 @@ public class Robot {
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
 
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        //TODO: figure out which shooter motor is reversed using ShooterTest and change it in code @KeshavAnandCode
+
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -96,7 +97,6 @@ public class Robot {
 
         turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
 
-        //TODO: check spindexer configuration (both servo and analog input) - check comments in PositionalServoProgrammer
         spin1 = hardwareMap.get(Servo.class, "spin2");
 
         spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
@@ -128,5 +128,6 @@ public class Robot {
         }
 
         light = hardwareMap.get(Servo.class, "light");
+        voltage = hardwareMap.voltageSensor.iterator().next();
     }
 }
