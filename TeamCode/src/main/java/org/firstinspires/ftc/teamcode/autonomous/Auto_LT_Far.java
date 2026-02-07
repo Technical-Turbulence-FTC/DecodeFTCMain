@@ -49,7 +49,7 @@ import java.util.Objects;
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Far extends LinearOpMode {
-    public static double shoot0Vel = 3200, shoot0Hood = 0.5 + hoodOffset;
+    public static double shoot0Vel = 3300, shoot0Hood = 0.48 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
     public static double shoot0XTolerance = 1.0;
@@ -69,16 +69,18 @@ public class Auto_LT_Far extends LinearOpMode {
     Turret turret;
     Targeting targeting;
     Targeting.Settings targetingSettings;
-    private double firstSpindexShootPos = autoSpinStartPos;
-    private boolean shootForward = true;
-    private double xShoot, yShoot, hShoot;
+    double firstSpindexShootPos = autoSpinStartPos;
+    boolean shootForward = true;
+    double xShoot, yShoot, hShoot;
     private int driverSlotGreen = 0;
     private int passengerSlotGreen = 0;
-    private int rearSlotGreen = 0;
-    private int mostGreenSlot = 0;
-    private double pickupGateX = 0, pickupGateY = 0, pickupGateH = 0;
-    private double pickupZoneX = 0, pickupZoneY = 0, pickupZoneH = 0;
+    int rearSlotGreen = 0;
+    int mostGreenSlot = 0;
+    double pickupGateX = 0, pickupGateY = 0, pickupGateH = 0;
+    double pickupZoneX = 0, pickupZoneY = 0, pickupZoneH = 0;
     public static double firstShootTime = 0.3;
+    public static double flywheel0Time = 3.5;
+    public static double shoot0Time = 2;
 
     public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
         return new Action() {
@@ -97,11 +99,27 @@ public class Auto_LT_Far extends LinearOpMode {
                 ticker++;
                 robot.transferServo.setPosition(transferServo_out);
 
-                turret.manualSetTurret(turretShootPos);
-
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
 
                 TELE.addData("Velocity", flywheel.getVelo());
                 TELE.addData("Hood", robot.hood.getPosition());
@@ -214,6 +232,8 @@ public class Auto_LT_Far extends LinearOpMode {
                 TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
                 velo = flywheel.getVelo();
 
@@ -314,6 +334,24 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
+
                 if (getRuntime() - stamp < shootTime) {
 
                     if (getRuntime() - stamp < firstShootTime) {
@@ -368,6 +406,9 @@ public class Auto_LT_Far extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+
+                TELE.addData("Full?", spindexer.isFull());
+                TELE.update();
 
                 return ((System.currentTimeMillis() - stamp) < (intakeTime * 1000)) && !spindexer.isFull();
             }
@@ -467,6 +508,8 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 ticker++;
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
                 robot.hood.setPosition(hoodPos);
 
@@ -538,6 +581,8 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 robot.hood.setPosition(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -607,6 +652,8 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 robot.hood.setPosition(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -626,6 +673,9 @@ public class Auto_LT_Far extends LinearOpMode {
             }
         };
     }
+
+    // initialize path variables here
+    TrajectoryActionBuilder leave3Ball = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -662,8 +712,6 @@ public class Auto_LT_Far extends LinearOpMode {
 
         robot.light.setPosition(1);
 
-        TrajectoryActionBuilder leave = null;
-
         while (opModeInInit()) {
 
             // Recalibration in initialization
@@ -673,8 +721,9 @@ public class Auto_LT_Far extends LinearOpMode {
                 gamepad2.rumble(1000);
             }
 
-            robot.hood.setPosition(shoot0Hood);
             turret.manualSetTurret(turretShootPos);
+
+            robot.hood.setPosition(shoot0Hood);
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;
@@ -706,9 +755,8 @@ public class Auto_LT_Far extends LinearOpMode {
                 turretShootPos = turrDefault + blueTurretShootPos;
             }
 
-            leave = drive.actionBuilder(teleEnd)
+            leave3Ball = drive.actionBuilder(teleEnd)
                     .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
-
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
@@ -726,35 +774,9 @@ public class Auto_LT_Far extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageFlywheel(
-                                    shoot0Vel,
-                                    shoot0Hood,
-                                    5,
-                                    0.501,
-                                    0.501,
-                                    shoot0XTolerance,
-                                    0.501
-                            )
+            startAuto();
 
-                    )
-            );
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            Actions.runBlocking(
-                    shootAll((int) shoot0Vel, 4, shoot0SpinSpeedIncrease)
-            );
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            assert leave != null;
-            Actions.runBlocking(leave.build());
+            leave3Ball();
 
             // Actual way to end autonomous in to find final position
             while (opModeIsActive()) {
@@ -771,5 +793,31 @@ public class Auto_LT_Far extends LinearOpMode {
 
         }
 
+    }
+
+    void startAuto(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheel(
+                                shoot0Vel,
+                                shoot0Hood,
+                                flywheel0Time,
+                                0.501,
+                                0.501,
+                                shoot0XTolerance,
+                                0.501
+                        )
+
+                )
+        );
+
+        Actions.runBlocking(
+                shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
+        );
+    }
+
+    void leave3Ball(){
+        assert leave3Ball != null;
+        Actions.runBlocking(leave3Ball.build());
     }
 }

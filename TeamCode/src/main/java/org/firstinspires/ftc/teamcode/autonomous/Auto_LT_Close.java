@@ -106,10 +106,10 @@ import java.util.Objects;
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
-    public static double shoot0SpinSpeedIncrease = 0.015;
+    public static double shoot0SpinSpeedIncrease = 0.02;
 
     public static double spindexerSpeedIncrease = 0.03;
-    public static double finalSpindexerSpeedIncrease = 0.025;
+    public static double finalSpindexerSpeedIncrease = 0.03;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -348,6 +348,8 @@ public class Auto_LT_Close extends LinearOpMode {
                 TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
                 velo = flywheel.getVelo();
 
@@ -622,6 +624,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 ticker++;
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
                 robot.hood.setPosition(hoodPos);
 
@@ -693,6 +697,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 robot.hood.setPosition(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -762,6 +768,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 robot.hood.setPosition(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -992,7 +1000,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            startCycle();
+            startAuto();
 
             if (ballCycles > 0){
                 cycleStackClose();
@@ -1022,7 +1030,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
     }
 
-    void startCycle() {
+    void startAuto() {
         assert shoot0 != null;
 
         Actions.runBlocking(
