@@ -782,6 +782,15 @@ public class Auto_LT_Close extends LinearOpMode {
         };
     }
 
+    // initialize path variables here
+    TrajectoryActionBuilder shoot0 = null;
+    TrajectoryActionBuilder pickup1 = null;
+    TrajectoryActionBuilder shoot1 = null;
+    TrajectoryActionBuilder pickup2 = null;
+    TrajectoryActionBuilder shoot2 = null;
+    TrajectoryActionBuilder pickup3 = null;
+    TrajectoryActionBuilder shoot3 = null;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -812,15 +821,6 @@ public class Auto_LT_Close extends LinearOpMode {
         robot.transferServo.setPosition(transferServo_out);
 
         limelightUsed = false;
-
-        TrajectoryActionBuilder shoot0 = null;
-        TrajectoryActionBuilder pickup1 = null;
-        TrajectoryActionBuilder shoot1 = null;
-        TrajectoryActionBuilder pickup2 = null;
-        TrajectoryActionBuilder shoot2 = null;
-        TrajectoryActionBuilder pickup3 = null;
-        TrajectoryActionBuilder shoot3 = null;
-
 
         robot.light.setPosition(1);
 
@@ -992,205 +992,18 @@ public class Auto_LT_Close extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            assert shoot0 != null;
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            shoot0.build(),
-                            manageFlywheel(
-                                    shoot0Vel,
-                                    shoot0Hood,
-                                    flywheel0Time,
-                                    x1,
-                                    0.501,
-                                    shoot0XTolerance,
-                                    0.501
-                            )
-
-                    )
-            );
-
-            Actions.runBlocking(
-                    shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
-            );
+            startCycle();
 
             if (ballCycles > 0){
-                Actions.runBlocking(
-                        new ParallelAction(
-                                pickup1.build(),
-                                manageFlywheel(
-                                        shootAllVelocity,
-                                        shootAllHood,
-                                        intake1Time,
-                                        x2b,
-                                        y2b,
-                                        pickup1XTolerance,
-                                        pickup1YTolerance
-                                ),
-                                intake(intake1Time),
-                                detectObelisk(
-                                        intake1Time,
-                                        0.501,
-                                        0.501,
-                                        obelisk1XTolerance,
-                                        obelisk1YTolerance,
-                                        obeliskTurrPos1
-                                )
-
-                        )
-                );
-
-                motif = turret.getObeliskID();
-
-                if (motif == 0) motif = 22;
-                prevMotif = motif;
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageFlywheel(
-                                        shootAllVelocity,
-                                        shootAllHood,
-                                        shoot1Time,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shoot1.build(),
-                                prepareShootAll(colorSenseTime, shoot1Time, motif)
-                        )
-                );
-
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageShooterAuto(
-                                        shootAllTime,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                        )
-
-                );
+                cycleStackClose();
             }
 
             if (ballCycles > 1){
-                Actions.runBlocking(
-                        new ParallelAction(
-                                pickup2.build(),
-                                manageShooterAuto(
-                                        intake2Time,
-                                        x2b,
-                                        y2b,
-                                        pickup1XTolerance,
-                                        pickup1YTolerance
-                                ),
-                                intake(intake2Time),
-                                detectObelisk(
-                                        intake2Time,
-                                        0.501,
-                                        0.501,
-                                        obelisk1XTolerance,
-                                        obelisk1YTolerance,
-                                        obeliskTurrPos2
-                                )
-
-                        )
-                );
-
-                motif = turret.getObeliskID();
-
-                if (motif == 0) motif = prevMotif;
-                prevMotif = motif;
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageFlywheelAuto(
-                                        shoot2Time,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shoot2.build(),
-                                prepareShootAll(colorSenseTime, shoot2Time, motif)
-                        )
-                );
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageShooterAuto(
-                                        shootAllTime,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                        )
-
-                );
+                cycleStackMiddle();
             }
 
             if (ballCycles > 2){
-                Actions.runBlocking(
-                        new ParallelAction(
-                                pickup3.build(),
-                                manageShooterAuto(
-                                        intake3Time,
-                                        x2b,
-                                        y2b,
-                                        pickup1XTolerance,
-                                        pickup1YTolerance
-                                ),
-                                intake(intake3Time),
-                                detectObelisk(
-                                        intake3Time,
-                                        0.501,
-                                        0.501,
-                                        obelisk1XTolerance,
-                                        obelisk1YTolerance,
-                                        obeliskTurrPos3
-                                )
-
-                        )
-                );
-
-                motif = turret.getObeliskID();
-
-                if (motif == 0) motif = prevMotif;
-                prevMotif = motif;
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageFlywheelAuto(
-                                        shoot3Time,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shoot3.build(),
-                                prepareShootAll(colorSenseTime, shoot3Time, motif)
-                        )
-                );
-
-                Actions.runBlocking(
-                        new ParallelAction(
-                                manageShooterAuto(
-                                        finalShootAllTime,
-                                        0.501,
-                                        0.501,
-                                        0.501,
-                                        0.501
-                                ),
-                                shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
-                        )
-
-                );
+                cycleStackFar();
             }
 
             while (opModeIsActive()) {
@@ -1207,5 +1020,208 @@ public class Auto_LT_Close extends LinearOpMode {
 
         }
 
+    }
+
+    void startCycle() {
+        assert shoot0 != null;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot0.build(),
+                        manageFlywheel(
+                                shoot0Vel,
+                                shoot0Hood,
+                                flywheel0Time,
+                                x1,
+                                0.501,
+                                shoot0XTolerance,
+                                0.501
+                        )
+
+                )
+        );
+
+        Actions.runBlocking(
+                shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
+        );
+    }
+
+    void cycleStackClose(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup1.build(),
+                        manageFlywheel(
+                                shootAllVelocity,
+                                shootAllHood,
+                                intake1Time,
+                                x2b,
+                                y2b,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake1Time),
+                        detectObelisk(
+                                intake1Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos1
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = 22;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheel(
+                                shootAllVelocity,
+                                shootAllHood,
+                                shoot1Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot1.build(),
+                        prepareShootAll(colorSenseTime, shoot1Time, motif)
+                )
+        );
+
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
+
+    void cycleStackMiddle(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup2.build(),
+                        manageShooterAuto(
+                                intake2Time,
+                                x2b,
+                                y2b,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake2Time),
+                        detectObelisk(
+                                intake2Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos2
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = prevMotif;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheelAuto(
+                                shoot2Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot2.build(),
+                        prepareShootAll(colorSenseTime, shoot2Time, motif)
+                )
+        );
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
+
+    void cycleStackFar(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup3.build(),
+                        manageShooterAuto(
+                                intake3Time,
+                                x2b,
+                                y2b,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake3Time),
+                        detectObelisk(
+                                intake3Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos3
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = prevMotif;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheelAuto(
+                                shoot3Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot3.build(),
+                        prepareShootAll(colorSenseTime, shoot3Time, motif)
+                )
+        );
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                finalShootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
+                )
+
+        );
     }
 }
