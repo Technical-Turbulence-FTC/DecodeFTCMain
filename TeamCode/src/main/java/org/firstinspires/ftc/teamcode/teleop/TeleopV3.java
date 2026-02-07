@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -74,6 +75,8 @@ public class TeleopV3 extends LinearOpMode {
     boolean turretInterpolate = false;
     private boolean shootAll = false;
 
+    public MeasuringLoopTimes measuringLoopTimes;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -93,6 +96,9 @@ public class TeleopV3 extends LinearOpMode {
         targetingSettings = new Targeting.Settings(0.0, 0.0);
 
         drivetrain = new Drivetrain(robot, drive);
+
+        measuringLoopTimes = new MeasuringLoopTimes();
+        measuringLoopTimes.init();
 
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
@@ -115,7 +121,7 @@ public class TeleopV3 extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        robot.transferServo.setPosition(transferServo_out);
+        servo.setTransferPos(transferServo_out);
 
         while (opModeIsActive()) {
 
@@ -135,7 +141,7 @@ public class TeleopV3 extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 shootAll = false;
-                robot.transferServo.setPosition(transferServo_out);
+                servo.setTransferPos(transferServo_out);
 
             }
 
@@ -263,14 +269,14 @@ public class TeleopV3 extends LinearOpMode {
                         spindexer.prepareShootAllContinous();
                         //TELE.addLine("preparing to shoot");
 //                    } else if (shooterTicker == 2) {
-//                        //robot.transferServo.setPosition(transferServo_in);
+//                        //servo.setTransferPos(transferServo_in);
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servo.setTransferPos(transferServo_in);
                         //TELE.addLine("shoot");
                     } else {
-                        robot.transferServo.setPosition(transferServo_out);
+                        servo.setTransferPos(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
                         shootAll = false;
                         spindexer.resetSpindexer();
@@ -282,7 +288,7 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
                 if (gamepad1.left_stick_button) {
-                    robot.transferServo.setPosition(transferServo_out);
+                    servo.setTransferPos(transferServo_out);
                     //spindexPos = spindexer_intakePos1;
 
                     shootAll = false;
@@ -304,6 +310,7 @@ public class TeleopV3 extends LinearOpMode {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
+            measuringLoopTimes.loop();
 //
 //            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
 //            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
@@ -339,6 +346,11 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
             TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+
+            TELE.addData("Avg Loop Time", measuringLoopTimes.getAvgLoopTime());
+            TELE.addData("Min Loop Time", measuringLoopTimes.getMinLoopTimeOneMin());
+            TELE.addData("Max Loop Time", measuringLoopTimes.getMaxLoopTimeOneMin());
+
 
             TELE.update();
 
