@@ -71,10 +71,13 @@ public class Turret {
         return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
 
     }
-
-    public void manualSetTurret(double pos) {
-        robot.turr1.setPosition(pos);
-        robot.turr2.setPosition(1 - pos);
+    private double prevTurrPos = 0.501;
+    public void setTurret(double pos) {
+        if (prevTurrPos != 0.501 && prevTurrPos != pos){
+            robot.turr1.setPosition(pos);
+            robot.turr2.setPosition(1-pos);
+        }
+        prevTurrPos = pos;
     }
 
     public boolean turretEqual(double pos) {
@@ -272,8 +275,7 @@ public class Turret {
         }
 
         // Set servo positions
-        robot.turr1.setPosition(turretPos + manualOffset);
-        robot.turr2.setPosition(1.0 - turretPos - manualOffset);
+        setTurret(turretPos + manualOffset);
 
 
         /* ---------------- TELEMETRY ---------------- */

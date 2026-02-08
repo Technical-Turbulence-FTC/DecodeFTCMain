@@ -213,8 +213,7 @@ public class Auto_LT_Close extends LinearOpMode {
                     stamp = System.currentTimeMillis();
                 }
                 ticker++;
-                robot.transferServo.setPosition(transferServo_out);
-
+                servos.setTransferPos(transferServo_out);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
@@ -246,8 +245,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
                     spindexerWiggle *= -1.0;
 
-                    robot.spin1.setPosition(spindexer_intakePos1 + spindexerWiggle);
-                    robot.spin2.setPosition(1 - spindexer_intakePos1 - spindexerWiggle);
+                    servos.setSpinPos(spindexer_intakePos1 + spindexerWiggle);
 
                     spindexer.detectBalls(true, true);
 
@@ -323,8 +321,7 @@ public class Auto_LT_Close extends LinearOpMode {
 //                    TELE.update();
                     robot.intake.setPower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
 
-                    robot.spin1.setPosition(firstSpindexShootPos);
-                    robot.spin2.setPosition(1 - firstSpindexShootPos);
+                    servos.setSpinPos(firstSpindexShootPos);
 
                     return true;
                 } else {
@@ -390,20 +387,18 @@ public class Auto_LT_Close extends LinearOpMode {
                 if ((getRuntime() - stamp < shootTime && servos.getSpinPos() < spinEndPos) || shooterTicker == 0) {
 
                     if (shooterTicker == 0 && !servos.spinEqual(autoSpinStartPos)) {
-                        robot.spin1.setPosition(autoSpinStartPos);
-                        robot.spin2.setPosition(1 - autoSpinStartPos);
+                        servos.setSpinPos(autoSpinStartPos);
                     } else {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-                        double prevSpinPos = robot.spin1.getPosition();
-                        robot.spin1.setPosition(prevSpinPos + spindexSpeed);
-                        robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                        double prevSpinPos = servos.getSpinCmdPos();
+                        servos.setSpinPos(prevSpinPos + spindexSpeed);
                     }
 
                     return true;
 
                 } else {
-                    robot.transferServo.setPosition(transferServo_out);
+                    servos.setTransferPos(transferServo_out);
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -471,27 +466,24 @@ public class Auto_LT_Close extends LinearOpMode {
                 if (getRuntime() - stamp < shootTime) {
 
                     if (getRuntime() - stamp < firstShootTime) {
-                        robot.transferServo.setPosition(transferServo_in);
-                        robot.spin1.setPosition(firstSpindexShootPos);
-                        robot.spin2.setPosition(1 - firstSpindexShootPos);
+                        servos.setTransferPos(transferServo_out);
+                        servos.setSpinPos(firstSpindexShootPos);
                     } else {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-                        double prevSpinPos = robot.spin1.getPosition();
+                        double prevSpinPos = servos.getSpinCmdPos();
 
                         if (shootForward) {
-                            robot.spin1.setPosition(prevSpinPos + spindexSpeed);
-                            robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                            servos.setSpinPos(prevSpinPos + spindexSpeed);
                         } else {
-                            robot.spin1.setPosition(prevSpinPos - spindexSpeed);
-                            robot.spin2.setPosition(1 - prevSpinPos + spindexSpeed);
+                            servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
                     }
 
                     return true;
 
                 } else {
-                    robot.transferServo.setPosition(transferServo_out);
+                    servos.setTransferPos(transferServo_out);
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -563,8 +555,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 ticker++;
                 motif = turret.detectObelisk();
 
-                robot.turr1.setPosition(turrPos);
-                robot.turr2.setPosition(1 - turrPos);
+                turret.setTurret(turrPos);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
@@ -627,7 +618,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 double voltage = robot.voltage.getVoltage();
                 flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
-                robot.hood.setPosition(hoodPos);
+                servos.setHoodPos(hoodPos);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
@@ -695,7 +686,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 turret.trackGoal(deltaPose);
 
-                robot.hood.setPosition(targetingSettings.hoodAngle);
+                servos.setHoodPos(targetingSettings.hoodAngle);
 
                 double voltage = robot.voltage.getVoltage();
                 flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
@@ -766,7 +757,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-                robot.hood.setPosition(targetingSettings.hoodAngle);
+                servos.setHoodPos(targetingSettings.hoodAngle);
 
                 double voltage = robot.voltage.getVoltage();
                 flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
@@ -819,14 +810,13 @@ public class Auto_LT_Close extends LinearOpMode {
 
         turret = new Turret(robot, TELE, robot.limelight);
 
-        turret.manualSetTurret(turrDefault);
+        turret.setTurret(turrDefault);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        robot.spin1.setPosition(autoSpinStartPos);
-        robot.spin2.setPosition(1 - autoSpinStartPos);
+        servos.setSpinPos(autoSpinStartPos);
 
-        robot.transferServo.setPosition(transferServo_out);
+        servos.setTransferPos(transferServo_out);
 
         limelightUsed = false;
 
@@ -834,8 +824,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
         while (opModeInInit()) {
 
-            robot.hood.setPosition(shoot0Hood);
-            turret.manualSetTurret(turrDefault);
+            servos.setHoodPos(shoot0Hood);
+            turret.setTurret(turrDefault);
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;

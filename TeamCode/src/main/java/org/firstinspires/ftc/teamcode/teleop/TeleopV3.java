@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -54,6 +55,7 @@ public class TeleopV3 extends LinearOpMode {
     Targeting targeting;
     Targeting.Settings targetingSettings;
     Drivetrain drivetrain;
+    MeasuringLoopTimes loopTimes;
     double autoHoodOffset = 0.0;
     int shooterTicker = 0;
     boolean intake = false;
@@ -92,6 +94,9 @@ public class TeleopV3 extends LinearOpMode {
 
         drivetrain = new Drivetrain(robot, drive);
 
+        loopTimes = new MeasuringLoopTimes();
+        loopTimes.init();
+
         PIDFController tController = new PIDFController(tp, ti, td, tf);
 
         tController.setTolerance(0.001);
@@ -113,7 +118,7 @@ public class TeleopV3 extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        robot.transferServo.setPosition(transferServo_out);
+        servo.setTransferPos(transferServo_out);
 
         while (opModeIsActive()) {
 
@@ -133,7 +138,7 @@ public class TeleopV3 extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 shootAll = false;
-                robot.transferServo.setPosition(transferServo_out);
+                servo.setTransferPos(transferServo_out);
 
             }
 
@@ -193,9 +198,9 @@ public class TeleopV3 extends LinearOpMode {
             //HOOD:
 
             if (targetingHood) {
-                robot.hood.setPosition(targetingSettings.hoodAngle + autoHoodOffset);
+                servo.setHoodPos(targetingSettings.hoodAngle + autoHoodOffset);
             } else {
-                robot.hood.setPosition(hoodDefaultPos);
+                servo.setHoodPos(hoodDefaultPos);
             }
 
             if (gamepad2.dpadUpWasPressed()) {
@@ -265,10 +270,10 @@ public class TeleopV3 extends LinearOpMode {
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servo.setTransferPos(transferServo_in);
                         //TELE.addLine("shoot");
                     } else {
-                        robot.transferServo.setPosition(transferServo_out);
+                        servo.setTransferPos(transferServo_out);
                         //spindexPos = spindexer_intakePos1;
                         shootAll = false;
                         spindexer.resetSpindexer();
@@ -280,7 +285,7 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
                 if (gamepad1.left_stick_button) {
-                    robot.transferServo.setPosition(transferServo_out);
+                    servo.setTransferPos(transferServo_out);
                     //spindexPos = spindexer_intakePos1;
                     shootAll = false;
                     spindexer.resetSpindexer();
@@ -293,6 +298,7 @@ public class TeleopV3 extends LinearOpMode {
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
+            loopTimes.loop();
 //
 //            TELE.addData("Spin1Green", green1 + ": " + ballIn(1));
 //            TELE.addData("Spin2Green", green2 + ": " + ballIn(2));
@@ -328,7 +334,10 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-            TELE.addData("Voltage", robot.voltage.getVoltage()); // returns alleged recorded voltage (not same as driver hub)
+            TELE.addData("Voltage", voltage); // returns alleged recorded voltage (not same as driver hub)
+            TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
+            TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
+            TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
 
             TELE.update();
 

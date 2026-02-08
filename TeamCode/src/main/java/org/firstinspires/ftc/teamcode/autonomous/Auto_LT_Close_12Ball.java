@@ -169,7 +169,7 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
 
                 robot.transferServo.setPosition(transferServo_out);
 
-                turret.manualSetTurret(turretShootPos);
+                turret.setTurret(turretShootPos);
 
                 robot.intake.setPower(-((System.currentTimeMillis() - stamp)) / 1000);
                 drive.updatePoseEstimate();
@@ -611,7 +611,7 @@ public class Auto_LT_Close_12Ball extends LinearOpMode {
 
         turret = new Turret(robot, TELE, robot.limelight);
 
-        turret.manualSetTurret(0.4);
+        turret.setTurret(0.4);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 

@@ -207,7 +207,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 ticker++;
                 robot.transferServo.setPosition(transferServo_out);
 
-                turret.manualSetTurret(turretShootPos);
+                turret.setTurret(turretShootPos);
 
                 drive.updatePoseEstimate();
 
@@ -752,7 +752,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
         turret = new Turret(robot, TELE, robot.limelight);
 
-        turret.manualSetTurret(0.4);
+        turret.setTurret(0.4);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
