@@ -1,67 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bLeaveH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bLeaveX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bLeaveY;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bShootH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bShootX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bShootY;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bh4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bhPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bx4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.bxPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.by4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.byPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rLeaveH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rLeaveX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rLeaveY;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rShootH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rShootX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rShootY;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rh4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rhPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rx4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.rxPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry1;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry2a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry2b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry3a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry3b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry4a;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ry4b;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.ryPrep;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
@@ -849,6 +789,7 @@ public class Auto_LT_Close extends LinearOpMode {
             if (gamepad2.squareWasPressed()){
                 robot.limelight.start();
                 robot.limelight.pipelineSwitch(1);
+                gamepad2.rumble(500);
             }
 
             if (redAlliance) {
@@ -1052,8 +993,8 @@ public class Auto_LT_Close extends LinearOpMode {
                                 shootAllVelocity,
                                 shootAllHood,
                                 intake1Time,
-                                x2b,
-                                y2b,
+                                0.501,
+                                0.501,
                                 pickup1XTolerance,
                                 pickup1YTolerance
                         ),
@@ -1113,8 +1054,8 @@ public class Auto_LT_Close extends LinearOpMode {
                         pickup2.build(),
                         manageShooterAuto(
                                 intake2Time,
-                                x2b,
-                                y2b,
+                                0.501,
+                                0.501,
                                 pickup1XTolerance,
                                 pickup1YTolerance
                         ),
@@ -1171,8 +1112,8 @@ public class Auto_LT_Close extends LinearOpMode {
                         pickup3.build(),
                         manageShooterAuto(
                                 intake3Time,
-                                x2b,
-                                y2b,
+                                0.501,
+                                0.501,
                                 pickup1XTolerance,
                                 pickup1YTolerance
                         ),

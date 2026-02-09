@@ -43,5 +43,4 @@ public class Front_Poses {
     public static double bLeaveX = 40, bLeaveY = 7, bLeaveH = -50;
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
-    public static Pose2d teleEnd = new Pose2d(0, 0, 0);
 }
