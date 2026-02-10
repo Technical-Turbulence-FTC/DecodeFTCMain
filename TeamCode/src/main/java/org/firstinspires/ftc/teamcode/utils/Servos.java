@@ -44,7 +44,7 @@ public class Servos {
         return prevSpinPos;
     }
 
-    public boolean servoPosEqual(double pos1, double pos2) {
+    public static boolean servoPosEqual(double pos1, double pos2) {
         return (Math.abs(pos1 - pos2) < 0.005);
     }
 

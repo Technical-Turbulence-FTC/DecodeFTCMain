@@ -38,7 +38,8 @@ public class Turret {
     // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
-    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    public static double B_PID_P = 0.095, B_PID_I = 0.0, B_PID_D = 0.0090;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
@@ -55,6 +56,9 @@ public class Turret {
     private int currentTrackCount = 0;
     private double permanentOffset = 0.0;
     private PIDController bearingPID;
+
+    private double prevTurretPos = 0.0;
+    private boolean firstTurretPos = true;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
@@ -74,8 +78,18 @@ public class Turret {
     }
 
     public void manualSetTurret(double pos) {
-        robot.turr1.setPosition(pos);
-        robot.turr2.setPosition(1 - pos);
+        setTurretPos(pos);
+    }
+
+    public double setTurretPos(double pos) {
+        if (firstTurretPos || !Servos.servoPosEqual(pos, prevTurretPos)) {
+            robot.turr1.setPosition(pos);
+            robot.turr2.setPosition(1 - pos);
+            firstTurretPos = false;
+        }
+
+        prevTurretPos = pos;
+        return pos;
     }
 
     public boolean turretEqual(double pos) {
@@ -273,8 +287,7 @@ public class Turret {
         }
 
         // Set servo positions
-        robot.turr1.setPosition(turretPos + manualOffset);
-        robot.turr2.setPosition(1.0 - turretPos - manualOffset);
+        setTurretPos(turretPos + manualOffset);
 
 
         /* ---------------- TELEMETRY ---------------- */
