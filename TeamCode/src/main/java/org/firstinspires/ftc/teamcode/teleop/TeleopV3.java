@@ -118,6 +118,7 @@ public class TeleopV3 extends LinearOpMode {
         if (isStopRequested()) return;
 
         servo.setTransferPos(transferServo_out);
+        robot.transfer.setPower(1);
 
         while (opModeIsActive()) {
 
@@ -140,8 +141,6 @@ public class TeleopV3 extends LinearOpMode {
                 servo.setTransferPos(transferServo_out);
 
             }
-
-            robot.transfer.setPower(1);
 
             //TURRET TRACKING
 

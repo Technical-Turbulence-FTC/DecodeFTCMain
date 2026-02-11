@@ -38,6 +38,8 @@ public class Flywheel {
     }
 
     // Set the robot PIDF for the next cycle.
+    private double prevF = 0.501;
+    public static int voltagePIDFDifference = 5;
     public void setPIDF(double p, double i, double d, double f) {
         shooterPIDF1.p = p;
         shooterPIDF1.i = i;
@@ -47,6 +49,10 @@ public class Flywheel {
         shooterPIDF2.i = i;
         shooterPIDF2.d = d;
         shooterPIDF2.f = f;
+        if (Math.abs(prevF - f) > voltagePIDFDifference){
+            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
+            robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
+        }
     }
 
     // Convert from RPM to Ticks per Second

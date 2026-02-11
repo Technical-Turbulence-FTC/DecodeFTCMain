@@ -821,7 +821,7 @@ public class Auto_LT_Far extends LinearOpMode {
             startAuto();
 
             if (stack3){
-                cycleStackFar();
+                //cycleStackFar();
             }
 
             if (gatePickup || stack3){
@@ -878,61 +878,61 @@ public class Auto_LT_Far extends LinearOpMode {
         Actions.runBlocking(leaveFromShoot.build());
     }
 
-    void cycleStackFar(){
-        Actions.runBlocking(
-                new ParallelAction(
-                        pickup3.build(),
-                        manageShooterAuto(
-                                intake3Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        intake(intake3Time),
-                        detectObelisk(
-                                intake3Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                obeliskTurrPos3
-                        )
-
-                )
-        );
-
-        motif = turret.getObeliskID();
-
-        if (motif == 0) motif = prevMotif;
-        prevMotif = motif;
-
-        Actions.runBlocking(
-                new ParallelAction(
-                        manageFlywheelAuto(
-                                shoot3Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        shoot3.build(),
-                        prepareShootAll(colorSenseTime, shoot3Time, motif)
-                )
-        );
-
-        Actions.runBlocking(
-                new ParallelAction(
-                        manageShooterAuto(
-                                finalShootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
-                )
-
-        );
-    }
+//    void cycleStackFar(){
+//        Actions.runBlocking(
+//                new ParallelAction(
+//                        pickup3.build(),
+//                        manageShooterAuto(
+//                                intake3Time,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                0.501
+//                        ),
+//                        intake(intake3Time),
+//                        detectObelisk(
+//                                intake3Time,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                obeliskTurrPos3
+//                        )
+//
+//                )
+//        );
+//
+//        motif = turret.getObeliskID();
+//
+//        if (motif == 0) motif = prevMotif;
+//        prevMotif = motif;
+//
+//        Actions.runBlocking(
+//                new ParallelAction(
+//                        manageFlywheelAuto(
+//                                shoot3Time,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                0.501
+//                        ),
+//                        shoot3.build(),
+//                        prepareShootAll(colorSenseTime, shoot3Time, motif)
+//                )
+//        );
+//
+//        Actions.runBlocking(
+//                new ParallelAction(
+//                        manageShooterAuto(
+//                                finalShootAllTime,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                0.501
+//                        ),
+//                        shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
+//                )
+//
+//        );
+//    }
 }
