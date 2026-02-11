@@ -201,7 +201,7 @@ public class Auto_LT_Close extends LinearOpMode {
                         rearSlotGreen++;
                     }
 
-                    robot.intake.setPower(1);
+                    spindexer.setIntakePower(1);
 
                     decideGreenSlot = true;
 
@@ -259,7 +259,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 } else if ((System.currentTimeMillis() - stamp) < (time * 1000)) {
 //                    TELE.addData("MostGreenSlot", mostGreenSlot);
 //                    TELE.update();
-                    robot.intake.setPower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
+                    spindexer.setIntakePower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
 
                     servos.setSpinPos(firstSpindexShootPos);
 
@@ -294,14 +294,14 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                robot.intake.setPower(-0.3);
+                spindexer.setIntakePower(-0.3);
 
                 if (ticker == 1) {
                     stamp = getRuntime();
                 }
                 ticker++;
 
-                robot.intake.setPower(0);
+                spindexer.setIntakePower(0);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
@@ -373,14 +373,14 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                robot.intake.setPower(-0.3);
+                spindexer.setIntakePower(-0.3);
 
                 if (ticker == 1) {
                     stamp = getRuntime();
                 }
                 ticker++;
 
-                robot.intake.setPower(0);
+                spindexer.setIntakePower(0);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
@@ -448,7 +448,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 ticker++;
 
                 spindexer.processIntake();
-                robot.intake.setPower(1);
+                spindexer.setIntakePower(1);
 
                 spindexer.ballCounterLight();
                 drive.updatePoseEstimate();

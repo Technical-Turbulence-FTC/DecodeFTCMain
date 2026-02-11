@@ -625,4 +625,11 @@ public class Spindexer {
     public BallColor GetRearCenterColor () {
         return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.REARCENTER.ordinal()]].ballColor;
     }
+    private double prevPow = 0.501;
+    public void setIntakePower(double pow){
+        if (prevPow != 0.501 && prevPow != pow){
+            robot.intake.setPower(pow);
+        }
+        prevPow = pow;
+    }
 }

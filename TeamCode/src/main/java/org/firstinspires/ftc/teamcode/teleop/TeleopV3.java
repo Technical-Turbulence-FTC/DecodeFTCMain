@@ -239,13 +239,12 @@ public class TeleopV3 extends LinearOpMode {
 
                 // RIGHT_BUMPER
                 if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
-                    robot.intake.setPower(1);
+                    spindexer.setIntakePower(1);
                 } else if (gamepad1.cross) {
-                    robot.intake.setPower(-1);
+                    spindexer.setIntakePower(-1);
 
                 } else {
-                    robot.intake.setPower(0);
-
+                    spindexer.setIntakePower(0);
                 }
 
                 // LEFT_BUMPER
