@@ -16,9 +16,12 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.Light;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -47,6 +50,7 @@ public class TeleopV3 extends LinearOpMode {
     boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
+    Light light;
     Servos servo;
     Flywheel flywheel;
     MecanumDrive drive;
@@ -62,7 +66,6 @@ public class TeleopV3 extends LinearOpMode {
     double yOffset = 0.0;
     double headingOffset = 0.0;
     int ticker = 0;
-
 
     boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
@@ -99,18 +102,26 @@ public class TeleopV3 extends LinearOpMode {
         tController.setTolerance(0.001);
 
         Turret turret = new Turret(robot, TELE, robot.limelight);
-        robot.light.setPosition(1);
+
+        light = Light.getInstance();
+        light.init(robot.light, spindexer, turret);
+
+        light.setState(StateEnums.LightState.MANUAL);
         while (opModeInInit()) {
             robot.limelight.start();
             if (redAlliance) {
                 robot.limelight.pipelineSwitch(4);
+                light.setManualLightColor(Color.LightRed);
             } else {
                 robot.limelight.pipelineSwitch(2);
+                light.setManualLightColor(Color.LightBlue);
+
             }
+
+            light.update();
         }
 
-        limelightUsed= true;
-
+        limelightUsed = true;
 
         waitForStart();
         if (isStopRequested()) return;
@@ -120,9 +131,6 @@ public class TeleopV3 extends LinearOpMode {
         while (opModeIsActive()) {
 
             //TELE.addData("Is limelight on?", robot.limelight.getStatus());
-
-            // LIGHT COLORS
-            spindexer.ballCounterLight();
 
             //DRIVETRAIN:
 
@@ -134,9 +142,17 @@ public class TeleopV3 extends LinearOpMode {
             );
 
             if (gamepad1.right_bumper) {
+
                 shootAll = false;
                 robot.transferServo.setPosition(transferServo_out);
 
+                light.setState(StateEnums.LightState.BALL_COUNT);
+
+            } else if (gamepad2.triangle){
+                light.setState(StateEnums.LightState.BALL_COLOR);
+
+            }  else {
+                light.setState(StateEnums.LightState.GOAL_LOCK);
             }
 
             robot.transfer.setPower(1);
@@ -226,8 +242,6 @@ public class TeleopV3 extends LinearOpMode {
             if (gamepad2.crossWasPressed()) {
                 drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
             }
-
-
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -332,7 +346,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("robotX", robotX);
             TELE.addData("robotY", robotY);
             TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData( "robotInchesY", targeting.robotInchesY);
+            TELE.addData("robotInchesY", targeting.robotInchesY);
             TELE.addData("Targeting Interpolate", turretInterpolate);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
@@ -341,6 +355,8 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
 
             TELE.update();
+
+            light.update();
 
             ticker++;
         }

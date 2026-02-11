@@ -9,10 +9,10 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.constants.Color;
 
 import java.util.List;
 
@@ -51,6 +51,7 @@ public class Turret {
     private int obeliskID = 0;
     private double offset = 0.0;
     private double currentTrackOffset = 0.0;
+    private double lightColor = Color.LightRed;
     private int currentTrackCount = 0;
     private double permanentOffset = 0.0;
     private PIDController bearingPID;
@@ -60,6 +61,10 @@ public class Turret {
         this.robot = rob;
         this.webcam = cam;
         bearingPID = new PIDController(B_PID_P, B_PID_I, B_PID_D);
+    }
+
+    public double getLightColor() {
+        return lightColor;
     }
 
     public void zeroTurretEncoder() {
@@ -153,11 +158,17 @@ public class Turret {
         // LL has 54.5 degree total Horizontal FOV; very edges are not useful.
         final double HORIZONTAL_FOV_RANGE = 26.0;  // Total usable horizontal degrees from center +/-
         final double DRIVE_POWER_REDUCTION = 2.0;
+        final double COLOR_OK_TOLERANCE = 2.5;
 
         if (abs(targetTx) < TARGET_POSITION_TOLERANCE) {
             bearingAligned = true;
-        } else {
+            lightColor = Color.LightBlue;
+        } else if (abs(targetTx) < COLOR_OK_TOLERANCE) {
             bearingAligned = false;
+            lightColor = Color.LightPurple;
+        }  else {
+            bearingAligned = false;
+            lightColor = Color.LightOrange;
         }
 
         // Only with valid data and if too far off target
@@ -246,6 +257,7 @@ public class Turret {
 //            if (currentTrackCount > 20) {
 //                offset = currentTrackOffset;
 //            }
+            lightColor = Color.LightRed;
             currentTrackOffset = 0.0;
             currentTrackCount = 0;
         }
