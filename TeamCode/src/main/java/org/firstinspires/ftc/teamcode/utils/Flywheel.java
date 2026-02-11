@@ -55,14 +55,14 @@ public class Flywheel {
     private double TPS_to_RPM (double TPS) { return (TPS*60.0)/28.0;}
 
     public double manageFlywheel(double commandedVelocity) {
-        targetVelocity = commandedVelocity;
-
         // Add code here to set PIDF based on desired RPM
 
-        robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
-        robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
-        robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-        robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+        if (targetVelocity != commandedVelocity){
+            robot.shooter1.setVelocity(RPM_to_TPS(commandedVelocity));
+            robot.shooter2.setVelocity(RPM_to_TPS(commandedVelocity));
+        }
+
+        targetVelocity = commandedVelocity;
 
         // Record Current Velocity
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());

@@ -37,7 +37,8 @@ public class Turret {
     // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
-    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    public static double B_PID_P = 0.095, B_PID_I = 0.0, B_PID_D = 0.0090;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;

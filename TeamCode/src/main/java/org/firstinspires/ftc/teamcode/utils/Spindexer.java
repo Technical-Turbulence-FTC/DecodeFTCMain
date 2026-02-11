@@ -49,6 +49,7 @@ public class Spindexer {
     public double spindexerOuttakeWiggle = 0.01;
     private double prevPos = 0.0;
     public double spindexerPosOffset = 0.00;
+    public static int shootWaitMax = 4;
     public Types.Motif desiredMotif = Types.Motif.NONE;
     // For Use
     enum RotatedBallPositionNames {
@@ -474,7 +475,6 @@ public class Spindexer {
                 break;
 
             case SHOOTWAIT:
-                double shootWaitMax = 4;
                 // Stopping when we get to the new position
                 if (prevIntakeState != currentIntakeState) {
                     if (commandedIntakePosition==2) {
