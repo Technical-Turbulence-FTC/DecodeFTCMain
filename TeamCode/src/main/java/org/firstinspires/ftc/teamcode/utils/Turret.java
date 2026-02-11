@@ -39,7 +39,7 @@ public class Turret {
 
     public static double clampTolerance = 0.03;
     //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
-    public static double B_PID_P = 0.095, B_PID_I = 0.0, B_PID_D = 0.0090;
+    public static double B_PID_P = 0.066, B_PID_I = 0.0, B_PID_D = 0.007;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
