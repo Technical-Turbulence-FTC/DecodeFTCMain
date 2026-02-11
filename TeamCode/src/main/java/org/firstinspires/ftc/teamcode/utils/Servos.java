@@ -91,4 +91,8 @@ public class Servos {
     public double setTurrPos(double pos) {
         return 1.0;
     }
+
+    public boolean turretEqual(double pos) {
+        return true;
+    }
 }

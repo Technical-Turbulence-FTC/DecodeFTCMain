@@ -11,6 +11,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
@@ -38,7 +39,7 @@ public class Turret {
 
     public static double clampTolerance = 0.03;
     //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
-    public static double B_PID_P = 0.095, B_PID_I = 0.0, B_PID_D = 0.0090;
+    public static double B_PID_P = 0.066, B_PID_I = 0.0, B_PID_D = 0.007;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
@@ -55,6 +56,9 @@ public class Turret {
     private int currentTrackCount = 0;
     private double permanentOffset = 0.0;
     private PIDController bearingPID;
+
+    private double prevTurretPos = 0.0;
+    private boolean firstTurretPos = true;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;

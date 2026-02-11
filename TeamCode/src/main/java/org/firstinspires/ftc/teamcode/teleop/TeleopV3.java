@@ -105,7 +105,6 @@ public class TeleopV3 extends LinearOpMode {
         limelightUsed = true;
 
         robot.light.setPosition(1);
-
         while (opModeInInit()) {
             robot.limelight.start();
             if (redAlliance) {
@@ -265,7 +264,7 @@ public class TeleopV3 extends LinearOpMode {
                         spindexer.prepareShootAllContinous();
                         //TELE.addLine("preparing to shoot");
 //                    } else if (shooterTicker == 2) {
-//                        //robot.transferServo.setPosition(transferServo_in);
+//                        //servo.setTransferPos(transferServo_in);
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
                     } else if (!spindexer.shootAllComplete()) {
