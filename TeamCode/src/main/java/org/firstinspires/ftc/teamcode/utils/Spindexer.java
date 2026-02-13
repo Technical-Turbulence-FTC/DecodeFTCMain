@@ -25,6 +25,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 
+import java.util.Objects;
+
 public class Spindexer {
 
     Robot robot;
@@ -284,34 +286,64 @@ public class Spindexer {
 
     }
 
-    private double prevLight = 0.0;
-    public void ballCounterLight(){
+    public double getRearCenterLight() {
+        BallColor color = GetRearCenterColor();
+        if (Objects.equals(color, BallColor.GREEN)) {
+            return LightGreen;
+        } else if (Objects.equals(color, BallColor.PURPLE)) {
+            return LightPurple;
+        } else {
+            return LightOrange;
+        }
+    }
+
+
+    public double getDriverLight() {
+        BallColor color = GetFrontDriverColor();
+        if (Objects.equals(color, BallColor.GREEN)) {
+            return LightGreen;
+        } else if (Objects.equals(color, BallColor.PURPLE)) {
+            return LightPurple;
+        } else {
+            return LightOrange;
+        }
+    }
+
+    public double getPassengerLight() {
+        BallColor color = GetFrontPassengerColor();
+        if (Objects.equals(color, BallColor.GREEN)) {
+            return LightGreen;
+        } else if (Objects.equals(color, BallColor.PURPLE)) {
+            return LightPurple;
+        } else {
+            return LightOrange;
+        }
+    }
+    public double ballCounterLight() {
         int counter = 0;
-        if (!ballPositions[0].isEmpty){
+        if (!ballPositions[0].isEmpty) {
             counter++;
         }
-        if (!ballPositions[1].isEmpty){
+        if (!ballPositions[1].isEmpty) {
             counter++;
         }
-        if (!ballPositions[2].isEmpty){
+        if (!ballPositions[2].isEmpty) {
             counter++;
         }
 
-        double light;
-        if (counter == 3){
-            light = Light3;
-        } else if (counter == 2){
-            light = Light2;
-        } else if (counter == 1){
-            light = Light1;
+        if (counter == 3) {
+            return Light3;
+        } else if (counter == 2) {
+            return Light2;
+        } else if (counter == 1) {
+            return Light1;
         } else {
-            light = Light0;
+            return Light0;
         }
-        if (light != prevLight){
-            robot.light.setPosition(light);
-        }
-        prevLight = light;
     }
+
+
+
 
     public boolean slotIsEmpty(int slot){
         return !ballPositions[slot].isEmpty;
