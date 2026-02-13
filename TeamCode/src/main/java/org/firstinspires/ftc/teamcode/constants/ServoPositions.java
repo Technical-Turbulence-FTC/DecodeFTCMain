@@ -29,8 +29,8 @@ public class ServoPositions {
 
     public static double hoodOffset = -0.05;
 
-    public static double turret_redClose = 0.42;
-    public static double turret_blueClose = 0.38;
+    public static double turret_redClose = 0;
+    public static double turret_blueClose = 0;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
