@@ -16,9 +16,12 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.Light;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
@@ -48,6 +51,7 @@ public class TeleopV3 extends LinearOpMode {
     boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
+    Light light;
     Servos servo;
     Flywheel flywheel;
     MecanumDrive drive;
@@ -64,7 +68,6 @@ public class TeleopV3 extends LinearOpMode {
     double yOffset = 0.0;
     double headingOffset = 0.0;
     int ticker = 0;
-
 
     boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
@@ -102,6 +105,11 @@ public class TeleopV3 extends LinearOpMode {
         tController.setTolerance(0.001);
 
         Turret turret = new Turret(robot, TELE, robot.limelight);
+
+        light = Light.getInstance();
+        light.init(robot.light, spindexer, turret);
+
+        light.setState(StateEnums.LightState.MANUAL);
         limelightUsed = true;
 
         robot.light.setPosition(1);
@@ -109,10 +117,17 @@ public class TeleopV3 extends LinearOpMode {
             robot.limelight.start();
             if (redAlliance) {
                 robot.limelight.pipelineSwitch(4);
+                light.setManualLightColor(Color.LightRed);
             } else {
                 robot.limelight.pipelineSwitch(2);
+                light.setManualLightColor(Color.LightBlue);
+
             }
+
+            light.update();
         }
+
+        limelightUsed = true;
 
         waitForStart();
         if (isStopRequested()) return;
@@ -124,9 +139,6 @@ public class TeleopV3 extends LinearOpMode {
 
             //TELE.addData("Is limelight on?", robot.limelight.getStatus());
 
-            // LIGHT COLORS
-            spindexer.ballCounterLight();
-
             //DRIVETRAIN:
 
             drivetrain.drive(
@@ -137,9 +149,17 @@ public class TeleopV3 extends LinearOpMode {
             );
 
             if (gamepad1.right_bumper) {
+
                 shootAll = false;
                 servo.setTransferPos(transferServo_out);
 
+                light.setState(StateEnums.LightState.BALL_COUNT);
+
+            } else if (gamepad2.triangle){
+                light.setState(StateEnums.LightState.BALL_COLOR);
+
+            }  else {
+                light.setState(StateEnums.LightState.GOAL_LOCK);
             }
 
             //TURRET TRACKING
@@ -229,6 +249,8 @@ public class TeleopV3 extends LinearOpMode {
             if (gamepad2.crossWasPressed()) {
                 drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
             }
+
+
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -321,22 +343,24 @@ public class TeleopV3 extends LinearOpMode {
 //
 //            TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
-//            TELE.addData("robotX", robotX);
-//            TELE.addData("robotY", robotY);
-//            TELE.addData("robotInchesX", targeting.robotInchesX);
-//            TELE.addData( "robotInchesY", targeting.robotInchesY);
-//            TELE.addData("Targeting Interpolate", turretInterpolate);
-//            TELE.addData("Targeting GridX", targeting.robotGridX);
-//            TELE.addData("Targeting GridY", targeting.robotGridY);
-//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
-//            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+            TELE.addData("robotX", robotX);
+            TELE.addData("robotY", robotY);
+            TELE.addData("robotInchesX", targeting.robotInchesX);
+            TELE.addData("robotInchesY", targeting.robotInchesY);
+            TELE.addData("Targeting Interpolate", turretInterpolate);
+            TELE.addData("Targeting GridX", targeting.robotGridX);
+            TELE.addData("Targeting GridY", targeting.robotGridY);
+            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
             TELE.addData("Voltage", voltage); // returns alleged recorded voltage (not same as driver hub)
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
 
             TELE.update();
+
+            light.update();
 
             ticker++;
         }
