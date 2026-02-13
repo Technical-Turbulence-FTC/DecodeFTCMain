@@ -21,7 +21,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
@@ -31,7 +30,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 import java.util.Objects;
 
-public class Actions{
+public class AutoActions{
     Robot robot;
     MultipleTelemetry TELE;
     Servos servos;
@@ -50,7 +49,7 @@ public class Actions{
     public static double firstShootTime = 0.3;
     public int motif = 0;
 
-    public Actions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur){
+    public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur){
         this.robot = rob;
         this.drive = dri;
         this.TELE = tel;
