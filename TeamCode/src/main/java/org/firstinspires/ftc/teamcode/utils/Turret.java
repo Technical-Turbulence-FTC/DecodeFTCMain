@@ -81,12 +81,16 @@ public class Turret {
         return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
 
     }
-    private double prevTurrPos = 0.501;
+    private double prevTurrPos = 0;
+    private boolean isFirstTurretPos = true;
     public void setTurret(double pos) {
-        if (prevTurrPos != 0.501 && prevTurrPos != pos){
+        if (isFirstTurretPos || prevTurrPos != pos){
             robot.turr1.setPosition(pos);
             robot.turr2.setPosition(1-pos);
+            isFirstTurretPos = false;
         }
+        TELE.addLine("Moved Turret");
+        TELE.update();
         prevTurrPos = pos;
     }
 

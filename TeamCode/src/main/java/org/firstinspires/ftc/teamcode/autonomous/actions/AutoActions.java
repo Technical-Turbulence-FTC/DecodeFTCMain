@@ -15,6 +15,7 @@ import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -30,6 +31,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 import java.util.Objects;
 
+@Config
 public class AutoActions{
     Robot robot;
     MultipleTelemetry TELE;
@@ -246,7 +248,7 @@ public class AutoActions{
 
                 turret.trackGoal(deltaPose);
 
-                if ((System.currentTimeMillis() - stamp < shootTime && servos.getSpinPos() < spinEndPos) || shooterTicker == 0) {
+                if ((System.currentTimeMillis() - stamp < shootTime*1000 && servos.getSpinPos() < spinEndPos) || shooterTicker == 0) {
 
                     if (shooterTicker == 0 && !servos.spinEqual(spinStartPos)) {
                         servos.setSpinPos(spinStartPos);
@@ -325,9 +327,9 @@ public class AutoActions{
 
                 turret.trackGoal(deltaPose);
 
-                if (System.currentTimeMillis() - stamp < shootTime) {
+                if (System.currentTimeMillis() - stamp < shootTime*1000) {
 
-                    if (System.currentTimeMillis() - stamp < firstShootTime) {
+                    if (System.currentTimeMillis() - stamp < firstShootTime*1000) {
                         servos.setTransferPos(transferServo_out);
                         servos.setSpinPos(firstSpindexShootPos);
                     } else {

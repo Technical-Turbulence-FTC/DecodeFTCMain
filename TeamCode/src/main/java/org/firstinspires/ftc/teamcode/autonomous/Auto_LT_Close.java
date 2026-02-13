@@ -3,25 +3,13 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
-
-import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -40,17 +28,15 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
-import java.util.Objects;
-
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
-    public static double shoot0SpinSpeedIncrease = 0.02;
+    public static double shoot0SpinSpeedIncrease = 0.005;
 
-    public static double spindexerSpeedIncrease = 0.03;
-    public static double finalSpindexerSpeedIncrease = 0.03;
+    public static double spindexerSpeedIncrease = 0.005;
+    public static double finalSpindexerSpeedIncrease = 0.005;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -111,8 +97,6 @@ public class Auto_LT_Close extends LinearOpMode {
     Targeting targeting;
     Targeting.Settings targetingSettings;
     AutoActions autoActions;
-    private double firstSpindexShootPos = autoSpinStartPos;
-    private boolean shootForward = true;
     double x1, y1, h1;
 
     double x2a, y2a, h2a, t2a;
@@ -132,11 +116,6 @@ public class Auto_LT_Close extends LinearOpMode {
 
     private double shoot1Tangent;
 
-    private int driverSlotGreen = 0;
-    private int passengerSlotGreen = 0;
-
-    private int rearSlotGreen = 0;
-    private int mostGreenSlot = 0;
     int ballCycles = 3;
     int prevMotif = 0;
 
@@ -169,8 +148,6 @@ public class Auto_LT_Close extends LinearOpMode {
         servos = new Servos(hardwareMap);
 
         turret = new Turret(robot, TELE, robot.limelight);
-
-        turret.setTurret(turrDefault);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
