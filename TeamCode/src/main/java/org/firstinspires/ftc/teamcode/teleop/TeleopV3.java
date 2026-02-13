@@ -33,7 +33,7 @@ import java.util.List;
 @Config
 @TeleOp
 public class TeleopV3 extends LinearOpMode {
-    public static double manualVel = 3000;
+    public static double manualVel = 1000;
     //Testing a new comment
     public static double hoodDefaultPos = 0.5;
 
