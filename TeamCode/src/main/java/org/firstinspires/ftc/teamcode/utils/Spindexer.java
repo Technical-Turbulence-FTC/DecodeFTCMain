@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+import static org.firstinspires.ftc.teamcode.constants.Color.*;
 import static org.firstinspires.ftc.teamcode.constants.Color.Light0;
 import static org.firstinspires.ftc.teamcode.constants.Color.Light1;
 import static org.firstinspires.ftc.teamcode.constants.Color.Light2;
@@ -44,6 +51,42 @@ public class Spindexer {
     public double spindexerWiggle = 0.01;
     public double spindexerOuttakeWiggle = 0.01;
     public double spindexerPosOffset = 0.00;
+    public static int shootWaitMax = 4;
+    public Types.Motif desiredMotif = Types.Motif.NONE;
+    // For Use
+    enum RotatedBallPositionNames {
+        REARCENTER,
+        FRONTDRIVER,
+        FRONTPASSENGER
+    }
+    // Array of commandedIntakePositions with contents
+    // {RearCenter, FrontDriver, FrontPassenger}
+    static final int[][] RotatedBallPositions = {{0,2,1}, {1,0,2}, {2,1,0}};
+    class spindexerBallRoatation {
+        int rearCenter = 0; // aka commanded Position
+        int frontDriver = 0;
+        int frontPassenger = 0;
+    }
+
+    enum IntakeState {
+        UNKNOWN_START,
+        UNKNOWN_MOVE,
+        UNKNOWN_DETECT,
+        INTAKE,
+        FINDNEXT,
+        MOVING,
+        FULL,
+        SHOOTNEXT,
+        SHOOTMOVING,
+        SHOOTWAIT,
+        SHOOT_ALL_PREP,
+        SHOOT_ALL_READY,
+        SHOOT_PREP_CONTINOUS,
+        SHOOT_CONTINOUS
+    }
+
+    int shootWaitCount = 0;
+
     public StateEnums.Motif desiredMotif = StateEnums.Motif.NONE;
     public IntakeState currentIntakeState = IntakeState.UNKNOWN_START;
     public IntakeState prevIntakeState = IntakeState.UNKNOWN_START;
@@ -126,11 +169,9 @@ public class Spindexer {
 
             if (detectRearColor) {
                 // Detect which color
-                double green = robot.color1.getNormalizedColors().green;
-                double red = robot.color1.getNormalizedColors().red;
-                double blue = robot.color1.getNormalizedColors().blue;
+                NormalizedRGBA color1RGBA = robot.color1.getNormalizedColors();
 
-                double gP = green / (green + red + blue);
+                double gP = color1RGBA.green / (color1RGBA.green + color1RGBA.red + color1RGBA.blue);
 
                 // FIXIT - Add filtering to improve accuracy.
                 if (gP >= 0.38) {
@@ -147,11 +188,9 @@ public class Spindexer {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
             if (detectFrontColor) {
-                double green = robot.color2.getNormalizedColors().green;
-                double red = robot.color2.getNormalizedColors().red;
-                double blue = robot.color2.getNormalizedColors().blue;
+                NormalizedRGBA color2RGBA = robot.color2.getNormalizedColors();
 
-                double gP = green / (green + red + blue);
+                double gP = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
 
                 if (gP >= 0.4) {
                     ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
@@ -176,11 +215,9 @@ public class Spindexer {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
             if (detectFrontColor) {
-                double green = robot.color3.getNormalizedColors().green;
-                double red = robot.color3.getNormalizedColors().red;
-                double blue = robot.color3.getNormalizedColors().blue;
+                NormalizedRGBA color3RGBA = robot.color3.getNormalizedColors();
 
-                double gP = green / (green + red + blue);
+                double gP = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
 
                 if (gP >= 0.42) {
                     ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
@@ -212,8 +249,7 @@ public class Spindexer {
 
     // Has code to unjam spindexer
     private void moveSpindexerToPos(double pos) {
-        robot.spin1.setPosition(pos);
-        robot.spin2.setPosition(1 - pos);
+        servos.setSpinPos(pos);
 //        double currentPos = servos.getSpinPos();
 //        if (!servos.spinEqual(pos) && Math.abs(prevPos - currentPos) <= 0){
 //            if (currentPos > pos){
@@ -224,7 +260,7 @@ public class Spindexer {
 //                robot.spin2.setPosition(1 - servos.getSpinPos() + 0.05);
 //            }
 //        }
-//        prevPos = currentPos;
+//        prevPos = pos;
     }
 
 //    private double getTimeSeconds ()
@@ -246,6 +282,8 @@ public class Spindexer {
 
     }
 
+    private double prevLight = 0.0;
+    public void ballCounterLight(){
     public double getRearCenterLight() {
         BallColor color = GetRearCenterColor();
         if (Objects.equals(color, BallColor.GREEN)) {
@@ -291,6 +329,14 @@ public class Spindexer {
             counter++;
         }
 
+        double light;
+        if (counter == 3){
+            light = Light3;
+        } else if (counter == 2){
+            light = Light2;
+        } else if (counter == 1){
+            light = Light1;
+
         if (counter == 3) {
             return Light3;
         } else if (counter == 2) {
@@ -298,8 +344,13 @@ public class Spindexer {
         } else if (counter == 1) {
             return Light1;
         } else {
+            light = Light0;
             return Light0;
         }
+        if (light != prevLight){
+            robot.light.setPosition(light);
+        }
+        prevLight = light;
     }
 
     public boolean slotIsEmpty(int slot) {
@@ -316,7 +367,7 @@ public class Spindexer {
             case UNKNOWN_START:
                 // For now just set position ONE if UNKNOWN
                 commandedIntakePosition = 0;
-                moveSpindexerToPos(intakePositions[0]);
+                servos.setSpinPos(intakePositions[0]);
                 currentIntakeState = Spindexer.IntakeState.UNKNOWN_MOVE;
                 break;
             case UNKNOWN_MOVE:
@@ -327,7 +378,7 @@ public class Spindexer {
                     unknownColorDetect = 0;
                 } else {
                     // Keep moving the spindexer
-                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
                 }
                 break;
             case UNKNOWN_DETECT:
@@ -346,7 +397,7 @@ public class Spindexer {
                 } else {
                     // Maintain Position
                     spindexerWiggle *= -1.0;
-                    moveSpindexerToPos(intakePositions[commandedIntakePosition] + spindexerWiggle);
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
                 }
                 break;
             case FINDNEXT:
@@ -378,7 +429,7 @@ public class Spindexer {
                     //commandedIntakePosition = bestFitMotif();
                     currentIntakeState = Spindexer.IntakeState.FULL;
                 }
-                moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                servos.setSpinPos(intakePositions[commandedIntakePosition]);
                 break;
 
             case MOVING:
@@ -394,7 +445,7 @@ public class Spindexer {
                     //detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
-                    moveSpindexerToPos(intakePositions[commandedIntakePosition]);
+                    servos.setSpinPos(intakePositions[commandedIntakePosition]);
                 }
                 break;
 
@@ -407,7 +458,7 @@ public class Spindexer {
                 }
                 // Maintain Position
                 spindexerWiggle *= -1.0;
-                moveSpindexerToPos(intakePositions[commandedIntakePosition] + spindexerWiggle);
+                servos.setSpinPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
                 break;
 
             case SHOOT_ALL_PREP:
@@ -416,7 +467,7 @@ public class Spindexer {
                 commandedIntakePosition = 0;
                 if (!servos.spinEqual(outakePositions[commandedIntakePosition])) {
                     // Keep moving the spindexer
-                    moveSpindexerToPos(outakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
+                    servos.setSpinPos(outakePositions[commandedIntakePosition]); // Possible error: should it be using "outakePositions" instead of "intakePositions"
                 }
                 break;
 
@@ -428,7 +479,7 @@ public class Spindexer {
                     currentIntakeState = Spindexer.IntakeState.SHOOTNEXT;
                 }
                 // Maintain Position
-                moveSpindexerToPos(outakePositions[commandedIntakePosition]);
+                servos.setSpinPos(outakePositions[commandedIntakePosition]);
                 break;
 
             case SHOOTNEXT:
@@ -449,7 +500,7 @@ public class Spindexer {
                     // Empty return to intake state
                     currentIntakeState = IntakeState.FINDNEXT;
                 }
-                moveSpindexerToPos(outakePositions[commandedIntakePosition]);
+                servos.setSpinPos(outakePositions[commandedIntakePosition]);
                 break;
 
             case SHOOTMOVING:
@@ -458,12 +509,11 @@ public class Spindexer {
                     currentIntakeState = Spindexer.IntakeState.SHOOTWAIT;
                 } else {
                     // Keep moving the spindexer
-                    moveSpindexerToPos(outakePositions[commandedIntakePosition]);
+                    servos.setSpinPos(outakePositions[commandedIntakePosition]);
                 }
                 break;
 
             case SHOOTWAIT:
-                double shootWaitMax = 4;
                 // Stopping when we get to the new position
                 if (prevIntakeState != currentIntakeState) {
                     if (commandedIntakePosition == 2) {
@@ -483,14 +533,14 @@ public class Spindexer {
                 }
                 // Keep moving the spindexer
                 spindexerOuttakeWiggle *= -1.0;
-                moveSpindexerToPos(outakePositions[commandedIntakePosition] + spindexerOuttakeWiggle);
+                servos.setSpinPos(outakePositions[commandedIntakePosition]+spindexerOuttakeWiggle);
                 break;
 
             case SHOOT_PREP_CONTINOUS:
                 if (servos.spinEqual(spinStartPos)) {
                     currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
                 } else {
-                    moveSpindexerToPos(spinStartPos);
+                    servos.setSpinPos(spinStartPos);
                 }
                 break;
 
@@ -501,11 +551,11 @@ public class Spindexer {
                 if (servos.getSpinPos() > spinEndPos) {
                     currentIntakeState = IntakeState.FINDNEXT;
                 } else {
-                    double spinPos = robot.spin1.getPosition() + shootAllSpindexerSpeedIncrease;
-                    if (spinPos > spinEndPos + 0.03) {
+                    double spinPos = servos.getSpinCmdPos() + shootAllSpindexerSpeedIncrease;
+                    if (spinPos > spinEndPos + 0.03){
                         spinPos = spinEndPos + 0.03;
                     }
-                    moveSpindexerToPos(spinPos);
+                    servos.setSpinPos(spinPos);
                 }
                 break;
 
@@ -656,5 +706,12 @@ public class Spindexer {
         boolean isEmpty = true;
         int foundEmpty = 0;
         BallColor ballColor = BallColor.UNKNOWN;
+    }
+    private double prevPow = 0.501;
+    public void setIntakePower(double pow){
+        if (prevPow != 0.501 && prevPow != pow){
+            robot.intake.setPower(pow);
+        }
+        prevPow = pow;
     }
 }

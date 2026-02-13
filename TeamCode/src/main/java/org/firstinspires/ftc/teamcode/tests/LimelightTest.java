@@ -60,7 +60,7 @@ public class LimelightTest extends LinearOpMode {
 
             if (turretMode){
                 if (turretPos != 0.501){
-                    turret.manualSetTurret(turretPos);
+                    turret.setTurret(turretPos);
                 }
             }
 

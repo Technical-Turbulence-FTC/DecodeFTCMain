@@ -10,6 +10,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
@@ -37,7 +38,8 @@ public class Turret {
     // TODO: tune these values for limelight
 
     public static double clampTolerance = 0.03;
-    public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
+    public static double B_PID_P = 0.066, B_PID_I = 0.0, B_PID_D = 0.007;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;
@@ -55,6 +57,9 @@ public class Turret {
     private int currentTrackCount = 0;
     private double permanentOffset = 0.0;
     private PIDController bearingPID;
+
+    private double prevTurretPos = 0.0;
+    private boolean firstTurretPos = true;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
@@ -76,10 +81,13 @@ public class Turret {
         return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
 
     }
-
-    public void manualSetTurret(double pos) {
-        robot.turr1.setPosition(pos);
-        robot.turr2.setPosition(1 - pos);
+    private double prevTurrPos = 0.501;
+    public void setTurret(double pos) {
+        if (prevTurrPos != 0.501 && prevTurrPos != pos){
+            robot.turr1.setPosition(pos);
+            robot.turr2.setPosition(1-pos);
+        }
+        prevTurrPos = pos;
     }
 
     public boolean turretEqual(double pos) {
@@ -284,8 +292,7 @@ public class Turret {
         }
 
         // Set servo positions
-        robot.turr1.setPosition(turretPos + manualOffset);
-        robot.turr2.setPosition(1.0 - turretPos - manualOffset);
+        setTurret(turretPos + manualOffset);
 
 
         /* ---------------- TELEMETRY ---------------- */

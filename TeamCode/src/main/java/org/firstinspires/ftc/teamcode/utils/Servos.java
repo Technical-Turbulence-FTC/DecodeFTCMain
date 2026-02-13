@@ -18,6 +18,15 @@ public class Servos {
     PIDFController spinPID;
     PIDFController turretPID;
 
+    private double prevSpinPos = 0.0;
+    private boolean firstSpinPos = true;
+
+    private double prevTransferPos = 0.0;
+    private boolean firstTransferPos = true;
+
+    private double prevHoodPos = 0.0;
+    private boolean firstHoodPos = true;
+
     public Servos(HardwareMap hardwareMap) {
         robot = new Robot(hardwareMap);
         spinPID = new PIDFController(spinP, spinI, spinD, spinF);
@@ -32,8 +41,42 @@ public class Servos {
         return spin_scalar * ((robot.spin1Pos.getVoltage() - spin_restPos) / 3.3);
     }
 
-    public double setSpinPos(double pos) {
+    public double getSpinCmdPos() {
+        return prevSpinPos;
+    }
 
+    public static boolean servoPosEqual(double pos1, double pos2) {
+        return (Math.abs(pos1 - pos2) < 0.005);
+    }
+
+    public double setTransferPos(double pos) {
+        if (firstTransferPos || !servoPosEqual(pos, prevTransferPos)) {
+            robot.transferServo.setPosition(pos);
+            firstTransferPos = false;
+        }
+
+        prevTransferPos = pos;
+        return pos;
+    }
+
+    public double setSpinPos(double pos) {
+        if (firstSpinPos || !servoPosEqual(pos, prevSpinPos)) {
+            robot.spin1.setPosition(pos);
+            robot.spin2.setPosition(1-pos);
+            firstSpinPos = false;
+        }
+
+        prevSpinPos = pos;
+        return pos;
+    }
+
+    public double setHoodPos(double pos){
+        if (firstHoodPos || !servoPosEqual(pos, prevHoodPos)) {
+            robot.hood.setPosition(pos);
+            firstHoodPos = false;
+        }
+
+        prevHoodPos = pos;
         return pos;
     }
 

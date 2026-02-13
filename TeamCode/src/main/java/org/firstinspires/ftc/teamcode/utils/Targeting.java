@@ -77,6 +77,7 @@ public class Targeting {
     double cancelOffsetY = 0.0;  // was 7.0
     double unitConversionFactor = 0.95;
     int tileSize = 24; //inches
+    public static boolean turretInterpolate = false;
 
     public Targeting() {
     }

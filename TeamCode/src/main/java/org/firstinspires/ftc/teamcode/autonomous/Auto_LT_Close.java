@@ -1,61 +1,9 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bShootH;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bShootX;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bShootY;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bh4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bhPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bx4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.bxPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.by4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.byPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rShootH;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rShootX;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rShootY;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rh4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rhPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rx4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.rxPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry1;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry2a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry2b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry3aG;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry3b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry4a;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ry4b;
-import static org.firstinspires.ftc.teamcode.constants.Poses.ryPrep;
-import static org.firstinspires.ftc.teamcode.constants.Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
@@ -63,6 +11,9 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
+import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
+import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
+import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
 
 import androidx.annotation.NonNull;
 
@@ -80,7 +31,6 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.constants.Poses_V2;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
@@ -93,43 +43,46 @@ import java.util.Objects;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
-public class Auto_LT_Close_GateOpen extends LinearOpMode {
-    public static double shoot0Vel = 2300, shoot0Hood = 0.93;
+public class Auto_LT_Close extends LinearOpMode {
+    public static double shoot0Vel = 2300, shoot0Hood = 0.93 + hoodOffset;
     public static double autoSpinStartPos = 0.2;
-    public static double shoot0SpinSpeedIncrease = 0.015;
-
-    public static double gateIntakeTime = 5.9; //TODO: Increase ig
+    public static double shoot0SpinSpeedIncrease = 0.02;
 
     public static double spindexerSpeedIncrease = 0.03;
+    public static double finalSpindexerSpeedIncrease = 0.03;
 
-    public static double redObeliskTurrPos1 = 0.52;
-    public static double redObeliskTurrPos2 = 0.53;
-    public static double blueObeliskTurrPos1 = 0.28;
-    public static double blueObeliskTurrPos2 = 0.27;
-    double obeliskTurrPos1 = 0.52;
-    double obeliskTurrPos2 = 0.53;
-    public static double normalIntakeTime = 3.0;
+    // These values are ADDED to turrDefault
+    public static double redObeliskTurrPos1 = 0.12;
+    public static double redObeliskTurrPos2 = 0.13;
+    public static double redObeliskTurrPos3 = 0.14;
+    public static double blueObeliskTurrPos1 = -0.12;
+    public static double blueObeliskTurrPos2 = -0.13;
+    public static double blueObeliskTurrPos3 = -0.14;
+    public static double redTurretShootPos = 0.1;
+    public static double blueTurretShootPos = -0.14;
+
+    double obeliskTurrPos1 = 0.0;
+    double obeliskTurrPos2 = 0.0;
+    double obeliskTurrPos3 = 0.0;
+    public static double normalIntakeTime = 3.3;
     public static double shoot1Turr = 0.57;
     public static double shoot0XTolerance = 1.0;
-    public static double redTurretShootPos = 0.52;
-    public static double blueTurretShootPos = 0.26;
+    double turretShootPos = 0.0;
 
-    double turretShootPos = 0.52;
-
-    public static double shootAllTime = 1.9;
+    public static double finalShootAllTime = 3.0;
+    public static double shootAllTime = 1.8;
     public static double shoot0Time = 1.6;
     public static double intake1Time = 3.3;
-    public static double intake2Time = 3.6;
+    public static double intake2Time = 3.8;
+
+    public static double intake3Time = 4.2;
 
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 25;
+    public static double pickup1Speed = 15;
     // ---- SECOND SHOT / PICKUP ----
     public static double shoot1Vel = 2300;
-    public static double shoot1Hood = 0.93;
     public static double shootAllVelocity = 2500;
-    public static double shootAllHood = 0.78;
-    // ---- PICKUP TIMING ----
-    public static double pickup1Time = 3.0;
+    public static double shootAllHood = 0.78 + hoodOffset;
     // ---- PICKUP POSITION TOLERANCES ----
     public static double pickup1XTolerance = 2.0;
     public static double pickup1YTolerance = 2.0;
@@ -145,8 +98,6 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public static double colorSenseTime = 1.2;
 
     public static double firstShootTime = 0.3;
-    public static double shootGateTime = 3.0;
-    public static double gaitWait = 0.45;
     public int motif = 0;
 
     Robot robot;
@@ -160,25 +111,22 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     Targeting.Settings targetingSettings;
     private double firstSpindexShootPos = autoSpinStartPos;
     private boolean shootForward = true;
-    private double x1, y1, h1;
+    double x1, y1, h1;
 
-    private double x2a, y2a, h2a, t2a;
+    double x2a, y2a, h2a, t2a;
 
-    private double x2b, y2b, h2b, t2b;
+    double x2b, y2b, h2b, t2b;
+    double x2c, y2c, h2c, t2c;
 
-    private double x2c, y2c, h2c, t2c;
+    double x3a, y3a, h3a;
+    double x3b, y3b, h3b;
+    double x4a, y4a, h4a;
+    double x4b, y4b, h4b;
 
-    private double x3a, y3a, h3a;
-    private double x3b, y3b, h3b;
-    private double x4a, y4a, h4a;
-    private double x4b, y4b, h4b;
-
-    private double xShoot, yShoot, hShoot;
-    private double xGate, yGate, hGate;
-    private double xGateA, yGateA, hGateA;
-    private double xGateB, yGateB, hGateB;
-
-    private double xPrep, yPrep, hPrep;
+    double xShoot, yShoot, hShoot;
+    double xGate, yGate, hGate;
+    double xPrep, yPrep, hPrep;
+    double xLeave, yLeave, hLeave;
 
     private double shoot1Tangent;
 
@@ -187,6 +135,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
     private int rearSlotGreen = 0;
     private int mostGreenSlot = 0;
+    int ballCycles = 3;
+    int prevMotif = 0;
 
     public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
         return new Action() {
@@ -203,13 +153,28 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                     stamp = System.currentTimeMillis();
                 }
                 ticker++;
-                robot.transferServo.setPosition(transferServo_out);
-
-                turret.manualSetTurret(turretShootPos);
-
+                servos.setTransferPos(transferServo_out);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
+
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
 
                 TELE.addData("Velocity", flywheel.getVelo());
                 TELE.addData("Hood", robot.hood.getPosition());
@@ -220,8 +185,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                     spindexerWiggle *= -1.0;
 
-                    robot.spin1.setPosition(spindexer_intakePos1 + spindexerWiggle);
-                    robot.spin2.setPosition(1 - spindexer_intakePos1 - spindexerWiggle);
+                    servos.setSpinPos(spindexer_intakePos1 + spindexerWiggle);
 
                     spindexer.detectBalls(true, true);
 
@@ -232,11 +196,12 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                     if (Objects.equals(spindexer.GetFrontPassengerColor(), Spindexer.BallColor.GREEN)) {
                         passengerSlotGreen++;
                     }
+
                     if (Objects.equals(spindexer.GetRearCenterColor(), Spindexer.BallColor.GREEN)) {
                         rearSlotGreen++;
                     }
 
-                    robot.intake.setPower(1);
+                    spindexer.setIntakePower(1);
 
                     decideGreenSlot = true;
 
@@ -292,13 +257,11 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                     return true;
                 } else if ((System.currentTimeMillis() - stamp) < (time * 1000)) {
+//                    TELE.addData("MostGreenSlot", mostGreenSlot);
+//                    TELE.update();
+                    spindexer.setIntakePower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
 
-                    TELE.addData("MostGreenSlot", mostGreenSlot);
-
-                    robot.intake.setPower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
-
-                    robot.spin1.setPosition(firstSpindexShootPos);
-                    robot.spin2.setPosition(1 - firstSpindexShootPos);
+                    servos.setSpinPos(firstSpindexShootPos);
 
                     return true;
                 } else {
@@ -312,11 +275,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public Action shootAll(int vel, double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
-
             double stamp = 0.0;
-
             double velo = vel;
-
             int shooterTicker = 0;
 
             @Override
@@ -325,6 +285,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
                 velo = flywheel.getVelo();
 
@@ -332,36 +294,51 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                robot.intake.setPower(-0.3);
+                spindexer.setIntakePower(-0.3);
 
                 if (ticker == 1) {
                     stamp = getRuntime();
                 }
                 ticker++;
 
-                robot.intake.setPower(0);
+                spindexer.setIntakePower(0);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
 
-                if (getRuntime() - stamp < shootTime) {
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
+
+                if ((getRuntime() - stamp < shootTime && servos.getSpinPos() < spinEndPos) || shooterTicker == 0) {
 
                     if (shooterTicker == 0 && !servos.spinEqual(autoSpinStartPos)) {
-                        robot.spin1.setPosition(autoSpinStartPos);
-                        robot.spin2.setPosition(1 - autoSpinStartPos);
+                        servos.setSpinPos(autoSpinStartPos);
                     } else {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-                        double prevSpinPos = robot.spin1.getPosition();
-                        robot.spin1.setPosition(prevSpinPos + spindexSpeed);
-                        robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                        double prevSpinPos = servos.getSpinCmdPos();
+                        servos.setSpinPos(prevSpinPos + spindexSpeed);
                     }
 
                     return true;
 
                 } else {
-                    robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
+                    servos.setTransferPos(transferServo_out);
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -396,43 +373,57 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 teleStart = drive.localizer.getPose();
 
-                robot.intake.setPower(-0.3);
+                spindexer.setIntakePower(-0.3);
 
                 if (ticker == 1) {
                     stamp = getRuntime();
                 }
                 ticker++;
 
-                robot.intake.setPower(0);
+                spindexer.setIntakePower(0);
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
 
+                double robX = drive.localizer.getPose().position.x;
+                double robY = drive.localizer.getPose().position.y;
+                double robotHeading = drive.localizer.getPose().heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robX - goalX;  // delta x from robot to goal
+                double dy = robY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+
+                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+
+                targetingSettings = targeting.calculateSettings
+                        (robX, robY, robotHeading, 0.0, turretInterpolate);
+
+                turret.trackGoal(deltaPose);
+
                 if (getRuntime() - stamp < shootTime) {
 
                     if (getRuntime() - stamp < firstShootTime) {
-                        robot.transferServo.setPosition(transferServo_in);
-                        robot.spin1.setPosition(firstSpindexShootPos);
-                        robot.spin2.setPosition(1 - firstSpindexShootPos);
+                        servos.setTransferPos(transferServo_out);
+                        servos.setSpinPos(firstSpindexShootPos);
                     } else {
-                        robot.transferServo.setPosition(transferServo_in);
+                        servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-                        double prevSpinPos = robot.spin1.getPosition();
+                        double prevSpinPos = servos.getSpinCmdPos();
 
                         if (shootForward) {
-                            robot.spin1.setPosition(prevSpinPos + spindexSpeed);
-                            robot.spin2.setPosition(1 - prevSpinPos - spindexSpeed);
+                            servos.setSpinPos(prevSpinPos + spindexSpeed);
                         } else {
-                            robot.spin1.setPosition(prevSpinPos - spindexSpeed);
-                            robot.spin2.setPosition(1 - prevSpinPos + spindexSpeed);
+                            servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
                     }
 
                     return true;
 
                 } else {
-                    robot.transferServo.setPosition(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
+                    servos.setTransferPos(transferServo_out);
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
@@ -457,18 +448,17 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 ticker++;
 
                 spindexer.processIntake();
-                robot.intake.setPower(1);
+                spindexer.setIntakePower(1);
 
                 spindexer.ballCounterLight();
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
+
+                TELE.addData("Full?", spindexer.isFull());
                 TELE.update();
 
-                return (System.currentTimeMillis() - stamp) < (intakeTime * 1000);
-
+                return ((System.currentTimeMillis() - stamp) < (intakeTime * 1000)) && !spindexer.isFull();
             }
         };
     }
@@ -505,8 +495,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 ticker++;
                 motif = turret.detectObelisk();
 
-                robot.turr1.setPosition(turrPos);
-                robot.turr2.setPosition(1 - turrPos);
+                turret.setTurret(turrPos);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
@@ -520,8 +509,8 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 TELE.addData("Hood", robot.hood.getPosition());
                 TELE.update();
 
-                if (shouldFinish) {
-                    if (redAlliance) {
+                if (shouldFinish){
+                    if (redAlliance){
                         robot.limelight.pipelineSwitch(4);
                     } else {
                         robot.limelight.pipelineSwitch(2);
@@ -566,8 +555,10 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 ticker++;
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
-                robot.hood.setPosition(hoodPos);
+                servos.setHoodPos(hoodPos);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
@@ -635,8 +626,10 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 turret.trackGoal(deltaPose);
 
-                robot.hood.setPosition(targetingSettings.hoodAngle);
+                servos.setHoodPos(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -704,8 +697,10 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-                robot.hood.setPosition(targetingSettings.hoodAngle);
+                servos.setHoodPos(targetingSettings.hoodAngle);
 
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
@@ -726,6 +721,15 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
         };
     }
 
+    // initialize path variables here
+    TrajectoryActionBuilder shoot0 = null;
+    TrajectoryActionBuilder pickup1 = null;
+    TrajectoryActionBuilder shoot1 = null;
+    TrajectoryActionBuilder pickup2 = null;
+    TrajectoryActionBuilder shoot2 = null;
+    TrajectoryActionBuilder pickup3 = null;
+    TrajectoryActionBuilder shoot3 = null;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -744,42 +748,48 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
         servos = new Servos(hardwareMap);
 
-        robot.limelight.start();
-
-        robot.limelight.pipelineSwitch(1);
-
         turret = new Turret(robot, TELE, robot.limelight);
 
-        turret.manualSetTurret(0.4);
+        turret.setTurret(turrDefault);
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        robot.spin1.setPosition(autoSpinStartPos);
-        robot.spin2.setPosition(1 - autoSpinStartPos);
+        servos.setSpinPos(autoSpinStartPos);
 
-        robot.transferServo.setPosition(transferServo_out);
+        servos.setTransferPos(transferServo_out);
 
-        TrajectoryActionBuilder shoot0 = null;
-        TrajectoryActionBuilder pickup1 = null;
-        TrajectoryActionBuilder shoot1 = null;
-        TrajectoryActionBuilder gatePickup = null;
-        TrajectoryActionBuilder shootCycle = null;
-
-        TrajectoryActionBuilder pickup2 = null;
-        TrajectoryActionBuilder shoot2 = null;
-        TrajectoryActionBuilder pickup3 = null;
-        TrajectoryActionBuilder shoot3 = null;
-
-        Turret.limelightUsed = false;
+        limelightUsed = false;
 
         robot.light.setPosition(1);
 
         while (opModeInInit()) {
 
-            robot.hood.setPosition(shoot0Hood);
+            servos.setHoodPos(shoot0Hood);
+            turret.setTurret(turrDefault);
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;
+            }
+
+            if (gamepad2.dpadLeftWasPressed()) {
+                turrDefault -= 0.01;
+            }
+
+            if (gamepad2.dpadRightWasPressed()) {
+                turrDefault += 0.01;
+            }
+
+            if (gamepad2.rightBumperWasPressed()){
+                ballCycles++;
+            }
+            if (gamepad2.leftBumperWasPressed()){
+                ballCycles--;
+            }
+
+            if (gamepad2.squareWasPressed()){
+                robot.limelight.start();
+                robot.limelight.pipelineSwitch(1);
+                gamepad2.rumble(500);
             }
 
             if (redAlliance) {
@@ -797,9 +807,9 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 x2b = rx2b;
                 y2b = ry2b;
                 h2b = rh2b;
-                x3a = rx3aG;
-                y3a = ry3aG;
-                h3a = rh3aG;
+                x3a = rx3a;
+                y3a = ry3a;
+                h3a = rh3a;
                 x3b = rx3b;
                 y3b = ry3b;
                 h3b = rh3b;
@@ -815,23 +825,14 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 xShoot = rShootX;
                 yShoot = rShootY;
                 hShoot = rShootH;
+                xLeave = rLeaveX;
+                yLeave = rLeaveY;
+                hLeave = rLeaveH;
 
-                xGateB = Poses_V2.rXGateB;
-                yGateB = Poses_V2.rYGateB;
-                hGateB = Poses_V2.rHGateB;
-
-                xGateA = Poses_V2.rXGateA;
-                yGateA = Poses_V2.rYGateA;
-                hGateA = Poses_V2.rHGateA;
-
-                xGate = Poses_V2.rXGate;
-                yGate = Poses_V2.rYGate;
-                hGate = Poses_V2.rHGate;
-
-                obeliskTurrPos1 = redObeliskTurrPos1;
-                obeliskTurrPos2 = redObeliskTurrPos2;
-
-                turretShootPos = redTurretShootPos;
+                obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
+                obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
+                obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
+                turretShootPos = turrDefault + redTurretShootPos;
 
             } else {
                 robot.light.setPosition(0.6);
@@ -848,9 +849,9 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 x2b = bx2b;
                 y2b = by2b;
                 h2b = bh2b;
-                x3a = bx3aG;
-                y3a = by3aG;
-                h3a = bh3aG;
+                x3a = bx3a;
+                y3a = by3a;
+                h3a = bh3a;
                 x3b = bx3b;
                 y3b = by3b;
                 h3b = bh3b;
@@ -867,56 +868,58 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
                 xShoot = bShootX;
                 yShoot = bShootY;
                 hShoot = bShootH;
+                xLeave = bLeaveX;
+                yLeave = bLeaveY;
+                hLeave = bLeaveH;
 
-                xGateA = Poses_V2.bXGateA;
-                yGateA = Poses_V2.bYGateA;
-                hGateA = Poses_V2.bHGateA;
+                obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
+                obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
+                obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
+                turretShootPos = turrDefault + blueTurretShootPos;
 
-                xGateB = Poses_V2.bXGateB;
-                yGateB = Poses_V2.bYGateB;
-                hGateB = Poses_V2.bHGateB;
-
-                xGate = Poses_V2.bXGate;
-                yGate = Poses_V2.bYGate;
-                hGate = Poses_V2.bHGate;
-
-                obeliskTurrPos1 = blueObeliskTurrPos1;
-                obeliskTurrPos2 = blueObeliskTurrPos2;
-
-                turretShootPos = blueTurretShootPos;
             }
 
             shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                    .strafeToLinearHeading(new Vector2d(x1, y1), h1);
+                    .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
 
-            pickup2 = drive.actionBuilder(new Pose2d(x1, y1, h1))
-                    .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
-                    .strafeToLinearHeading(new Vector2d(x3b, y3b), h3b,
+            pickup1 = drive.actionBuilder(new Pose2d(x1, y1, Math.toRadians(h1)))
+                    .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                    .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
                             new TranslationalVelConstraint(pickup1Speed));
 
-            shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, h3b))
-                    .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
-                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+            if (ballCycles < 2){
+                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
+                        .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
+            } else {
+                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
+                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
+            }
 
-            gatePickup = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
-                    .strafeToLinearHeading(new Vector2d(x3a, y3a), h3a)
-                    .strafeToLinearHeading(new Vector2d(xGateA, yGateA), hGateA)
-                    .waitSeconds(gaitWait)
-                    .strafeToLinearHeading(new Vector2d(xGate, yGate), hGate);
-
-            shootCycle = drive.actionBuilder(new Pose2d(xGate, yGate, hGate))
-                    .strafeToLinearHeading(new Vector2d(xGateB, yGateB), hGateB)
-                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
-
-            pickup1 = drive.actionBuilder(new Pose2d(xShoot, yShoot, hShoot))
-                    .strafeToLinearHeading(new Vector2d(x2a, y2a), h2a)
-                    .strafeToLinearHeading(new Vector2d(x2b, y2b), h2b,
+            pickup2 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
+                    .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
+                    .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
                             new TranslationalVelConstraint(pickup1Speed));
 
-            shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, h2b))
-                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), hShoot);
+            if (ballCycles < 3){
+                shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
+                        .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
+            } else {
+                shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
+                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hLeave));
+            }
+
+            pickup3 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
+                    .strafeToLinearHeading(new Vector2d(x4a, y4a), Math.toRadians(h4a))
+                    .strafeToLinearHeading(new Vector2d(x4b, y4b), Math.toRadians(h4b),
+                            new TranslationalVelConstraint(pickup1Speed));
+
+            shoot3 = drive.actionBuilder(new Pose2d(x4b, y4b, Math.toRadians(h4b)))
+                    .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
 
             TELE.addData("Red?", redAlliance);
+            TELE.addData("Turret Default", turrDefault);
+            TELE.addData("Ball Cycles", ballCycles);
+
             TELE.update();
         }
 
@@ -928,199 +931,236 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            assert shoot0 != null;
+            startAuto();
 
-            Actions.runBlocking(
-                    new ParallelAction(
-                            shoot0.build(),
-                            manageFlywheel(
-                                    shoot0Vel,
-                                    shoot0Hood,
-                                    flywheel0Time,
-                                    x1,
-                                    0.501,
-                                    shoot0XTolerance,
-                                    0.501
-                            )
+            if (ballCycles > 0){
+                cycleStackClose();
+            }
 
-                    )
-            );
+            if (ballCycles > 1){
+                cycleStackMiddle();
+            }
 
-            Actions.runBlocking(
-                    shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
-            );
+            if (ballCycles > 2){
+                cycleStackFar();
+            }
 
-            Actions.runBlocking(
-                    new ParallelAction(
-                            pickup2.build(),
-                            manageFlywheel(
-                                    shootAllVelocity,
-                                    shootAllHood,
-                                    intake2Time,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            intake(intake1Time),
-                            detectObelisk(
-                                    intake2Time,
-                                    0.501,
-                                    0.501,
-                                    obelisk1XTolerance,
-                                    obelisk1YTolerance,
-                                    obeliskTurrPos2
-                            )
+            while (opModeIsActive()) {
 
-                    )
-            );
+                drive.updatePoseEstimate();
 
-            motif = turret.getObeliskID();
+                teleStart = drive.localizer.getPose();
 
-            if (motif == 0) motif = 22;
+                flywheel.manageFlywheel(0);
 
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageFlywheel(
-                                    shootAllVelocity,
-                                    shootAllHood,
-                                    shoot1Time,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shoot2.build(),
-                            prepareShootAll(colorSenseTime, shoot2Time, motif)
-                    )
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageShooterAuto(
-                                    shootAllTime,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                    )
-
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            gatePickup.build(),
-                            manageShooterAuto(
-                                    gateIntakeTime,
-                                    0.501,
-                                    0.501,
-                                    pickup1XTolerance,
-                                    pickup1YTolerance
-                            ),
-                            intake(gateIntakeTime),
-                            detectObelisk(
-                                    gateIntakeTime,
-                                    0.501,
-                                    0.501,
-                                    obelisk1XTolerance,
-                                    obelisk1YTolerance,
-                                    obeliskTurrPos2
-                            )
-
-                    )
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageFlywheelAuto(
-                                    shoot2Time,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shootCycle.build(),
-                            prepareShootAll(colorSenseTime, shootGateTime, motif)
-                    )
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageShooterAuto(
-                                    shootAllTime,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                    )
-
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            pickup1.build(),
-                            manageShooterAuto(
-                                    intake1Time,
-                                    0.501,
-                                    0.501,
-                                    pickup1XTolerance,
-                                    pickup1YTolerance
-                            ),
-                            intake(intake1Time),
-                            detectObelisk(
-                                    intake1Time,
-                                    0.501,
-                                    0.501,
-                                    obelisk1XTolerance,
-                                    obelisk1YTolerance,
-                                    obeliskTurrPos1
-                            )
-
-                    )
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageFlywheelAuto(
-                                    shoot1Time,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shoot1.build(),
-                            prepareShootAll(colorSenseTime, shoot1Time, motif)
-                    )
-            );
-
-            Actions.runBlocking(
-                    new ParallelAction(
-                            manageShooterAuto(
-                                    shootAllTime,
-                                    0.501,
-                                    0.501,
-                                    0.501,
-                                    0.501
-                            ),
-                            shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                    )
-
-            );
-
-            drive.updatePoseEstimate();
-
-            teleStart = drive.localizer.getPose();
-
-            TELE.addLine("finished");
-            TELE.update();
-
-            sleep(2000);
+                TELE.addLine("finished");
+                TELE.update();
+            }
 
         }
 
+    }
+
+    void startAuto() {
+        assert shoot0 != null;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot0.build(),
+                        manageFlywheel(
+                                shoot0Vel,
+                                shoot0Hood,
+                                flywheel0Time,
+                                x1,
+                                0.501,
+                                shoot0XTolerance,
+                                0.501
+                        )
+
+                )
+        );
+
+        Actions.runBlocking(
+                shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
+        );
+    }
+
+    void cycleStackClose(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup1.build(),
+                        manageFlywheel(
+                                shootAllVelocity,
+                                shootAllHood,
+                                intake1Time,
+                                0.501,
+                                0.501,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake1Time),
+                        detectObelisk(
+                                intake1Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos1
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = 22;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheel(
+                                shootAllVelocity,
+                                shootAllHood,
+                                shoot1Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot1.build(),
+                        prepareShootAll(colorSenseTime, shoot1Time, motif)
+                )
+        );
+
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
+
+    void cycleStackMiddle(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup2.build(),
+                        manageShooterAuto(
+                                intake2Time,
+                                0.501,
+                                0.501,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake2Time),
+                        detectObelisk(
+                                intake2Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos2
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = prevMotif;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheelAuto(
+                                shoot2Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot2.build(),
+                        prepareShootAll(colorSenseTime, shoot2Time, motif)
+                )
+        );
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
+
+    void cycleStackFar(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup3.build(),
+                        manageShooterAuto(
+                                intake3Time,
+                                0.501,
+                                0.501,
+                                pickup1XTolerance,
+                                pickup1YTolerance
+                        ),
+                        intake(intake3Time),
+                        detectObelisk(
+                                intake3Time,
+                                0.501,
+                                0.501,
+                                obelisk1XTolerance,
+                                obelisk1YTolerance,
+                                obeliskTurrPos3
+                        )
+
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = prevMotif;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageFlywheelAuto(
+                                shoot3Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shoot3.build(),
+                        prepareShootAll(colorSenseTime, shoot3Time, motif)
+                )
+        );
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        manageShooterAuto(
+                                finalShootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501
+                        ),
+                        shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
+                )
+
+        );
     }
 }

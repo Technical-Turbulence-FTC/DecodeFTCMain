@@ -35,7 +35,7 @@ public class PositionalServoProgrammer extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive()){
-            if (spindexPos != 0.501 && !servo.spinEqual(spindexPos)){
+            if (spindexPos != 0.501){
                 robot.spin1.setPosition(spindexPos);
                 robot.spin2.setPosition(1-spindexPos);
             }
@@ -52,16 +52,6 @@ public class PositionalServoProgrammer extends LinearOpMode {
             if (light !=0.501){
                 robot.light.setPosition(light);
             }
-            // To check configuration of spindexer:
-            // Set "mode" to 1 and spindexPow to 0.1
-            // If the spindexer is turning clockwise, the servos are reversed. Swap the configuration of the two servos, DO NOT TOUCH THE ACTUAL CODE
-            // Do the previous test again to confirm
-            // Set "mode" to 0 but keep spindexPos at 0.501
-            // Manually turn the spindexer until "spindexer pos" is set close to 0
-            // Check each spindexer voltage:
-                // If "spindexer voltage 1" is closer to 0 than "spindexer voltage 2," then you are done!
-                // If "spindexer voltage 2" is closer to 0 than "spindexer voltage 1," swap the two spindexer analog inputs in the configuration, DO NOT TOUCH THE ACTUAL CODE
-            //TODO: @KeshavAnandCode do the above please
 
             TELE.addData("spindexer pos", servo.getSpinPos());
             TELE.addData("turret pos", robot.turr1.getPosition());

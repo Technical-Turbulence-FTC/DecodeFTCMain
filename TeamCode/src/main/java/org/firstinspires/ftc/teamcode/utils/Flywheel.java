@@ -12,6 +12,7 @@ public class Flywheel {
     public double velo1 = 0.0;
     public double velo2 = 0.0;
     double targetVelocity = 0.0;
+    double previousTargetVelocity = 0.0;
     double powPID = 0.0;
     boolean steady = false;
     public Flywheel (HardwareMap hardwareMap) {
@@ -37,6 +38,8 @@ public class Flywheel {
     }
 
     // Set the robot PIDF for the next cycle.
+    private double prevF = 0.501;
+    public static int voltagePIDFDifference = 5;
     public void setPIDF(double p, double i, double d, double f) {
         shooterPIDF1.p = p;
         shooterPIDF1.i = i;
@@ -46,6 +49,10 @@ public class Flywheel {
         shooterPIDF2.i = i;
         shooterPIDF2.d = d;
         shooterPIDF2.f = f;
+        if (Math.abs(prevF - f) > voltagePIDFDifference){
+            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
+            robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
+        }
     }
 
     // Convert from RPM to Ticks per Second
@@ -55,20 +62,21 @@ public class Flywheel {
     private double TPS_to_RPM (double TPS) { return (TPS*60.0)/28.0;}
 
     public double manageFlywheel(double commandedVelocity) {
-        targetVelocity = commandedVelocity;
 
-        // Add code here to set PIDF based on desired RPM
+        if (Math.abs(targetVelocity - commandedVelocity) > 0.0001) {
+            targetVelocity = commandedVelocity;
+            // Add code here to set PIDF based on desired RPM
+            //robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
+            //robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
+            robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
+            robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
 
-        robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
-        robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
-        robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-        robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+            // Record Current Velocity
+            velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
+            velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
+            velo = Math.max(velo1, velo2);
 
-        // Record Current Velocity
-        velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
-        velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
-        velo = Math.max(velo1,velo2);
-
+        }
         // really should be a running average of the last 5
         steady = (Math.abs(targetVelocity - velo) < 200.0);
 
