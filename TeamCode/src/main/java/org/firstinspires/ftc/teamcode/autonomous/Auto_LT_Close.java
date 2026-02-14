@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
-    public static double spindexerSpeedIncrease = 0.012;
+    public static double spindexerSpeedIncrease = 0.005;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -59,12 +59,12 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double flywheel0Time = 3.5;
     public static double pickup1Speed = 12;
     // ---- POSITION TOLERANCES ----
-    public static double posXTolerance = 2.0;
-    public static double posYTolerance = 2.0;
+    public static double posXTolerance = 5.0;
+    public static double posYTolerance = 5.0;
     // ---- OBELISK DETECTION ----
-    public static double shoot1Time = 2;
-    public static double shoot2Time = 2;
-    public static double shoot3Time = 2;
+    public static double shoot1Time = 2.5;
+    public static double shoot2Time = 2.5;
+    public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
     public int motif = 0;
 
@@ -354,6 +354,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 0.501,
                                 0.501,
                                 0.501,
+                                0.501,
                                 false
                         ),
                         autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
@@ -374,6 +375,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 y1,
                                 posXTolerance,
                                 posYTolerance,
+                                h1,
                                 false
                         )
 
@@ -391,6 +393,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 y2b,
                                 posXTolerance,
                                 posYTolerance,
+                                h2b,
                                 true
                         ),
                         autoActions.intake(intake1Time),
@@ -413,12 +416,15 @@ public class Auto_LT_Close extends LinearOpMode {
 
         double posX;
         double posY;
+        double posH;
         if (ballCycles > 1){
             posX = xShoot;
             posY = yShoot;
+            posH = hShoot;
         } else {
             posX = xLeave;
             posY = yLeave;
+            posH = hLeave;
         }
 
         Actions.runBlocking(
@@ -429,6 +435,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 posY,
                                 posXTolerance,
                                 posYTolerance,
+                                posH,
                                 false
                         ),
                         shoot1.build(),
@@ -447,6 +454,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 y3b,
                                 posXTolerance,
                                 posYTolerance,
+                                h3b,
                                 true
                         ),
                         autoActions.intake(intake2Time),
@@ -469,12 +477,15 @@ public class Auto_LT_Close extends LinearOpMode {
 
         double posX;
         double posY;
+        double posH;
         if (ballCycles > 2){
             posX = xShoot;
             posY = yShoot;
+            posH = hShoot;
         } else {
             posX = xLeave;
             posY = yLeave;
+            posH = hLeave;
         }
 
         Actions.runBlocking(
@@ -485,6 +496,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 posY,
                                 posXTolerance,
                                 posYTolerance,
+                                posH,
                                 false
                         ),
                         shoot2.build(),
@@ -503,6 +515,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 y4b,
                                 posXTolerance,
                                 posYTolerance,
+                                h4b,
                                 true
                         ),
                         autoActions.intake(intake3Time),
@@ -531,6 +544,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 yLeave,
                                 posXTolerance,
                                 posYTolerance,
+                                hLeave,
                                 false
                         ),
                         shoot3.build(),

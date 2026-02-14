@@ -81,9 +81,9 @@ public class Auto_LT_Far extends LinearOpMode {
     boolean stack3 = true;
     double xStackPickupA, yStackPickupA, hStackPickupA;
     double xStackPickupB, yStackPickupB, hStackPickupB;
-    public static int pickupStackSpeed = 15;
+    public static int pickupStackSpeed = 12;
     int prevMotif = 0;
-
+    public static double spindexerSpeedIncrease = 0.005;
 
 
     // initialize path variables here
@@ -236,8 +236,6 @@ public class Auto_LT_Far extends LinearOpMode {
         // Currently only shoots; keep this start and modify times and then add extra paths
         if (opModeIsActive()) {
 
-            double stamp = getRuntime();
-
             robot.transfer.setPower(1);
 
             startAuto();
@@ -245,6 +243,8 @@ public class Auto_LT_Far extends LinearOpMode {
             if (stack3){
                 //cycleStackFar();
             }
+
+            //TODO: insert code here for gate auto
 
             if (gatePickup || stack3){
                 leave();
@@ -269,28 +269,29 @@ public class Auto_LT_Far extends LinearOpMode {
 
     }
 
-//    void shoot(){
-//        Actions.runBlocking(
-//                new ParallelAction(
-//                        autoActions.manageShooterAuto(
-//                                shootAllTime,
-//                                0.501,
-//                                0.501,
-//                                0.501,
-//                                0.501,
-//                                false
-//                        ),
-//                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-//                )
-//
-//        );
-//    }
+    void shoot(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        autoActions.manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501,
+                                false
+                        ),
+                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
 
     void startAuto(){
         Actions.runBlocking(
                 new ParallelAction(
                         autoActions.manageShooterAuto(
                                 flywheel0Time,
+                                0.501,
                                 0.501,
                                 0.501,
                                 0.501,

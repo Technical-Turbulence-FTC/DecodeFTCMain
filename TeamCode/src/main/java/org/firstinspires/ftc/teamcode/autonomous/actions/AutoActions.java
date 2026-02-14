@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autonomous.actions;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
@@ -21,6 +20,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 
+import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Robot;
@@ -50,6 +50,7 @@ public class AutoActions{
     private boolean shootForward = true;
     public static double firstShootTime = 0.3;
     public int motif = 0;
+    double spinEndPos = ServoPositions.spinEndPos;
 
     public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur){
         this.robot = rob;
@@ -71,6 +72,36 @@ public class AutoActions{
             double spindexerWiggle = 0.01;
 
             boolean decideGreenSlot = false;
+
+            void spin1PosFirst(){
+                firstSpindexShootPos = spindexer_outtakeBall1;
+                shootForward = true;
+                spinEndPos = spindexer_outtakeBall3 + 0.1;
+            }
+
+            void spin2PosFirst(){
+                firstSpindexShootPos = spindexer_outtakeBall2;
+                shootForward = false;
+                spinEndPos = spindexer_outtakeBall3b - 0.1;
+            }
+
+            void reverseSpin2PosFirst(){
+                firstSpindexShootPos = spindexer_outtakeBall2;
+                shootForward = true;
+                spinEndPos = 0.95;
+            }
+
+            void spin3PosFirst(){
+                firstSpindexShootPos = spindexer_outtakeBall3;
+                shootForward = false;
+                spinEndPos = spindexer_outtakeBall1 - 0.1;
+            }
+
+            void oddSpin3PosFirst(){
+                firstSpindexShootPos = spindexer_outtakeBall3b;
+                shootForward = true;
+                spinEndPos = spindexer_outtakeBall2 + 0.1;
+            }
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -122,39 +153,29 @@ public class AutoActions{
 
                     if (motif_id == 21) {
                         if (mostGreenSlot == 1) {
-                            firstSpindexShootPos = spindexer_outtakeBall1;
-                            shootForward = true;
+                            spin1PosFirst();
                         } else if (mostGreenSlot == 2) {
-                            firstSpindexShootPos = spindexer_outtakeBall2;
-                            shootForward = false;
+                            spin2PosFirst();
                         } else {
-                            firstSpindexShootPos = spindexer_outtakeBall3;
-                            shootForward = false;
+                            spin3PosFirst();
                         }
                     } else if (motif_id == 22) {
                         if (mostGreenSlot == 1) {
-                            firstSpindexShootPos = spindexer_outtakeBall2;
-                            shootForward = false;
+                            spin2PosFirst();
                         } else if (mostGreenSlot == 2) {
-                            firstSpindexShootPos = spindexer_outtakeBall3;
-                            shootForward = false;
+                            spin3PosFirst();
                         } else {
-                            firstSpindexShootPos = spindexer_outtakeBall2;
-                            shootForward = true;
+                            reverseSpin2PosFirst();
                         }
 
                     } else {
                         if (mostGreenSlot == 1) {
-                            firstSpindexShootPos = spindexer_outtakeBall3;
-                            shootForward = false;
+                            spin3PosFirst();
                         } else if (mostGreenSlot == 2) {
-                            firstSpindexShootPos = spindexer_outtakeBall3b;
-                            shootForward = true;
+                            oddSpin3PosFirst();
                         } else {
-                            firstSpindexShootPos = spindexer_outtakeBall1;
-                            shootForward = true;
+                            spin1PosFirst();
                         }
-
                     }
 
                     return true;
@@ -216,7 +237,7 @@ public class AutoActions{
 
                 turret.trackGoal(deltaPose);
 
-                if ((System.currentTimeMillis() - stamp < shootTime*1000 && servos.getSpinPos() < spinEndPos) || shooterTicker == 0) {
+                if ((System.currentTimeMillis() - stamp < shootTime*1000 && servos.getSpinPos() < 0.85) || shooterTicker == 0) {
 
                     if (shooterTicker == 0 && !servos.spinEqual(spinStartPos)) {
                         servos.setSpinPos(spinStartPos);
@@ -243,6 +264,7 @@ public class AutoActions{
         };
     }
 
+    private boolean doneShooting = false;
     public Action shootAllAuto(double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
@@ -271,9 +293,16 @@ public class AutoActions{
 
                 double prevSpinPos = servos.getSpinCmdPos();
 
-                if (System.currentTimeMillis() - stamp < shootTime*1000 || (prevSpinPos < spinEndPos && shooterTicker < 2)) {
+                boolean end;
+                if (shootForward){
+                    end = prevSpinPos > spinEndPos;
+                } else {
+                    end = prevSpinPos < spinEndPos;
+                }
 
-                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker == 0) {
+                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < 2)) {
+
+                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 3) {
                         servos.setTransferPos(transferServo_out);
                         servos.setSpinPos(firstSpindexShootPos);
                     } else {
@@ -295,6 +324,7 @@ public class AutoActions{
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
+                    doneShooting = true;
 
                     return false;
 
@@ -443,6 +473,7 @@ public class AutoActions{
             double posY,
             double posXTolerance,
             double posYTolerance,
+            double posH,
             boolean whileIntaking
     ) {
 
@@ -454,6 +485,8 @@ public class AutoActions{
 
             double stamp = 0.0;
             int ticker = 0;
+            int shootingTicker = 0;
+            double shootingStamp = 0;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -477,14 +510,21 @@ public class AutoActions{
 
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+                Pose2d deltaPose;
+                if (posX != 0.501){
+                    deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
+                } else {
+                    deltaPose = new Pose2d(robotX, robotY, robotHeading);
+                }
 
                 double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-                if (!detectingObelisk){turret.trackGoal(deltaPose);}
+                if (!detectingObelisk){
+                    turret.trackGoal(deltaPose);
+                }
 
                 servos.setHoodPos(targetingSettings.hoodAngle);
 
@@ -504,7 +544,17 @@ public class AutoActions{
 
                 teleStart = currentPose;
 
-                return !shouldFinish;
+                if (doneShooting && shootingTicker == 0){
+                    shootingTicker++;
+                    shootingStamp = System.currentTimeMillis();
+                }
+
+                if (System.currentTimeMillis() - shootingStamp > 100 || shouldFinish){
+                    doneShooting = false;
+                    return false;
+                } else {
+                    return true;
+                }
 
             }
         };
