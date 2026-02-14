@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Back_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
@@ -45,7 +44,7 @@ import java.util.Objects;
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Far extends LinearOpMode {
-    public static double shoot0Vel = 3300, shoot0Hood = 0.48 + hoodOffset;
+    public static double shoot0Vel = 3300, shoot0Hood = 0.48;
     public static double autoSpinStartPos = 0.2;
     public static double shoot0SpinSpeedIncrease = 0.015;
     public static double shoot0XTolerance = 1.0;
@@ -270,24 +269,36 @@ public class Auto_LT_Far extends LinearOpMode {
 
     }
 
+//    void shoot(){
+//        Actions.runBlocking(
+//                new ParallelAction(
+//                        autoActions.manageShooterAuto(
+//                                shootAllTime,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                0.501,
+//                                false
+//                        ),
+//                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+//                )
+//
+//        );
+//    }
+
     void startAuto(){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageFlywheel(
-                                shoot0Vel,
-                                shoot0Hood,
+                        autoActions.manageShooterAuto(
                                 flywheel0Time,
                                 0.501,
                                 0.501,
-                                shoot0XTolerance,
-                                0.501
+                                0.501,
+                                0.501,
+                                false
                         )
 
                 )
-        );
-
-        Actions.runBlocking(
-                autoActions.shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
         );
     }
 

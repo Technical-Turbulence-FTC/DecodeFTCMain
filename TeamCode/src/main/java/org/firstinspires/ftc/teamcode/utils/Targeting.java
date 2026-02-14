@@ -186,7 +186,7 @@ public class Targeting {
         if (true) { //!interpolate) {
             if ((robotGridY < 6) && (robotGridX < 6)) {
                 recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridX][robotGridY].flywheelRPM;
-                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle + ServoPositions.hoodOffset;
+                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle;
             }
             return recommendedSettings;
         } else {

@@ -38,8 +38,8 @@ public class Flywheel {
     }
 
     // Set the robot PIDF for the next cycle.
-    private double prevF = 0.501;
-    public static int voltagePIDFDifference = 5;
+    private double prevF = 0;
+    public static double voltagePIDFDifference = 0.8;
     public void setPIDF(double p, double i, double d, double f) {
         shooterPIDF1.p = p;
         shooterPIDF1.i = i;

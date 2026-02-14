@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
@@ -31,12 +31,8 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
-    public static double shoot0Vel = 2300, shoot0Hood = 0.93 + hoodOffset;
-    public static double autoSpinStartPos = 0.2;
-    public static double shoot0SpinSpeedIncrease = 0.005;
-
-    public static double spindexerSpeedIncrease = 0.005;
-    public static double finalSpindexerSpeedIncrease = 0.005;
+    public static double shoot0Vel = 2300, shoot0Hood = 0.93;
+    public static double spindexerSpeedIncrease = 0.012;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -51,40 +47,25 @@ public class Auto_LT_Close extends LinearOpMode {
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
-    public static double normalIntakeTime = 3.3;
-    public static double shoot1Turr = 0.57;
-    public static double shoot0XTolerance = 1.0;
+
     double turretShootPos = 0.0;
 
-    public static double finalShootAllTime = 3.0;
-    public static double shootAllTime = 1.8;
-    public static double shoot0Time = 1.6;
+    public static double shootAllTime = 2;
     public static double intake1Time = 3.3;
     public static double intake2Time = 3.8;
 
     public static double intake3Time = 4.2;
 
     public static double flywheel0Time = 3.5;
-    public static double pickup1Speed = 15;
-    // ---- SECOND SHOT / PICKUP ----
-    public static double shoot1Vel = 2300;
-    public static double shootAllVelocity = 2500;
-    public static double shootAllHood = 0.78 + hoodOffset;
-    // ---- PICKUP POSITION TOLERANCES ----
-    public static double pickup1XTolerance = 2.0;
-    public static double pickup1YTolerance = 2.0;
+    public static double pickup1Speed = 12;
+    // ---- POSITION TOLERANCES ----
+    public static double posXTolerance = 2.0;
+    public static double posYTolerance = 2.0;
     // ---- OBELISK DETECTION ----
-    public static double obelisk1Time = 1.5;
-    public static double obelisk1XTolerance = 2.0;
-    public static double obelisk1YTolerance = 2.0;
-    public static double shoot1ToleranceX = 2.0;
-    public static double shoot1ToleranceY = 2.0;
     public static double shoot1Time = 2;
     public static double shoot2Time = 2;
     public static double shoot3Time = 2;
     public static double colorSenseTime = 1.2;
-
-    public static double firstShootTime = 0.3;
     public int motif = 0;
 
     Robot robot;
@@ -153,7 +134,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
         autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret);
 
-        servos.setSpinPos(autoSpinStartPos);
+        servos.setSpinPos(spinStartPos);
 
         servos.setTransferPos(transferServo_out);
 
@@ -331,17 +312,21 @@ public class Auto_LT_Close extends LinearOpMode {
             robot.transfer.setPower(1);
 
             startAuto();
+            shoot();
 
             if (ballCycles > 0){
                 cycleStackClose();
+                shoot();
             }
 
             if (ballCycles > 1){
                 cycleStackMiddle();
+                shoot();
             }
 
             if (ballCycles > 2){
                 cycleStackFar();
+                shoot();
             }
 
             while (opModeIsActive()) {
@@ -360,27 +345,39 @@ public class Auto_LT_Close extends LinearOpMode {
 
     }
 
+    void shoot(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        autoActions.manageShooterAuto(
+                                shootAllTime,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501,
+                                false
+                        ),
+                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                )
+
+        );
+    }
+
     void startAuto() {
         assert shoot0 != null;
 
         Actions.runBlocking(
                 new ParallelAction(
                         shoot0.build(),
-                        autoActions.manageFlywheel(
-                                shoot0Vel,
-                                shoot0Hood,
+                        autoActions.manageShooterAuto(
                                 flywheel0Time,
                                 x1,
-                                0.501,
-                                shoot0XTolerance,
-                                0.501
+                                y1,
+                                posXTolerance,
+                                posYTolerance,
+                                false
                         )
 
                 )
-        );
-
-        Actions.runBlocking(
-                autoActions.shootAll((int) shoot0Vel, shoot0Time, shoot0SpinSpeedIncrease)
         );
     }
 
@@ -388,22 +385,21 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup1.build(),
-                        autoActions.manageFlywheel(
-                                shootAllVelocity,
-                                shootAllHood,
+                        autoActions.manageShooterAuto(
                                 intake1Time,
-                                0.501,
-                                0.501,
-                                pickup1XTolerance,
-                                pickup1YTolerance
+                                x2b,
+                                y2b,
+                                posXTolerance,
+                                posYTolerance,
+                                true
                         ),
                         autoActions.intake(intake1Time),
                         autoActions.detectObelisk(
                                 intake1Time,
-                                0.501,
-                                0.501,
-                                obelisk1XTolerance,
-                                obelisk1YTolerance,
+                                x2b,
+                                y2b,
+                                posXTolerance,
+                                posYTolerance,
                                 obeliskTurrPos1
                         )
 
@@ -415,35 +411,29 @@ public class Auto_LT_Close extends LinearOpMode {
         if (motif == 0) motif = 22;
         prevMotif = motif;
 
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.manageFlywheel(
-                                shootAllVelocity,
-                                shootAllHood,
-                                shoot1Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        shoot1.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shoot1Time, motif)
-                )
-        );
-
+        double posX;
+        double posY;
+        if (ballCycles > 1){
+            posX = xShoot;
+            posY = yShoot;
+        } else {
+            posX = xLeave;
+            posY = yLeave;
+        }
 
         Actions.runBlocking(
                 new ParallelAction(
                         autoActions.manageShooterAuto(
-                                shootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
+                                shoot1Time,
+                                posX,
+                                posY,
+                                posXTolerance,
+                                posYTolerance,
+                                false
                         ),
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        shoot1.build(),
+                        autoActions.prepareShootAll(colorSenseTime, shoot1Time, motif)
                 )
-
         );
     }
 
@@ -453,18 +443,19 @@ public class Auto_LT_Close extends LinearOpMode {
                         pickup2.build(),
                         autoActions.manageShooterAuto(
                                 intake2Time,
-                                0.501,
-                                0.501,
-                                pickup1XTolerance,
-                                pickup1YTolerance
+                                x3b,
+                                y3b,
+                                posXTolerance,
+                                posYTolerance,
+                                true
                         ),
                         autoActions.intake(intake2Time),
                         autoActions.detectObelisk(
                                 intake2Time,
-                                0.501,
-                                0.501,
-                                obelisk1XTolerance,
-                                obelisk1YTolerance,
+                                x3b,
+                                y3b,
+                                posXTolerance,
+                                posYTolerance,
                                 obeliskTurrPos2
                         )
 
@@ -476,32 +467,29 @@ public class Auto_LT_Close extends LinearOpMode {
         if (motif == 0) motif = prevMotif;
         prevMotif = motif;
 
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.manageFlywheelAuto(
-                                shoot2Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        shoot2.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shoot2Time, motif)
-                )
-        );
+        double posX;
+        double posY;
+        if (ballCycles > 2){
+            posX = xShoot;
+            posY = yShoot;
+        } else {
+            posX = xLeave;
+            posY = yLeave;
+        }
 
         Actions.runBlocking(
                 new ParallelAction(
                         autoActions.manageShooterAuto(
-                                shootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
+                                shoot2Time,
+                                posX,
+                                posY,
+                                posXTolerance,
+                                posYTolerance,
+                                false
                         ),
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        shoot2.build(),
+                        autoActions.prepareShootAll(colorSenseTime, shoot2Time, motif)
                 )
-
         );
     }
 
@@ -511,18 +499,19 @@ public class Auto_LT_Close extends LinearOpMode {
                         pickup3.build(),
                         autoActions.manageShooterAuto(
                                 intake3Time,
-                                0.501,
-                                0.501,
-                                pickup1XTolerance,
-                                pickup1YTolerance
+                                x4b,
+                                y4b,
+                                posXTolerance,
+                                posYTolerance,
+                                true
                         ),
                         autoActions.intake(intake3Time),
                         autoActions.detectObelisk(
                                 intake3Time,
-                                0.501,
-                                0.501,
-                                obelisk1XTolerance,
-                                obelisk1YTolerance,
+                                x4b,
+                                y4b,
+                                posXTolerance,
+                                posYTolerance,
                                 obeliskTurrPos3
                         )
 
@@ -536,30 +525,17 @@ public class Auto_LT_Close extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageFlywheelAuto(
+                        autoActions.manageShooterAuto(
                                 shoot3Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
+                                xLeave,
+                                yLeave,
+                                posXTolerance,
+                                posYTolerance,
+                                false
                         ),
                         shoot3.build(),
                         autoActions.prepareShootAll(colorSenseTime, shoot3Time, motif)
                 )
-        );
-
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.manageShooterAuto(
-                                finalShootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501
-                        ),
-                        autoActions.shootAllAuto(finalShootAllTime, finalSpindexerSpeedIncrease)
-                )
-
         );
     }
 }

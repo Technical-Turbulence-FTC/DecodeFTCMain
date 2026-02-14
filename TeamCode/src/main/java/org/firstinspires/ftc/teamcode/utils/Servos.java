@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -72,7 +74,7 @@ public class Servos {
 
     public double setHoodPos(double pos){
         if (firstHoodPos || !servoPosEqual(pos, prevHoodPos)) {
-            robot.hood.setPosition(pos);
+            robot.hood.setPosition(pos + hoodOffset);
             firstHoodPos = false;
         }
 

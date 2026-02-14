@@ -62,6 +62,7 @@ public class AutoActions{
         this.targetingSettings = tS;
         this.turret = tur;
     }
+
     public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
         return new Action() {
             double stamp = 0.0;
@@ -81,29 +82,6 @@ public class AutoActions{
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
-
-                double robX = drive.localizer.getPose().position.x;
-                double robY = drive.localizer.getPose().position.y;
-                double robotHeading = drive.localizer.getPose().heading.toDouble();
-
-                double goalX = -15;
-                double goalY = 0;
-
-                double dx = robX - goalX;  // delta x from robot to goal
-                double dy = robY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
-
-                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
-
-                targetingSettings = targeting.calculateSettings
-                        (robX, robY, robotHeading, 0.0, turretInterpolate);
-
-                turret.trackGoal(deltaPose);
-
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.addData("motif", motif_id);
-                TELE.update();
 
                 if ((System.currentTimeMillis() - stamp) < (colorSenseTime * 1000)) {
 
@@ -181,8 +159,6 @@ public class AutoActions{
 
                     return true;
                 } else if ((System.currentTimeMillis() - stamp) < (time * 1000)) {
-//                    TELE.addData("MostGreenSlot", mostGreenSlot);
-//                    TELE.update();
                     spindexer.setIntakePower(-((System.currentTimeMillis() - stamp - colorSenseTime)) / 1000);
 
                     servos.setSpinPos(firstSpindexShootPos);
@@ -205,9 +181,6 @@ public class AutoActions{
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
 
                 double voltage = robot.voltage.getVoltage();
                 flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
@@ -218,17 +191,12 @@ public class AutoActions{
 
                 teleStart = drive.localizer.getPose();
 
-                spindexer.setIntakePower(-0.3);
+                spindexer.setIntakePower(-0.1);
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
                 }
                 ticker++;
-
-                spindexer.setIntakePower(0);
-                drive.updatePoseEstimate();
-
-                teleStart = drive.localizer.getPose();
 
                 double robX = drive.localizer.getPose().position.x;
                 double robY = drive.localizer.getPose().position.y;
@@ -287,9 +255,6 @@ public class AutoActions{
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
 
                 velo = flywheel.getVelo();
 
@@ -297,51 +262,30 @@ public class AutoActions{
 
                 teleStart = drive.localizer.getPose();
 
-                spindexer.setIntakePower(-0.3);
+                spindexer.setIntakePower(-0.1);
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
                 }
                 ticker++;
 
-                spindexer.setIntakePower(0);
-                drive.updatePoseEstimate();
+                double prevSpinPos = servos.getSpinCmdPos();
 
-                teleStart = drive.localizer.getPose();
+                if (System.currentTimeMillis() - stamp < shootTime*1000 || (prevSpinPos < spinEndPos && shooterTicker < 2)) {
 
-                double robX = drive.localizer.getPose().position.x;
-                double robY = drive.localizer.getPose().position.y;
-                double robotHeading = drive.localizer.getPose().heading.toDouble();
-
-                double goalX = -15;
-                double goalY = 0;
-
-                double dx = robX - goalX;  // delta x from robot to goal
-                double dy = robY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
-
-                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
-
-                targetingSettings = targeting.calculateSettings
-                        (robX, robY, robotHeading, 0.0, turretInterpolate);
-
-                turret.trackGoal(deltaPose);
-
-                if (System.currentTimeMillis() - stamp < shootTime*1000) {
-
-                    if (System.currentTimeMillis() - stamp < firstShootTime*1000) {
+                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker == 0) {
                         servos.setTransferPos(transferServo_out);
                         servos.setSpinPos(firstSpindexShootPos);
                     } else {
                         servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-                        double prevSpinPos = servos.getSpinCmdPos();
 
                         if (shootForward) {
                             servos.setSpinPos(prevSpinPos + spindexSpeed);
                         } else {
                             servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
+
                     }
 
                     return true;
@@ -379,14 +323,12 @@ public class AutoActions{
 
                 teleStart = drive.localizer.getPose();
 
-                TELE.addData("Full?", spindexer.isFull());
-                TELE.update();
-
                 return ((System.currentTimeMillis() - stamp) < (intakeTime * 1000)) && !spindexer.isFull();
             }
         };
     }
 
+    private boolean detectingObelisk = false;
     public Action detectObelisk(
             double time,
             double posX,
@@ -407,7 +349,7 @@ public class AutoActions{
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
+                detectingObelisk = true;
                 drive.updatePoseEstimate();
                 Pose2d currentPose = drive.localizer.getPose();
 
@@ -425,13 +367,9 @@ public class AutoActions{
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
                 boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
 
-                boolean shouldFinish = timeDone || xDone || yDone;
-                drive.updatePoseEstimate();
+                boolean shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
 
-                teleStart = drive.localizer.getPose();
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
+                teleStart = currentPose;
 
                 if (shouldFinish){
                     if (redAlliance){
@@ -439,6 +377,7 @@ public class AutoActions{
                     } else {
                         robot.limelight.pipelineSwitch(2);
                     }
+                    detectingObelisk = false;
                     return false;
                 } else {
                     return true;
@@ -489,12 +428,8 @@ public class AutoActions{
                 boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
 
                 boolean shouldFinish = timeDone || xDone || yDone;
-                drive.updatePoseEstimate();
 
-                teleStart = drive.localizer.getPose();
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
+                teleStart = currentPose;
 
                 return !shouldFinish;
 
@@ -507,7 +442,8 @@ public class AutoActions{
             double posX,
             double posY,
             double posXTolerance,
-            double posYTolerance
+            double posYTolerance,
+            boolean whileIntaking
     ) {
 
         boolean timeFallback = (time != 0.501);
@@ -531,10 +467,10 @@ public class AutoActions{
 
                 ticker++;
 
-                double robotX = drive.localizer.getPose().position.x;
-                double robotY = drive.localizer.getPose().position.y;
+                double robotX = currentPose.position.x;
+                double robotY = currentPose.position.y;
 
-                double robotHeading = drive.localizer.getPose().heading.toDouble();
+                double robotHeading = currentPose.heading.toDouble();
 
                 double goalX = -15;
                 double goalY = 0;
@@ -548,7 +484,7 @@ public class AutoActions{
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-                turret.trackGoal(deltaPose);
+                if (!detectingObelisk){turret.trackGoal(deltaPose);}
 
                 servos.setHoodPos(targetingSettings.hoodAngle);
 
@@ -557,17 +493,16 @@ public class AutoActions{
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
-                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
-                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
+                boolean xDone = posXFallback && Math.abs(robotX - posX) < posXTolerance;
+                boolean yDone = posYFallback && Math.abs(robotY - posY) < posYTolerance;
+                boolean shouldFinish;
+                if (whileIntaking){
+                    shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
+                } else {
+                    shouldFinish = timeDone || (xDone && yDone);
+                }
 
-                boolean shouldFinish = timeDone || xDone || yDone;
-                drive.updatePoseEstimate();
-
-                teleStart = drive.localizer.getPose();
-
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
+                teleStart = currentPose;
 
                 return !shouldFinish;
 
@@ -632,12 +567,8 @@ public class AutoActions{
                 boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
 
                 boolean shouldFinish = timeDone || xDone || yDone;
-                drive.updatePoseEstimate();
 
-                teleStart = drive.localizer.getPose();
-                TELE.addData("Velocity", flywheel.getVelo());
-                TELE.addData("Hood", robot.hood.getPosition());
-                TELE.update();
+                teleStart = currentPose;
 
                 return !shouldFinish;
 
