@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.StateEnums;
 
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class Turret {
     double limelightPosX = 0.0;
     double limelightPosY = 0.0;
     LLResult result;
+
     boolean bearingAligned = false;
     private boolean lockOffset = false;
     private int obeliskID = 0;
@@ -56,6 +58,7 @@ public class Turret {
     private double lightColor = Color.LightRed;
     private int currentTrackCount = 0;
     private double permanentOffset = 0.0;
+    private int prevPipeline = -1;
     private PIDController bearingPID;
 
     private double prevTurretPos = 0.0;
@@ -90,6 +93,12 @@ public class Turret {
             isFirstTurretPos = false;
         }
         prevTurrPos = pos;
+    }
+    public void pipelineSwitch(int pipeline){
+        if (prevPipeline != pipeline){
+            robot.limelight.pipelineSwitch(pipeline);
+        }
+        prevPipeline = pipeline;
     }
 
     public boolean turretEqual(double pos) {

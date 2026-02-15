@@ -72,7 +72,7 @@ public class Auto_LT_Far extends LinearOpMode {
     double xStackPickupB, yStackPickupB, hStackPickupB;
     public static int pickupStackSpeed = 12;
     int prevMotif = 0;
-    public static double spindexerSpeedIncrease = 0.005;
+    public static double spindexerSpeedIncrease = 0.008;
     public static double shootAllTime = 2;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;
@@ -131,12 +131,6 @@ public class Auto_LT_Far extends LinearOpMode {
 
         while (opModeInInit()) {
 
-            if (gamepad2.squareWasPressed()){
-                robot.limelight.start();
-                robot.limelight.pipelineSwitch(1);
-                gamepad2.rumble(500);
-            }
-
             if (gamepad2.leftBumperWasPressed()){
                 gatePickup = !gatePickup;
             }
@@ -187,6 +181,12 @@ public class Auto_LT_Far extends LinearOpMode {
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
                 turretShootPos = turrDefault + redTurretShootPos;
+
+                if (gamepad2.squareWasPressed()){
+                    turret.pipelineSwitch(4);
+                    robot.limelight.start();
+                    gamepad2.rumble(500);
+                }
             } else {
                 robot.light.setPosition(0.6);
 
@@ -214,6 +214,12 @@ public class Auto_LT_Far extends LinearOpMode {
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
                 turretShootPos = turrDefault + blueTurretShootPos;
+
+                if (gamepad2.squareWasPressed()){
+                    turret.pipelineSwitch(2);
+                    robot.limelight.start();
+                    gamepad2.rumble(500);
+                }
             }
 
             leave3Ball = drive.actionBuilder(autoStart)
@@ -274,6 +280,7 @@ public class Auto_LT_Far extends LinearOpMode {
                 teleStart = drive.localizer.getPose();
 
                 flywheel.manageFlywheel(0);
+                robot.transfer.setPower(0);
 
                 TELE.addLine("finished");
                 TELE.update();

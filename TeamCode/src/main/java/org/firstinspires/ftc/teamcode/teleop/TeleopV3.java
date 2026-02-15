@@ -116,10 +116,10 @@ public class TeleopV3 extends LinearOpMode {
         while (opModeInInit()) {
             robot.limelight.start();
             if (redAlliance) {
-                robot.limelight.pipelineSwitch(4);
+                turret.pipelineSwitch(4);
                 light.setManualLightColor(Color.LightRed);
             } else {
-                robot.limelight.pipelineSwitch(2);
+                turret.pipelineSwitch(2);
                 light.setManualLightColor(Color.LightBlue);
 
             }

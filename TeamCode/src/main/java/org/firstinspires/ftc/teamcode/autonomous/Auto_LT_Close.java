@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
-    public static double spindexerSpeedIncrease = 0.005;
+    public static double spindexerSpeedIncrease = 0.008;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -167,8 +167,8 @@ public class Auto_LT_Close extends LinearOpMode {
             }
 
             if (gamepad2.squareWasPressed()){
+                turret.pipelineSwitch(1);
                 robot.limelight.start();
-                robot.limelight.pipelineSwitch(1);
                 gamepad2.rumble(500);
             }
 
@@ -336,6 +336,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 teleStart = drive.localizer.getPose();
 
                 flywheel.manageFlywheel(0);
+                robot.transfer.setPower(0);
 
                 TELE.addLine("finished");
                 TELE.update();

@@ -193,77 +193,6 @@ public class AutoActions{
         };
     }
 
-    public Action shootAll(int vel, double shootTime, double spindexSpeed) {
-        return new Action() {
-            int ticker = 1;
-            double stamp = 0.0;
-            double velo = vel;
-            int shooterTicker = 0;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
-                double voltage = robot.voltage.getVoltage();
-                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
-                flywheel.manageFlywheel(vel);
-                velo = flywheel.getVelo();
-
-                drive.updatePoseEstimate();
-
-                teleStart = drive.localizer.getPose();
-
-                spindexer.setIntakePower(-0.1);
-
-                if (ticker == 1) {
-                    stamp = System.currentTimeMillis();
-                }
-                ticker++;
-
-                double robX = drive.localizer.getPose().position.x;
-                double robY = drive.localizer.getPose().position.y;
-                double robotHeading = drive.localizer.getPose().heading.toDouble();
-
-                double goalX = -15;
-                double goalY = 0;
-
-                double dx = robX - goalX;  // delta x from robot to goal
-                double dy = robY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
-
-                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
-
-                targetingSettings = targeting.calculateSettings
-                        (robX, robY, robotHeading, 0.0, turretInterpolate);
-
-                turret.trackGoal(deltaPose);
-
-                if ((System.currentTimeMillis() - stamp < shootTime*1000 && servos.getSpinPos() < 0.85) || shooterTicker == 0) {
-
-                    if (shooterTicker == 0 && !servos.spinEqual(spinStartPos)) {
-                        servos.setSpinPos(spinStartPos);
-                    } else {
-                        servos.setTransferPos(transferServo_in);
-                        shooterTicker++;
-                        double prevSpinPos = servos.getSpinCmdPos();
-                        servos.setSpinPos(prevSpinPos + spindexSpeed);
-                    }
-
-                    return true;
-
-                } else {
-                    servos.setTransferPos(transferServo_out);
-
-                    spindexer.resetSpindexer();
-                    spindexer.processIntake();
-
-                    return false;
-
-                }
-
-            }
-        };
-    }
-
     private boolean doneShooting = false;
     public Action shootAllAuto(double shootTime, double spindexSpeed) {
         return new Action() {
@@ -385,7 +314,7 @@ public class AutoActions{
 
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
-                    robot.limelight.pipelineSwitch(1);
+                    turret.pipelineSwitch(1);
                 }
 
                 ticker++;
@@ -403,65 +332,15 @@ public class AutoActions{
 
                 if (shouldFinish){
                     if (redAlliance){
-                        robot.limelight.pipelineSwitch(4);
+                        turret.pipelineSwitch(4);
                     } else {
-                        robot.limelight.pipelineSwitch(2);
+                        turret.pipelineSwitch(2);
                     }
                     detectingObelisk = false;
                     return false;
                 } else {
                     return true;
                 }
-
-            }
-        };
-    }
-
-    public Action manageFlywheel(
-            double vel,
-            double hoodPos,
-            double time,
-            double posX,
-            double posY,
-            double posXTolerance,
-            double posYTolerance
-    ) {
-
-        boolean timeFallback = (time != 0.501);
-        boolean posXFallback = (posX != 0.501);
-        boolean posYFallback = (posY != 0.501);
-
-        return new Action() {
-
-            double stamp = 0.0;
-            int ticker = 0;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
-                drive.updatePoseEstimate();
-                Pose2d currentPose = drive.localizer.getPose();
-
-                if (ticker == 0) {
-                    stamp = System.currentTimeMillis();
-                }
-
-                ticker++;
-
-                double voltage = robot.voltage.getVoltage();
-                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
-                flywheel.manageFlywheel(vel);
-                servos.setHoodPos(hoodPos);
-
-                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
-                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
-                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
-
-                boolean shouldFinish = timeDone || xDone || yDone;
-
-                teleStart = currentPose;
-
-                return !shouldFinish;
 
             }
         };
@@ -511,7 +390,7 @@ public class AutoActions{
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
                 Pose2d deltaPose;
-                if (posX != 0.501){
+                if (posX != 0.501) {
                     deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
                 } else {
                     deltaPose = new Pose2d(robotX, robotY, robotHeading);
@@ -522,7 +401,7 @@ public class AutoActions{
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);
 
-                if (!detectingObelisk){
+                if (!detectingObelisk) {
                     turret.trackGoal(deltaPose);
                 }
 
@@ -536,7 +415,7 @@ public class AutoActions{
                 boolean xDone = posXFallback && Math.abs(robotX - posX) < posXTolerance;
                 boolean yDone = posYFallback && Math.abs(robotY - posY) < posYTolerance;
                 boolean shouldFinish;
-                if (whileIntaking){
+                if (whileIntaking) {
                     shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
                 } else {
                     shouldFinish = timeDone || (xDone && yDone) || doneShooting;
@@ -547,78 +426,12 @@ public class AutoActions{
                 TELE.addData("Steady?", flywheel.getSteady());
                 TELE.update();
 
-                if (shouldFinish){
+                if (shouldFinish) {
                     doneShooting = false;
                     return false;
                 } else {
                     return true;
                 }
-
-            }
-        };
-    }
-
-    public Action manageFlywheelAuto(
-            double time,
-            double posX,
-            double posY,
-            double posXTolerance,
-            double posYTolerance
-    ) {
-
-        boolean timeFallback = (time != 0.501);
-        boolean posXFallback = (posX != 0.501);
-        boolean posYFallback = (posY != 0.501);
-
-        return new Action() {
-
-            double stamp = 0.0;
-            int ticker = 0;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
-                drive.updatePoseEstimate();
-                Pose2d currentPose = drive.localizer.getPose();
-
-                if (ticker == 0) {
-                    stamp = System.currentTimeMillis();
-                }
-
-                ticker++;
-
-                double robotX = drive.localizer.getPose().position.x;
-                double robotY = drive.localizer.getPose().position.y;
-
-                double robotHeading = drive.localizer.getPose().heading.toDouble();
-
-                double goalX = -15;
-                double goalY = 0;
-
-                double dx = robotX - goalX;  // delta x from robot to goal
-                double dy = robotY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
-
-                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
-
-                targetingSettings = targeting.calculateSettings
-                        (robotX, robotY, robotHeading, 0.0, false);
-
-                servos.setHoodPos(targetingSettings.hoodAngle);
-
-                double voltage = robot.voltage.getVoltage();
-                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
-                flywheel.manageFlywheel(targetingSettings.flywheelRPM);
-
-                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
-                boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
-                boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
-
-                boolean shouldFinish = timeDone || xDone || yDone;
-
-                teleStart = currentPose;
-
-                return !shouldFinish;
 
             }
         };
