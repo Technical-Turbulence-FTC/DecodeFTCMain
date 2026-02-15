@@ -21,8 +21,10 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.Light;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -41,6 +43,7 @@ public class AutoActions{
     Spindexer spindexer;
     Targeting targeting;
     Targeting.Settings targetingSettings;
+    Light light;
     Turret turret;
     private int driverSlotGreen = 0;
     private int passengerSlotGreen = 0;
@@ -52,7 +55,7 @@ public class AutoActions{
     public int motif = 0;
     double spinEndPos = ServoPositions.spinEndPos;
 
-    public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur){
+    public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig){
         this.robot = rob;
         this.drive = dri;
         this.TELE = tel;
@@ -62,6 +65,7 @@ public class AutoActions{
         this.targeting = tar;
         this.targetingSettings = tS;
         this.turret = tur;
+        this.light = lig;
     }
 
     public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
@@ -111,6 +115,8 @@ public class AutoActions{
                 ticker++;
                 servos.setTransferPos(transferServo_out);
                 drive.updatePoseEstimate();
+
+                light.setState(StateEnums.LightState.GOAL_LOCK);
 
                 teleStart = drive.localizer.getPose();
 
@@ -215,6 +221,9 @@ public class AutoActions{
 
                 spindexer.setIntakePower(-0.1);
 
+                light.setState(StateEnums.LightState.BALL_COLOR);
+                light.update();
+
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
                 }
@@ -276,8 +285,9 @@ public class AutoActions{
 
                 spindexer.processIntake();
                 spindexer.setIntakePower(1);
+                light.setState(StateEnums.LightState.BALL_COUNT);
+                light.update();
 
-                spindexer.ballCounterLight();
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();

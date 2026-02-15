@@ -12,7 +12,7 @@ public final class Light {
 
     private static Light instance;
     public static  double ballColorCycleTime = 1000; //in ms
-    public static double restingTime = 150; //in ms
+    public static double restingTime = 125; //in ms
 
     private Servo lightServo;
     private LightState state = LightState.DISABLED;

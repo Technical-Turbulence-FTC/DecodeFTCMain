@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.autonomous.actions.AutoActions;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.Light;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -78,6 +79,7 @@ public class Auto_LT_Close extends LinearOpMode {
     Targeting targeting;
     Targeting.Settings targetingSettings;
     AutoActions autoActions;
+    Light light;
     double x1, y1, h1;
 
     double x2a, y2a, h2a, t2a;
@@ -132,7 +134,11 @@ public class Auto_LT_Close extends LinearOpMode {
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret);
+        light = Light.getInstance();
+
+        light.init(robot.light, spindexer, turret);
+
+        autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret, light);
 
         servos.setSpinPos(spinStartPos);
 

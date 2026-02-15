@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.autonomous.actions.AutoActions;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.Light;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
@@ -62,6 +63,7 @@ public class Auto_LT_Far extends LinearOpMode {
     Targeting targeting;
     Targeting.Settings targetingSettings;
     AutoActions autoActions;
+    Light light;
     double xShoot, yShoot, hShoot;
     double pickupGateX = 0, pickupGateY = 0, pickupGateH = 0;
     double pickupZoneX = 0, pickupZoneY = 0, pickupZoneH = 0;
@@ -117,6 +119,10 @@ public class Auto_LT_Far extends LinearOpMode {
 
         servos = new Servos(hardwareMap);
 
+        light = Light.getInstance();
+
+        light.init(robot.light, spindexer, turret);
+
         robot.limelight.start();
 
         robot.limelight.pipelineSwitch(1);
@@ -159,7 +165,7 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 autoStart = new Pose2d(autoStartRX, autoStartRY, Math.toRadians(autoStartRH));
                 drive = new MecanumDrive(hardwareMap, autoStart);
-                autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret);
+                autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret, light);
 
                 xLeave = rLeaveX;
                 yLeave = rLeaveY;
@@ -192,7 +198,7 @@ public class Auto_LT_Far extends LinearOpMode {
 
                 autoStart = new Pose2d(autoStartBX, autoStartBY, Math.toRadians(autoStartBH));
                 drive = new MecanumDrive(hardwareMap, autoStart);
-                autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret);
+                autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret, light);
 
                 xLeave = bLeaveX;
                 yLeave = bLeaveY;
