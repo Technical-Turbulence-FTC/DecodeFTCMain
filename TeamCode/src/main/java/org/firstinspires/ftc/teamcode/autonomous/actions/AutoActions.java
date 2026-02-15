@@ -477,16 +477,16 @@ public class AutoActions{
             boolean whileIntaking
     ) {
 
-        boolean timeFallback = (time != 0.501);
-        boolean posXFallback = (posX != 0.501);
-        boolean posYFallback = (posY != 0.501);
-
         return new Action() {
 
             double stamp = 0.0;
             int ticker = 0;
             int shootingTicker = 0;
             double shootingStamp = 0;
+
+            final boolean timeFallback = (time != 0.501);
+            final boolean posXFallback = (posX != 0.501);
+            final boolean posYFallback = (posY != 0.501);
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -539,17 +539,15 @@ public class AutoActions{
                 if (whileIntaking){
                     shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
                 } else {
-                    shouldFinish = timeDone || (xDone && yDone);
+                    shouldFinish = timeDone || (xDone && yDone) || doneShooting;
                 }
 
                 teleStart = currentPose;
 
-                if (doneShooting && shootingTicker == 0){
-                    shootingTicker++;
-                    shootingStamp = System.currentTimeMillis();
-                }
+                TELE.addData("Steady?", flywheel.getSteady());
+                TELE.update();
 
-                if (System.currentTimeMillis() - shootingStamp > 100 || shouldFinish){
+                if (shouldFinish){
                     doneShooting = false;
                     return false;
                 } else {

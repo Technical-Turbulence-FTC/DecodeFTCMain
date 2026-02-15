@@ -89,8 +89,6 @@ public class Turret {
             robot.turr2.setPosition(1-pos);
             isFirstTurretPos = false;
         }
-        TELE.addLine("Moved Turret");
-        TELE.update();
         prevTurrPos = pos;
     }
 

@@ -56,7 +56,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
     public static double intake3Time = 4.2;
 
-    public static double flywheel0Time = 3.5;
+    public static double flywheel0Time = 1.5;
     public static double pickup1Speed = 12;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;

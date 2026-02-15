@@ -78,7 +78,7 @@ public class Flywheel {
 
         }
         // really should be a running average of the last 5
-        steady = (Math.abs(targetVelocity - velo) < 200.0);
+        steady = (Math.abs(commandedVelocity - velo) < 200.0);
 
         return powPID;
     }
