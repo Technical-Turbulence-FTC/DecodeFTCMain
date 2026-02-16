@@ -3,26 +3,14 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Back_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinEndPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
-
-import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -41,8 +29,6 @@ import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
-
-import java.util.Objects;
 
 @Config
 @Autonomous(preselectTeleOp = "TeleopV3")
@@ -66,13 +52,13 @@ public class Auto_LT_Far extends LinearOpMode {
     Light light;
     double xShoot, yShoot, hShoot;
     double pickupGateX = 0, pickupGateY = 0, pickupGateH = 0;
-    double pickupZoneX = 0, pickupZoneY = 0, pickupZoneH = 0;
     public static double flywheel0Time = 1.5;
-    boolean gatePickup = false;
+    boolean gatePickup = true;
     boolean stack3 = true;
     double xStackPickupA, yStackPickupA, hStackPickupA;
     double xStackPickupB, yStackPickupB, hStackPickupB;
     public static int pickupStackSpeed = 12;
+    public static int pickupGateSpeed = 25;
     int prevMotif = 0;
     public static double spindexerSpeedIncrease = 0.008;
     public static double shootAllTime = 2;
@@ -82,8 +68,8 @@ public class Auto_LT_Far extends LinearOpMode {
     public static double shootStackTime = 2;
     public static double shootGateTime = 2;
     public static double colorSenseTime = 1;
-    public static double intakeStackTime = 3.3;
-    public static double intakeGateTime = 3;
+    public static double intakeStackTime = 3;
+    public static double intakeGateTime = 2.5;
     public static double redObeliskTurrPos1 = 0.12;
     public static double redObeliskTurrPos2 = 0.13;
     public static double redObeliskTurrPos3 = 0.14;
@@ -93,12 +79,15 @@ public class Auto_LT_Far extends LinearOpMode {
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
+    public static double endAutoTime = 25;
 
     // initialize path variables here
     TrajectoryActionBuilder leave3Ball = null;
     TrajectoryActionBuilder leaveFromShoot = null;
     TrajectoryActionBuilder pickup3 = null;
     TrajectoryActionBuilder shoot3 = null;
+    TrajectoryActionBuilder pickupGate = null;
+    TrajectoryActionBuilder shootGate = null;
     Pose2d autoStart = new Pose2d(0,0,0);
 
     @Override
@@ -183,6 +172,10 @@ public class Auto_LT_Far extends LinearOpMode {
                 yStackPickupB = rStackPickupBY;
                 hStackPickupB = rStackPickupBH;
 
+                pickupGateX = rPickupGateX;
+                pickupGateY = rPickupGateY;
+                pickupGateH = rPickupGateH;
+
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
@@ -216,6 +209,10 @@ public class Auto_LT_Far extends LinearOpMode {
                 yStackPickupB = bStackPickupBY;
                 hStackPickupB = bStackPickupBH;
 
+                pickupGateX = bPickupGateX;
+                pickupGateY = bPickupGateY;
+                pickupGateH = bPickupGateH;
+
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
@@ -242,6 +239,13 @@ public class Auto_LT_Far extends LinearOpMode {
             shoot3 = drive.actionBuilder(new Pose2d(xStackPickupB, yStackPickupB, Math.toRadians(hStackPickupB)))
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
 
+            pickupGate = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
+                    .strafeToLinearHeading(new Vector2d(pickupGateX, pickupGateY), Math.toRadians(pickupGateH),
+                            new TranslationalVelConstraint(pickupGateSpeed));
+
+            shootGate = drive.actionBuilder(new Pose2d(pickupGateX, pickupGateY, Math.toRadians(pickupGateH)))
+                    .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
+
             limelightUsed = true;
 
             TELE.addData("Red?", redAlliance);
@@ -259,6 +263,7 @@ public class Auto_LT_Far extends LinearOpMode {
 
         // Currently only shoots; keep this start and modify times and then add extra paths
         if (opModeIsActive()) {
+            double stamp = getRuntime();
 
             robot.transfer.setPower(1);
 
@@ -270,7 +275,10 @@ public class Auto_LT_Far extends LinearOpMode {
                 shoot();
             }
 
-            //TODO: insert code here for gate auto
+            while (gatePickup && getRuntime() - stamp < endAutoTime){
+                cycleGatePickup();
+                shoot();
+            }
 
             if (gatePickup || stack3){
                 leave();
@@ -385,6 +393,53 @@ public class Auto_LT_Far extends LinearOpMode {
                         ),
                         shoot3.build(),
                         autoActions.prepareShootAll(colorSenseTime, shootStackTime, motif)
+                )
+        );
+    }
+
+    void cycleGatePickup(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickupGate.build(),
+                        autoActions.manageShooterAuto(
+                                intakeGateTime,
+                                pickupGateX,
+                                pickupGateY,
+                                posXTolerance,
+                                posYTolerance,
+                                pickupGateH,
+                                true
+                        ),
+                        autoActions.intake(intakeStackTime),
+                        autoActions.detectObelisk(
+                                intakeGateTime,
+                                pickupGateX,
+                                pickupGateY,
+                                posXTolerance,
+                                posYTolerance,
+                                obeliskTurrPos3
+                        )
+                )
+        );
+
+        motif = turret.getObeliskID();
+
+        if (motif == 0) motif = prevMotif;
+        prevMotif = motif;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        autoActions.manageShooterAuto(
+                                shootGateTime,
+                                xShoot,
+                                yShoot,
+                                posXTolerance,
+                                posYTolerance,
+                                hShoot,
+                                false
+                        ),
+                        shootGate.build(),
+                        autoActions.prepareShootAll(colorSenseTime, shootGateTime, motif)
                 )
         );
     }
