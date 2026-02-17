@@ -439,6 +439,23 @@ public class AutoActions{
             }
         };
     }
+
+    public Action Wait(double time){
+        return new Action() {
+            boolean ticker = false;
+            double stamp = 0.0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (!ticker){
+                    stamp = System.currentTimeMillis();
+                    ticker = true;
+                }
+
+                return (System.currentTimeMillis() - stamp < time * 1000);
+
+            }
+        };
+    }
 }
 
 

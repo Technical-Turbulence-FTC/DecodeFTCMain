@@ -18,6 +18,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -62,6 +63,12 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
     public int motif = 0;
+    public static double xShoot0 = 40, yShoot0 = 0.1, hShoot0 = 0.1;
+    public static double waitToShoot0 = 1.1;
+    public static double waitToPickupGate2 = 0.5;
+    public static double pickupStackGateSpeed = 23;
+    public static double intake2TimeGate = 6;
+    public static double xShootGate = 40, yShootGate = 0.2, hShootGate = 0.2;
 
     Robot robot;
     MultipleTelemetry TELE;
@@ -93,6 +100,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
     int ballCycles = 3;
     int prevMotif = 0;
+    boolean gateCycle = true;
 
 
     // initialize path variables here
@@ -103,6 +111,7 @@ public class Auto_LT_Close extends LinearOpMode {
     TrajectoryActionBuilder shoot2 = null;
     TrajectoryActionBuilder pickup3 = null;
     TrajectoryActionBuilder shoot3 = null;
+    TrajectoryActionBuilder shoot0ToPickup2 = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -274,7 +283,7 @@ public class Auto_LT_Close extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
                             new TranslationalVelConstraint(pickup1Speed));
 
-            if (ballCycles < 3){
+            if (ballCycles < 3 || gateCycle){
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
                         .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
             } else {
@@ -289,6 +298,13 @@ public class Auto_LT_Close extends LinearOpMode {
 
             shoot3 = drive.actionBuilder(new Pose2d(x4b, y4b, Math.toRadians(h4b)))
                     .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
+
+            shoot0ToPickup2 = drive.actionBuilder(new Pose2d(0,0,0))
+                    .strafeToLinearHeading(new Vector2d(xShoot0, yShoot0), Math.toRadians(hShoot0))
+                    .waitSeconds(waitToPickupGate2)
+                    .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
+                    .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
+                            new TranslationalVelConstraint(pickupStackGateSpeed));
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
@@ -305,22 +321,26 @@ public class Auto_LT_Close extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            startAuto();
-            shoot();
-
-            if (ballCycles > 0){
-                cycleStackClose();
+            if (gateCycle){
+                shoot0Gate();
+            } else {
+                startAuto();
                 shoot();
-            }
 
-            if (ballCycles > 1){
-                cycleStackMiddle();
-                shoot();
-            }
+                if (ballCycles > 0){
+                    cycleStackClose();
+                    shoot();
+                }
 
-            if (ballCycles > 2){
-                cycleStackFar();
-                shoot();
+                if (ballCycles > 1){
+                    cycleStackMiddle();
+                    shoot();
+                }
+
+                if (ballCycles > 2){
+                    cycleStackFar();
+                    shoot();
+                }
             }
 
             while (opModeIsActive()) {
@@ -511,6 +531,32 @@ public class Auto_LT_Close extends LinearOpMode {
                                 xLeave,
                                 yLeave,
                                 hLeave
+                        )
+                )
+        );
+    }
+
+    void shoot0Gate(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot0ToPickup2.build(),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        autoActions.Wait(waitToShoot0),
+                                        autoActions.manageShooterAuto(
+                                                waitToShoot0,
+                                                xShoot0,
+                                                yShoot0,
+                                                hShoot0
+                                        )
+                                ),
+                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease),
+                                autoActions.intake(
+                                        intake2TimeGate,
+                                        xShootGate,
+                                        yShootGate,
+                                        hShootGate
+                                )
                         )
                 )
         );
