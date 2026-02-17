@@ -210,7 +210,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //SHOOTER:
             double voltage = robot.voltage.getVoltage();
-            flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
+            flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
             flywheel.manageFlywheel(vel);
 
             //HOOD:

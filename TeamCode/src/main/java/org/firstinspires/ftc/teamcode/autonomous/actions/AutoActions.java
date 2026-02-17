@@ -49,11 +49,12 @@ public class AutoActions{
     private int passengerSlotGreen = 0;
     private int rearSlotGreen = 0;
     private int mostGreenSlot = 0;
-    private double firstSpindexShootPos = spinStartPos;
+    private double firstSpindexShootPos = spindexer_outtakeBall1;
     private boolean shootForward = true;
     public static double firstShootTime = 0.3;
     public int motif = 0;
     double spinEndPos = ServoPositions.spinEndPos;
+    int waitFirstBallTicks = 4;
 
     public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig){
         this.robot = rob;
@@ -68,7 +69,14 @@ public class AutoActions{
         this.light = lig;
     }
 
-    public Action prepareShootAll(double colorSenseTime, double time, int motif_id) {
+    public Action prepareShootAll(
+            double colorSenseTime,
+            double time,
+            int motif_id,
+            double posX,
+            double posY,
+            double posH
+    ) {
         return new Action() {
             double stamp = 0.0;
             int ticker = 0;
@@ -107,10 +115,12 @@ public class AutoActions{
                 spinEndPos = spindexer_outtakeBall2 + 0.1;
             }
 
+            Action manageShooter = null;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
+                    manageShooter = manageShooterAuto(time, posX, posY, posH);
                 }
                 ticker++;
                 servos.setTransferPos(transferServo_out);
@@ -119,6 +129,8 @@ public class AutoActions{
                 light.setState(StateEnums.LightState.GOAL_LOCK);
 
                 teleStart = drive.localizer.getPose();
+
+                manageShooter.run(telemetryPacket);
 
                 if ((System.currentTimeMillis() - stamp) < (colorSenseTime * 1000)) {
 
@@ -199,22 +211,16 @@ public class AutoActions{
         };
     }
 
-    private boolean doneShooting = false;
     public Action shootAllAuto(double shootTime, double spindexSpeed) {
         return new Action() {
             int ticker = 1;
 
             double stamp = 0.0;
 
-            double velo = 0.0;
-
             int shooterTicker = 0;
-
+            Action manageShooter = null;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-
-                velo = flywheel.getVelo();
-
                 drive.updatePoseEstimate();
 
                 teleStart = drive.localizer.getPose();
@@ -226,8 +232,12 @@ public class AutoActions{
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
+                    manageShooter = manageShooterAuto(shootTime, 0.501, 0.501, 0.501);
+
                 }
                 ticker++;
+
+                manageShooter.run(telemetryPacket);
 
                 double prevSpinPos = servos.getSpinCmdPos();
 
@@ -238,18 +248,18 @@ public class AutoActions{
                     end = prevSpinPos < spinEndPos;
                 }
 
-                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < 2)) {
+                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < waitFirstBallTicks+1)) {
 
-                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 3) {
+                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 1) {
                         servos.setTransferPos(transferServo_out);
                         servos.setSpinPos(firstSpindexShootPos);
                     } else {
                         servos.setTransferPos(transferServo_in);
                         shooterTicker++;
 
-                        if (shootForward) {
+                        if (shootForward && shooterTicker > waitFirstBallTicks) {
                             servos.setSpinPos(prevSpinPos + spindexSpeed);
-                        } else {
+                        } else if (shooterTicker > waitFirstBallTicks){
                             servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
 
@@ -262,7 +272,6 @@ public class AutoActions{
 
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
-                    doneShooting = true;
 
                     return false;
 
@@ -271,15 +280,21 @@ public class AutoActions{
         };
     }
 
-    public Action intake(double intakeTime) {
+    public Action intake(
+            double time,
+            double posX,
+            double posY,
+            double posH
+    ) {
         return new Action() {
             double stamp = 0.0;
             int ticker = 0;
-
+            Action manageShooter = null;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
+                    manageShooter = manageShooterAuto(time, posX, posY, posH);
                 }
                 ticker++;
 
@@ -292,7 +307,9 @@ public class AutoActions{
 
                 teleStart = drive.localizer.getPose();
 
-                return ((System.currentTimeMillis() - stamp) < (intakeTime * 1000)) && !spindexer.isFull();
+                manageShooter.run(telemetryPacket);
+
+                return ((System.currentTimeMillis() - stamp) < (time * 1000)) && !spindexer.isFull();
             }
         };
     }
@@ -360,22 +377,15 @@ public class AutoActions{
             double time,
             double posX,
             double posY,
-            double posXTolerance,
-            double posYTolerance,
-            double posH,
-            boolean whileIntaking
+            double posH
     ) {
 
         return new Action() {
 
             double stamp = 0.0;
             int ticker = 0;
-            int shootingTicker = 0;
-            double shootingStamp = 0;
 
             final boolean timeFallback = (time != 0.501);
-            final boolean posXFallback = (posX != 0.501);
-            final boolean posYFallback = (posY != 0.501);
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -418,31 +428,18 @@ public class AutoActions{
                 servos.setHoodPos(targetingSettings.hoodAngle);
 
                 double voltage = robot.voltage.getVoltage();
-                flywheel.setPIDF(robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F / voltage);
+                flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
-                boolean xDone = posXFallback && Math.abs(robotX - posX) < posXTolerance;
-                boolean yDone = posYFallback && Math.abs(robotY - posY) < posYTolerance;
-                boolean shouldFinish;
-                if (whileIntaking) {
-                    shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
-                } else {
-                    shouldFinish = timeDone || (xDone && yDone) || doneShooting;
-                }
+                boolean shouldFinish = timeDone || flywheel.getSteady();
 
                 teleStart = currentPose;
 
                 TELE.addData("Steady?", flywheel.getSteady());
                 TELE.update();
 
-                if (shouldFinish) {
-                    doneShooting = false;
-                    return false;
-                } else {
-                    return true;
-                }
-
+                return !shouldFinish;
             }
         };
     }

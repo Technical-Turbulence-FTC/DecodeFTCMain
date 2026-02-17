@@ -37,7 +37,7 @@ public class ShooterTest extends LinearOpMode {
     public static double P = 255.0;
     public static double I = 0.0;
     public static double D = 0.0;
-    public static double F = 90;
+    public static double F = 75;
     public static double transferPower = 1.0;
     public static double hoodPos = 0.501;
     public static double turretPos = 0.501;

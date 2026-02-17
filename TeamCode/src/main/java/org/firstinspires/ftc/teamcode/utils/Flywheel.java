@@ -68,17 +68,15 @@ public class Flywheel {
             // Add code here to set PIDF based on desired RPM
             //robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
             //robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
-            robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-            robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
-
-            // Record Current Velocity
-            velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
-            velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
-            velo = Math.max(velo1, velo2);
 
         }
+        robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
+        robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+        velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
+        velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
+        velo = Math.max(velo1, velo2);
         // really should be a running average of the last 5
-        steady = (Math.abs(commandedVelocity - velo) < 200.0);
+        steady = (Math.abs(commandedVelocity - velo) < 50);
 
         return powPID;
     }

@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
-    public static double spindexerSpeedIncrease = 0.008;
+    public static double spindexerSpeedIncrease = 0.014;
 
     // These values are ADDED to turrDefault
     public static double redObeliskTurrPos1 = 0.12;
@@ -355,15 +355,6 @@ public class Auto_LT_Close extends LinearOpMode {
     void shoot(){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
-                                shootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                false
-                        ),
                         autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                 )
 
@@ -380,12 +371,8 @@ public class Auto_LT_Close extends LinearOpMode {
                                 flywheel0Time,
                                 x1,
                                 y1,
-                                posXTolerance,
-                                posYTolerance,
-                                h1,
-                                false
+                                h1
                         )
-
                 )
         );
     }
@@ -394,16 +381,12 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup1.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.intake(
                                 intake1Time,
                                 x2b,
                                 y2b,
-                                posXTolerance,
-                                posYTolerance,
-                                h2b,
-                                true
+                                h2b
                         ),
-                        autoActions.intake(intake1Time),
                         autoActions.detectObelisk(
                                 intake1Time,
                                 x2b,
@@ -436,17 +419,15 @@ public class Auto_LT_Close extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
+                        shoot1.build(),
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 shoot1Time,
+                                motif,
                                 posX,
                                 posY,
-                                posXTolerance,
-                                posYTolerance,
-                                posH,
-                                false
-                        ),
-                        shoot1.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shoot1Time, motif)
+                                posH
+                        )
                 )
         );
     }
@@ -455,16 +436,12 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup2.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.intake(
                                 intake2Time,
                                 x3b,
                                 y3b,
-                                posXTolerance,
-                                posYTolerance,
-                                h3b,
-                                true
+                                h3b
                         ),
-                        autoActions.intake(intake2Time),
                         autoActions.detectObelisk(
                                 intake2Time,
                                 x3b,
@@ -497,17 +474,14 @@ public class Auto_LT_Close extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
+                        shoot2.build(),
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 shoot2Time,
+                                motif,
                                 posX,
                                 posY,
-                                posXTolerance,
-                                posYTolerance,
-                                posH,
-                                false
-                        ),
-                        shoot2.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shoot2Time, motif)
+                                posH)
                 )
         );
     }
@@ -516,16 +490,12 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup3.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.intake(
                                 intake3Time,
                                 x4b,
                                 y4b,
-                                posXTolerance,
-                                posYTolerance,
-                                h4b,
-                                true
+                                h4b
                         ),
-                        autoActions.intake(intake3Time),
                         autoActions.detectObelisk(
                                 intake3Time,
                                 x4b,
@@ -545,17 +515,15 @@ public class Auto_LT_Close extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
+                        shoot3.build(),
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 shoot3Time,
+                                motif,
                                 xLeave,
                                 yLeave,
-                                posXTolerance,
-                                posYTolerance,
-                                hLeave,
-                                false
-                        ),
-                        shoot3.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shoot3Time, motif)
+                                hLeave
+                        )
                 )
         );
     }

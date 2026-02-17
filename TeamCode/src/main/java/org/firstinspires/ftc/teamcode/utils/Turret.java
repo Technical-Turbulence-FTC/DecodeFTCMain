@@ -27,7 +27,7 @@ public class Turret {
     public static double turret180Range = 0.4;
     public static double turrDefault = 0.37;
     public static double turrMin = 0.15;
-    public static double turrMax = 0.85;
+    public static double turrMax = 0.8;
     public static boolean limelightUsed = true;
 
     public static double manualOffset = 0.0;
@@ -40,7 +40,7 @@ public class Turret {
 
     public static double clampTolerance = 0.03;
     //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
-    public static double B_PID_P = 0.066, B_PID_I = 0.0, B_PID_D = 0.007;
+    public static double B_PID_P = 0.08, B_PID_I = 0.0, B_PID_D = 0.007;
     Robot robot;
     MultipleTelemetry TELE;
     Limelight3A webcam;

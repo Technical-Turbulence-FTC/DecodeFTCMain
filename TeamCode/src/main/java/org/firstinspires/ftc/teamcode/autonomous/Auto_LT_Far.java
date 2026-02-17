@@ -60,16 +60,16 @@ public class Auto_LT_Far extends LinearOpMode {
     public static int pickupStackSpeed = 12;
     public static int pickupGateSpeed = 25;
     int prevMotif = 0;
-    public static double spindexerSpeedIncrease = 0.008;
+    public static double spindexerSpeedIncrease = 0.014;
     public static double shootAllTime = 2;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;
     public static double posYTolerance = 5.0;
     public static double shootStackTime = 2;
-    public static double shootGateTime = 2;
+    public static double shootGateTime = 2.5;
     public static double colorSenseTime = 1;
-    public static double intakeStackTime = 3;
-    public static double intakeGateTime = 2.5;
+    public static double intakeStackTime = 2.5;
+    public static double intakeGateTime = 2;
     public static double redObeliskTurrPos1 = 0.12;
     public static double redObeliskTurrPos2 = 0.13;
     public static double redObeliskTurrPos3 = 0.14;
@@ -79,7 +79,7 @@ public class Auto_LT_Far extends LinearOpMode {
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
-    public static double endAutoTime = 25;
+    public static double endAutoTime = 26;
 
     // initialize path variables here
     TrajectoryActionBuilder leave3Ball = null;
@@ -276,7 +276,14 @@ public class Auto_LT_Far extends LinearOpMode {
             }
 
             while (gatePickup && getRuntime() - stamp < endAutoTime){
-                cycleGatePickup();
+                cycleGatePickupBalls();
+                if (getRuntime() - stamp > endAutoTime){
+                    break;
+                }
+                cycleGatePrepareShoot();
+                if (getRuntime() - stamp > endAutoTime + shootAllTime + 1){
+                    break;
+                }
                 shoot();
             }
 
@@ -307,15 +314,6 @@ public class Auto_LT_Far extends LinearOpMode {
     void shoot(){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
-                                shootAllTime,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                false
-                        ),
                         autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                 )
 
@@ -329,10 +327,7 @@ public class Auto_LT_Far extends LinearOpMode {
                                 flywheel0Time,
                                 0.501,
                                 0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                false
+                                0.501
                         )
 
                 )
@@ -353,16 +348,12 @@ public class Auto_LT_Far extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup3.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.intake(
                                 intakeStackTime,
                                 xStackPickupB,
                                 yStackPickupB,
-                                posXTolerance,
-                                posYTolerance,
-                                hStackPickupB,
-                                true
+                                hStackPickupB
                         ),
-                        autoActions.intake(intakeStackTime),
                         autoActions.detectObelisk(
                                 intakeStackTime,
                                 xStackPickupB,
@@ -382,35 +373,28 @@ public class Auto_LT_Far extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
+                        shoot3.build(),
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 shootStackTime,
+                                motif,
                                 xShoot,
                                 yShoot,
-                                posXTolerance,
-                                posYTolerance,
-                                hShoot,
-                                false
-                        ),
-                        shoot3.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shootStackTime, motif)
+                                hShoot)
                 )
         );
     }
 
-    void cycleGatePickup(){
+    void cycleGatePickupBalls(){
         Actions.runBlocking(
                 new ParallelAction(
                         pickupGate.build(),
-                        autoActions.manageShooterAuto(
-                                intakeGateTime,
+                        autoActions.intake(
+                                intakeStackTime,
                                 pickupGateX,
                                 pickupGateY,
-                                posXTolerance,
-                                posYTolerance,
-                                pickupGateH,
-                                true
+                                pickupGateH
                         ),
-                        autoActions.intake(intakeStackTime),
                         autoActions.detectObelisk(
                                 intakeGateTime,
                                 pickupGateX,
@@ -426,20 +410,20 @@ public class Auto_LT_Far extends LinearOpMode {
 
         if (motif == 0) motif = prevMotif;
         prevMotif = motif;
+    }
 
+    void cycleGatePrepareShoot(){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.manageShooterAuto(
+                        shootGate.build(),
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 shootGateTime,
+                                motif,
                                 xShoot,
                                 yShoot,
-                                posXTolerance,
-                                posYTolerance,
-                                hShoot,
-                                false
-                        ),
-                        shootGate.build(),
-                        autoActions.prepareShootAll(colorSenseTime, shootGateTime, motif)
+                                hShoot
+                        )
                 )
         );
     }

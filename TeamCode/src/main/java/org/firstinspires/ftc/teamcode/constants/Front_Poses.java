@@ -39,8 +39,8 @@ public class Front_Poses {
     public static double rxPrep = 45, ryPrep = 10, rhPrep = 50;
     public static double bxPrep = 45, byPrep = -10, bhPrep = -50;
 
-    public static double rLeaveX = 40, rLeaveY = -7, rLeaveH = 50;
-    public static double bLeaveX = 40, bLeaveY = 7, bLeaveH = -50;
+    public static double rLeaveX = 40, rLeaveY = -7, rLeaveH = 55;
+    public static double bLeaveX = 40, bLeaveY = 7, bLeaveH = -55;
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
 }
