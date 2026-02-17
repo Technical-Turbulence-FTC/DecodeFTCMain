@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -35,7 +33,7 @@ public class Robot {
     public static double shooterPIDF_I = 0.0;
     public static double shooterPIDF_D = 0.0;
     public static double shooterPIDF_F = 75;
-    public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
+//    public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
     public Servo hood;

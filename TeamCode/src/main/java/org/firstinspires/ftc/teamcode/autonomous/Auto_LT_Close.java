@@ -2,6 +2,12 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
@@ -35,21 +41,9 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double spindexerSpeedIncrease = 0.014;
 
-    // These values are ADDED to turrDefault
-    public static double redObeliskTurrPos1 = 0.12;
-    public static double redObeliskTurrPos2 = 0.13;
-    public static double redObeliskTurrPos3 = 0.14;
-    public static double blueObeliskTurrPos1 = -0.12;
-    public static double blueObeliskTurrPos2 = -0.13;
-    public static double blueObeliskTurrPos3 = -0.14;
-    public static double redTurretShootPos = 0.1;
-    public static double blueTurretShootPos = -0.14;
-
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
-
-    double turretShootPos = 0.0;
 
     public static double shootAllTime = 2;
     public static double intake1Time = 3.3;
@@ -96,8 +90,6 @@ public class Auto_LT_Close extends LinearOpMode {
     double xGate, yGate, hGate;
     double xPrep, yPrep, hPrep;
     double xLeave, yLeave, hLeave;
-
-    private double shoot1Tangent;
 
     int ballCycles = 3;
     int prevMotif = 0;
@@ -218,8 +210,6 @@ public class Auto_LT_Close extends LinearOpMode {
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
-                turretShootPos = turrDefault + redTurretShootPos;
-
             } else {
                 robot.light.setPosition(0.6);
 
@@ -261,8 +251,6 @@ public class Auto_LT_Close extends LinearOpMode {
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
-                turretShootPos = turrDefault + blueTurretShootPos;
-
             }
 
             shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))

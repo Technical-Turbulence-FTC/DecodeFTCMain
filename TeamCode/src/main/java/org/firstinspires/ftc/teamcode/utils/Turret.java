@@ -10,11 +10,9 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
-import org.firstinspires.ftc.teamcode.constants.StateEnums;
 
 import java.util.List;
 
@@ -32,13 +30,11 @@ public class Turret {
 
     public static double manualOffset = 0.0;
 
-    public static double visionCorrectionGain = 0.08;  // Single tunable gain
-    public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
-    public static double cameraBearingEqual = 0.5;      // Deadband
+//    public static double visionCorrectionGain = 0.08;  // Single tunable gain
+//    public static double maxOffsetChangePerCycle = 5.0; // Degrees per cycle
+//    public static double cameraBearingEqual = 0.5;      // Deadband
 
-    // TODO: tune these values for limelight
-
-    public static double clampTolerance = 0.03;
+//    public static double clampTolerance = 0.03;
     //public static double B_PID_P = 0.105, B_PID_I = 0.0, B_PID_D = 0.0125;
     public static double B_PID_P = 0.08, B_PID_I = 0.0, B_PID_D = 0.007;
     Robot robot;
@@ -49,7 +45,8 @@ public class Turret {
     double limelightPosX = 0.0;
     double limelightPosY = 0.0;
     LLResult result;
-
+    public static double TARGET_POSITION_TOLERANCE = 0.5;
+    public static double COLOR_OK_TOLERANCE = 2;
     boolean bearingAligned = false;
     private boolean lockOffset = false;
     private int obeliskID = 0;
@@ -57,12 +54,9 @@ public class Turret {
     private double currentTrackOffset = 0.0;
     private double lightColor = Color.LightRed;
     private int currentTrackCount = 0;
-    private double permanentOffset = 0.0;
+    double permanentOffset = 0.0;
     private int prevPipeline = -1;
-    private PIDController bearingPID;
-
-    private double prevTurretPos = 0.0;
-    private boolean firstTurretPos = true;
+    PIDController bearingPID;
 
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
@@ -168,16 +162,16 @@ public class Turret {
     /*
         Param @deltaPos = Pose2d when subtracting robot x, y, heading from goal x, y, heading
      */
-
+    private double targetTx = 0;
+    public static double alphaTX = 0.5;
     private double bearingAlign(LLResult llResult) {
         double bearingOffset = 0.0;
-        double targetTx = llResult.getTx();   // How far left or right the target is (degrees)
-        final double MIN_OFFSET_POWER = 0.15;
-        final double TARGET_POSITION_TOLERANCE = 1.0;
-        // LL has 54.5 degree total Horizontal FOV; very edges are not useful.
-        final double HORIZONTAL_FOV_RANGE = 26.0;  // Total usable horizontal degrees from center +/-
-        final double DRIVE_POWER_REDUCTION = 2.0;
-        final double COLOR_OK_TOLERANCE = 2.5;
+        double tx = llResult.getTx();   // How far left or right the target is (degrees)
+        targetTx = (tx*alphaTX)+(targetTx*(1-alphaTX));
+//        final double MIN_OFFSET_POWER = 0.15;
+//        // LL has 54.5 degree total Horizontal FOV; very edges are not useful.
+//        final double HORIZONTAL_FOV_RANGE = 26.0;  // Total usable horizontal degrees from center +/-
+//        final double DRIVE_POWER_REDUCTION = 2.0;
 
         if (abs(targetTx) < TARGET_POSITION_TOLERANCE) {
             bearingAligned = true;
@@ -293,7 +287,7 @@ public class Turret {
         targetTurretPos = Math.max(turrMin, Math.min(targetTurretPos, turrMax));
 
         // Interpolate towards target position
-        double currentPos = getTurrPos();
+//        double currentPos = getTurrPos();
         double turretPos = targetTurretPos;
 
         if (targetTurretPos == turrMin) {
@@ -303,7 +297,9 @@ public class Turret {
         }
 
         // Set servo positions
-        setTurret(turretPos + manualOffset);
+        if (!Spindexer.whileShooting || abs(targetTx) > COLOR_OK_TOLERANCE){
+            setTurret(turretPos + manualOffset);
+        }
 
 
         /* ---------------- TELEMETRY ---------------- */

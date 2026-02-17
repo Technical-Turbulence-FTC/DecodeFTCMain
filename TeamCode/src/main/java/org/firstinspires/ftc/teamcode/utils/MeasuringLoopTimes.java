@@ -7,10 +7,10 @@ public class MeasuringLoopTimes {
     private double minLoopTime = 999999999999.0;
 
     private double maxLoopTime = 0.0;
-    private double mainLoopTime = 0.0;
+    double mainLoopTime = 0.0;
 
     private double MeasurementStart = 0.0;
-    private double currentTime = 0.0;
+    double currentTime = 0.0;
 
     private double avgLoopTime = 0.0;
     private int avgLoopTimeTicker = 0;

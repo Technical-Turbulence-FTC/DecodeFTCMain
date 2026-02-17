@@ -5,11 +5,11 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoPositions {
 
-    public static double spindexer_intakePos1 = 0.07; //0.13;
+    public static double spindexer_intakePos1 = 0.06; //0.13;
 
-    public static double spindexer_intakePos2 = 0.27; //0.33;//0.5;
+    public static double spindexer_intakePos2 = 0.25; //0.33;//0.5;
 
-    public static double spindexer_intakePos3 = 0.46; //0.53;//0.66;
+    public static double spindexer_intakePos3 = 0.43; //0.53;//0.66;
 
     public static double spindexer_outtakeBall3 = 0.71; //0.65; //0.24;
     public static double spindexer_outtakeBall3b = 0.15; //0.65; //0.24;
@@ -39,7 +39,7 @@ public class ServoPositions {
     public static double blueObeliskTurrPos1 = -0.12;
     public static double blueObeliskTurrPos2 = -0.13;
     public static double blueObeliskTurrPos3 = -0.14;
-    public static double redTurretShootPos = 0.1;
-    public static double blueTurretShootPos = -0.14;
+    public static double redTurretShootPos = 0.05;
+    public static double blueTurretShootPos = -0.05;
 
 }

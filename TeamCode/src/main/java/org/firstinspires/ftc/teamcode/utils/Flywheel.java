@@ -12,15 +12,13 @@ public class Flywheel {
     public double velo1 = 0.0;
     public double velo2 = 0.0;
     double targetVelocity = 0.0;
-    double previousTargetVelocity = 0.0;
-    double powPID = 0.0;
     boolean steady = false;
     public Flywheel (HardwareMap hardwareMap) {
         robot = new Robot(hardwareMap);
         shooterPIDF1 = new PIDFCoefficients
-                (robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F);
+                (Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
         shooterPIDF2 = new PIDFCoefficients
-                (robot.shooterPIDF_P, robot.shooterPIDF_I, robot.shooterPIDF_D, robot.shooterPIDF_F);
+                (Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
     }
 
     public double getVelo () {
@@ -52,6 +50,7 @@ public class Flywheel {
         if (Math.abs(prevF - f) > voltagePIDFDifference){
             robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
             robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
+            prevF = f;
         }
     }
 
@@ -61,7 +60,7 @@ public class Flywheel {
     // Convert from Ticks per Second to RPM
     private double TPS_to_RPM (double TPS) { return (TPS*60.0)/28.0;}
 
-    public double manageFlywheel(double commandedVelocity) {
+    public void manageFlywheel(double commandedVelocity) {
 
         if (Math.abs(targetVelocity - commandedVelocity) > 0.0001) {
             targetVelocity = commandedVelocity;
@@ -78,7 +77,6 @@ public class Flywheel {
         // really should be a running average of the last 5
         steady = (Math.abs(commandedVelocity - velo) < 50);
 
-        return powPID;
     }
 
     public void update()

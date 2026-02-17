@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autonomous.actions;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
@@ -10,7 +9,6 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 
 import androidx.annotation.NonNull;
 
@@ -51,10 +49,8 @@ public class AutoActions{
     private int mostGreenSlot = 0;
     private double firstSpindexShootPos = spindexer_outtakeBall1;
     private boolean shootForward = true;
-    public static double firstShootTime = 0.3;
     public int motif = 0;
     double spinEndPos = ServoPositions.spinEndPos;
-    int waitFirstBallTicks = 4;
 
     public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig){
         this.robot = rob;
@@ -248,7 +244,7 @@ public class AutoActions{
                     end = prevSpinPos < spinEndPos;
                 }
 
-                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < waitFirstBallTicks+1)) {
+                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks+1)) {
 
                     if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 1) {
                         servos.setTransferPos(transferServo_out);
@@ -256,10 +252,10 @@ public class AutoActions{
                     } else {
                         servos.setTransferPos(transferServo_in);
                         shooterTicker++;
-
-                        if (shootForward && shooterTicker > waitFirstBallTicks) {
+                        Spindexer.whileShooting = true;
+                        if (shootForward && shooterTicker > Spindexer.waitFirstBallTicks) {
                             servos.setSpinPos(prevSpinPos + spindexSpeed);
-                        } else if (shooterTicker > waitFirstBallTicks){
+                        } else if (shooterTicker > Spindexer.waitFirstBallTicks){
                             servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
 
@@ -269,7 +265,7 @@ public class AutoActions{
 
                 } else {
                     servos.setTransferPos(transferServo_out);
-
+                    Spindexer.whileShooting = false;
                     spindexer.resetSpindexer();
                     spindexer.processIntake();
 
@@ -416,7 +412,7 @@ public class AutoActions{
                     deltaPose = new Pose2d(robotX, robotY, robotHeading);
                 }
 
-                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+//                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
                 targetingSettings = targeting.calculateSettings
                         (robotX, robotY, robotHeading, 0.0, false);

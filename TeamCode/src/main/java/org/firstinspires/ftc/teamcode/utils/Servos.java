@@ -14,8 +14,6 @@ public class Servos {
     public static double turrP = 1.1, turrI = 0.25, turrD = 0.0625, turrF = 0;
     public static double spin_scalar = 1.112;
     public static double spin_restPos = 0.155;
-    public static double turret_scalar = 1.009;
-    public static double turret_restPos = 0.0;
     Robot robot;
     PIDFController spinPID;
     PIDFController turretPID;
@@ -51,14 +49,13 @@ public class Servos {
         return (Math.abs(pos1 - pos2) < 0.005);
     }
 
-    public double setTransferPos(double pos) {
+    public void setTransferPos(double pos) {
         if (firstTransferPos || !servoPosEqual(pos, prevTransferPos)) {
             robot.transferServo.setPosition(pos);
             firstTransferPos = false;
         }
 
         prevTransferPos = pos;
-        return pos;
     }
 
     public double setSpinPos(double pos) {
@@ -72,29 +69,16 @@ public class Servos {
         return pos;
     }
 
-    public double setHoodPos(double pos){
+    public void setHoodPos(double pos){
         if (firstHoodPos || !servoPosEqual(pos, prevHoodPos)) {
             robot.hood.setPosition(pos + hoodOffset);
             firstHoodPos = false;
         }
 
         prevHoodPos = pos;
-        return pos;
     }
 
     public boolean spinEqual(double pos) {
         return Math.abs(pos - this.getSpinPos()) < 0.03;
-    }
-
-    public double getTurrPos() {
-        return 1.0;
-    }
-
-    public double setTurrPos(double pos) {
-        return 1.0;
-    }
-
-    public boolean turretEqual(double pos) {
-        return true;
     }
 }

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
-import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
@@ -46,9 +45,9 @@ public class TeleopV3 extends LinearOpMode {
     public double vel = 3000;
     public boolean autoVel = true;
     public boolean targetingHood = true;
-    public boolean autoHood = true;
+//    public boolean autoHood = true;
     public double shootStamp = 0.0;
-    boolean fixedTurret = false;
+//    boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
     Light light;
@@ -66,13 +65,13 @@ public class TeleopV3 extends LinearOpMode {
     boolean reject = false;
     double xOffset = 0.0;
     double yOffset = 0.0;
-    double headingOffset = 0.0;
+//    double headingOffset = 0.0;
     int ticker = 0;
 
-    boolean autoSpintake = false;
+//    boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
 
-    boolean overrideTurr = false;
+//    boolean overrideTurr = false;
 
     int intakeTicker = 0;
     private boolean shootAll = false;
@@ -178,7 +177,7 @@ public class TeleopV3 extends LinearOpMode {
             double dy = robotY - goalY;  // delta y from robot to goal
             Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
 
-            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
+//            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
             targetingSettings = targeting.calculateSettings
                     (robotX, robotY, robotHeading, 0.0, turretInterpolate);
@@ -262,7 +261,6 @@ public class TeleopV3 extends LinearOpMode {
                     spindexer.setIntakePower(1);
                 } else if (gamepad1.cross) {
                     spindexer.setIntakePower(-1);
-
                 } else {
                     spindexer.setIntakePower(0);
                 }
@@ -288,11 +286,7 @@ public class TeleopV3 extends LinearOpMode {
 //                        //servo.setTransferPos(transferServo_in);
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
-                    } else if (!spindexer.shootAllComplete()) {
-                        servo.setTransferPos(transferServo_in);
-                        //TELE.addLine("shoot");
-                    } else {
-                        servo.setTransferPos(transferServo_out);
+                    } else if (spindexer.shootAllComplete()) {
                         //spindexPos = spindexer_intakePos1;
                         shootAll = false;
                         spindexer.resetSpindexer();

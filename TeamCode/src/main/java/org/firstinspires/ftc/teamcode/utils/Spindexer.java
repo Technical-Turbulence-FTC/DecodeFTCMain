@@ -16,6 +16,8 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinD;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinF;
 import static org.firstinspires.ftc.teamcode.utils.Servos.spinI;
@@ -52,6 +54,9 @@ public class Spindexer {
     private double prevPos = 0.0;
     public double spindexerPosOffset = 0.00;
     public static int shootWaitMax = 4;
+    public static boolean whileShooting = false;
+    public static int waitFirstBallTicks = 4;
+    private int shootTicks = 0;
     public StateEnums.Motif desiredMotif = StateEnums.Motif.NONE;
     // For Use
     enum RotatedBallPositionNames {
@@ -530,18 +535,26 @@ public class Spindexer {
                 break;
 
             case SHOOT_PREP_CONTINOUS:
-                if (servos.spinEqual(spinStartPos)){
+                if (shootTicks > waitFirstBallTicks){
                     currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
+                    shootTicks++;
+                } else if (servos.spinEqual(spinStartPos)){
+                    shootTicks++;
+                    servos.setTransferPos(transferServo_in);
                 } else {
                     servos.setSpinPos(spinStartPos);
                 }
                 break;
 
             case SHOOT_CONTINOUS:
+                whileShooting = true;
                 ballPositions[0].isEmpty = false;
                 ballPositions[1].isEmpty = false;
                 ballPositions[2].isEmpty = false;
                 if (servos.getSpinPos() > spinEndPos){
+                    whileShooting = false;
+                    servos.setTransferPos(transferServo_out);
+                    shootTicks = 0;
                     currentIntakeState = IntakeState.FINDNEXT;
                 } else {
                     double spinPos = servos.getSpinCmdPos() + shootAllSpindexerSpeedIncrease;

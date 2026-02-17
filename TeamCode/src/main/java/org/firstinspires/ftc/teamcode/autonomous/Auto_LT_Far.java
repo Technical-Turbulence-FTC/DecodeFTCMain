@@ -3,6 +3,14 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import static org.firstinspires.ftc.teamcode.constants.Back_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueTurretShootPos;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redTurretShootPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
@@ -34,8 +42,6 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Far extends LinearOpMode {
     public static double shoot0Vel = 3300, shoot0Hood = 0.48;
-    public static double redTurretShootPos = 0.05;
-    public static double blueTurretShootPos = -0.05;
     double xLeave, yLeave, hLeave;
     public int motif = 0;
     double turretShootPos = 0.0;
@@ -70,12 +76,6 @@ public class Auto_LT_Far extends LinearOpMode {
     public static double colorSenseTime = 1;
     public static double intakeStackTime = 2.5;
     public static double intakeGateTime = 2;
-    public static double redObeliskTurrPos1 = 0.12;
-    public static double redObeliskTurrPos2 = 0.13;
-    public static double redObeliskTurrPos3 = 0.14;
-    public static double blueObeliskTurrPos1 = -0.12;
-    public static double blueObeliskTurrPos2 = -0.13;
-    public static double blueObeliskTurrPos3 = -0.14;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
