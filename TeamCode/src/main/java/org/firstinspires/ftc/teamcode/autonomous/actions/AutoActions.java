@@ -276,6 +276,75 @@ public class AutoActions{
         };
     }
 
+    public Action shootAllManual(double shootTime, double spindexSpeed, double velStart, double hoodStart, double velEnd, double hoodEnd, double turr) {
+        return new Action() {
+            int ticker = 1;
+
+            double stamp = 0.0;
+
+            int shooterTicker = 0;
+            Action manageShooter = null;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                drive.updatePoseEstimate();
+
+                teleStart = drive.localizer.getPose();
+
+                spindexer.setIntakePower(-0.1);
+
+                light.setState(StateEnums.LightState.BALL_COLOR);
+                light.update();
+
+                if (ticker == 1) {
+                    stamp = System.currentTimeMillis();
+                    manageShooter = manageShooterManual(shootTime, velStart, hoodStart, velEnd, hoodEnd, turr);
+
+                }
+                ticker++;
+
+                manageShooter.run(telemetryPacket);
+
+                double prevSpinPos = servos.getSpinCmdPos();
+
+                boolean end;
+                if (shootForward){
+                    end = prevSpinPos > spinEndPos;
+                } else {
+                    end = prevSpinPos < spinEndPos;
+                }
+
+                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks+1)) {
+
+                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 1) {
+                        servos.setTransferPos(transferServo_out);
+                        servos.setSpinPos(firstSpindexShootPos);
+                    } else {
+                        servos.setTransferPos(transferServo_in);
+                        shooterTicker++;
+                        Spindexer.whileShooting = true;
+                        if (shootForward && shooterTicker > Spindexer.waitFirstBallTicks) {
+                            servos.setSpinPos(prevSpinPos + spindexSpeed);
+                        } else if (shooterTicker > Spindexer.waitFirstBallTicks){
+                            servos.setSpinPos(prevSpinPos - spindexSpeed);
+                        }
+
+                    }
+
+                    return true;
+
+                } else {
+                    servos.setTransferPos(transferServo_out);
+                    Spindexer.whileShooting = false;
+                    spindexer.resetSpindexer();
+                    spindexer.processIntake();
+
+                    return false;
+
+                }
+            }
+        };
+    }
+
     public Action intake(
             double time,
             double posX,
@@ -305,7 +374,12 @@ public class AutoActions{
 
                 manageShooter.run(telemetryPacket);
 
-                return ((System.currentTimeMillis() - stamp) < (time * 1000)) && !spindexer.isFull();
+                if ((System.currentTimeMillis() - stamp) > (time * 1000) || spindexer.isFull()){
+                    spindexer.setIntakePower(-0.1);
+                    return false;
+                } else {
+                    return true;
+                }
             }
         };
     }
@@ -409,7 +483,7 @@ public class AutoActions{
                 if (posX != 0.501) {
                     deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
                 } else {
-                    deltaPose = new Pose2d(robotX, robotY, robotHeading);
+                    deltaPose = new Pose2d(dx, dy, robotHeading);
                 }
 
 //                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
@@ -453,6 +527,72 @@ public class AutoActions{
 
                 return (System.currentTimeMillis() - stamp < time * 1000);
 
+            }
+        };
+    }
+
+    public Action manageShooterManual(
+            double time,
+            double velStart,
+            double hoodStart,
+            double velEnd,
+            double hoodEnd,
+            double turr
+    ){
+        return new Action() {
+
+            double stamp = 0.0;
+            int ticker = 0;
+
+            final boolean timeFallback = (time != 0.501);
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                drive.updatePoseEstimate();
+                Pose2d currentPose = drive.localizer.getPose();
+
+                if (ticker == 0) {
+                    stamp = System.currentTimeMillis();
+                }
+
+                ticker++;
+
+                double robotX = currentPose.position.x;
+                double robotY = currentPose.position.y;
+
+                double robotHeading = currentPose.heading.toDouble();
+
+                double goalX = -15;
+                double goalY = 0;
+
+                double dx = robotX - goalX;  // delta x from robot to goal
+                double dy = robotY - goalY;  // delta y from robot to goal
+                Pose2d deltaPose;
+                if (turr == 0.501) {
+                    deltaPose = new Pose2d(dx, dy, robotHeading);
+                    if (!detectingObelisk) {
+                        turret.trackGoal(deltaPose);
+                    }
+                } else {
+                    turret.setTurret(turr);
+                }
+
+                servos.setHoodPos(hoodStart + (hoodEnd-hoodStart) * ((System.currentTimeMillis() - stamp)/(time*1000)));
+                double vel = velStart + (velEnd-velStart) * ((System.currentTimeMillis() - stamp)/(time*1000));
+
+                double voltage = robot.voltage.getVoltage();
+                flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
+                flywheel.manageFlywheel(vel);
+
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+
+                teleStart = currentPose;
+
+                TELE.addData("Steady?", flywheel.getSteady());
+                TELE.update();
+
+                return !timeDone;
             }
         };
     }

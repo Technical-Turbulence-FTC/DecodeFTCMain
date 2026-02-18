@@ -40,7 +40,11 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
-    public static double spindexerSpeedIncrease = 0.014;
+    public static double velGate0Start = 2700, hoodGate0Start = 0.61;
+
+    public static double velGate0End = 2700, hoodGate0End = 0.4;
+
+    public static double spindexerSpeedIncrease = 0.025;
 
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
@@ -63,12 +67,10 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
     public int motif = 0;
-    public static double xShoot0 = 40, yShoot0 = 0.1, hShoot0 = 0.1;
-    public static double waitToShoot0 = 1.1;
-    public static double waitToPickupGate2 = 0.5;
-    public static double pickupStackGateSpeed = 23;
+    public static double waitToShoot0 = 0.6;
+    public static double waitToPickupGate2 = 0.1;
+    public static double pickupStackGateSpeed = 50;
     public static double intake2TimeGate = 6;
-    public static double xShootGate = 40, yShootGate = 0.2, hShootGate = 0.2;
 
     Robot robot;
     MultipleTelemetry TELE;
@@ -94,9 +96,11 @@ public class Auto_LT_Close extends LinearOpMode {
     double x4b, y4b, h4b;
 
     double xShoot, yShoot, hShoot;
+    double xShoot0, yShoot0, hShoot0;
     double xGate, yGate, hGate;
-    double xPrep, yPrep, hPrep;
+    double xShootGate, yShootGate, hShootGate;
     double xLeave, yLeave, hLeave;
+    double xLeaveGate, yLeaveGate, hLeaveGate;
 
     int ballCycles = 3;
     int prevMotif = 0;
@@ -206,15 +210,23 @@ public class Auto_LT_Close extends LinearOpMode {
                 x4b = rx4b;
                 y4b = ry4b;
                 h4b = rh4b;
-                xPrep = rxPrep;
-                yPrep = ryPrep;
-                hPrep = rhPrep;
+
                 xShoot = rShootX;
                 yShoot = rShootY;
                 hShoot = rShootH;
                 xLeave = rLeaveX;
                 yLeave = rLeaveY;
                 hLeave = rLeaveH;
+
+                xShoot0 = rShoot0X;
+                yShoot0 = rShoot0Y;
+                hShoot0 = rShoot0H;
+                xShootGate = rShootGateX;
+                yShootGate = rShootGateY;
+                hShootGate = rShootGateH;
+                xLeaveGate = rLeaveGateX;
+                yLeaveGate = rLeaveGateY;
+                hLeaveGate = rLeaveGateH;
 
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
@@ -247,15 +259,22 @@ public class Auto_LT_Close extends LinearOpMode {
                 y4b = by4b;
                 h4b = bh4b;
 
-                xPrep = bxPrep;
-                yPrep = byPrep;
-                hPrep = bhPrep;
                 xShoot = bShootX;
                 yShoot = bShootY;
                 hShoot = bShootH;
                 xLeave = bLeaveX;
                 yLeave = bLeaveY;
                 hLeave = bLeaveH;
+
+                xShoot0 = bShoot0X;
+                yShoot0 = bShoot0Y;
+                hShoot0 = bShoot0H;
+                xShootGate = bShootGateX;
+                yShootGate = bShootGateY;
+                hShootGate = bShootGateH;
+                xLeaveGate = bLeaveGateX;
+                yLeaveGate = bLeaveGateY;
+                hLeaveGate = bLeaveGateH;
 
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
@@ -265,12 +284,22 @@ public class Auto_LT_Close extends LinearOpMode {
             shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
                     .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
 
-            pickup1 = drive.actionBuilder(new Pose2d(x1, y1, Math.toRadians(h1)))
-                    .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
-                    .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
-                            new TranslationalVelConstraint(pickup1Speed));
+            if (gateCycle){
+                pickup1 = drive.actionBuilder(new Pose2d(xShootGate, yShootGate, Math.toRadians(hShootGate)))
+                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
+                                new TranslationalVelConstraint(pickupStackGateSpeed));
+            } else {
+                pickup1 = drive.actionBuilder(new Pose2d(x1, y1, Math.toRadians(h1)))
+                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
+                                new TranslationalVelConstraint(pickup1Speed));
+            }
 
-            if (ballCycles < 2){
+            if (gateCycle){
+                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
+                        .strafeToLinearHeading(new Vector2d(xLeaveGate, yLeaveGate), Math.toRadians(hLeaveGate));
+            } else if (ballCycles < 2){
                 shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
                         .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
             } else {
@@ -283,12 +312,15 @@ public class Auto_LT_Close extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
                             new TranslationalVelConstraint(pickup1Speed));
 
-            if (ballCycles < 3 || gateCycle){
+            if (gateCycle){
+                shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
+                        .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
+            } else if (ballCycles < 3){
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
                         .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
             } else {
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
-                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hLeave));
+                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
             }
 
             pickup3 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
@@ -543,14 +575,16 @@ public class Auto_LT_Close extends LinearOpMode {
                         new SequentialAction(
                                 new ParallelAction(
                                         autoActions.Wait(waitToShoot0),
-                                        autoActions.manageShooterAuto(
+                                        autoActions.manageShooterManual(
                                                 waitToShoot0,
-                                                xShoot0,
-                                                yShoot0,
-                                                hShoot0
+                                                velGate0Start,
+                                                hoodGate0Start,
+                                                velGate0Start,
+                                                hoodGate0Start,
+                                                0.501
                                         )
                                 ),
-                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease),
+                                autoActions.shootAllManual(shootAllTime, spindexerSpeedIncrease, velGate0Start, hoodGate0Start, velGate0End, hoodGate0End,0.501),
                                 autoActions.intake(
                                         intake2TimeGate,
                                         xShootGate,
@@ -561,4 +595,5 @@ public class Auto_LT_Close extends LinearOpMode {
                 )
         );
     }
+
 }

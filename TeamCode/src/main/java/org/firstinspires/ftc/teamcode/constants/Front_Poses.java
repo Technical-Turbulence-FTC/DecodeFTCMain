@@ -42,5 +42,14 @@ public class Front_Poses {
     public static double rLeaveX = 40, rLeaveY = -7, rLeaveH = 55;
     public static double bLeaveX = 40, bLeaveY = 7, bLeaveH = -55;
 
+    public static double rShoot0X = 40, rShoot0Y = 0.1, rShoot0H = 0.1;
+    public static double bShoot0X = 40, bShoot0Y = -0.1, bShoot0H = -0.1;
+
+    public static double rShootGateX = 40, rShootGateY = 0.2, rShootGateH = 90;
+    public static double bShootGateX = 40, bShootGateY = -0.2, bShootGateH = -90;
+
+    public static double rLeaveGateX = 40, rLeaveGateY = -7, rLeaveGateH = 55;
+    public static double bLeaveGateX = 40, bLeaveGateY = 7, bLeaveGateH = -55;
+
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
 }
