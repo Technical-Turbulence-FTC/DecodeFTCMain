@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous.actions;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
@@ -32,7 +33,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 import java.util.Objects;
 
 @Config
-public class AutoActions{
+public class AutoActions {
     Robot robot;
     MultipleTelemetry TELE;
     Servos servos;
@@ -47,12 +48,12 @@ public class AutoActions{
     private int passengerSlotGreen = 0;
     private int rearSlotGreen = 0;
     private int mostGreenSlot = 0;
-    private double firstSpindexShootPos = spindexer_outtakeBall1;
+    private double firstSpindexShootPos = spinStartPos;
     private boolean shootForward = true;
     public int motif = 0;
     double spinEndPos = ServoPositions.spinEndPos;
 
-    public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig){
+    public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig) {
         this.robot = rob;
         this.drive = dri;
         this.TELE = tel;
@@ -81,37 +82,38 @@ public class AutoActions{
 
             boolean decideGreenSlot = false;
 
-            void spin1PosFirst(){
+            void spin1PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall1;
                 shootForward = true;
                 spinEndPos = spindexer_outtakeBall3 + 0.1;
             }
 
-            void spin2PosFirst(){
+            void spin2PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall2;
                 shootForward = false;
                 spinEndPos = spindexer_outtakeBall3b - 0.1;
             }
 
-            void reverseSpin2PosFirst(){
+            void reverseSpin2PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall2;
                 shootForward = true;
                 spinEndPos = 0.95;
             }
 
-            void spin3PosFirst(){
+            void spin3PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall3;
                 shootForward = false;
                 spinEndPos = spindexer_outtakeBall1 - 0.1;
             }
 
-            void oddSpin3PosFirst(){
+            void oddSpin3PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall3b;
                 shootForward = true;
                 spinEndPos = spindexer_outtakeBall2 + 0.1;
             }
 
             Action manageShooter = null;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -215,6 +217,7 @@ public class AutoActions{
 
             int shooterTicker = 0;
             Action manageShooter = null;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 drive.updatePoseEstimate();
@@ -238,16 +241,15 @@ public class AutoActions{
                 double prevSpinPos = servos.getSpinCmdPos();
 
                 boolean end;
-                if (shootForward){
+                if (shootForward) {
                     end = prevSpinPos > spinEndPos;
                 } else {
                     end = prevSpinPos < spinEndPos;
                 }
 
-                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks+1)) {
+                if (System.currentTimeMillis() - stamp < shootTime * 1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks + 1)) {
 
                     if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 1) {
-                        servos.setTransferPos(transferServo_out);
                         servos.setSpinPos(firstSpindexShootPos);
                     } else {
                         servos.setTransferPos(transferServo_in);
@@ -255,7 +257,7 @@ public class AutoActions{
                         Spindexer.whileShooting = true;
                         if (shootForward && shooterTicker > Spindexer.waitFirstBallTicks) {
                             servos.setSpinPos(prevSpinPos + spindexSpeed);
-                        } else if (shooterTicker > Spindexer.waitFirstBallTicks){
+                        } else if (shooterTicker > Spindexer.waitFirstBallTicks) {
                             servos.setSpinPos(prevSpinPos - spindexSpeed);
                         }
 
@@ -276,7 +278,15 @@ public class AutoActions{
         };
     }
 
-    public Action shootAllManual(double shootTime, double spindexSpeed, double velStart, double hoodStart, double velEnd, double hoodEnd, double turr) {
+    public Action shootAllManual(
+            double shootTime,
+            double hoodMoveTime, //Set to 0.501 to show that you are not using, but you must set hoodPoses equal
+            double spindexSpeed,
+            double velStart,
+            double hoodStart,
+            double velEnd,
+            double hoodEnd,
+            double turr) {
         return new Action() {
             int ticker = 1;
 
@@ -284,6 +294,7 @@ public class AutoActions{
 
             int shooterTicker = 0;
             Action manageShooter = null;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 drive.updatePoseEstimate();
@@ -297,7 +308,7 @@ public class AutoActions{
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
-                    manageShooter = manageShooterManual(shootTime, velStart, hoodStart, velEnd, hoodEnd, turr);
+                    manageShooter = manageShooterManual(shootTime, hoodMoveTime, velStart, hoodStart, velEnd, hoodEnd, turr);
 
                 }
                 ticker++;
@@ -307,27 +318,20 @@ public class AutoActions{
                 double prevSpinPos = servos.getSpinCmdPos();
 
                 boolean end;
-                if (shootForward){
+                if (shootForward) {
                     end = prevSpinPos > spinEndPos;
                 } else {
                     end = prevSpinPos < spinEndPos;
                 }
 
-                if (System.currentTimeMillis() - stamp < shootTime*1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks+1)) {
-
-                    if (!servos.spinEqual(firstSpindexShootPos) && shooterTicker < 1) {
-                        servos.setTransferPos(transferServo_out);
-                        servos.setSpinPos(firstSpindexShootPos);
-                    } else {
-                        servos.setTransferPos(transferServo_in);
-                        shooterTicker++;
-                        Spindexer.whileShooting = true;
-                        if (shootForward && shooterTicker > Spindexer.waitFirstBallTicks) {
-                            servos.setSpinPos(prevSpinPos + spindexSpeed);
-                        } else if (shooterTicker > Spindexer.waitFirstBallTicks){
-                            servos.setSpinPos(prevSpinPos - spindexSpeed);
-                        }
-
+                if (System.currentTimeMillis() - stamp < shootTime * 1000 && !end) {
+                    servos.setTransferPos(transferServo_in);
+                    shooterTicker++;
+                    Spindexer.whileShooting = true;
+                    if (shootForward && shooterTicker > Spindexer.waitFirstBallTicks) {
+                        servos.setSpinPos(prevSpinPos + spindexSpeed);
+                    } else if (shooterTicker > Spindexer.waitFirstBallTicks) {
+                        servos.setSpinPos(prevSpinPos - spindexSpeed);
                     }
 
                     return true;
@@ -355,6 +359,7 @@ public class AutoActions{
             double stamp = 0.0;
             int ticker = 0;
             Action manageShooter = null;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
@@ -374,7 +379,7 @@ public class AutoActions{
 
                 manageShooter.run(telemetryPacket);
 
-                if ((System.currentTimeMillis() - stamp) > (time * 1000) || spindexer.isFull()){
+                if ((System.currentTimeMillis() - stamp) > (time * 1000) || spindexer.isFull()) {
                     spindexer.setIntakePower(-0.1);
                     return false;
                 } else {
@@ -385,6 +390,7 @@ public class AutoActions{
     }
 
     private boolean detectingObelisk = false;
+
     public Action detectObelisk(
             double time,
             double posX,
@@ -427,8 +433,8 @@ public class AutoActions{
 
                 teleStart = currentPose;
 
-                if (shouldFinish){
-                    if (redAlliance){
+                if (shouldFinish) {
+                    if (redAlliance) {
                         turret.pipelineSwitch(4);
                     } else {
                         turret.pipelineSwitch(2);
@@ -514,13 +520,14 @@ public class AutoActions{
         };
     }
 
-    public Action Wait(double time){
+    public Action Wait(double time) {
         return new Action() {
             boolean ticker = false;
             double stamp = 0.0;
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (!ticker){
+                if (!ticker) {
                     stamp = System.currentTimeMillis();
                     ticker = true;
                 }
@@ -532,19 +539,20 @@ public class AutoActions{
     }
 
     public Action manageShooterManual(
-            double time,
+            double maxTime,
+            double hoodMoveTime, //Set to 0.501 to show that you are not using, but you must set hoodPoses equal
             double velStart,
             double hoodStart,
             double velEnd,
             double hoodEnd,
             double turr
-    ){
+    ) {
         return new Action() {
 
             double stamp = 0.0;
             int ticker = 0;
 
-            final boolean timeFallback = (time != 0.501);
+            final boolean timeFallback = (maxTime != 0.501);
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -578,14 +586,14 @@ public class AutoActions{
                     turret.setTurret(turr);
                 }
 
-                servos.setHoodPos(hoodStart + (hoodEnd-hoodStart) * ((System.currentTimeMillis() - stamp)/(time*1000)));
-                double vel = velStart + (velEnd-velStart) * ((System.currentTimeMillis() - stamp)/(time*1000));
+                servos.setHoodPos(hoodStart + ((hoodEnd - hoodStart) * Math.min(((System.currentTimeMillis() - stamp) / (hoodMoveTime * 1000)), 1)));
+                double vel = velStart + (velEnd - velStart) * Math.min(((System.currentTimeMillis() - stamp) / (hoodMoveTime * 1000)), 1);
 
                 double voltage = robot.voltage.getVoltage();
                 flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
                 flywheel.manageFlywheel(vel);
 
-                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
+                boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > maxTime * 1000;
 
                 teleStart = currentPose;
 

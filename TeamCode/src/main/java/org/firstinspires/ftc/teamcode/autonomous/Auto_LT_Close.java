@@ -40,17 +40,13 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 @Autonomous(preselectTeleOp = "TeleopV3")
 public class Auto_LT_Close extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
-    public static double velGate0Start = 2700, hoodGate0Start = 0.61;
+    public static double velGate0Start = 2700, hoodGate0Start = 0.6;
 
-    public static double velGate0End = 2700, hoodGate0End = 0.4;
+    public static double velGate0End = 2700, hoodGate0End = 0.35;
+    public static double hood0MoveTime = 2;
+    public static double spindexerSpeedIncrease = 0.02;
 
-    public static double spindexerSpeedIncrease = 0.025;
-
-    double obeliskTurrPos1 = 0.0;
-    double obeliskTurrPos2 = 0.0;
-    double obeliskTurrPos3 = 0.0;
-
-    public static double shootAllTime = 2;
+    public static double shootAllTime = 4;
     public static double intake1Time = 3.3;
     public static double intake2Time = 3.8;
 
@@ -67,10 +63,16 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
     public int motif = 0;
-    public static double waitToShoot0 = 0.6;
-    public static double waitToPickupGate2 = 0.1;
+    public static double waitToShoot0 = 0.5;
+    public static double waitToPickupGate2 = 0.3;
     public static double pickupStackGateSpeed = 50;
-    public static double intake2TimeGate = 6;
+    public static double intake2TimeGate = 3;
+    public static double shoot2GateTime = 3;
+    public static double endGateTime = 25;
+    public static double waitToPickupGateWithPartner = 2;
+    public static double waitToPickupGateSolo = 1;
+    public static double intakeGateTime = 5;
+    public static double shootGateTime = 3;
 
     Robot robot;
     MultipleTelemetry TELE;
@@ -97,7 +99,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
     double xShoot, yShoot, hShoot;
     double xShoot0, yShoot0, hShoot0;
-    double xGate, yGate, hGate;
+    double pickupGateAX, pickupGateAY, pickupGateAH;
+    double pickupGateBX, pickupGateBY, pickupGateBH;
     double xShootGate, yShootGate, hShootGate;
     double xLeave, yLeave, hLeave;
     double xLeaveGate, yLeaveGate, hLeaveGate;
@@ -105,7 +108,11 @@ public class Auto_LT_Close extends LinearOpMode {
     int ballCycles = 3;
     int prevMotif = 0;
     boolean gateCycle = true;
-
+    boolean withPartner = false;
+    double obeliskTurrPos1 = 0.0;
+    double obeliskTurrPos2 = 0.0;
+    double obeliskTurrPos3 = 0.0;
+    double waitToPickupGate = 0;
 
     // initialize path variables here
     TrajectoryActionBuilder shoot0 = null;
@@ -116,6 +123,8 @@ public class Auto_LT_Close extends LinearOpMode {
     TrajectoryActionBuilder pickup3 = null;
     TrajectoryActionBuilder shoot3 = null;
     TrajectoryActionBuilder shoot0ToPickup2 = null;
+    TrajectoryActionBuilder gateCyclePickup = null;
+    TrajectoryActionBuilder gateCycleShoot = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -155,7 +164,12 @@ public class Auto_LT_Close extends LinearOpMode {
 
         while (opModeInInit()) {
 
-            servos.setHoodPos(shoot0Hood);
+            if (gateCycle){
+                servos.setHoodPos(hoodGate0Start);
+            } else {
+                servos.setHoodPos(shoot0Hood);
+            }
+
             turret.setTurret(turrDefault);
 
             if (gamepad2.crossWasPressed()) {
@@ -228,6 +242,13 @@ public class Auto_LT_Close extends LinearOpMode {
                 yLeaveGate = rLeaveGateY;
                 hLeaveGate = rLeaveGateH;
 
+                pickupGateAX = rPickupGateAX;
+                pickupGateAY = rPickupGateAY;
+                pickupGateAH = rPickupGateAH;
+                pickupGateBX = rPickupGateBX;
+                pickupGateBY = rPickupGateBY;
+                pickupGateBH = rPickupGateBH;
+
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
@@ -275,6 +296,13 @@ public class Auto_LT_Close extends LinearOpMode {
                 xLeaveGate = bLeaveGateX;
                 yLeaveGate = bLeaveGateY;
                 hLeaveGate = bLeaveGateH;
+
+                pickupGateAX = bPickupGateAX;
+                pickupGateAY = bPickupGateAY;
+                pickupGateAH = bPickupGateAH;
+                pickupGateBX = bPickupGateBX;
+                pickupGateBY = bPickupGateBY;
+                pickupGateBH = bPickupGateBH;
 
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
@@ -338,6 +366,20 @@ public class Auto_LT_Close extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
                             new TranslationalVelConstraint(pickupStackGateSpeed));
 
+            if (withPartner){
+                waitToPickupGate = waitToPickupGateWithPartner;
+            } else {
+                waitToPickupGate = waitToPickupGateSolo;
+            }
+
+            gateCyclePickup = drive.actionBuilder(new Pose2d(xShootGate, yShootGate, Math.toRadians(hShootGate)))
+                    .strafeToLinearHeading(new Vector2d(pickupGateAX, pickupGateAY), Math.toRadians(pickupGateAH))
+                    .waitSeconds(waitToPickupGate)
+                    .strafeToLinearHeading(new Vector2d(pickupGateBX, pickupGateBY), Math.toRadians(pickupGateBH));
+
+            gateCycleShoot = drive.actionBuilder(new Pose2d(pickupGateBX, pickupGateBY, Math.toRadians(pickupGateBH)))
+                    .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
+
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
             TELE.addData("Ball Cycles", ballCycles);
@@ -350,11 +392,19 @@ public class Auto_LT_Close extends LinearOpMode {
         if (isStopRequested()) return;
 
         if (opModeIsActive()) {
+            double stamp = getRuntime();
 
             robot.transfer.setPower(1);
 
             if (gateCycle){
                 shoot0Gate();
+                cycleStackMiddleGate();
+
+                while (getRuntime() - stamp < endGateTime){
+                    cycleGateIntake();
+                    cycleGateShoot();
+                }
+
             } else {
                 startAuto();
                 shoot();
@@ -574,9 +624,9 @@ public class Auto_LT_Close extends LinearOpMode {
                         shoot0ToPickup2.build(),
                         new SequentialAction(
                                 new ParallelAction(
-                                        autoActions.Wait(waitToShoot0),
                                         autoActions.manageShooterManual(
                                                 waitToShoot0,
+                                                0.501,
                                                 velGate0Start,
                                                 hoodGate0Start,
                                                 velGate0Start,
@@ -584,7 +634,15 @@ public class Auto_LT_Close extends LinearOpMode {
                                                 0.501
                                         )
                                 ),
-                                autoActions.shootAllManual(shootAllTime, spindexerSpeedIncrease, velGate0Start, hoodGate0Start, velGate0End, hoodGate0End,0.501),
+                                autoActions.shootAllManual(
+                                        shootAllTime,
+                                        hood0MoveTime,
+                                        spindexerSpeedIncrease,
+                                        velGate0Start,
+                                        hoodGate0Start,
+                                        velGate0End,
+                                        hoodGate0End,
+                                        0.501),
                                 autoActions.intake(
                                         intake2TimeGate,
                                         xShootGate,
@@ -596,4 +654,59 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
+    void cycleStackMiddleGate(){
+        servos.setSpinPos(spinStartPos);
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot2.build(),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        autoActions.manageShooterAuto(
+                                                shoot2GateTime,
+                                                xShootGate,
+                                                yShootGate,
+                                                hShootGate
+                                        ),
+                                        autoActions.Wait(shoot2GateTime)
+                                ),
+                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        )
+                )
+        );
+    }
+
+    void cycleGateIntake(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        gateCyclePickup.build(),
+                        autoActions.intake(
+                                intakeGateTime,
+                                xShootGate,
+                                yShootGate,
+                                hShootGate
+                        )
+                )
+        );
+    }
+
+    void cycleGateShoot(){
+        servos.setSpinPos(spinStartPos);
+        Actions.runBlocking(
+                new ParallelAction(
+                        gateCycleShoot.build(),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        autoActions.manageShooterAuto(
+                                                shootGateTime,
+                                                xShootGate,
+                                                yShootGate,
+                                                hShootGate
+                                        ),
+                                        autoActions.Wait(shootGateTime)
+                                ),
+                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        )
+                )
+        );
+    }
 }
