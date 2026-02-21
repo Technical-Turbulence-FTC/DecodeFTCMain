@@ -62,17 +62,20 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double shoot2Time = 2.5;
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
-    public int motif = 0;
     public static double waitToShoot0 = 0.5;
     public static double waitToPickupGate2 = 0.3;
     public static double pickupStackGateSpeed = 50;
     public static double intake2TimeGate = 3;
     public static double shoot2GateTime = 3;
-    public static double endGateTime = 25;
+    public static double endGateTime = 22;
     public static double waitToPickupGateWithPartner = 2;
     public static double waitToPickupGateSolo = 1;
     public static double intakeGateTime = 5;
     public static double shootGateTime = 3;
+    public static double shoot1GateTime = 3;
+    public static double intake1GateTime = 3.3;
+    public static double lastIntakeTime = 27;
+    public static double lastShootTime = 27;
 
     Robot robot;
     MultipleTelemetry TELE;
@@ -85,8 +88,9 @@ public class Auto_LT_Close extends LinearOpMode {
     Targeting.Settings targetingSettings;
     AutoActions autoActions;
     Light light;
-    double x1, y1, h1;
 
+    int motif = 0;
+    double x1, y1, h1;
     double x2a, y2a, h2a, t2a;
 
     double x2b, y2b, h2b, t2b;
@@ -405,6 +409,14 @@ public class Auto_LT_Close extends LinearOpMode {
                     cycleGateShoot();
                 }
 
+                if (getRuntime() - stamp < lastIntakeTime){
+                    cycleStackCloseIntakeGate();
+                }
+
+                if (getRuntime() - stamp < lastShootTime){
+                    cycleStackCloseShootGate();
+                }
+
             } else {
                 startAuto();
                 shoot();
@@ -703,6 +715,41 @@ public class Auto_LT_Close extends LinearOpMode {
                                                 hShootGate
                                         ),
                                         autoActions.Wait(shootGateTime)
+                                ),
+                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        )
+                )
+        );
+    }
+
+    void cycleStackCloseIntakeGate(){
+        Actions.runBlocking(
+                new ParallelAction(
+                        pickup1.build(),
+                        autoActions.intake(
+                                intake1GateTime,
+                                xShootGate,
+                                yShootGate,
+                                hShootGate
+                        )
+                )
+        );
+    }
+
+    void cycleStackCloseShootGate(){
+        servos.setSpinPos(spinStartPos);
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot1.build(),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        autoActions.manageShooterAuto(
+                                                shoot1GateTime,
+                                                xLeaveGate,
+                                                yLeaveGate,
+                                                hLeaveGate
+                                        ),
+                                        autoActions.Wait(shoot1GateTime)
                                 ),
                                 autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                         )

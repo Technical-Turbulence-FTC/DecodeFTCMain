@@ -54,8 +54,8 @@ public class Front_Poses {
     public static double rPickupGateAX = 36, rPickupGateAY = 50, rPickupGateAH = 140;
     public static double bPickupGateAX = 36, bPickupGateAY = -50, bPickupGateAH = -140;
 
-    public static double rPickupGateBX = 46, rPickupGateBY = 60, rPickupGateBH = 140;
-    public static double bPickupGateBX = 46, bPickupGateBY = -60, bPickupGateBH = -140;
+    public static double rPickupGateBX = 46, rPickupGateBY = 60, rPickupGateBH = 180;
+    public static double bPickupGateBX = 46, bPickupGateBY = -60, bPickupGateBH = -180;
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
 }
