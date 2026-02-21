@@ -84,11 +84,11 @@ public class Targeting {
 
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
-
-        double cos45 = Math.cos(Math.toRadians(-45));
-        double sin45 = Math.sin(Math.toRadians(-45));
-        double rotatedY = (robotX + cancelOffsetX) * sin45 + (robotY + cancelOffsetY) * cos45;
-        double rotatedX = (robotX + cancelOffsetX) * cos45 - (robotY + cancelOffsetY) * sin45;
+        // TODO: test these values determined from the fmap
+        double cos54 = Math.cos(Math.toRadians(-54));
+        double sin54 = Math.sin(Math.toRadians(-54));
+        double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
+        double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
 
         // Convert robot coordinates to inches
         robotInchesX = rotatedX * unitConversionFactor;
