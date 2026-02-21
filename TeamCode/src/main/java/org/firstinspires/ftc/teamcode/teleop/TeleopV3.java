@@ -346,11 +346,13 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Targeting GridY", targeting.robotGridY);
             TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
             TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
-            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
-            TELE.addData("Voltage", voltage); // returns alleged recorded voltage (not same as driver hub)
+//            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
+//            TELE.addData("Voltage", voltage); // returns alleged recorded voltage (not same as driver hub)
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
+            TELE.addData("Tag Pos X", turret.getLimelightX());
+            TELE.addData("Tag Pos Y", turret.getLimelightY());
 
             TELE.update();
 

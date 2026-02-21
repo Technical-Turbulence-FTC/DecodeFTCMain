@@ -112,6 +112,14 @@ public class Turret {
                     limelightPosX = botpose.getPosition().x;
                     limelightPosY = botpose.getPosition().y;
                 }
+                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                    limelightTagPose = fiducial.getRobotPoseTargetSpace();
+                    if (limelightTagPose != null){
+                        limelightTagX = limelightTagPose.getPosition().x;
+                        limelightTagY = limelightTagPose.getPosition().y;
+                    }
+                }
 
             }
         }
@@ -127,12 +135,15 @@ public class Turret {
         return ty;
     }
 
+    Pose3D limelightTagPose;
+    double limelightTagX = 0.0;
+    double limelightTagY = 0.0;
     public double getLimelightX() {
-        return limelightPosX;
+        return limelightTagX;
     }
 
     public double getLimelightY() {
-        return limelightPosY;
+        return limelightTagY;
     }
 
     public int detectObelisk() {
