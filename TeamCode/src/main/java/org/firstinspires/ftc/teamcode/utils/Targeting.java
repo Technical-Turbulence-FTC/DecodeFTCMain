@@ -87,6 +87,11 @@ public class Targeting {
 
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
+        if (redAlliance){
+            sin54 = Math.sin(Math.toRadians(54));
+        } else {
+            sin54 = Math.sin(Math.toRadians(-54))
+        }
         // TODO: test these values determined from the fmap
         double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
         double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
@@ -101,6 +106,16 @@ public class Targeting {
 
         int remX = Math.floorMod((int) robotInchesX, tileSize);
         int remY = Math.floorMod((int) robotInchesY, tileSize);
+
+        //clamp
+
+        //if (redAlliance) {
+            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
+        //} else {
+//            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+//            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
+        //}
 
         // Determine if we need to interpolate based on tile position.
         // if near upper or lower quarter or tile interpolate with next tile.
@@ -171,16 +186,6 @@ public class Targeting {
             y1 = robotGridY + 1;
         } else {
             interpolate = false;
-        }
-
-        //clamp
-
-        if (redAlliance) {
-            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
-            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
-        } else {
-            robotGridY = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
-            robotGridX = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
         }
 
         // basic search
