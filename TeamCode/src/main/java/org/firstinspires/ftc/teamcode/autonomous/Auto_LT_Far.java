@@ -327,7 +327,8 @@ public class Auto_LT_Far extends LinearOpMode {
                                 flywheel0Time,
                                 0.501,
                                 0.501,
-                                0.501
+                                0.501,
+                                true
                         )
 
                 )

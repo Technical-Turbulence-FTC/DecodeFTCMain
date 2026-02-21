@@ -27,7 +27,7 @@ public class ServoPositions {
 
     public static double hoodAuto = 0.27;
 
-    public static double hoodOffset = -0.05;
+    public static double hoodOffset = 0.05; // offset from 0.93
 
     public static double turret_redClose = 0;
     public static double turret_blueClose = 0;

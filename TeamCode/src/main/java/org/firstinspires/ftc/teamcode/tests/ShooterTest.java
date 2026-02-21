@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.tests;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
@@ -128,9 +129,9 @@ public class ShooterTest extends LinearOpMode {
 
             if (hoodPos != 0.501) {
                 if (enableHoodAutoOpen) {
-                    robot.hood.setPosition(hoodPos+(hoodAdjustFactor*(flywheel.getVelo()/Velocity)));
+                    robot.hood.setPosition(hoodPos+(hoodAdjustFactor*(flywheel.getVelo()/Velocity)) + hoodOffset);
                 } else {
-                    robot.hood.setPosition(hoodPos);
+                    robot.hood.setPosition(hoodPos + hoodOffset);
                 }
             }
 

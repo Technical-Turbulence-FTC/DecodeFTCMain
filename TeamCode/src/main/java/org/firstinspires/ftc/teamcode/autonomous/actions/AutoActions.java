@@ -118,7 +118,7 @@ public class AutoActions {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
-                    manageShooter = manageShooterAuto(time, posX, posY, posH);
+                    manageShooter = manageShooterAuto(time, posX, posY, posH, false);
                 }
                 ticker++;
                 servos.setTransferPos(transferServo_out);
@@ -231,7 +231,7 @@ public class AutoActions {
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
-                    manageShooter = manageShooterAuto(shootTime, 0.501, 0.501, 0.501);
+                    manageShooter = manageShooterAuto(shootTime, 0.501, 0.501, 0.501, false);
 
                 }
                 ticker++;
@@ -364,7 +364,7 @@ public class AutoActions {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
-                    manageShooter = manageShooterAuto(time, posX, posY, posH);
+                    manageShooter = manageShooterAuto(time, posX, posY, posH, false);
                 }
                 ticker++;
 
@@ -453,7 +453,8 @@ public class AutoActions {
             double time,
             double posX,
             double posY,
-            double posH
+            double posH,
+            boolean flywheelSensor
     ) {
 
         return new Action() {
@@ -488,8 +489,10 @@ public class AutoActions {
                 Pose2d deltaPose;
                 if (posX != 0.501) {
                     deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
+                    Turret.limelightUsed = false;
                 } else {
                     deltaPose = new Pose2d(dx, dy, robotHeading);
+                    Turret.limelightUsed = true;
                 }
 
 //                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
@@ -508,7 +511,7 @@ public class AutoActions {
                 flywheel.manageFlywheel(targetingSettings.flywheelRPM);
 
                 boolean timeDone = timeFallback && (System.currentTimeMillis() - stamp) > time * 1000;
-                boolean shouldFinish = timeDone || flywheel.getSteady();
+                boolean shouldFinish = timeDone || (flywheel.getSteady() && flywheelSensor);
 
                 teleStart = currentPose;
 

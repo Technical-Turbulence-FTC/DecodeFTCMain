@@ -44,7 +44,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
     public static double velGate0End = 2700, hoodGate0End = 0.35;
     public static double hood0MoveTime = 2;
-    public static double spindexerSpeedIncrease = 0.02;
+    public static double spindexerSpeedIncrease = 0.016;
 
     public static double shootAllTime = 4;
     public static double intake1Time = 3.3;
@@ -64,17 +64,16 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double colorSenseTime = 1.2;
     public static double waitToShoot0 = 0.5;
     public static double waitToPickupGate2 = 0.3;
-    public static double pickupStackGateSpeed = 50;
+    public static double pickupStackGateSpeed = 30;
     public static double intake2TimeGate = 3;
-    public static double shoot2GateTime = 3;
+    public static double shoot2GateTime = 1.7;
     public static double endGateTime = 22;
-    public static double waitToPickupGateWithPartner = 2;
-    public static double waitToPickupGateSolo = 1;
-    public static double intakeGateTime = 5;
-    public static double shootGateTime = 3;
-    public static double shoot1GateTime = 3;
+    public static double waitToPickupGateWithPartner = 1;
+    public static double waitToPickupGateSolo = 0.2;
+    public static double intakeGateTime = 3;
+    public static double shootGateTime = 1.7;
+    public static double shoot1GateTime = 1.7;
     public static double intake1GateTime = 3.3;
-    public static double lastIntakeTime = 27;
     public static double lastShootTime = 27;
 
     Robot robot;
@@ -162,7 +161,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
         servos.setTransferPos(transferServo_out);
 
-        limelightUsed = false;
+        limelightUsed = true;
 
         robot.light.setPosition(1);
 
@@ -196,7 +195,13 @@ public class Auto_LT_Close extends LinearOpMode {
             }
 
             if (gamepad2.squareWasPressed()){
-                turret.pipelineSwitch(1);
+                if (!gateCycle){
+                    turret.pipelineSwitch(1);
+                } else if (redAlliance){
+                    turret.pipelineSwitch(4);
+                } else {
+                    turret.pipelineSwitch(2);
+                }
                 robot.limelight.start();
                 gamepad2.rumble(500);
             }
@@ -396,6 +401,7 @@ public class Auto_LT_Close extends LinearOpMode {
         if (isStopRequested()) return;
 
         if (opModeIsActive()) {
+
             double stamp = getRuntime();
 
             robot.transfer.setPower(1);
@@ -406,12 +412,11 @@ public class Auto_LT_Close extends LinearOpMode {
 
                 while (getRuntime() - stamp < endGateTime){
                     cycleGateIntake();
-                    cycleGateShoot();
+                    if (getRuntime() - stamp < lastShootTime){
+                        cycleGateShoot();
+                    }
                 }
-
-                if (getRuntime() - stamp < lastIntakeTime){
-                    cycleStackCloseIntakeGate();
-                }
+                cycleStackCloseIntakeGate();
 
                 if (getRuntime() - stamp < lastShootTime){
                     cycleStackCloseShootGate();
@@ -473,7 +478,8 @@ public class Auto_LT_Close extends LinearOpMode {
                                 flywheel0Time,
                                 x1,
                                 y1,
-                                h1
+                                h1,
+                                false
                         )
                 )
         );
@@ -677,9 +683,9 @@ public class Auto_LT_Close extends LinearOpMode {
                                                 shoot2GateTime,
                                                 xShootGate,
                                                 yShootGate,
-                                                hShootGate
-                                        ),
-                                        autoActions.Wait(shoot2GateTime)
+                                                hShootGate,
+                                                false
+                                        )
                                 ),
                                 autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                         )
@@ -712,9 +718,9 @@ public class Auto_LT_Close extends LinearOpMode {
                                                 shootGateTime,
                                                 xShootGate,
                                                 yShootGate,
-                                                hShootGate
-                                        ),
-                                        autoActions.Wait(shootGateTime)
+                                                hShootGate,
+                                                false
+                                        )
                                 ),
                                 autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                         )
@@ -747,9 +753,9 @@ public class Auto_LT_Close extends LinearOpMode {
                                                 shoot1GateTime,
                                                 xLeaveGate,
                                                 yLeaveGate,
-                                                hLeaveGate
-                                        ),
-                                        autoActions.Wait(shoot1GateTime)
+                                                hLeaveGate,
+                                                false
+                                        )
                                 ),
                                 autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
                         )
