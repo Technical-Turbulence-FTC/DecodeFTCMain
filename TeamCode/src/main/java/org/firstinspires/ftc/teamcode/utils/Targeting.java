@@ -82,11 +82,12 @@ public class Targeting {
     public Targeting() {
     }
 
+    double cos54 = Math.cos(Math.toRadians(-54));
+    double sin54 = Math.sin(Math.toRadians(-54));
+
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
         // TODO: test these values determined from the fmap
-        double cos54 = Math.cos(Math.toRadians(-54));
-        double sin54 = Math.sin(Math.toRadians(-54));
         double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
         double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
 
