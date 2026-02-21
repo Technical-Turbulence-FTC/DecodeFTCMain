@@ -99,7 +99,7 @@ public class Targeting {
         int gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
 
         int remX = Math.floorMod((int) robotInchesX, tileSize);
-        int remY = Math.floorMod((int) robotInchesX, tileSize);
+        int remY = Math.floorMod((int) robotInchesY, tileSize);
 
         // Determine if we need to interpolate based on tile position.
         // if near upper or lower quarter or tile interpolate with next tile.
