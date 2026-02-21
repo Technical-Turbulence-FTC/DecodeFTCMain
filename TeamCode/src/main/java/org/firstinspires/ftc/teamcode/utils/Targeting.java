@@ -90,7 +90,7 @@ public class Targeting {
         if (redAlliance){
             sin54 = Math.sin(Math.toRadians(54));
         } else {
-            sin54 = Math.sin(Math.toRadians(-54))
+            sin54 = Math.sin(Math.toRadians(-54));
         }
         // TODO: test these values determined from the fmap
         double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
