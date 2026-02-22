@@ -65,6 +65,7 @@ public class TeleopV3 extends LinearOpMode {
     boolean reject = false;
     double xOffset = 0.0;
     double yOffset = 0.0;
+    double hOffset = 0.0;
 //    double headingOffset = 0.0;
     int ticker = 0;
 
@@ -166,10 +167,11 @@ public class TeleopV3 extends LinearOpMode {
 
             double robX = drive.localizer.getPose().position.x;
             double robY = drive.localizer.getPose().position.y;
+            double robH = drive.localizer.getPose().heading.toDouble();
 
             double robotX = robX + xOffset;
             double robotY = robY + yOffset;
-            double robotHeading = drive.localizer.getPose().heading.toDouble();
+            double robotHeading = robH + hOffset;
 
             double goalX = -15;
             double goalY = 0;
@@ -194,6 +196,7 @@ public class TeleopV3 extends LinearOpMode {
                 turret.relocalize();
                 xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
                 yOffset = (turret.getLimelightX() * 39.3701) - robY;
+                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
             } else {
                 turret.trackGoal(deltaPose);
             }
@@ -353,13 +356,14 @@ public class TeleopV3 extends LinearOpMode {
             // Targeting Debug
             TELE.addData("robotX", robotX);
             TELE.addData("robotY", robotY);
-            TELE.addData("robotInchesX", targeting.robotInchesX);
-            TELE.addData("robotInchesY", targeting.robotInchesY);
-            TELE.addData("Targeting Interpolate", turretInterpolate);
+            TELE.addData("robot H", robotHeading);
+//            TELE.addData("robotInchesX", targeting.robotInchesX);
+//            TELE.addData("robotInchesY", targeting.robotInchesY);
+//            TELE.addData("Targeting Interpolate", turretInterpolate);
             TELE.addData("Targeting GridX", targeting.robotGridX);
             TELE.addData("Targeting GridY", targeting.robotGridY);
-            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
-            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
+//            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
+//            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
 //            TELE.addData("Voltage", voltage); // returns alleged recorded voltage (not same as driver hub)
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
@@ -367,6 +371,7 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
             TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
             TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
+            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
 
             TELE.update();
 

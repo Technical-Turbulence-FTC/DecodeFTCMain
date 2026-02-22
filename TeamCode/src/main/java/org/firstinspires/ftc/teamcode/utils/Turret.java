@@ -104,6 +104,7 @@ public class Turret {
         Double xPos = null;
         Double yPos = null;
         Double zPos = null;
+        Double hPos = null;
         result = webcam.getLatestResult();
         if (result != null) {
             if (result.isValid()) {
@@ -122,6 +123,7 @@ public class Turret {
                         xPos = limelightTagPose.getPosition().x;
                         yPos = limelightTagPose.getPosition().y;
                         zPos = limelightTagPose.getPosition().z;
+                        hPos = limelightTagPose.getOrientation().getYaw();
                     }
                 }
 
@@ -131,6 +133,7 @@ public class Turret {
             limelightTagX = (alphaPosConstant*xPos) + ((1-alphaPosConstant)*limelightTagX);
             limelightTagY = (alphaPosConstant*yPos) + ((1-alphaPosConstant)*limelightTagY);
             limelightTagZ = (alphaPosConstant*zPos) + ((1-alphaPosConstant)*limelightTagZ);
+            limelightTagH = (alphaPosConstant*hPos) + ((1-alphaPosConstant)*limelightTagH);
         }
     }
 
@@ -148,11 +151,13 @@ public class Turret {
     double limelightTagX = 0.0;
     double limelightTagY = 0.0;
     double limelightTagZ = 0.0;
+    double limelightTagH = 0.0;
     public double getLimelightX() {
         return limelightTagX;
     }
     public double getLimelightY() {return limelightTagY;}
     public double getLimelightZ(){return limelightTagZ;}
+    public double getLimelightH(){return limelightTagH;}
 
     public void relocalize(){
         setTurret(turrDefault);
