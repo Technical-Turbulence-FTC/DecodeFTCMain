@@ -87,7 +87,7 @@ public class Targeting {
 
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
-        if (redAlliance){
+        if (!redAlliance){
             sin54 = Math.sin(Math.toRadians(54));
         } else {
             sin54 = Math.sin(Math.toRadians(-54));

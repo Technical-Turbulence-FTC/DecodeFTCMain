@@ -75,6 +75,7 @@ public class TeleopV3 extends LinearOpMode {
 
     int intakeTicker = 0;
     private boolean shootAll = false;
+    boolean relocalize = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -111,7 +112,6 @@ public class TeleopV3 extends LinearOpMode {
         light.setState(StateEnums.LightState.MANUAL);
         limelightUsed = true;
 
-        robot.light.setPosition(1);
         while (opModeInInit()) {
             robot.limelight.start();
             if (redAlliance) {
@@ -122,6 +122,7 @@ public class TeleopV3 extends LinearOpMode {
                 light.setManualLightColor(Color.LightBlue);
 
             }
+            robot.light.setPosition(1);
 
             light.update();
         }
@@ -166,8 +167,8 @@ public class TeleopV3 extends LinearOpMode {
             double robX = drive.localizer.getPose().position.x;
             double robY = drive.localizer.getPose().position.y;
 
-            double robotX = robX - xOffset;
-            double robotY = robY - yOffset;
+            double robotX = robX + xOffset;
+            double robotY = robY + yOffset;
             double robotHeading = drive.localizer.getPose().heading.toDouble();
 
             double goalX = -15;
@@ -182,7 +183,20 @@ public class TeleopV3 extends LinearOpMode {
             targetingSettings = targeting.calculateSettings
                     (robotX, robotY, robotHeading, 0.0, turretInterpolate);
 
-            turret.trackGoal(deltaPose);
+            //RELOCALIZATION
+
+            if (gamepad2.squareWasPressed()){
+                relocalize = !relocalize;
+                gamepad2.rumble(500);
+            }
+
+            if (relocalize){
+                turret.relocalize();
+                xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
+                yOffset = (turret.getLimelightX() * 39.3701) - robY;
+            } else {
+                turret.trackGoal(deltaPose);
+            }
 
             //VELOCITY AUTOMATIC
             if (autoVel) {
@@ -351,8 +365,8 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("Tag Pos X", turret.getLimelightX());
-            TELE.addData("Tag Pos Y", turret.getLimelightY());
+            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
+            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
 
             TELE.update();
 

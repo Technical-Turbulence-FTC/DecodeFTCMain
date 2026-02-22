@@ -27,7 +27,7 @@ public class Turret {
     public static double turrMin = 0;
     public static double turrMax = 1;
     public static boolean limelightUsed = true;
-
+    public static double limelightPosOffset = 5;
     public static double manualOffset = 0.0;
 
 //    public static double visionCorrectionGain = 0.08;  // Single tunable gain
@@ -99,8 +99,11 @@ public class Turret {
         return Math.abs(pos - this.getTurrPos()) < turretTolerance;
     }
 
+    public static double alphaPosConstant = 0.3;
     private void limelightRead() { // only for tracking purposes, not general reads
-
+        Double xPos = null;
+        Double yPos = null;
+        Double zPos = null;
         result = webcam.getLatestResult();
         if (result != null) {
             if (result.isValid()) {
@@ -116,12 +119,18 @@ public class Turret {
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
                     limelightTagPose = fiducial.getRobotPoseTargetSpace();
                     if (limelightTagPose != null){
-                        limelightTagX = limelightTagPose.getPosition().x;
-                        limelightTagY = limelightTagPose.getPosition().y;
+                        xPos = limelightTagPose.getPosition().x;
+                        yPos = limelightTagPose.getPosition().y;
+                        zPos = limelightTagPose.getPosition().z;
                     }
                 }
 
             }
+        }
+        if (xPos != null){
+            limelightTagX = (alphaPosConstant*xPos) + ((1-alphaPosConstant)*limelightTagX);
+            limelightTagY = (alphaPosConstant*yPos) + ((1-alphaPosConstant)*limelightTagY);
+            limelightTagZ = (alphaPosConstant*zPos) + ((1-alphaPosConstant)*limelightTagZ);
         }
     }
 
@@ -138,12 +147,16 @@ public class Turret {
     Pose3D limelightTagPose;
     double limelightTagX = 0.0;
     double limelightTagY = 0.0;
+    double limelightTagZ = 0.0;
     public double getLimelightX() {
         return limelightTagX;
     }
+    public double getLimelightY() {return limelightTagY;}
+    public double getLimelightZ(){return limelightTagZ;}
 
-    public double getLimelightY() {
-        return limelightTagY;
+    public void relocalize(){
+        setTurret(turrDefault);
+        limelightRead();
     }
 
     public int detectObelisk() {
