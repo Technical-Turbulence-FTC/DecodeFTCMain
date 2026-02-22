@@ -187,7 +187,7 @@ public class Spindexer {
         distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 60) {
+        if (distanceRearCenter < 65) {
 
             // Mark Ball Found
             newPos1Detection = true;
