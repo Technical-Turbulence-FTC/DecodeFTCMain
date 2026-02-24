@@ -129,9 +129,8 @@ public class Turret {
 
             }
         }
-        if (xPos != null ){
+        if (xPos != null){
             if (zPos>0) {
-
                 limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
                 limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
                 limelightTagZ = (alphaPosConstant * zPos) + ((1 - alphaPosConstant) * limelightTagZ);

@@ -167,7 +167,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
         while (opModeInInit()) {
 
-            if (gateCycle){
+            if (gateCycle) {
                 servos.setHoodPos(hoodGate0Start);
             } else {
                 servos.setHoodPos(shoot0Hood);
@@ -187,17 +187,17 @@ public class Auto_LT_Close extends LinearOpMode {
                 turrDefault += 0.01;
             }
 
-            if (gamepad2.rightBumperWasPressed()){
+            if (gamepad2.rightBumperWasPressed()) {
                 ballCycles++;
             }
-            if (gamepad2.leftBumperWasPressed()){
+            if (gamepad2.leftBumperWasPressed()) {
                 ballCycles--;
             }
 
-            if (gamepad2.squareWasPressed()){
-                if (!gateCycle){
+            if (gamepad2.squareWasPressed()) {
+                if (!gateCycle) {
                     turret.pipelineSwitch(1);
-                } else if (redAlliance){
+                } else if (redAlliance) {
                     turret.pipelineSwitch(4);
                 } else {
                     turret.pipelineSwitch(2);
@@ -318,10 +318,15 @@ public class Auto_LT_Close extends LinearOpMode {
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
             }
 
-            shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                    .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
+            if (gateCycle) {
+                shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
+                        .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
+            } else {
+                shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
+                        .strafeToLinearHeading(new Vector2d(xShoot0, yShoot0), Math.toRadians(hShoot0));
+            }
 
-            if (gateCycle){
+            if (gateCycle) {
                 pickup1 = drive.actionBuilder(new Pose2d(xShootGate, yShootGate, Math.toRadians(hShootGate)))
                         .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
                         .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
@@ -333,10 +338,10 @@ public class Auto_LT_Close extends LinearOpMode {
                                 new TranslationalVelConstraint(pickup1Speed));
             }
 
-            if (gateCycle){
+            if (gateCycle) {
                 shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
                         .strafeToLinearHeading(new Vector2d(xLeaveGate, yLeaveGate), Math.toRadians(hLeaveGate));
-            } else if (ballCycles < 2){
+            } else if (ballCycles < 2) {
                 shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
                         .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
             } else {
@@ -344,15 +349,22 @@ public class Auto_LT_Close extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
             }
 
-            pickup2 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
-                    .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
-                    .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
-                            new TranslationalVelConstraint(pickup1Speed));
+            if (gateCycle) {
+                pickup2 = drive.actionBuilder(new Pose2d(xShoot0, yShoot0, Math.toRadians(hShoot0)))
+                        .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
+                        .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
+                                new TranslationalVelConstraint(pickupStackGateSpeed));
+            } else {
+                pickup2 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
+                        .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
+                        .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
+                                new TranslationalVelConstraint(pickup1Speed));
+            }
 
-            if (gateCycle){
+            if (gateCycle) {
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
                         .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
-            } else if (ballCycles < 3){
+            } else if (ballCycles < 3) {
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
                         .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
             } else {
@@ -368,14 +380,7 @@ public class Auto_LT_Close extends LinearOpMode {
             shoot3 = drive.actionBuilder(new Pose2d(x4b, y4b, Math.toRadians(h4b)))
                     .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
 
-            shoot0ToPickup2 = drive.actionBuilder(new Pose2d(0,0,0))
-                    .strafeToLinearHeading(new Vector2d(xShoot0, yShoot0), Math.toRadians(hShoot0))
-                    .waitSeconds(waitToPickupGate2)
-                    .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
-                    .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
-                            new TranslationalVelConstraint(pickupStackGateSpeed));
-
-            if (withPartner){
+            if (withPartner) {
                 waitToPickupGate = waitToPickupGateWithPartner;
             } else {
                 waitToPickupGate = waitToPickupGateSolo;
@@ -406,19 +411,21 @@ public class Auto_LT_Close extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
-            if (gateCycle){
-                shoot0Gate();
+            if (gateCycle) {
+                startAutoGate();
+                shoot();
                 cycleStackMiddleGate();
+                shoot();
 
-                while (getRuntime() - stamp < endGateTime){
+                while (getRuntime() - stamp < endGateTime) {
                     cycleGateIntake();
-                    if (getRuntime() - stamp < lastShootTime){
+                    if (getRuntime() - stamp < lastShootTime) {
                         cycleGateShoot();
                     }
                 }
                 cycleStackCloseIntakeGate();
 
-                if (getRuntime() - stamp < lastShootTime){
+                if (getRuntime() - stamp < lastShootTime) {
                     cycleStackCloseShootGate();
                 }
 
@@ -426,17 +433,17 @@ public class Auto_LT_Close extends LinearOpMode {
                 startAuto();
                 shoot();
 
-                if (ballCycles > 0){
+                if (ballCycles > 0) {
                     cycleStackClose();
                     shoot();
                 }
 
-                if (ballCycles > 1){
+                if (ballCycles > 1) {
                     cycleStackMiddle();
                     shoot();
                 }
 
-                if (ballCycles > 2){
+                if (ballCycles > 2) {
                     cycleStackFar();
                     shoot();
                 }
@@ -459,13 +466,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
     }
 
-    void shoot(){
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                )
-
-        );
+    void shoot() {
+        Actions.runBlocking(autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease));
     }
 
     void startAuto() {
@@ -485,7 +487,24 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
-    void cycleStackClose(){
+    void startAutoGate() {
+        assert shoot0 != null;
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        shoot0.build(),
+                        autoActions.manageShooterAuto(
+                                flywheel0Time,
+                                xShoot0,
+                                yShoot0,
+                                hShoot0,
+                                false
+                        )
+                )
+        );
+    }
+
+    void cycleStackClose() {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup1.build(),
@@ -515,7 +534,7 @@ public class Auto_LT_Close extends LinearOpMode {
         double posX;
         double posY;
         double posH;
-        if (ballCycles > 1){
+        if (ballCycles > 1) {
             posX = xShoot;
             posY = yShoot;
             posH = hShoot;
@@ -540,7 +559,7 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
-    void cycleStackMiddle(){
+    void cycleStackMiddle() {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup2.build(),
@@ -570,7 +589,7 @@ public class Auto_LT_Close extends LinearOpMode {
         double posX;
         double posY;
         double posH;
-        if (ballCycles > 2){
+        if (ballCycles > 2) {
             posX = xShoot;
             posY = yShoot;
             posH = hShoot;
@@ -594,7 +613,7 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
-    void cycleStackFar(){
+    void cycleStackFar() {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup3.build(),
@@ -636,64 +655,35 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
-    void shoot0Gate(){
+    void cycleStackMiddleGate() {
         Actions.runBlocking(
                 new ParallelAction(
-                        shoot0ToPickup2.build(),
-                        new SequentialAction(
-                                new ParallelAction(
-                                        autoActions.manageShooterManual(
-                                                waitToShoot0,
-                                                0.501,
-                                                velGate0Start,
-                                                hoodGate0Start,
-                                                velGate0Start,
-                                                hoodGate0Start,
-                                                0.501
-                                        )
-                                ),
-                                autoActions.shootAllManual(
-                                        shootAllTime,
-                                        hood0MoveTime,
-                                        spindexerSpeedIncrease,
-                                        velGate0Start,
-                                        hoodGate0Start,
-                                        velGate0End,
-                                        hoodGate0End,
-                                        0.501),
-                                autoActions.intake(
-                                        intake2TimeGate,
-                                        xShootGate,
-                                        yShootGate,
-                                        hShootGate
-                                )
+                        pickup2.build(),
+                        autoActions.intake(
+                                intake2Time,
+                                x3b,
+                                y3b,
+                                h3b
                         )
                 )
         );
-    }
 
-    void cycleStackMiddleGate(){
         servos.setSpinPos(spinStartPos);
         Actions.runBlocking(
                 new ParallelAction(
                         shoot2.build(),
-                        new SequentialAction(
-                                new ParallelAction(
-                                        autoActions.manageShooterAuto(
-                                                shoot2GateTime,
-                                                xShootGate,
-                                                yShootGate,
-                                                hShootGate,
-                                                false
-                                        )
-                                ),
-                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
-                        )
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
+                                shoot2Time,
+                                motif,
+                                xShootGate,
+                                yShootGate,
+                                hShootGate)
                 )
         );
     }
 
-    void cycleGateIntake(){
+    void cycleGateIntake() {
         Actions.runBlocking(
                 new ParallelAction(
                         gateCyclePickup.build(),
@@ -707,28 +697,23 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
-    void cycleGateShoot(){
+    void cycleGateShoot() {
         servos.setSpinPos(spinStartPos);
         Actions.runBlocking(
                 new ParallelAction(
                         gateCycleShoot.build(),
-                        new SequentialAction(
-                                new ParallelAction(
-                                        autoActions.manageShooterAuto(
-                                                shootGateTime,
-                                                xShootGate,
-                                                yShootGate,
-                                                hShootGate,
-                                                false
-                                        )
-                                ),
-                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        autoActions.manageShooterAuto(
+                                shootGateTime,
+                                xShootGate,
+                                yShootGate,
+                                hShootGate,
+                                false
                         )
                 )
         );
     }
 
-    void cycleStackCloseIntakeGate(){
+    void cycleStackCloseIntakeGate() {
         Actions.runBlocking(
                 new ParallelAction(
                         pickup1.build(),
@@ -747,17 +732,12 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         shoot1.build(),
-                        new SequentialAction(
-                                new ParallelAction(
-                                        autoActions.manageShooterAuto(
-                                                shoot1GateTime,
-                                                xLeaveGate,
-                                                yLeaveGate,
-                                                hLeaveGate,
-                                                false
-                                        )
-                                ),
-                                autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        autoActions.manageShooterAuto(
+                                shoot1GateTime,
+                                xLeaveGate,
+                                yLeaveGate,
+                                hLeaveGate,
+                                false
                         )
                 )
         );
