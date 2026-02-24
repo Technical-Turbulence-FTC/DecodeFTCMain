@@ -68,9 +68,9 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double intake2TimeGate = 3;
     public static double shoot2GateTime = 1.7;
     public static double endGateTime = 22;
-    public static double waitToPickupGateWithPartner = 1;
-    public static double waitToPickupGateSolo = 0.2;
-    public static double intakeGateTime = 3;
+    public static double waitToPickupGateWithPartner = 0.7;
+    public static double waitToPickupGateSolo = 0.01;
+    public static double intakeGateTime = 8;
     public static double shootGateTime = 1.7;
     public static double shoot1GateTime = 1.7;
     public static double intake1GateTime = 3.3;
@@ -111,7 +111,7 @@ public class Auto_LT_Close extends LinearOpMode {
     int ballCycles = 3;
     int prevMotif = 0;
     boolean gateCycle = true;
-    boolean withPartner = false;
+    boolean withPartner = true;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
