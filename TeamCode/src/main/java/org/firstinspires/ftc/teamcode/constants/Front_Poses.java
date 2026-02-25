@@ -10,10 +10,10 @@ public class Front_Poses {
     public static double rx1 = 20, ry1 = 0.5, rh1 = 0.1;
     public static double bx1 = 20, by1 = -0.5, bh1 = -0.1;
 
-    public static double rx2a = 41, ry2a = 18, rh2a = 140;
+    public static double rx2a = 41, ry2a = 18, rh2a = 155;
     public static double bx2a = 41, by2a = -18, bh2a = -140;
 
-    public static double rx2b = 23, ry2b = 36, rh2b = 140.1;
+    public static double rx2b = 21, ry2b = 34, rh2b = 155.1;
     public static double bx2b = 23, by2b = -36, bh2b = -140.1;
 
     public static double rx3a = 55, ry3a = 39, rh3a = 140;
@@ -42,8 +42,8 @@ public class Front_Poses {
     public static double rLeaveX = 40, rLeaveY = -7, rLeaveH = 55;
     public static double bLeaveX = 40, bLeaveY = 7, bLeaveH = -55;
 
-    public static double rShoot0X = 40, rShoot0Y = 0.1, rShoot0H = 0.1;
-    public static double bShoot0X = 40, bShoot0Y = -0.1, bShoot0H = -0.1;
+    public static double rShoot0X = 53, rShoot0Y = 10.1, rShoot0H = 80.1;
+    public static double bShoot0X = 53, bShoot0Y = -10.1, bShoot0H = -80.1;
 
     public static double rShootGateX = 50, rShootGateY = 10, rShootGateH = 90;
     public static double bShootGateX = 50, bShootGateY = -10, bShootGateH = -90;
@@ -51,10 +51,10 @@ public class Front_Poses {
     public static double rLeaveGateX = 40, rLeaveGateY = -7, rLeaveGateH = 55;
     public static double bLeaveGateX = 40, bLeaveGateY = 7, bLeaveGateH = -55;
 
-    public static double rPickupGateAX = 24, rPickupGateAY = 50, rPickupGateAH = 140;
+    public static double rPickupGateAX = 26, rPickupGateAY = 48, rPickupGateAH = 140;
     public static double bPickupGateAX = 24, bPickupGateAY = -50, bPickupGateAH = -140;
 
-    public static double rPickupGateBX = 38, rPickupGateBY = 68, rPickupGateBH = 180;
+    public static double rPickupGateBX = 35, rPickupGateBY = 65, rPickupGateBH = 180;
     public static double bPickupGateBX = 38, bPickupGateBY = -68, bPickupGateBH = -180;
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);

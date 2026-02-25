@@ -187,7 +187,7 @@ public class Spindexer {
         distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 65) {
+        if (distanceRearCenter < 48) {
 
             // Mark Ball Found
             newPos1Detection = true;
@@ -209,7 +209,7 @@ public class Spindexer {
         // Position 2
         // Find which ball position this is in the spindexer
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTDRIVER.ordinal()];
-        if (distanceFrontDriver < 56) {
+        if (distanceFrontDriver < 50) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
             if (detectFrontColor) {

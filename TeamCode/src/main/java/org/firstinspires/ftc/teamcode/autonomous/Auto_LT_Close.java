@@ -13,16 +13,22 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferSe
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.ftc.PinpointIMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -64,13 +70,13 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double colorSenseTime = 1.2;
     public static double waitToShoot0 = 0.5;
     public static double waitToPickupGate2 = 0.3;
-    public static double pickupStackGateSpeed = 30;
+    public static double pickupStackGateSpeed = 13;
     public static double intake2TimeGate = 3;
     public static double shoot2GateTime = 1.7;
     public static double endGateTime = 22;
-    public static double waitToPickupGateWithPartner = 0.7;
+    public static double waitToPickupGateWithPartner = 0.01;
     public static double waitToPickupGateSolo = 0.01;
-    public static double intakeGateTime = 8;
+    public static double intakeGateTime = 5;
     public static double shootGateTime = 1.7;
     public static double shoot1GateTime = 1.7;
     public static double intake1GateTime = 3.3;
@@ -167,6 +173,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
         while (opModeInInit()) {
 
+
             if (gateCycle) {
                 servos.setHoodPos(hoodGate0Start);
             } else {
@@ -195,6 +202,10 @@ public class Auto_LT_Close extends LinearOpMode {
             }
 
             if (gamepad2.squareWasPressed()) {
+
+                drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+
+
                 if (!gateCycle) {
                     turret.pipelineSwitch(1);
                 } else if (redAlliance) {
@@ -203,6 +214,9 @@ public class Auto_LT_Close extends LinearOpMode {
                     turret.pipelineSwitch(2);
                 }
                 robot.limelight.start();
+
+
+
                 gamepad2.rumble(500);
             }
 
@@ -320,37 +334,14 @@ public class Auto_LT_Close extends LinearOpMode {
 
             if (gateCycle) {
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                        .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
+                        .strafeToLinearHeading(new Vector2d(xShoot0, yShoot0), Math.toRadians(hShoot0));
             } else {
                 shoot0 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                        .strafeToLinearHeading(new Vector2d(xShoot0, yShoot0), Math.toRadians(hShoot0));
+                        .strafeToLinearHeading(new Vector2d(x1, y1), Math.toRadians(h1));
             }
 
             if (gateCycle) {
-                pickup1 = drive.actionBuilder(new Pose2d(xShootGate, yShootGate, Math.toRadians(hShootGate)))
-                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
-                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
-                                new TranslationalVelConstraint(pickupStackGateSpeed));
-            } else {
-                pickup1 = drive.actionBuilder(new Pose2d(x1, y1, Math.toRadians(h1)))
-                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
-                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
-                                new TranslationalVelConstraint(pickup1Speed));
-            }
-
-            if (gateCycle) {
-                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
-                        .strafeToLinearHeading(new Vector2d(xLeaveGate, yLeaveGate), Math.toRadians(hLeaveGate));
-            } else if (ballCycles < 2) {
-                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
-                        .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
-            } else {
-                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
-                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
-            }
-
-            if (gateCycle) {
-                pickup2 = drive.actionBuilder(new Pose2d(xShoot0, yShoot0, Math.toRadians(hShoot0)))
+                pickup2 = shoot0.endTrajectory().fresh()
                         .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
                         .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
                                 new TranslationalVelConstraint(pickupStackGateSpeed));
@@ -362,7 +353,7 @@ public class Auto_LT_Close extends LinearOpMode {
             }
 
             if (gateCycle) {
-                shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
+                shoot2 = pickup2.endTrajectory().fresh()
                         .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
             } else if (ballCycles < 3) {
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
@@ -371,6 +362,43 @@ public class Auto_LT_Close extends LinearOpMode {
                 shoot2 = drive.actionBuilder(new Pose2d(x3b, y3b, Math.toRadians(h3b)))
                         .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
             }
+
+            gateCyclePickup = shoot2.endTrajectory().fresh()
+                    .strafeToLinearHeading(new Vector2d(pickupGateAX, pickupGateAY), Math.toRadians(pickupGateAH))
+                    .waitSeconds(waitToPickupGate)
+                    .strafeToLinearHeading(new Vector2d(pickupGateBX, pickupGateBY), Math.toRadians(pickupGateBH));
+
+            gateCycleShoot = gateCyclePickup.endTrajectory().fresh()
+                    .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
+
+
+            if (gateCycle) {
+                pickup1 = gateCycleShoot.endTrajectory().fresh()
+                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
+                                new TranslationalVelConstraint(pickupStackGateSpeed));
+            } else {
+                pickup1 = drive.actionBuilder(new Pose2d(x1, y1, Math.toRadians(h1)))
+                        .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                        .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
+                                new TranslationalVelConstraint(pickup1Speed));
+            }
+
+
+            if (gateCycle) {
+                shoot1 = pickup1.endTrajectory().fresh()
+                        .strafeToLinearHeading(new Vector2d(xLeaveGate, yLeaveGate), Math.toRadians(hLeaveGate));
+            } else if (ballCycles < 2) {
+                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
+                        .strafeToLinearHeading(new Vector2d(xLeave, yLeave), Math.toRadians(hLeave));
+            } else {
+                shoot1 = drive.actionBuilder(new Pose2d(x2b, y2b, Math.toRadians(h2b)))
+                        .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
+            }
+
+
+
+
 
             pickup3 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
                     .strafeToLinearHeading(new Vector2d(x4a, y4a), Math.toRadians(h4a))
@@ -386,14 +414,10 @@ public class Auto_LT_Close extends LinearOpMode {
                 waitToPickupGate = waitToPickupGateSolo;
             }
 
-            gateCyclePickup = drive.actionBuilder(new Pose2d(xShootGate, yShootGate, Math.toRadians(hShootGate)))
-                    .strafeToLinearHeading(new Vector2d(pickupGateAX, pickupGateAY), Math.toRadians(pickupGateAH))
-                    .waitSeconds(waitToPickupGate)
-                    .strafeToLinearHeading(new Vector2d(pickupGateBX, pickupGateBY), Math.toRadians(pickupGateBH));
 
-            gateCycleShoot = drive.actionBuilder(new Pose2d(pickupGateBX, pickupGateBY, Math.toRadians(pickupGateBH)))
-                    .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
 
+
+            teleStart = drive.localizer.getPose();
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
             TELE.addData("Ball Cycles", ballCycles);
@@ -411,6 +435,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
             robot.transfer.setPower(1);
 
+
             if (gateCycle) {
                 startAutoGate();
                 shoot();
@@ -421,6 +446,7 @@ public class Auto_LT_Close extends LinearOpMode {
                     cycleGateIntake();
                     if (getRuntime() - stamp < lastShootTime) {
                         cycleGateShoot();
+                        shoot();
                     }
                 }
                 cycleStackCloseIntakeGate();
@@ -487,6 +513,8 @@ public class Auto_LT_Close extends LinearOpMode {
         );
     }
 
+
+
     void startAutoGate() {
         assert shoot0 != null;
 
@@ -498,7 +526,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 xShoot0,
                                 yShoot0,
                                 hShoot0,
-                                false
+                                true
                         )
                 )
         );
@@ -656,6 +684,11 @@ public class Auto_LT_Close extends LinearOpMode {
     }
 
     void cycleStackMiddleGate() {
+        drive.updatePoseEstimate();
+        pickup2 = drive.actionBuilder(drive.localizer.getPose())
+                .strafeToLinearHeading(new Vector2d(x3a, y3a), Math.toRadians(h3a))
+                .strafeToLinearHeading(new Vector2d(x3b, y3b), Math.toRadians(h3b),
+                        new TranslationalVelConstraint(pickupStackGateSpeed));
         Actions.runBlocking(
                 new ParallelAction(
                         pickup2.build(),
@@ -684,6 +717,12 @@ public class Auto_LT_Close extends LinearOpMode {
     }
 
     void cycleGateIntake() {
+        drive.updatePoseEstimate();
+
+        gateCyclePickup = drive.actionBuilder(drive.localizer.getPose())
+                .strafeToLinearHeading(new Vector2d(pickupGateAX, pickupGateAY), Math.toRadians(pickupGateAH))
+                .waitSeconds(waitToPickupGate)
+                .strafeToLinearHeading(new Vector2d(pickupGateBX, pickupGateBY), Math.toRadians(pickupGateBH));
         Actions.runBlocking(
                 new ParallelAction(
                         gateCyclePickup.build(),
@@ -698,7 +737,13 @@ public class Auto_LT_Close extends LinearOpMode {
     }
 
     void cycleGateShoot() {
+
+        drive.updatePoseEstimate();
         servos.setSpinPos(spinStartPos);
+
+        gateCycleShoot = drive.actionBuilder(drive.localizer.getPose())
+                .strafeToLinearHeading(new Vector2d(xShootGate, yShootGate), Math.toRadians(hShootGate));
+
         Actions.runBlocking(
                 new ParallelAction(
                         gateCycleShoot.build(),
@@ -714,6 +759,14 @@ public class Auto_LT_Close extends LinearOpMode {
     }
 
     void cycleStackCloseIntakeGate() {
+        drive.updatePoseEstimate();
+
+        pickup1 = drive.actionBuilder(drive.localizer.getPose())
+                .strafeToLinearHeading(new Vector2d(x2a, y2a), Math.toRadians(h2a))
+                .strafeToLinearHeading(new Vector2d(x2b, y2b), Math.toRadians(h2b),
+                        new TranslationalVelConstraint(pickupStackGateSpeed));
+
+
         Actions.runBlocking(
                 new ParallelAction(
                         pickup1.build(),
@@ -729,6 +782,11 @@ public class Auto_LT_Close extends LinearOpMode {
 
     void cycleStackCloseShootGate(){
         servos.setSpinPos(spinStartPos);
+        drive.updatePoseEstimate();
+
+        shoot1 = drive.actionBuilder(drive.localizer.getPose())
+                .strafeToLinearHeading(new Vector2d(xLeaveGate, yLeaveGate), Math.toRadians(hLeaveGate));
+
         Actions.runBlocking(
                 new ParallelAction(
                         shoot1.build(),
