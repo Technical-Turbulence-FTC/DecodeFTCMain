@@ -63,7 +63,7 @@ public class Auto_LT_Far extends LinearOpMode {
     boolean stack3 = true;
     double xStackPickupA, yStackPickupA, hStackPickupA;
     double xStackPickupB, yStackPickupB, hStackPickupB;
-    public static int pickupStackSpeed = 12;
+    public static int pickupStackSpeed = 17;
     public static int pickupGateSpeed = 25;
     int prevMotif = 0;
     public static double spindexerSpeedIncrease = 0.014;
@@ -74,8 +74,8 @@ public class Auto_LT_Far extends LinearOpMode {
     public static double shootStackTime = 2;
     public static double shootGateTime = 2.5;
     public static double colorSenseTime = 1;
-    public static double intakeStackTime = 2.5;
-    public static double intakeGateTime = 2;
+    public static double intakeStackTime = 4.5;
+    public static double intakeGateTime = 8;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
@@ -184,6 +184,8 @@ public class Auto_LT_Far extends LinearOpMode {
                 if (gamepad2.squareWasPressed()){
                     turret.pipelineSwitch(4);
                     robot.limelight.start();
+                    drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+
                     gamepad2.rumble(500);
                 }
             } else {
@@ -221,6 +223,8 @@ public class Auto_LT_Far extends LinearOpMode {
                 if (gamepad2.squareWasPressed()){
                     turret.pipelineSwitch(2);
                     robot.limelight.start();
+                    drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+
                     gamepad2.rumble(500);
                 }
             }
@@ -240,7 +244,10 @@ public class Auto_LT_Far extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
 
             pickupGate = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
-                    .strafeToLinearHeading(new Vector2d(pickupGateX, pickupGateY), Math.toRadians(pickupGateH),
+                    .strafeToLinearHeading(new Vector2d(pickupGateX, pickupGateY), Math.toRadians(pickupGateH))
+                    .waitSeconds(0.2)
+                    .strafeToLinearHeading(new Vector2d(pickupGateXB, pickupGateYB), Math.toRadians(pickupGateHB))
+                    .strafeToLinearHeading(new Vector2d(pickupGateXC, pickupGateYC), Math.toRadians(pickupGateHC),
                             new TranslationalVelConstraint(pickupGateSpeed));
 
             shootGate = drive.actionBuilder(new Pose2d(pickupGateX, pickupGateY, Math.toRadians(pickupGateH)))
