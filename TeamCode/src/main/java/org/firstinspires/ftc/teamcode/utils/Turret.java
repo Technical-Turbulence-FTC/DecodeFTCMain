@@ -59,6 +59,9 @@ public class Turret {
     private int prevPipeline = -1;
     PIDController bearingPID;
 
+    public int llCoast = 0;
+    public int LL_COAST_TICKS = 60;
+
     public Turret(Robot rob, MultipleTelemetry tele, Limelight3A cam) {
         this.TELE = tele;
         this.robot = rob;
@@ -276,6 +279,12 @@ public class Turret {
         if (result.isValid() && !lockOffset && limelightUsed) {
             currentTrackOffset += bearingAlign(result);
             currentTrackCount++;
+
+            TELE.addData("LL Tracking: ", llCoast);
+
+            // Assume the last tracked value is always better than
+            // any previous value, even if its not fully aligned.
+            llCoast = LL_COAST_TICKS;
 //            double bearingError = Math.abs(tagBearingDeg);
 //
 //            if (bearingError > cameraBearingEqual) {
@@ -306,9 +315,15 @@ public class Turret {
 //            if (currentTrackCount > 20) {
 //                offset = currentTrackOffset;
 //            }
-            lightColor = Color.LightRed;
-            currentTrackOffset = 0.0;
-            currentTrackCount = 0;
+            if (llCoast <= 0) {
+                TELE.addData("LL No Track: ", llCoast);
+                lightColor = Color.LightRed;
+                currentTrackOffset = 0.0;
+                currentTrackCount = 0;
+            } else {
+                TELE.addData("LL Coasting: ", llCoast);
+                llCoast--;
+            }
         }
 
         // Apply accumulated offset
