@@ -18,7 +18,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
@@ -145,18 +147,35 @@ public class AutoActions {
 
                     servos.setSpinPos(spindexer_intakePos1 + spindexerWiggle);
 
-                    spindexer.detectBalls(true, true);
 
-                    if (Objects.equals(spindexer.GetFrontDriverColor(), Spindexer.BallColor.GREEN)) {
-                        driverSlotGreen++;
+// Rear Center (Position 1)
+                    double distanceRearCenter = robot.color1.getDistance(DistanceUnit.MM);
+                    if (distanceRearCenter < 52) {
+                        NormalizedRGBA color1RGBA = robot.color1.getNormalizedColors();
+                        double gP1 = color1RGBA.green / (color1RGBA.green + color1RGBA.red + color1RGBA.blue);
+                        if (gP1 >= 0.38) {
+                            rearSlotGreen++;
+                        }
                     }
 
-                    if (Objects.equals(spindexer.GetFrontPassengerColor(), Spindexer.BallColor.GREEN)) {
-                        passengerSlotGreen++;
+// Front Driver (Position 2)
+                    double distanceFrontDriver = robot.color2.getDistance(DistanceUnit.MM);
+                    if (distanceFrontDriver < 50) {
+                        NormalizedRGBA color2RGBA = robot.color2.getNormalizedColors();
+                        double gP2 = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
+                        if (gP2 >= 0.4) {
+                            driverSlotGreen++;
+                        }
                     }
 
-                    if (Objects.equals(spindexer.GetRearCenterColor(), Spindexer.BallColor.GREEN)) {
-                        rearSlotGreen++;
+// Front Passenger (Position 3)
+                    double distanceFrontPassenger = robot.color3.getDistance(DistanceUnit.MM);
+                    if (distanceFrontPassenger < 29) {
+                        NormalizedRGBA color3RGBA = robot.color3.getNormalizedColors();
+                        double gP3 = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
+                        if (gP3 >= 0.4) {
+                            passengerSlotGreen++;
+                        }
                     }
 
                     spindexer.setIntakePower(-0.1);
@@ -178,29 +197,45 @@ public class AutoActions {
 
                     if (motif_id == 21) {
                         if (mostGreenSlot == 1) {
-                            spin1PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = true;
+                            spinEndPos = 0.95;
                         } else if (mostGreenSlot == 2) {
-                            spin2PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall2;
+                            shootForward = false;
+                            spinEndPos = 0.05;
                         } else {
-                            spin3PosFirst();
-                        }
+                            firstSpindexShootPos = spindexer_outtakeBall3b;
+                            shootForward = true;
+                            spinEndPos = 0.95;                        }
                     } else if (motif_id == 22) {
                         if (mostGreenSlot == 1) {
-                            spin2PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall3b;
+                            shootForward = true;
+                            spinEndPos = 0.95;
                         } else if (mostGreenSlot == 2) {
-                            spin3PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = true;
+                            spinEndPos = 0.95;
                         } else {
-                            reverseSpin2PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = false;
+                            spinEndPos = 0.03;
                         }
 
                     } else {
                         if (mostGreenSlot == 1) {
-                            spin3PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall3;
+                            shootForward = false;
+                            spinEndPos = 0.05;
                         } else if (mostGreenSlot == 2) {
-                            oddSpin3PosFirst();
+                            firstSpindexShootPos = spindexer_outtakeBall3b;
+                            shootForward = true;
+                            spinEndPos = 0.95;
                         } else {
-                            spin1PosFirst();
-                        }
+                            firstSpindexShootPos = spindexer_outtakeBall1;
+                            shootForward = true;
+                            spinEndPos = 0.95;                        }
                     }
 
                     return true;

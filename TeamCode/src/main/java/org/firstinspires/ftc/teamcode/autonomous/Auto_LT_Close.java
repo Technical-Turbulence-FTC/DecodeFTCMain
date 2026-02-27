@@ -59,19 +59,19 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double hood0MoveTime = 2;
     public static double spindexerSpeedIncrease = 0.014;
 
-    public static double shootAllTime = 3.5;
+    public static double shootAllTime  = 10.0;
     public static double intake1Time = 3.3;
     public static double intake2Time = 3.8;
 
     public static double intake3Time = 4.2;
 
-    public static double flywheel0Time = 1.5;
-    public static double pickup1Speed = 12;
+    public static double flywheel0Time = 2.2;
+    public static double pickup1Speed = 22;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;
     public static double posYTolerance = 5.0;
     // ---- OBELISK DETECTION ----
-    public static double shoot1Time = 2.5;
+    public static double shoot1Time = 3.0;
     public static double shoot2Time = 2.5;
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
@@ -544,25 +544,17 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         shoot0.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 flywheel0Time,
+                                motif,
                                 x1,
                                 y1,
-                                h1,
-                                false
-                        ),
-                        autoActions.detectObelisk(
-                                flywheel0Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                0.501,
-                                obeliskTurrPosAutoStart
+                                h1
                         )
                 )
         );
 
-        motif = turret.getObeliskID();
     }
 
 
@@ -573,15 +565,18 @@ public class Auto_LT_Close extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         shoot0.build(),
-                        autoActions.manageShooterAuto(
+                        autoActions.prepareShootAll(
+                                colorSenseTime,
                                 flywheel0Time,
+                                motif,
                                 xShoot0,
                                 yShoot0,
-                                hShoot0,
-                                false
+                                hShoot0
                         )
                 )
         );
+
+
     }
 
     void cycleStackClose() {
