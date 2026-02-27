@@ -63,7 +63,7 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double intake1Time = 3.3;
     public static double intake2Time = 4.2;
 
-    public static double intake3Time = 5.8;
+    public static double intake3Time = 5.4;
 
     public static double flywheel0Time = 1.9;
     public static double pickup1Speed = 14;
