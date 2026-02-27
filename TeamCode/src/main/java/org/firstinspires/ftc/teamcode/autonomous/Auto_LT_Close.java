@@ -59,19 +59,19 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double hood0MoveTime = 2;
     public static double spindexerSpeedIncrease = 0.014;
 
-    public static double shootAllTime  = 10.0;
+    public static double shootAllTime  = 6.0;
     public static double intake1Time = 3.3;
-    public static double intake2Time = 3.8;
+    public static double intake2Time = 4.2;
 
-    public static double intake3Time = 4.2;
+    public static double intake3Time = 5.8;
 
-    public static double flywheel0Time = 2.2;
+    public static double flywheel0Time = 1.9;
     public static double pickup1Speed = 14;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;
     public static double posYTolerance = 5.0;
     // ---- OBELISK DETECTION ----
-    public static double shoot1Time = 8;
+    public static double shoot1Time = 2.5;
     public static double shoot2Time = 2.5;
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
@@ -478,15 +478,15 @@ public class Auto_LT_Close extends LinearOpMode {
 
             if (gateCycle) {
                 startAutoGate();
-                shoot();
+                shoot(0.501, 0.501, 0.501);
                 cycleStackMiddleGate();
-                shoot();
+                shoot(0.501,0.501, 0.501);
 
                 while (getRuntime() - stamp < endGateTime) {
                     cycleGateIntake();
                     if (getRuntime() - stamp < lastShootTime) {
                         cycleGateShoot();
-                        shoot();
+                        shoot(0.501, 0.501, 0.501);
                     }
                 }
                 cycleStackCloseIntakeGate();
@@ -495,25 +495,28 @@ public class Auto_LT_Close extends LinearOpMode {
                     cycleStackCloseShootGate();
                 }
 
-                shoot();
+                shoot(0.501, 0.501, 0.501);
 
             } else {
+
+
+
                 startAuto();
-                shoot();
+                shoot(0.501, 0.501,0.501);
 
                 if (ballCycles > 0) {
                     cycleStackClose();
-                    shoot();
+                    shoot(xShoot, yShoot, hShoot);
                 }
 
                 if (ballCycles > 1) {
                     cycleStackMiddle();
-                    shoot();
+                    shoot(xShoot, yShoot, hShoot);
                 }
 
                 if (ballCycles > 2) {
                     cycleStackFar();
-                    shoot();
+                    shoot(xLeave, yLeave, hLeave);
                 }
             }
 
@@ -534,8 +537,8 @@ public class Auto_LT_Close extends LinearOpMode {
 
     }
 
-    void shoot() {
-        Actions.runBlocking(autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease));
+    void shoot(double x, double y, double z) {
+        Actions.runBlocking(autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, x, y, z));
     }
 
     void startAuto() {
@@ -545,7 +548,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 new ParallelAction(
                         shoot0.build(),
                         autoActions.prepareShootAll(
-                                colorSenseTime,
+                                0.8,
                                 flywheel0Time,
                                 motif,
                                 x1,

@@ -21,6 +21,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
@@ -207,7 +208,8 @@ public class AutoActions {
                         } else {
                             firstSpindexShootPos = spindexer_outtakeBall3b;
                             shootForward = true;
-                            spinEndPos = 0.95;                        }
+                            spinEndPos = 0.95;
+                        }
                     } else if (motif_id == 22) {
                         if (mostGreenSlot == 1) {
                             firstSpindexShootPos = spindexer_outtakeBall3b;
@@ -253,7 +255,7 @@ public class AutoActions {
         };
     }
 
-    public Action shootAllAuto(double shootTime, double spindexSpeed) {
+    public Action shootAllAuto(double shootTime, double spindexSpeed, double posX, double posY, double posH) {
         return new Action() {
             int ticker = 1;
 
@@ -275,7 +277,7 @@ public class AutoActions {
 
                 if (ticker == 1) {
                     stamp = System.currentTimeMillis();
-                    manageShooter = manageShooterAuto(shootTime, 0.501, 0.501, 0.501, false);
+                    manageShooter = manageShooterAuto(shootTime, posX, posY, posH, false);
 
                 }
                 ticker++;
@@ -423,7 +425,8 @@ public class AutoActions {
 
                 manageShooter.run(telemetryPacket);
 
-                if ((System.currentTimeMillis() - stamp) > (time * 1000) || spindexer.isFull()) {
+                if ((System.currentTimeMillis() - stamp) > (time * 1000)) {
+                    servos.setSpinPos(spindexer_intakePos1);
                     return false;
                 } else {
                     return true;
@@ -513,14 +516,26 @@ public class AutoActions {
 
             final boolean timeFallback = (time != 0.501);
 
+
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+
 
                 drive.updatePoseEstimate();
                 Pose2d currentPose = drive.localizer.getPose();
 
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
+
+                    if (redAlliance) {
+                        turret.pipelineSwitch(4);
+                        light.setManualLightColor(Color.LightRed);
+                    } else {
+                        turret.pipelineSwitch(2);
+                        light.setManualLightColor(Color.LightBlue);
+
+                    }
                 }
 
                 ticker++;
@@ -535,14 +550,15 @@ public class AutoActions {
 
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
+
+
                 Pose2d deltaPose;
                 if (posX != 0.501) {
                     deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
-                    Turret.limelightUsed = false;
                 } else {
                     deltaPose = new Pose2d(dx, dy, robotHeading);
-                    Turret.limelightUsed = true;
                 }
+                Turret.limelightUsed = true;
 
 //                double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 

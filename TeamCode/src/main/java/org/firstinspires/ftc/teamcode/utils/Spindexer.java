@@ -187,7 +187,7 @@ public class Spindexer {
         distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 52) {
+        if (distanceRearCenter < 48) {
 
             // Mark Ball Found
             newPos1Detection = true;
@@ -200,9 +200,9 @@ public class Spindexer {
 
                 // FIXIT - Add filtering to improve accuracy.
                 if (gP >= 0.38) {
-                    ballPositions[0].ballColor = BallColor.GREEN;  // green
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[0].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         }
@@ -218,9 +218,9 @@ public class Spindexer {
                 double gP = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
 
                 if (gP >= 0.4) {
-                    ballPositions[2].ballColor = BallColor.GREEN;  // green
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[2].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {
@@ -244,10 +244,10 @@ public class Spindexer {
 
                 double gP = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
 
-                if (gP >= 0.4) {
-                    ballPositions[1].ballColor = BallColor.GREEN;  // green
+                if (gP >= 0.42) {
+                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[1].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {

@@ -321,7 +321,7 @@ public class Auto_LT_Far extends LinearOpMode {
     void shoot(){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease)
+                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, 0.501, 0.501, 0.501)
                 )
 
         );

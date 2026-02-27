@@ -271,6 +271,7 @@ public class Turret {
 
         turretAngleDeg += permanentOffset;
 
+
         limelightRead();
         // Active correction if we see the target
         if (result.isValid() && !lockOffset && limelightUsed) {

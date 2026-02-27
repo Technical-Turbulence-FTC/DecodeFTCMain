@@ -95,7 +95,10 @@ public class SortingTest extends LinearOpMode {
                 Actions.runBlocking(
                         autoActions.shootAllAuto(
                                 3.5,
-                                0.014
+                                0.014,
+                                0.501,
+                                0.501,
+                                0.501
                         )
                 );
                 intaking = true;
