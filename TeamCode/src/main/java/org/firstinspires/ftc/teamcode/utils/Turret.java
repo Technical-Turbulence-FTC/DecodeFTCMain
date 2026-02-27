@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Config
@@ -130,7 +131,7 @@ public class Turret {
             }
         }
         if (xPos != null){
-            if (zPos>0) {
+            if (zPos<0) {
                 limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
                 limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
                 limelightTagZ = (alphaPosConstant * zPos) + ((1 - alphaPosConstant) * limelightTagZ);
@@ -171,8 +172,12 @@ public class Turret {
         LLResult result = webcam.getLatestResult();
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            double prevTx  = -1000;
             for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                obeliskID = fiducial.getFiducialId();
+                double currentTx = fiducial.getTargetXDegrees();
+                if (currentTx > prevTx){
+                    obeliskID = fiducial.getFiducialId();
+                }
             }
         }
         return obeliskID;

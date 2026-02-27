@@ -10,10 +10,10 @@ public class Front_Poses {
     public static double rx1 = 20, ry1 = 0.5, rh1 = 0.1;
     public static double bx1 = 20, by1 = -0.5, bh1 = -0.1;
 
-    public static double rx2a = 41, ry2a = 18, rh2a = 155;
+    public static double rx2a = 41, ry2a = 18, rh2a = 140;
     public static double bx2a = 41, by2a = -18, bh2a = -140;
 
-    public static double rx2b = 21, ry2b = 34, rh2b = 155.1;
+    public static double rx2b = 21, ry2b = 34, rh2b = 140.1;
     public static double bx2b = 23, by2b = -36, bh2b = -140.1;
 
     public static double rx3a = 55, ry3a = 39, rh3a = 140;

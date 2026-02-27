@@ -48,7 +48,7 @@ public class AutoActions {
     private int passengerSlotGreen = 0;
     private int rearSlotGreen = 0;
     private int mostGreenSlot = 0;
-    private double firstSpindexShootPos = spinStartPos;
+    public static double firstSpindexShootPos = spinStartPos;
     private boolean shootForward = true;
     public int motif = 0;
     double spinEndPos = ServoPositions.spinEndPos;
@@ -85,13 +85,13 @@ public class AutoActions {
             void spin1PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall1;
                 shootForward = true;
-                spinEndPos = spindexer_outtakeBall3 + 0.1;
+                spinEndPos = 0.95;
             }
 
             void spin2PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall2;
                 shootForward = false;
-                spinEndPos = spindexer_outtakeBall3b - 0.1;
+                spinEndPos = 0.05;
             }
 
             void reverseSpin2PosFirst() {
@@ -103,13 +103,13 @@ public class AutoActions {
             void spin3PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall3;
                 shootForward = false;
-                spinEndPos = spindexer_outtakeBall1 - 0.1;
+                spinEndPos = 0.05;
             }
 
             void oddSpin3PosFirst() {
                 firstSpindexShootPos = spindexer_outtakeBall3b;
                 shootForward = true;
-                spinEndPos = spindexer_outtakeBall2 + 0.1;
+                spinEndPos = 0.95;
             }
 
             Action manageShooter = null;
@@ -119,6 +119,9 @@ public class AutoActions {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
                     manageShooter = manageShooterAuto(time, posX, posY, posH, false);
+                    driverSlotGreen = 0;
+                    passengerSlotGreen = 0;
+                    rearSlotGreen = 0;
                 }
                 ticker++;
                 servos.setTransferPos(transferServo_out);
@@ -129,6 +132,12 @@ public class AutoActions {
                 teleStart = drive.localizer.getPose();
 
                 manageShooter.run(telemetryPacket);
+
+                TELE.addData("Most Green Slot", mostGreenSlot);
+                TELE.addData("Driver Slot Greeness", driverSlotGreen);
+                TELE.addData("Passenger Slot Greeness", passengerSlotGreen);
+                TELE.addData("Rear Greeness", rearSlotGreen);
+                TELE.update();
 
                 if ((System.currentTimeMillis() - stamp) < (colorSenseTime * 1000)) {
 
@@ -150,7 +159,7 @@ public class AutoActions {
                         rearSlotGreen++;
                     }
 
-                    spindexer.setIntakePower(1);
+                    spindexer.setIntakePower(-0.1);
 
                     decideGreenSlot = true;
 
@@ -242,9 +251,9 @@ public class AutoActions {
 
                 boolean end;
                 if (shootForward) {
-                    end = prevSpinPos > spinEndPos;
+                    end = servos.getSpinPos() > spinEndPos;
                 } else {
-                    end = prevSpinPos < spinEndPos;
+                    end = servos.getSpinPos() < spinEndPos;
                 }
 
                 if (System.currentTimeMillis() - stamp < shootTime * 1000 && (!end || shooterTicker < Spindexer.waitFirstBallTicks + 1)) {
@@ -380,7 +389,6 @@ public class AutoActions {
                 manageShooter.run(telemetryPacket);
 
                 if ((System.currentTimeMillis() - stamp) > (time * 1000) || spindexer.isFull()) {
-                    spindexer.setIntakePower(-0.1);
                     return false;
                 } else {
                     return true;
@@ -408,6 +416,7 @@ public class AutoActions {
 
             double stamp = 0.0;
             int ticker = 0;
+            int prevMotif = 0;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -418,10 +427,15 @@ public class AutoActions {
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
                     turret.pipelineSwitch(1);
+                    ticker++;
                 }
 
-                ticker++;
                 motif = turret.detectObelisk();
+
+                if (prevMotif == motif){
+                    ticker++;
+                }
+                prevMotif = motif;
 
                 turret.setTurret(turrPos);
 
@@ -429,7 +443,7 @@ public class AutoActions {
                 boolean xDone = posXFallback && Math.abs(currentPose.position.x - posX) < posXTolerance;
                 boolean yDone = posYFallback && Math.abs(currentPose.position.y - posY) < posYTolerance;
 
-                boolean shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull();
+                boolean shouldFinish = timeDone || (xDone && yDone) || spindexer.isFull() || ticker > 10;
 
                 teleStart = currentPose;
 

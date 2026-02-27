@@ -33,12 +33,14 @@ public class ServoPositions {
     public static double turret_blueClose = 0;
 
     // These values are ADDED to turrDefault
-    public static double redObeliskTurrPos1 = 0.12;
-    public static double redObeliskTurrPos2 = 0.13;
-    public static double redObeliskTurrPos3 = 0.14;
-    public static double blueObeliskTurrPos1 = -0.12;
-    public static double blueObeliskTurrPos2 = -0.13;
-    public static double blueObeliskTurrPos3 = -0.14;
+    public static double redObeliskTurrPos0 = -0.35;
+    public static double redObeliskTurrPos1 = 0.15;
+    public static double redObeliskTurrPos2 = 0.16;
+    public static double redObeliskTurrPos3 = 0.17;
+    public static double blueObeliskTurrPos0 = 0.35;
+    public static double blueObeliskTurrPos1 = -0.15;
+    public static double blueObeliskTurrPos2 = -0.16;
+    public static double blueObeliskTurrPos3 = -0.17;
     public static double redTurretShootPos = 0.05;
     public static double blueTurretShootPos = -0.05;
 

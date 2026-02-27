@@ -5,10 +5,16 @@ import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos0;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.redObeliskTurrPos3;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_intakePos1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall2;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall3b;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
@@ -127,6 +133,7 @@ public class Auto_LT_Close extends LinearOpMode {
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
     double waitToPickupGate = 0;
+    double obeliskTurrPosAutoStart = 0;
 
     // initialize path variables here
     TrajectoryActionBuilder shoot0 = null;
@@ -168,27 +175,51 @@ public class Auto_LT_Close extends LinearOpMode {
 
         autoActions = new AutoActions(robot, drive, TELE, servos, flywheel, spindexer, targeting, targetingSettings, turret, light);
 
-        servos.setSpinPos(spinStartPos);
+        servos.setSpinPos(spindexer_intakePos1);
 
         servos.setTransferPos(transferServo_out);
-
-        limelightUsed = true;
+        limelightUsed = false;
 
         robot.light.setPosition(1);
 
         hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint").resetPosAndIMU();
 
-
         while (opModeInInit()) {
+            if (limelightUsed && !gateCycle){
+                Actions.runBlocking(
+                        autoActions.detectObelisk(
+                                0.1,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501,
+                                obeliskTurrPosAutoStart
+                        )
+                );
+                motif = turret.getObeliskID();
 
+                if (motif == 21){
+                    AutoActions.firstSpindexShootPos = spindexer_outtakeBall1;
+                } else if (motif == 22){
+                    AutoActions.firstSpindexShootPos = spindexer_outtakeBall3b;
+                } else {
+                    AutoActions.firstSpindexShootPos = spindexer_outtakeBall2;
+                }
+            }
+
+            if (!gateCycle) {
+                turret.pipelineSwitch(1);
+            } else if (redAlliance) {
+                turret.pipelineSwitch(4);
+            } else {
+                turret.pipelineSwitch(2);
+            }
 
             if (gateCycle) {
                 servos.setHoodPos(hoodGate0Start);
             } else {
                 servos.setHoodPos(shoot0Hood);
             }
-
-            turret.setTurret(turrDefault);
 
             if (gamepad2.crossWasPressed()) {
                 redAlliance = !redAlliance;
@@ -209,24 +240,17 @@ public class Auto_LT_Close extends LinearOpMode {
                 ballCycles--;
             }
 
+            if (gamepad2.triangleWasPressed()){
+                gateCycle = !gateCycle;
+            }
+
 
 
             if (gamepad2.squareWasPressed()) {
 
-
                 drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
-
-
-                if (!gateCycle) {
-                    turret.pipelineSwitch(1);
-                } else if (redAlliance) {
-                    turret.pipelineSwitch(4);
-                } else {
-                    turret.pipelineSwitch(2);
-                }
                 robot.limelight.start();
-
-
+                limelightUsed = true;
 
                 gamepad2.rumble(500);
             }
@@ -283,6 +307,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 pickupGateBY = rPickupGateBY;
                 pickupGateBH = rPickupGateBH;
 
+                obeliskTurrPosAutoStart = turrDefault + redObeliskTurrPos0;
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
@@ -338,6 +363,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 pickupGateBY = bPickupGateBY;
                 pickupGateBH = bPickupGateBH;
 
+                obeliskTurrPosAutoStart = turrDefault + redObeliskTurrPos0;
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;
@@ -414,10 +440,6 @@ public class Auto_LT_Close extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
             }
 
-
-
-
-
             pickup3 = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
                     .strafeToLinearHeading(new Vector2d(x4a, y4a), Math.toRadians(h4a))
                     .strafeToLinearHeading(new Vector2d(x4b, y4b), Math.toRadians(h4b),
@@ -432,13 +454,13 @@ public class Auto_LT_Close extends LinearOpMode {
                 waitToPickupGate = waitToPickupGateSolo;
             }
 
-
-
-
             teleStart = drive.localizer.getPose();
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
+            TELE.addData("Gate Cycle?", gateCycle);
             TELE.addData("Ball Cycles", ballCycles);
+            TELE.addData("Limelight Started?", limelightUsed);
+            TELE.addData("Motif", motif);
 
             TELE.update();
         }
@@ -528,9 +550,19 @@ public class Auto_LT_Close extends LinearOpMode {
                                 y1,
                                 h1,
                                 false
+                        ),
+                        autoActions.detectObelisk(
+                                flywheel0Time,
+                                0.501,
+                                0.501,
+                                0.501,
+                                0.501,
+                                obeliskTurrPosAutoStart
                         )
                 )
         );
+
+        motif = turret.getObeliskID();
     }
 
 
@@ -561,23 +593,9 @@ public class Auto_LT_Close extends LinearOpMode {
                                 x2b,
                                 y2b,
                                 h2b
-                        ),
-                        autoActions.detectObelisk(
-                                intake1Time,
-                                x2b,
-                                y2b,
-                                posXTolerance,
-                                posYTolerance,
-                                obeliskTurrPos1
                         )
-
                 )
         );
-
-        motif = turret.getObeliskID();
-
-        if (motif == 0) motif = 22;
-        prevMotif = motif;
 
         double posX;
         double posY;
@@ -616,23 +634,9 @@ public class Auto_LT_Close extends LinearOpMode {
                                 x3b,
                                 y3b,
                                 h3b
-                        ),
-                        autoActions.detectObelisk(
-                                intake2Time,
-                                x3b,
-                                y3b,
-                                posXTolerance,
-                                posYTolerance,
-                                obeliskTurrPos2
                         )
-
                 )
         );
-
-        motif = turret.getObeliskID();
-
-        if (motif == 0) motif = prevMotif;
-        prevMotif = motif;
 
         double posX;
         double posY;
@@ -670,16 +674,7 @@ public class Auto_LT_Close extends LinearOpMode {
                                 x4b,
                                 y4b,
                                 h4b
-                        ),
-                        autoActions.detectObelisk(
-                                intake3Time,
-                                x4b,
-                                y4b,
-                                posXTolerance,
-                                posYTolerance,
-                                obeliskTurrPos3
                         )
-
                 )
         );
 

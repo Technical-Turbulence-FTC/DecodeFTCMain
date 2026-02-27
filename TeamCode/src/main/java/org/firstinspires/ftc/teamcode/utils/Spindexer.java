@@ -187,7 +187,7 @@ public class Spindexer {
         distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 48) {
+        if (distanceRearCenter < 52) {
 
             // Mark Ball Found
             newPos1Detection = true;
@@ -200,9 +200,9 @@ public class Spindexer {
 
                 // FIXIT - Add filtering to improve accuracy.
                 if (gP >= 0.38) {
-                    ballPositions[commandedIntakePosition].ballColor = BallColor.GREEN;  // green
+                    ballPositions[0].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[commandedIntakePosition].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[0].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         }
@@ -218,9 +218,9 @@ public class Spindexer {
                 double gP = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
 
                 if (gP >= 0.4) {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
+                    ballPositions[2].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[2].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {
@@ -244,10 +244,10 @@ public class Spindexer {
 
                 double gP = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
 
-                if (gP >= 0.42) {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.GREEN;  // green
+                if (gP >= 0.4) {
+                    ballPositions[1].ballColor = BallColor.GREEN;  // green
                 } else {
-                    ballPositions[spindexerBallPos].ballColor = BallColor.PURPLE;  // purple
+                    ballPositions[1].ballColor = BallColor.PURPLE;  // purple
                 }
             }
         } else {
@@ -671,8 +671,10 @@ public class Spindexer {
         return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.REARCENTER.ordinal()]].ballColor;
     }
     private double prevPow = 0.501;
+    private boolean firstIntakePow = true;
     public void setIntakePower(double pow){
-        if (prevPow != 0.501 && prevPow != pow){
+        if (firstIntakePow || prevPow != pow){
+            firstIntakePow = false;
             robot.intake.setPower(pow);
         }
         prevPow = pow;

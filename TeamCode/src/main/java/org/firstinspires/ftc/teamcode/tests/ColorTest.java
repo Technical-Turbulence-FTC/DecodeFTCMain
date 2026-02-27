@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.Robot;
@@ -28,15 +29,19 @@ public class ColorTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while(opModeIsActive()){
-            double green1 = robot.color1.getNormalizedColors().green;
-            double blue1 = robot.color1.getNormalizedColors().blue;
-            double red1 = robot.color1.getNormalizedColors().red;
+
+
+            NormalizedRGBA color1RGBA = robot.color1.getNormalizedColors();
+
+            double gP1 = color1RGBA.green / (color1RGBA.green + color1RGBA.red + color1RGBA.blue);
+
             double dist1 = robot.color1.getDistance(DistanceUnit.MM);
             color1Distance = (colorFilterAlpha * dist1) + ((1-colorFilterAlpha) * color1Distance);
 
             TELE.addData("Color1 toColor", robot.color1.getNormalizedColors().toColor());
-            TELE.addData("Color1 green", green1 / (green1 + blue1 + red1));
+            TELE.addData("Color1 green", gP1);
             TELE.addData("Color1 distance (mm)", color1Distance);
+
 
 // ----- COLOR 2 -----
             double green2 = robot.color2.getNormalizedColors().green;
