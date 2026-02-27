@@ -66,12 +66,12 @@ public class Auto_LT_Close extends LinearOpMode {
     public static double intake3Time = 4.2;
 
     public static double flywheel0Time = 2.2;
-    public static double pickup1Speed = 22;
+    public static double pickup1Speed = 14;
     // ---- POSITION TOLERANCES ----
     public static double posXTolerance = 5.0;
     public static double posYTolerance = 5.0;
     // ---- OBELISK DETECTION ----
-    public static double shoot1Time = 3.0;
+    public static double shoot1Time = 8;
     public static double shoot2Time = 2.5;
     public static double shoot3Time = 2.5;
     public static double colorSenseTime = 1.2;
