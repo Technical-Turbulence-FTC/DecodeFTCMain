@@ -58,5 +58,11 @@ public class Front_Poses {
     public static double bPickupGateBX = 38, bPickupGateBY = -68, bPickupGateBH = -180;
     public static double pickupGateCX = 34, pickupGateCY = 58, pickupGateCH = 220;
 
+    public static double rOpenGateCloseX = 20, rOpenGateCloseY = 35, rOpenGateCloseH = 230;
+    public static double bOpenGateCloseX = 20, bOpenGateCloseY = -35, bOpenGateCloseH = -230;
+
+    public static double rOpenGateMiddleX = 36, rOpenGateMiddleY = 59, rOpenGateMiddleH = 50;
+    public static double bOpenGateMiddleX = 36, bOpenGateMiddleY = -59, bOpenGateMiddleH = -500;
+
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
 }
