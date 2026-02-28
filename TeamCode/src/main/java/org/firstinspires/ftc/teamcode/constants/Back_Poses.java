@@ -7,8 +7,8 @@ public class Back_Poses {
     public static double rLeaveX = 90, rLeaveY = 50, rLeaveH = 50.1;
     public static double bLeaveX = 90, bLeaveY = -50, bLeaveH = -50;
 
-    public static double rShootX = 100, rShootY = 60, rShootH = 145.2;
-    public static double bShootX = 100, bShootY = -60, bShootH = -145.2;
+    public static double rShootX = 100, rShootY = 60, rShootH = 125.2;
+    public static double bShootX = 100, bShootY = -60, bShootH = -125.2;
 
     public static double rStackPickupFarAX = 73, rStackPickupFarAY = 51, rStackPickupFarAH = 145;
     public static double bStackPickupFarAX = 73, bStackPickupFarAY = -51, bStackPickupFarAH = -145;
