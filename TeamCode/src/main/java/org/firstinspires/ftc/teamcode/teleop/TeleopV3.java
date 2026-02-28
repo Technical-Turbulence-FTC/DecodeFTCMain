@@ -155,13 +155,13 @@ public class TeleopV3 extends LinearOpMode {
                 shootAll = false;
                 servo.setTransferPos(transferServo_out);
 
-                //light.setState(StateEnums.LightState.BALL_COUNT);
+                light.setState(StateEnums.LightState.BALL_COUNT);
 
             } else if (gamepad2.triangle){
                 //light.setState(StateEnums.LightState.BALL_COLOR);
 
             }  else {
-                //light.setState(StateEnums.LightState.GOAL_LOCK);
+                light.setState(StateEnums.LightState.BALL_COUNT);
             }
 
             //TURRET TRACKING

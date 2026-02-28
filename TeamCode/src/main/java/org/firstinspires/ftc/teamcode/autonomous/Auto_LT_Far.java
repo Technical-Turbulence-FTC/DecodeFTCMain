@@ -123,7 +123,7 @@ public class Auto_LT_Far extends LinearOpMode {
 
         turret = new Turret(robot, TELE, robot.limelight);
 
-        Spindexer.teleop = false;
+//        Spindexer.teleop = false;
 
         while (opModeInInit()) {
 

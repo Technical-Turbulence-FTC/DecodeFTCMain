@@ -8,7 +8,7 @@ public class Back_Poses {
     public static double bLeaveX = 90, bLeaveY = -50, bLeaveH = -50;
 
     public static double rShootX = 100, rShootY = 60, rShootH = 145.2;
-    public static double bShootX = 100, bShootY = -55, bShootH = -145.2;
+    public static double bShootX = 100, bShootY = -60, bShootH = -145.2;
 
     public static double rStackPickupFarAX = 73, rStackPickupFarAY = 51, rStackPickupFarAH = 145;
     public static double bStackPickupFarAX = 73, bStackPickupFarAY = -51, bStackPickupFarAH = -145;
@@ -23,7 +23,7 @@ public class Back_Poses {
     public static double bStackPickupMiddleBX = 45, bStackPickupMiddleBY = -49, bStackPickupMiddleBH = -145.1;
 
     public static double rPickupGateXA = 60, rPickupGateYA = 83, rPickupGateHA = 145;
-    public static double bPickupGateXA = 70, bPickupGateYA = -90, bPickupGateHA = -145;
+    public static double bPickupGateXA = 60, bPickupGateYA = -83, bPickupGateHA = -145;
     public static double rPickupGateXB = 84, rPickupGateYB = 76, rPickupGateHB = 145;
     public static double bPickupGateXB = 84, bPickupGateYB = -76, bPickupGateHB = -145;
     public static double rPickupGateXC = 50, rPickupGateYC = 83, rPickupGateHC = 190;

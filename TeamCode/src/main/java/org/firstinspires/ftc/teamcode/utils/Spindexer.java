@@ -525,7 +525,6 @@ public class Spindexer {
                 break;
 
             case SHOOTWAIT:
-                double shootWaitMax = 4;
                 // Stopping when we get to the new position
                 if (prevIntakeState != currentIntakeState) {
                     if (commandedIntakePosition==2) {
@@ -550,26 +549,30 @@ public class Spindexer {
 
             case SHOOT_PREP_CONTINOUS:
                 if (servos.spinEqual(spinStartPos)){
+                    servos.setTransferPos(transferServo_in);
                     currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
                 } else {
+                    servos.setTransferPos(transferServo_out);
                     servos.setSpinPos(spinStartPos);
                 }
                 break;
 
             case SHOOT_CONTINOUS:
-                servos.setTransferPos(transferServo_in);
+                whileShooting = true;
                 ballPositions[0].isEmpty = false;
                 ballPositions[1].isEmpty = false;
                 ballPositions[2].isEmpty = false;
                 if (servos.getSpinPos() > spinEndPos){
-                    currentIntakeState = IntakeState.FINDNEXT;
+                    whileShooting = false;
                     servos.setTransferPos(transferServo_out);
+                    shootTicks = 0;
+                    currentIntakeState = IntakeState.FINDNEXT;
                 } else {
                     double spinPos = robot.spin1.getPosition() + shootAllSpindexerSpeedIncrease;
                     if (spinPos > spinEndPos + 0.03){
                         spinPos = spinEndPos + 0.03;
                     }
-                    moveSpindexerToPos(spinPos);
+                    servos.setSpinPos(spinPos);
                 }
                 break;
 
@@ -679,10 +682,8 @@ public class Spindexer {
         return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.REARCENTER.ordinal()]].ballColor;
     }
     private double prevPow = 0.501;
-    private boolean firstIntakePow = true;
     public void setIntakePower(double pow){
-        if (firstIntakePow || prevPow != pow){
-            firstIntakePow = false;
+        if (prevPow != 0.501 && prevPow != pow){
             robot.intake.setPower(pow);
         }
         prevPow = pow;
