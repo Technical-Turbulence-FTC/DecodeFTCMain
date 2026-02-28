@@ -16,12 +16,12 @@ public class Back_Poses {
     public static double rStackPickupBX = 53, rStackPickupBY = 71, rStackPickupBH = 140.1;
     public static double bStackPickupBX = 55, bStackPickupBY = -73, bStackPickupBH = -140.1;
 
-    public static double rPickupGateX = 50, rPickupGateY = 83, rPickupGateH = 140;
-    public static double bPickupGateX = 70, bPickupGateY = -90, bPickupGateH = -140;
-    public static double pickupGateXB = 84, pickupGateYB = 76, pickupGateHB = 140;
-    public static double pickupGateXC = 50, pickupGateYC = 83, pickupGateHC = 190;
-
-
+    public static double rPickupGateXA = 50, rPickupGateYA = 83, rPickupGateHA = 140;
+    public static double bPickupGateXA = 70, bPickupGateYA = -90, bPickupGateHA = -140;
+    public static double rPickupGateXB = 84, rPickupGateYB = 76, rPickupGateHB = 140;
+    public static double bPickupGateXB = 84, bPickupGateYB = -76, bPickupGateHB = -140;
+    public static double rPickupGateXC = 50, rPickupGateYC = 83, rPickupGateHC = 190;
+    public static double bPickupGateXC = 50, bPickupGateYC = -83, bPickupGateHC = -190;
 
     public static double autoStartRX = 103, autoStartRY = 63.5, autoStartRH = 50;
     public static double autoStartBX = 103, autoStartBY = -63.5, autoStartBH = -50;

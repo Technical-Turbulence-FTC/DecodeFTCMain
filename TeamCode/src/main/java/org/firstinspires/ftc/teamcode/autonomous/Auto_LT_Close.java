@@ -134,6 +134,7 @@ public class Auto_LT_Close extends LinearOpMode {
     double obeliskTurrPos3 = 0.0;
     double waitToPickupGate = 0;
     double obeliskTurrPosAutoStart = 0;
+    boolean limelightStart = false;
 
     // initialize path variables here
     TrajectoryActionBuilder shoot0 = null;
@@ -185,7 +186,7 @@ public class Auto_LT_Close extends LinearOpMode {
         hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint").resetPosAndIMU();
 
         while (opModeInInit()) {
-            if (limelightUsed && !gateCycle){
+            if (limelightUsed && !gateCycle && limelightStart){
                 Actions.runBlocking(
                         autoActions.detectObelisk(
                                 0.1,
@@ -205,14 +206,6 @@ public class Auto_LT_Close extends LinearOpMode {
                 } else {
                     AutoActions.firstSpindexShootPos = spindexer_outtakeBall2;
                 }
-            }
-
-            if (!gateCycle) {
-                turret.pipelineSwitch(1);
-            } else if (redAlliance) {
-                turret.pipelineSwitch(4);
-            } else {
-                turret.pipelineSwitch(2);
             }
 
             if (gateCycle) {
@@ -249,14 +242,22 @@ public class Auto_LT_Close extends LinearOpMode {
             if (gamepad2.squareWasPressed()) {
 
                 drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+                sleep(100);
                 robot.limelight.start();
                 limelightUsed = true;
+                limelightStart = true;
 
                 gamepad2.rumble(500);
             }
 
             if (redAlliance) {
                 robot.light.setPosition(0.28);
+
+                if (gateCycle){
+                    turret.pipelineSwitch(1);
+                } else {
+                    turret.pipelineSwitch(4);
+                }
 
                 // ---- FIRST SHOT ----
                 x1 = rx1;
@@ -313,6 +314,12 @@ public class Auto_LT_Close extends LinearOpMode {
                 obeliskTurrPos3 = turrDefault + redObeliskTurrPos3;
             } else {
                 robot.light.setPosition(0.6);
+
+                if (gateCycle){
+                    turret.pipelineSwitch(5);
+                } else {
+                    turret.pipelineSwitch(2);
+                }
 
                 // ---- FIRST SHOT ----
                 x1 = bx1;
