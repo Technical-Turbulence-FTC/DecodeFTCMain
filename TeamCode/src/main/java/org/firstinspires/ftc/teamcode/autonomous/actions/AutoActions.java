@@ -54,7 +54,7 @@ public class AutoActions {
     public static double firstSpindexShootPos = spinStartPos;
     private boolean shootForward = true;
     public int motif = 0;
-    double spinEndPos = ServoPositions.spinEndPos;
+    double spinEndPos = 0.95;
     private boolean intaking = false;
     public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig) {
         this.robot = rob;
