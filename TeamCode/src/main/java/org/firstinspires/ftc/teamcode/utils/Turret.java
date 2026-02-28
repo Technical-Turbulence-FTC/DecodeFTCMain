@@ -27,7 +27,7 @@ public class Turret {
     public static double turret180Range = 0.54;
     public static double turrDefault = 0.35;
     public static double turrMin = 0;
-    public static double turrMax = 1;
+    public static double turrMax = 0.69;
     public static boolean limelightUsed = true;
     public static double limelightPosOffset = 5;
     public static double manualOffset = 0.0;

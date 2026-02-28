@@ -185,6 +185,8 @@ public class Spindexer {
             rearDistance = 48;
             frontDriverDistance = 50;
             frontPassengerDistance = 29;
+            detectFrontColor = false;
+            detectRearColor = false;
         } else {
             rearDistance = 48;
             frontDriverDistance = 56;
