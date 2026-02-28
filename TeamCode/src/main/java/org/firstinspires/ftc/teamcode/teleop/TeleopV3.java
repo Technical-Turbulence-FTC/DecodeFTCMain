@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.shootAllSpindexerSpeedIncrease;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
@@ -16,6 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
@@ -157,10 +159,11 @@ public class TeleopV3 extends LinearOpMode {
 
                 light.setState(StateEnums.LightState.BALL_COUNT);
 
-            } else if (gamepad2.triangle){
+                //} else if (gamepad2.triangle){
                 //light.setState(StateEnums.LightState.BALL_COLOR);
 
-            }  else {
+                //}
+            } else {
                 light.setState(StateEnums.LightState.BALL_COUNT);
             }
 
@@ -188,7 +191,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //RELOCALIZATION
 
-            if (gamepad2.squareWasPressed()){
+            if (gamepad2.triangleWasPressed()){
                 relocalize = !relocalize;
                 gamepad2.rumble(500);
             }
@@ -197,7 +200,7 @@ public class TeleopV3 extends LinearOpMode {
                 turret.relocalize();
                 xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
                 yOffset = (turret.getLimelightX() * 39.3701) - robY;
-                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
+                //hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
             } else {
                 turret.trackGoal(deltaPose);
             }
@@ -265,8 +268,15 @@ public class TeleopV3 extends LinearOpMode {
 
             if (gamepad2.crossWasPressed()) {
                 drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+                gamepad2.rumble(200);
+                sleep(500);
             }
 
+            if (gamepad2.squareWasPressed()){
+                shootAllSpindexerSpeedIncrease = shootAllSpindexerSpeedIncrease-0.01;
+            } else if (gamepad2.circleWasPressed()){
+                shootAllSpindexerSpeedIncrease = shootAllSpindexerSpeedIncrease+0.01;
+            }
 
 
             if (enableSpindexerManager) {
