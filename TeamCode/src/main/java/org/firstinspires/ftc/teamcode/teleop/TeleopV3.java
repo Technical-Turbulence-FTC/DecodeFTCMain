@@ -361,8 +361,8 @@ public class TeleopV3 extends LinearOpMode {
 //            TELE.addData("robotInchesX", targeting.robotInchesX);
 //            TELE.addData("robotInchesY", targeting.robotInchesY);
 //            TELE.addData("Targeting Interpolate", turretInterpolate);
-//            TELE.addData("Targeting GridX", targeting.robotGridX);
-//            TELE.addData("Targeting GridY", targeting.robotGridY);
+            TELE.addData("Targeting GridX", targeting.robotGridX);
+            TELE.addData("Targeting GridY", targeting.robotGridY);
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
@@ -376,7 +376,7 @@ public class TeleopV3 extends LinearOpMode {
 
             TELE.update();
 
-            //light.update();
+            light.update();
 
             ticker++;
         }

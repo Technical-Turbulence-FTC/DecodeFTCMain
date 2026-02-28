@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos0;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos2;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos3;
@@ -371,7 +372,7 @@ public class Auto_LT_Close extends LinearOpMode {
                 pickupGateBY = bPickupGateBY;
                 pickupGateBH = bPickupGateBH;
 
-                obeliskTurrPosAutoStart = turrDefault + redObeliskTurrPos0;
+                obeliskTurrPosAutoStart = turrDefault + blueObeliskTurrPos0;
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
                 obeliskTurrPos3 = turrDefault + blueObeliskTurrPos3;

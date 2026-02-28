@@ -7,8 +7,8 @@ import com.acmerobotics.roadrunner.Pose2d;
 public class Front_Poses {
 
 
-    public static double rx1 = 20, ry1 = 0.5, rh1 = 0.1;
-    public static double bx1 = 20, by1 = -0.5, bh1 = -0.1;
+    public static double rx1 = 30, ry1 = 5, rh1 = 0.1;
+    public static double bx1 = 30, by1 = -5, bh1 = -0.1;
 
     public static double rx2a = 41, ry2a = 18, rh2a = 140;
     public static double bx2a = 41, by2a = -18, bh2a = -140;
@@ -33,8 +33,8 @@ public class Front_Poses {
 
     public static double rfx1 = 10, rfy1 = 0, rfh1 = 0;
 
-    public static double rShootX = 40, rShootY = 10, rShootH = 50;
-    public static double bShootX = 40, bShootY = -10, bShootH = -50;
+    public static double rShootX = 60, rShootY = 10, rShootH = 50;
+    public static double bShootX = 60, bShootY = -10, bShootH = -50;
 
     public static double rxPrep = 45, ryPrep = 10, rhPrep = 50;
     public static double bxPrep = 45, byPrep = -10, bhPrep = -50;
