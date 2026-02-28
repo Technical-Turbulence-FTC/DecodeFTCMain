@@ -180,6 +180,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
         servos.setTransferPos(transferServo_out);
         limelightUsed = false;
+        Spindexer.teleop = false;
 
         robot.light.setPosition(1);
 

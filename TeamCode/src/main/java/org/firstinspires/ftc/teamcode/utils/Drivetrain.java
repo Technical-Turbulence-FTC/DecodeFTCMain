@@ -31,18 +31,40 @@ public class Drivetrain {
 
     }
 
+    private double prevY = 0;
+    private double prevX = 0;
+    private double prevRX = 0;
+    private double prevBrake = 0;
     public void drive(double y, double x, double rx, double brake){
+        int countConstant = 0;
+        boolean brakeChange = false;
+        if (Math.abs(prevY - y) > 0.05){
+            prevY = y;
+            countConstant++;
+        }
+        if (Math.abs(prevX - x) > 0.05){
+            prevX = x;
+            countConstant++;
+        }
+        if (Math.abs(prevRX - rx) > 0.05){
+            prevRX = rx;
+            countConstant++;
+        }
+        if (Math.abs(prevBrake - brake) > 0.05){
+            prevBrake = brake;
+            brakeChange = true;
+        }
 
-        if (!autoDrive) {
+        if (!autoDrive && countConstant > 0) {
 
             x = x* 1.1; // Counteract imperfect strafing
 
 
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+            double denominator = Math.max(Math.abs(prevY) + Math.abs(prevX) + Math.abs(prevRX), 1);
+            double frontLeftPower = (prevY + prevX + prevRX) / denominator;
+            double backLeftPower = (prevY - prevX + prevRX) / denominator;
+            double frontRightPower = (prevY - prevX - prevRX) / denominator;
+            double backRightPower = (prevY + prevX - prevRX) / denominator;
 
             robot.frontLeft.setPower(frontLeftPower);
             robot.backLeft.setPower(backLeftPower);

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class Turret {
     }
 
     public double getTurrPos() {
-        return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
+        return robot.turr1.getPosition();
 
     }
     private double prevTurrPos = 0;
@@ -114,23 +115,18 @@ public class Turret {
             if (result.isValid()) {
                 tx = result.getTx();
                 ty = result.getTy();
-                // MegaTag1 code for receiving position
-                Pose3D botpose = result.getBotpose();
-                if (botpose != null) {
-                    limelightPosX = botpose.getPosition().x;
-                    limelightPosY = botpose.getPosition().y;
-                }
-                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                    limelightTagPose = fiducial.getRobotPoseTargetSpace();
-                    if (limelightTagPose != null){
-                        xPos = limelightTagPose.getPosition().x;
-                        yPos = limelightTagPose.getPosition().y;
-                        zPos = limelightTagPose.getPosition().z;
-                        hPos = limelightTagPose.getOrientation().getYaw();
+                if (TeleopV3.relocalize){
+                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                        limelightTagPose = fiducial.getRobotPoseTargetSpace();
+                        if (limelightTagPose != null){
+                            xPos = limelightTagPose.getPosition().x;
+                            yPos = limelightTagPose.getPosition().y;
+                            zPos = limelightTagPose.getPosition().z;
+                            hPos = limelightTagPose.getOrientation().getYaw();
+                        }
                     }
                 }
-
             }
         }
         if (xPos != null){

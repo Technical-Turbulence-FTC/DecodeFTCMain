@@ -64,17 +64,17 @@ public final class Light {
                 break;
 
             case BALL_COLOR:
-
-                if ((System.currentTimeMillis() % ballColorCycleTime) < ((ballColorCycleTime / 3) - restingTime)) {
+                double currentTime = System.currentTimeMillis();
+                if ((currentTime % ballColorCycleTime) < ((ballColorCycleTime / 3) - restingTime)) {
                     lightColor = spindexer.getRearCenterLight();
-                } else if ((System.currentTimeMillis() % ballColorCycleTime) < (ballColorCycleTime / 3)) {
+                } else if ((currentTime % ballColorCycleTime) < (ballColorCycleTime / 3)) {
                     lightColor = 0;
-                } else if ((System.currentTimeMillis() % ballColorCycleTime) < ((2 * ballColorCycleTime / 3) - restingTime)) {
+                } else if ((currentTime % ballColorCycleTime) < ((2 * ballColorCycleTime / 3) - restingTime)) {
                     lightColor = spindexer.getDriverLight();
 
-                } else if ((System.currentTimeMillis() % ballColorCycleTime) < (2 * ballColorCycleTime / 3)) {
+                } else if ((currentTime % ballColorCycleTime) < (2 * ballColorCycleTime / 3)) {
                     lightColor = 0;
-                } else if ((System.currentTimeMillis() % ballColorCycleTime) < (ballColorCycleTime - restingTime)) {
+                } else if ((currentTime % ballColorCycleTime) < (ballColorCycleTime - restingTime)) {
                     lightColor = spindexer.getPassengerLight();
 
                 } else {

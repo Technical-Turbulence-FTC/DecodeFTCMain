@@ -39,7 +39,7 @@ public class TeleopV3 extends LinearOpMode {
     public static double spinPow = 0.09;
     public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
     public static double spinSpeedIncrease = 0.03;
-    public static int resetSpinTicks = 4;
+    public static int resetSpinTicks = 0;
     public static double hoodSpeedOffset = 0.01;
     public static double turretSpeedOffset = 0.01;
     public double vel = 3000;
@@ -76,7 +76,7 @@ public class TeleopV3 extends LinearOpMode {
 
     int intakeTicker = 0;
     private boolean shootAll = false;
-    boolean relocalize = false;
+    public static boolean relocalize = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -112,6 +112,7 @@ public class TeleopV3 extends LinearOpMode {
 
         light.setState(StateEnums.LightState.MANUAL);
         limelightUsed = true;
+        Spindexer.teleop = true;
 
         while (opModeInInit()) {
             robot.limelight.start();
@@ -154,13 +155,13 @@ public class TeleopV3 extends LinearOpMode {
                 shootAll = false;
                 servo.setTransferPos(transferServo_out);
 
-                light.setState(StateEnums.LightState.BALL_COUNT);
+                //light.setState(StateEnums.LightState.BALL_COUNT);
 
             } else if (gamepad2.triangle){
-                light.setState(StateEnums.LightState.BALL_COLOR);
+                //light.setState(StateEnums.LightState.BALL_COLOR);
 
             }  else {
-                light.setState(StateEnums.LightState.GOAL_LOCK);
+                //light.setState(StateEnums.LightState.GOAL_LOCK);
             }
 
             //TURRET TRACKING
@@ -354,14 +355,14 @@ public class TeleopV3 extends LinearOpMode {
 //
 //            TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
-            TELE.addData("robotX", robotX);
-            TELE.addData("robotY", robotY);
-            TELE.addData("robot H", robotHeading);
+//            TELE.addData("robotX", robotX);
+//            TELE.addData("robotY", robotY);
+//            TELE.addData("robot H", robotHeading);
 //            TELE.addData("robotInchesX", targeting.robotInchesX);
 //            TELE.addData("robotInchesY", targeting.robotInchesY);
 //            TELE.addData("Targeting Interpolate", turretInterpolate);
-            TELE.addData("Targeting GridX", targeting.robotGridX);
-            TELE.addData("Targeting GridY", targeting.robotGridY);
+//            TELE.addData("Targeting GridX", targeting.robotGridX);
+//            TELE.addData("Targeting GridY", targeting.robotGridY);
 //            TELE.addData("Targeting FlyWheel", targetingSettings.flywheelRPM);
 //            TELE.addData("Targeting HoodAngle", targetingSettings.hoodAngle);
 //            TELE.addData("timeSinceStamp", getRuntime() - shootStamp);
@@ -369,13 +370,13 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
-            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
-            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
+//            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
+//            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
+//            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
 
             TELE.update();
 
-            light.update();
+            //light.update();
 
             ticker++;
         }
