@@ -48,7 +48,7 @@ public class Spindexer {
     public double distanceFrontDriver = 0.0;
     public double distanceFrontPassenger = 0.0;
 
-    public double spindexerWiggle = 0.01;
+    public double spindexerWiggle = 0.03;
 
     public double spindexerOuttakeWiggle = 0.01;
     private double prevPos = 0.0;
@@ -205,7 +205,7 @@ public class Spindexer {
             // Mark Ball Found
             newPos1Detection = true;
 
-            if (detectRearColor) {
+            if (detectRearColor && !teleop) {
                 // Detect which color
                 NormalizedRGBA color1RGBA = robot.color1.getNormalizedColors();
 
@@ -225,7 +225,7 @@ public class Spindexer {
         if (distanceFrontDriver < frontDriverDistance) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            if (detectFrontColor) {
+            if (detectFrontColor && !teleop) {
                 NormalizedRGBA color2RGBA = robot.color2.getNormalizedColors();
 
                 double gP = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
@@ -252,7 +252,7 @@ public class Spindexer {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            if (detectFrontColor) {
+            if (detectFrontColor && !teleop) {
                 NormalizedRGBA color3RGBA = robot.color3.getNormalizedColors();
 
                 double gP = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
@@ -446,13 +446,13 @@ public class Spindexer {
             case MOVING:
                 // Stopping when we get to the new position
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
-                    if (intakeTicker > 1){
+                    //if (intakeTicker > 1){
                         currentIntakeState = Spindexer.IntakeState.INTAKE;
                         stopSpindexer();
                         intakeTicker = 0;
-                    } else {
-                        intakeTicker++;
-                    }
+                    //} else {
+                    //    intakeTicker++;
+                    //}
                     //detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
