@@ -78,12 +78,33 @@ public class Targeting {
     double unitConversionFactor = 0.95;
     int tileSize = 24; //inches
     public static boolean turretInterpolate = false;
-
+    public static boolean averageTiles = false;
     public Targeting() {
     }
 
     double cos54 = Math.cos(Math.toRadians(-54));
     double sin54 = Math.sin(Math.toRadians(-54));
+
+    public double x = 0.0;
+    public double y = 0.0;
+
+    public double interpolate(
+            double x, double y,
+            double x1, double y1,
+            double x2, double y2,
+            double q11, double q21,
+            double q12, double q22) {
+
+        double r1 = ((x2 - x) / (x2 - x1)) * q11
+                + ((x - x1) / (x2 - x1)) * q21;
+
+        double r2 = ((x2 - x) / (x2 - x1)) * q12
+                + ((x - x1) / (x2 - x1)) * q22;
+
+        return ((y2 - y) / (y2 - y1)) * r1
+                + ((y - y1) / (y2 - y1)) * r2;
+    }
+
 
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
@@ -97,11 +118,11 @@ public class Targeting {
         double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
 
         // Convert robot coordinates to inches
-        robotInchesX = rotatedX * unitConversionFactor;
-        robotInchesY = rotatedY * unitConversionFactor;
+        robotInchesX = rotatedX * unitConversionFactor + 20;  // account for starting offset
+        robotInchesY = rotatedY * unitConversionFactor + 20;  // account for starting offset
 
         // Find approximate location in the grid
-        int gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
+        int gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize));
         int gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
 
         int remX = Math.floorMod((int) robotInchesX, tileSize);
@@ -123,6 +144,7 @@ public class Targeting {
         int y0 = 0;
         int x1 = 0;
         int y1 = 0;
+        averageTiles = false;
         interpolate = false;
         if ((remX > TILE_UPPER_QUARTILE) && (remY > TILE_UPPER_QUARTILE) &&
                 (robotGridX < 5) && (robotGridY < 5)) {
@@ -158,71 +180,91 @@ public class Targeting {
             y1 = robotGridY + 1;
         } else if ((remX < TILE_LOWER_QUARTILE) && (robotGridX > 0)) {
             // -X, Y
-            interpolate = true;
+            averageTiles = true;
             x0 = robotGridX - 1;
             x1 = robotGridX;
             y0 = robotGridY;
             y1 = robotGridY;
         } else if ((remY < TILE_LOWER_QUARTILE) && (robotGridY > 0)) {
             // X, -Y
-            interpolate = true;
+            averageTiles = true;
             x0 = robotGridX;
             x1 = robotGridX;
             y0 = robotGridY - 1;
             y1 = robotGridY;
         } else if ((remX > TILE_UPPER_QUARTILE) && (robotGridX < 5)) {
             // +X, Y
-            interpolate = true;
+            averageTiles = true;
             x0 = robotGridX;
             x1 = robotGridX + 1;
             y0 = robotGridY;
             y1 = robotGridY;
         } else if ((remY > TILE_UPPER_QUARTILE) && (robotGridY < 5)) {
             // X, +Y
-            interpolate = true;
+            averageTiles = true;
             x0 = robotGridX;
             x1 = robotGridX;
             y0 = robotGridY;
             y1 = robotGridY + 1;
         } else {
             interpolate = false;
+            averageTiles = false;
         }
 
         // basic search
-        if (true) { //!interpolate) {
+        if (!interpolate && !averageTiles) {
             if ((robotGridY < 6) && (robotGridX < 6)) {
                 recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridX][robotGridY].flywheelRPM;
                 recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle;
             }
-            return recommendedSettings;
-        } else {
+        } else if (averageTiles) {
+            if ((robotGridY < 6) && (robotGridX < 6)) {
+                recommendedSettings.flywheelRPM = (KNOWNTARGETING[x0][y0].flywheelRPM + KNOWNTARGETING[x1][y1].flywheelRPM)/2;
+                recommendedSettings.hoodAngle = (KNOWNTARGETING[x0][y0].hoodAngle + KNOWNTARGETING[x1][y1].hoodAngle)/2;
+            }
+        } else if (interpolate) {
+            //bilinear interpolation
+//            int x0 = robotGridX;
+//            int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].ength - 1);
+//            int y0 = robotGridY;
+//            int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
 
-            // bilinear interpolation
-            //int x0 = robotGridX;
-            //int x1 = Math.min(x0 + 1, KNOWNTARGETING[0].length - 1);
-            //int y0 = robotGridY;
-            //int y1 = Math.min(y0 + 1, KNOWNTARGETING.length - 1);
+            x = robotInchesX - (x0 * tileSize);
+            y = robotInchesY - (y0 * tileSize);
 
-//            double x = (robotInchesX - (x0 * tileSize)) / tileSize;
-//            double y = (robotInchesY - (y0 * tileSize)) / tileSize;
+            double rpm00 = KNOWNTARGETING[y0][x0].flywheelRPM;
+            double rpm10 = KNOWNTARGETING[y0][x1].flywheelRPM;
+            double rpm01 = KNOWNTARGETING[y1][x0].flywheelRPM;
+            double rpm11 = KNOWNTARGETING[y1][x1].flywheelRPM;
 
-//            double rpm00 = KNOWNTARGETING[y0][x0].flywheelRPM;
-//            double rpm10 = KNOWNTARGETING[y0][x1].flywheelRPM;
-//            double rpm01 = KNOWNTARGETING[y1][x0].flywheelRPM;
-//            double rpm11 = KNOWNTARGETING[y1][x1].flywheelRPM;
-//
-//            double angle00 = KNOWNTARGETING[y0][x0].hoodAngle;
-//            double angle10 = KNOWNTARGETING[y0][x1].hoodAngle;
-//            double angle01 = KNOWNTARGETING[y1][x0].hoodAngle;
-//            double angle11 = KNOWNTARGETING[y1][x1].hoodAngle;
+            double angle00 = KNOWNTARGETING[y0][x0].hoodAngle;
+            double angle10 = KNOWNTARGETING[y0][x1].hoodAngle;
+            double angle01 = KNOWNTARGETING[y1][x0].hoodAngle;
+            double angle11 = KNOWNTARGETING[y1][x1].hoodAngle;
 
-//            recommendedSettings.flywheelRPM = (1 - x) * (1 - y) * rpm00 + x * (1 - y) * rpm10 + (1 - x) * y * rpm01 + x * y * rpm11;
-//            recommendedSettings.hoodAngle = (1 - x) * (1 - y) * angle00 + x * (1 - y) * angle10 + (1 - x) * y * angle01 + x * y * angle11;
+            recommendedSettings.flywheelRPM = interpolate(
+                    x,        y,     // x, y
+                    0.0,  0.0,   // x0, y0
+                    48.0, 48.0,   // x1, y1
+                    rpm00, rpm10,     // q00, q10
+                    rpm01, rpm11      // q01, q11
+            );
+            recommendedSettings.hoodAngle = interpolate(
+                    x,        y,       // x, y
+                    0.0, 0.0,    // x0, y0
+                    48.0, 48.0,    // x1, y1
+                    angle00, angle10,  // q00, q10
+                    angle01, angle11   // q01, q11
+            );
+
+
+            //recommendedSettings.flywheelRPM = (1 - x) * (1 - y) * rpm00 + x * (1 - y) * rpm10 + (1 - x) * y * rpm01 + x * y * rpm11;
+            //recommendedSettings.hoodAngle = (1 - x) * (1 - y) * angle00 + x * (1 - y) * angle10 + (1 - x) * y * angle01 + x * y * angle11;
             // Average target tiles
-            recommendedSettings.flywheelRPM = (KNOWNTARGETING[x0][y0].flywheelRPM + KNOWNTARGETING[x1][y1].flywheelRPM) / 2.0;
-            recommendedSettings.hoodAngle = (KNOWNTARGETING[x0][y0].hoodAngle + KNOWNTARGETING[x1][y1].hoodAngle) / 2.0;
-            return recommendedSettings;
+            //recommendedSettings.flywheelRPM = (KNOWNTARGETING[x0][y0].flywheelRPM + KNOWNTARGETING[x1][y1].flywheelRPM)/2.0;
+            //recommendedSettings.hoodAngle = (KNOWNTARGETING[x0][y0].hoodAngle + KNOWNTARGETING[x1][y1].hoodAngle)/2.0;
         }
+        return recommendedSettings;
     }
 
     public static class Settings {
