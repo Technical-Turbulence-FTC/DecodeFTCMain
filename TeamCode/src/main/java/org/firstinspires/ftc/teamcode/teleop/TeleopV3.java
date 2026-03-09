@@ -45,9 +45,9 @@ public class TeleopV3 extends LinearOpMode {
     public double vel = 3000;
     public boolean autoVel = true;
     public boolean targetingHood = true;
-//    public boolean autoHood = true;
+    //    public boolean autoHood = true;
     public double shootStamp = 0.0;
-//    boolean fixedTurret = false;
+    //    boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
     Light light;
@@ -66,10 +66,10 @@ public class TeleopV3 extends LinearOpMode {
     double xOffset = 0.0;
     double yOffset = 0.0;
     double hOffset = 0.0;
-//    double headingOffset = 0.0;
+    //    double headingOffset = 0.0;
     int ticker = 0;
 
-//    boolean autoSpintake = false;
+    //    boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
 
 //    boolean overrideTurr = false;
@@ -142,12 +142,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //DRIVETRAIN:
 
-            drivetrain.drive(
-                    -gamepad1.right_stick_y,
-                    gamepad1.right_stick_x,
-                    gamepad1.left_stick_x,
-                    gamepad1.left_trigger
-            );
+            drivetrain.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_trigger);
 
             if (gamepad1.right_bumper) {
 
@@ -156,10 +151,10 @@ public class TeleopV3 extends LinearOpMode {
 
                 light.setState(StateEnums.LightState.BALL_COUNT);
 
-            } else if (gamepad2.triangle){
+            } else if (gamepad2.triangle) {
                 light.setState(StateEnums.LightState.BALL_COLOR);
 
-            }  else {
+            } else {
                 light.setState(StateEnums.LightState.GOAL_LOCK);
             }
 
@@ -182,17 +177,16 @@ public class TeleopV3 extends LinearOpMode {
 
 //            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
-            targetingSettings = targeting.calculateSettings
-                    (robotX, robotY, robotHeading, 0.0, turretInterpolate);
+            targetingSettings = targeting.calculateSettings(robotX, robotY, robotHeading, 0.0, turretInterpolate);
 
             //RELOCALIZATION
 
-            if (gamepad2.squareWasPressed()){
+            if (gamepad2.squareWasPressed()) {
                 relocalize = !relocalize;
                 gamepad2.rumble(500);
             }
 
-            if (relocalize){
+            if (relocalize) {
                 turret.relocalize();
                 xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
                 yOffset = (turret.getLimelightX() * 39.3701) - robY;
@@ -231,6 +225,7 @@ public class TeleopV3 extends LinearOpMode {
 
             //HOOD:
 
+
             if (targetingHood) {
                 servo.setHoodPos(targetingSettings.hoodAngle + autoHoodOffset);
             } else {
@@ -267,7 +262,6 @@ public class TeleopV3 extends LinearOpMode {
             }
 
 
-
             if (enableSpindexerManager) {
                 //if (!shootAll) {
                 spindexer.processIntake();
@@ -299,7 +293,7 @@ public class TeleopV3 extends LinearOpMode {
                     if (shooterTicker == 0) {
                         spindexer.prepareShootAllContinous();
                         //TELE.addLine("preparing to shoot");
-//                    } else if (shooterTicker == 2) {
+//                   else if (shooterTicker == 2) {
 //                        //servo.setTransferPos(transferServo_in);
 //                        spindexer.shootAll();
 //                        TELE.addLine("starting to shoot");
