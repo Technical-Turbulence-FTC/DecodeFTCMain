@@ -79,8 +79,8 @@ public class Auto_LT_Far extends LinearOpMode {
     public static double shootStackTime = 2;
     public static double shootGateTime = 2.5;
     public static double colorSenseTime = 1;
-    public static double intakeStackTime = 2.5;
-    public static double intakeGateTime = 2;
+    public static double intakeStackTime = 5;
+    public static double intakeGateTime = 3.75;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
@@ -122,6 +122,8 @@ public class Auto_LT_Far extends LinearOpMode {
         robot.limelight.pipelineSwitch(1);
 
         turret = new Turret(robot, TELE, robot.limelight);
+        limelightUsed = false;
+
 
 //        Spindexer.teleop = false;
 
@@ -190,6 +192,7 @@ public class Auto_LT_Far extends LinearOpMode {
                     turret.setTurret(turrDefault);
 
                     servos.setSpinPos(spinStartPos);
+                    limelightUsed = true;
 
                     servos.setTransferPos(transferServo_out);
                 }
@@ -231,6 +234,7 @@ public class Auto_LT_Far extends LinearOpMode {
                     gamepad2.rumble(500);
                     sleep(1000);
                     turret.setTurret(turrDefault);
+                    limelightUsed = true;
 
                     servos.setSpinPos(spinStartPos);
 
@@ -259,10 +263,10 @@ public class Auto_LT_Far extends LinearOpMode {
             shootGate = drive.actionBuilder(new Pose2d(pickupGateX, pickupGateY, Math.toRadians(pickupGateH)))
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
 
-            limelightUsed = true;
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
+            TELE.addData("Limelight On?",limelightUsed);
             TELE.addData("Gate Cycle?", gatePickup);
             TELE.addData("Pickup Stack?", stack3);
             TELE.addData("Start Position", autoStart);
@@ -281,11 +285,17 @@ public class Auto_LT_Far extends LinearOpMode {
             robot.transfer.setPower(1);
 
             startAuto();
-            shoot();
+            if (redAlliance){
+                shoot(autoStartRX, autoStartRY, autoStartRH);
+
+            } else {
+                shoot(autoStartBX, autoStartBY, autoStartBH);
+
+            }
 
             if (stack3){
                 cycleStackFar();
-                shoot();
+                shoot(xShoot, yShoot, hShoot);
             }
 
             while (gatePickup && getRuntime() - stamp < endAutoTime){
@@ -294,10 +304,7 @@ public class Auto_LT_Far extends LinearOpMode {
                     break;
                 }
                 cycleGatePrepareShoot();
-                if (getRuntime() - stamp > endAutoTime + shootAllTime + 1){
-                    break;
-                }
-                shoot();
+                shoot(xShoot, yShoot, hShoot);
             }
 
             if (gatePickup || stack3){
@@ -324,28 +331,46 @@ public class Auto_LT_Far extends LinearOpMode {
 
     }
 
-    void shoot(){
+    void shoot(double x, double y, double z){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, 0.501, 0.501, 0.501)
+                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, x, y, z)
                 )
 
         );
     }
 
     void startAuto(){
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.manageShooterAuto(
-                                flywheel0Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                true
-                        )
 
-                )
-        );
+        if (redAlliance){
+            Actions.runBlocking(
+                    new ParallelAction(
+                            autoActions.manageShooterAuto(
+                                    flywheel0Time,
+                                    autoStartRX,
+                                    autoStartRY,
+                                    autoStartRH,
+                                    true
+                            )
+
+                    )
+            );
+
+        } else {
+            Actions.runBlocking(
+                    new ParallelAction(
+                            autoActions.manageShooterAuto(
+                                    flywheel0Time,
+                                    autoStartBX,
+                                    autoStartBY,
+                                    autoStartBH,
+                                    true
+                            )
+
+                    )
+            );
+        }
+
     }
 
     void leave3Ball(){
@@ -371,9 +396,13 @@ public class Auto_LT_Far extends LinearOpMode {
                 )
         );
         servos.setSpinPos(spinStartPos);
+        spindexer.setIntakePower(-0.1);
         Actions.runBlocking(
                 new ParallelAction(
-                        shoot3.build()
+                        shoot3.build(),
+                        autoActions.manageShooterAuto(
+                                shootStackTime,xShoot, yShoot, hShoot, false
+                        )
                 )
         );
     }
@@ -383,7 +412,7 @@ public class Auto_LT_Far extends LinearOpMode {
                 new ParallelAction(
                         pickupGate.build(),
                         autoActions.intake(
-                                intakeStackTime,
+                                intakeGateTime,
                                 pickupGateX,
                                 pickupGateY,
                                 pickupGateH
@@ -393,16 +422,16 @@ public class Auto_LT_Far extends LinearOpMode {
     }
 
     void cycleGatePrepareShoot(){
+        spindexer.setIntakePower(-0.1);
         Actions.runBlocking(
                 new ParallelAction(
                         shootGate.build(),
-                        autoActions.prepareShootAll(
-                                colorSenseTime,
-                                shootGateTime,
-                                motif,
+                        autoActions.manageShooterAuto(
+                               shootGateTime,
                                 xShoot,
                                 yShoot,
-                                hShoot
+                                hShoot,
+                                false
                         )
                 )
         );

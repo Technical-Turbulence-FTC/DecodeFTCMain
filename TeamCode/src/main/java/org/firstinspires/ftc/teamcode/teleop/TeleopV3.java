@@ -142,6 +142,62 @@ public class TeleopV3 extends LinearOpMode {
         while (opModeIsActive()) {
 
             //TELE.addData("Is limelight on?", robot.limelight.getStatus());
+            drive.updatePoseEstimate();
+            Pose2d currentPose = drive.localizer.getPose();
+
+            if (enableSpindexerManager) {
+                //if (!shootAll) {
+                spindexer.processIntake();
+                //}
+
+                // RIGHT_BUMPER
+                if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
+                    spindexer.setIntakePower(1);
+                } else if (gamepad1.cross) {
+                    spindexer.setIntakePower(-1);
+                } else {
+                    spindexer.setIntakePower(0);
+                }
+
+                // LEFT_BUMPER
+                if (!shootAll && gamepad1.leftBumperWasReleased()) {
+                    shootStamp = getRuntime();
+                    shootAll = true;
+
+                    shooterTicker = 0;
+
+                }
+                intakeTicker++;
+                if (shootAll) {
+                    intakeTicker = 0;
+                    intake = false;
+                    reject = false;
+
+                    if (shooterTicker == 0) {
+                        spindexer.prepareShootAllContinous();
+                        //TELE.addLine("preparing to shoot");
+//                    } else if (shooterTicker == 2) {
+//                        //servo.setTransferPos(transferServo_in);
+//                        spindexer.shootAll();
+//                        TELE.addLine("starting to shoot");
+                    } else if (spindexer.shootAllComplete()) {
+                        //spindexPos = spindexer_intakePos1;
+                        shootAll = false;
+                        spindexer.resetSpindexer();
+                        //spindexer.processIntake();
+                        //TELE.addLine("stop shooting");
+                    }
+                    shooterTicker++;
+                    //spindexer.processIntake();
+                }
+
+                if (gamepad1.left_stick_button) {
+                    servo.setTransferPos(transferServo_out);
+                    //spindexPos = spindexer_intakePos1;
+                    shootAll = false;
+                    spindexer.resetSpindexer();
+                }
+            }
 
             //DRIVETRAIN:
 
@@ -169,9 +225,9 @@ public class TeleopV3 extends LinearOpMode {
 
             //TURRET TRACKING
 
-            double robX = drive.localizer.getPose().position.x;
-            double robY = drive.localizer.getPose().position.y;
-            double robH = drive.localizer.getPose().heading.toDouble();
+            double robX = currentPose.position.x;
+            double robY = currentPose.position.y;
+            double robH = currentPose.heading.toDouble();
 
             double robotX = robX + xOffset;
             double robotY = robY + yOffset;
@@ -278,63 +334,7 @@ public class TeleopV3 extends LinearOpMode {
                 shootAllSpindexerSpeedIncrease = shootAllSpindexerSpeedIncrease+0.01;
             }
 
-
-            if (enableSpindexerManager) {
-                //if (!shootAll) {
-                spindexer.processIntake();
-                //}
-
-                // RIGHT_BUMPER
-                if (gamepad1.right_bumper && intakeTicker > resetSpinTicks) {
-                    spindexer.setIntakePower(1);
-                } else if (gamepad1.cross) {
-                    spindexer.setIntakePower(-1);
-                } else {
-                    spindexer.setIntakePower(0);
-                }
-
-                // LEFT_BUMPER
-                if (!shootAll && gamepad1.leftBumperWasReleased()) {
-                    shootStamp = getRuntime();
-                    shootAll = true;
-
-                    shooterTicker = 0;
-
-                }
-                intakeTicker++;
-                if (shootAll) {
-                    intakeTicker = 0;
-                    intake = false;
-                    reject = false;
-
-                    if (shooterTicker == 0) {
-                        spindexer.prepareShootAllContinous();
-                        //TELE.addLine("preparing to shoot");
-//                    } else if (shooterTicker == 2) {
-//                        //servo.setTransferPos(transferServo_in);
-//                        spindexer.shootAll();
-//                        TELE.addLine("starting to shoot");
-                    } else if (spindexer.shootAllComplete()) {
-                        //spindexPos = spindexer_intakePos1;
-                        shootAll = false;
-                        spindexer.resetSpindexer();
-                        //spindexer.processIntake();
-                        //TELE.addLine("stop shooting");
-                    }
-                    shooterTicker++;
-                    //spindexer.processIntake();
-                }
-
-                if (gamepad1.left_stick_button) {
-                    servo.setTransferPos(transferServo_out);
-                    //spindexPos = spindexer_intakePos1;
-                    shootAll = false;
-                    spindexer.resetSpindexer();
-                }
-            }
-
             //EXTRA STUFFINESS:
-            drive.updatePoseEstimate();
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();

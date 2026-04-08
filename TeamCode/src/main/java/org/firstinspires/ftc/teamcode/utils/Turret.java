@@ -242,6 +242,7 @@ public class Turret {
         return bearingOffset;
     }
 
+    double targetTurretPos;
     public void trackGoal(Pose2d deltaPos) {
 
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
@@ -273,7 +274,7 @@ public class Turret {
 
         limelightRead();
         // Active correction if we see the target
-        if (result.isValid() && !lockOffset && limelightUsed) {
+        if (result.isValid() && !lockOffset && limelightUsed && targetTurretPos > turrMin && targetTurretPos < turrMax) {
             currentTrackOffset += bearingAlign(result);
             currentTrackCount++;
 
@@ -329,7 +330,7 @@ public class Turret {
 
         /* ---------------- ANGLE → SERVO POSITION ---------------- */
 
-        double targetTurretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
+        targetTurretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
 
         // Clamp to physical servo limits
         targetTurretPos = Math.max(turrMin, Math.min(targetTurretPos, turrMax));

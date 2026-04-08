@@ -71,6 +71,8 @@ public class Drivetrain {
             robot.frontRight.setPower(frontRightPower);
             robot.backRight.setPower(backRightPower);
         }
+        Pose2d currentPos = drive.localizer.getPose();
+        brakePos = currentPos;
 
         if (brake > 0.4 && robot.frontLeft.getZeroPowerBehavior() != DcMotor.ZeroPowerBehavior.BRAKE && !autoDrive) {
             robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,15 +80,9 @@ public class Drivetrain {
             robot.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            drive.updatePoseEstimate();
-
-            brakePos = drive.localizer.getPose();
             autoDrive = true;
 
         } else if (brake > 0.4) {
-            drive.updatePoseEstimate();
-
-            Pose2d currentPos = drive.localizer.getPose();
 
             TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPos)
                     .strafeToLinearHeading(new Vector2d(brakePos.position.x, brakePos.position.y), brakePos.heading.toDouble(), VEL_CONSTRAINT, ACCEL_CONSTRAINT);

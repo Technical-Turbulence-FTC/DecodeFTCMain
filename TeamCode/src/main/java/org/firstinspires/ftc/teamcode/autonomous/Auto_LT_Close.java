@@ -503,7 +503,7 @@ public class Auto_LT_Close extends LinearOpMode {
 
 
             if (gateCycle) {
-                startAutoGate();
+                startAuto();
                 shoot(0.501, 0.501, 0.501);
                 cycleStackClose();
                 shoot(0.501,0.501, 0.501);
