@@ -47,9 +47,9 @@ public class TeleopV3 extends LinearOpMode {
     public double vel = 3000;
     public boolean autoVel = true;
     public boolean targetingHood = true;
-//    public boolean autoHood = true;
+    //    public boolean autoHood = true;
     public double shootStamp = 0.0;
-//    boolean fixedTurret = false;
+    //    boolean fixedTurret = false;
     Robot robot;
     MultipleTelemetry TELE;
     Light light;
@@ -68,10 +68,10 @@ public class TeleopV3 extends LinearOpMode {
     double xOffset = 0.0;
     double yOffset = 0.0;
     double hOffset = 0.0;
-//    double headingOffset = 0.0;
+    //    double headingOffset = 0.0;
     int ticker = 0;
 
-//    boolean autoSpintake = false;
+    //    boolean autoSpintake = false;
     boolean enableSpindexerManager = true;
 
 //    boolean overrideTurr = false;
@@ -256,7 +256,7 @@ public class TeleopV3 extends LinearOpMode {
                 turret.relocalize();
                 xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
                 yOffset = (turret.getLimelightX() * 39.3701) - robY;
-                //hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
+                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
             } else {
                 turret.trackGoal(deltaPose);
             }
@@ -365,9 +365,9 @@ public class TeleopV3 extends LinearOpMode {
 //
 //            TELE.addData("shootall commanded", shootAll);
             // Targeting Debug
-//            TELE.addData("robotX", robotX);
-//            TELE.addData("robotY", robotY);
-//            TELE.addData("robot H", robotHeading);
+            TELE.addData("robotX", robotX);
+            TELE.addData("robotY", robotY);
+            TELE.addData("robot H", robotHeading);
 //            TELE.addData("robotInchesX", targeting.robotInchesX);
 //            TELE.addData("robotInchesY", targeting.robotInchesY);
 //            TELE.addData("Targeting Interpolate", turretInterpolate);
@@ -380,9 +380,9 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-//            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
-//            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
-//            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
+            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
+            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
+            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
 
             TELE.update();
 
