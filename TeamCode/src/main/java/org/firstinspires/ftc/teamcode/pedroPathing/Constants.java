@@ -21,8 +21,6 @@ public class Constants {
             .lateralZeroPowerAcceleration(-72.872)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.35, 0, 0.03, 0.012));
 
-    public static int DEBUG_VAR = 0;
-
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName("fr")
