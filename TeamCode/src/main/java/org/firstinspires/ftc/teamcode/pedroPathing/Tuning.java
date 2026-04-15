@@ -114,7 +114,7 @@ public class Tuning extends SelectableOpMode {
 
     public static void drawCurrent() {
         try {
-            Drawing.drawRobot(follower.getPose(), "blue");
+            Drawing.drawRobot(follower.getPose(), "green");
             Drawing.sendPacket();
         } catch (Exception e) {
             throw new RuntimeException("Drawing failed " + e);
