@@ -19,7 +19,8 @@ public class Constants {
             .mass(15.5)
             .forwardZeroPowerAcceleration(-29.512)
             .lateralZeroPowerAcceleration(-72.872)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.35, 0, 0.03, 0.012));
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.35, 0, 0.03, 0.012))
+            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.02, 0.02));
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -34,7 +35,8 @@ public class Constants {
             .xVelocity(64.675)
             .yVelocity(49.583);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static double breakingStrength = 1.25;
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, breakingStrength, 1);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-7.5)
