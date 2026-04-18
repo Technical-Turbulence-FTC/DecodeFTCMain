@@ -15,6 +15,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -107,7 +108,7 @@ public class ShooterTest extends LinearOpMode {
 
             double dx = robX - goalX;  // delta x from robot to goal
             double dy = robY - goalY;  // delta y from robot to goal
-            Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+            Pose deltaPose = new Pose(dx, dy, robotHeading);
 
             double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 

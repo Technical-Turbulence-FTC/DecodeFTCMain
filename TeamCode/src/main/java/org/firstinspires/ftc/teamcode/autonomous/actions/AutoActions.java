@@ -18,6 +18,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -525,7 +527,7 @@ public class AutoActions {
 
 
                 drive.updatePoseEstimate();
-                Pose2d currentPose = drive.localizer.getPose();
+                Pose2d currentPose = null; //drive.localizer.getPose();
 
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
@@ -542,10 +544,10 @@ public class AutoActions {
 
                 ticker++;
 
-                double robotX = currentPose.position.x;
-                double robotY = currentPose.position.y;
+                double robotX = 0.0;//currentPose.position.x;
+                double robotY = 0.0;//currentPose.position.y;
 
-                double robotHeading = currentPose.heading.toDouble();
+                double robotHeading = 0.0;//currentPose.heading.toDouble();
 
                 double goalX = -15;
                 double goalY = 0;
@@ -554,11 +556,11 @@ public class AutoActions {
                 double dy = robotY - goalY;  // delta y from robot to goal
 
 
-                Pose2d deltaPose;
+                Pose deltaPose;
                 if (posX != 0.501) {
-                    deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
+                    deltaPose = new Pose(posX, posY, Math.toRadians(posH));
                 } else {
-                    deltaPose = new Pose2d(dx, dy, robotHeading);
+                    deltaPose = new Pose(dx, dy, robotHeading);
                 }
                 Turret.limelightUsed = true;
 
@@ -646,9 +648,9 @@ public class AutoActions {
 
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose;
+                Pose deltaPose;
                 if (turr == 0.501) {
-                    deltaPose = new Pose2d(dx, dy, robotHeading);
+                    deltaPose = new Pose(dx, dy, robotHeading);
                     if (!detectingObelisk) {
                         turret.trackGoal(deltaPose);
                     }

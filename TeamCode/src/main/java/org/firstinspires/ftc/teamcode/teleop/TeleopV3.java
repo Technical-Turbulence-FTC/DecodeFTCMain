@@ -12,6 +12,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -238,7 +239,7 @@ public class TeleopV3 extends LinearOpMode {
 
             double dx = robotX - goalX;  // delta x from robot to goal
             double dy = robotY - goalY;  // delta y from robot to goal
-            Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+            Pose deltaPose = new Pose(dx, dy, robotHeading);
 
 //            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 

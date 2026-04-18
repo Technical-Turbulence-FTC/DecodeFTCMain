@@ -84,7 +84,7 @@ public class Targeting {
 
     double cos54 = Math.cos(Math.toRadians(-54));
     double sin54 = Math.sin(Math.toRadians(-54));
-
+    //TODO: change code so it uses pedropathing paths
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
         int gridX;

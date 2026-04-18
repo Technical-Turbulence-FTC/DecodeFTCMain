@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -243,17 +244,25 @@ public class Turret {
     }
 
     double targetTurretPos;
-    public void trackGoal(Pose2d deltaPos) {
+    public void trackGoal(Pose deltaPos) {
 
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
+        double posX;
+        if (Color.redAlliance){
+            posX = 144 - deltaPos.getX();
+        } else {
+            posX = deltaPos.getX();
+        }
+        double posY = 144 - deltaPos.getY();
+        double posH = Math.toDegrees(deltaPos.getHeading());
+        while (posH > 180) posH -= 360;
+        while (posH < -180) posH += 360;
 
         // Angle from robot to goal in robot frame
-        double desiredTurretAngleDeg = Math.toDegrees(
-                Math.atan2(deltaPos.position.y, deltaPos.position.x)
-        );
+        double desiredTurretAngleDeg = Math.toDegrees(Math.atan2(posY, posX)) - 45;
 
         // Robot heading (field → robot)
-        double robotHeadingDeg = Math.toDegrees(deltaPos.heading.toDouble());
+        double robotHeadingDeg = posH + 135;
 
         // Turret angle needed relative to robot
         double turretAngleDeg = desiredTurretAngleDeg - robotHeadingDeg;
@@ -353,15 +362,16 @@ public class Turret {
 
         /* ---------------- TELEMETRY ---------------- */
 
-//        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
-//        TELE.addData("Target Pos", "%.3f", targetTurretPos);
-//        TELE.addData("Current Pos", "%.3f", currentPos);
-//        TELE.addData("Commanded Pos", "%.3f", turretPos);
+        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
+        TELE.addData("Target Pos", "%.3f", targetTurretPos);
+        TELE.addData("Current Localization Pos", "%.3f", deltaPos);
+        TELE.addData("Commanded Pos", "%.3f", turretPos);
 //        TELE.addData("LL Valid", result.isValid());
 //        TELE.addData("LL getTx", result.getTx());
 //        TELE.addData("LL Offset", offset);
 //        TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
 //        TELE.addData("Learned Offset", "%.2f", offset);
+        TELE.update();
     }
 
 }
