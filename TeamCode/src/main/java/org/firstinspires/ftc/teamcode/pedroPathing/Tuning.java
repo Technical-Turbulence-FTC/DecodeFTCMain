@@ -148,7 +148,7 @@ class LocalizationTest extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(0,0));
+        follower.setStartingPose(new Pose(72,72, 0));
     }
 
     /** This initializes the PoseUpdater, the drive motors, and the Panels telemetry. */

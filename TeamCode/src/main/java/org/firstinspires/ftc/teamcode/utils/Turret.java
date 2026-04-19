@@ -25,7 +25,7 @@ public class Turret {
 
     public static double turretTolerance = 0.02;
     public static double turrPosScalar = 0.00011264432;
-    public static double turret180Range = 0.54;
+    public static double turret180Range = 0.55;
     public static double turrDefault = 0.35;
     public static double turrMin = 0;
     public static double turrMax = 0.69;
@@ -262,7 +262,12 @@ public class Turret {
         double desiredTurretAngleDeg = Math.toDegrees(Math.atan2(posY, posX)) - 45;
 
         // Robot heading (field → robot)
-        double robotHeadingDeg = posH + 135;
+        double robotHeadingDeg;
+        if (Color.redAlliance){
+            robotHeadingDeg = posH + 135;
+        } else {
+            robotHeadingDeg = posH + 45;
+        }
 
         // Turret angle needed relative to robot
         double turretAngleDeg = desiredTurretAngleDeg - robotHeadingDeg;
@@ -362,16 +367,16 @@ public class Turret {
 
         /* ---------------- TELEMETRY ---------------- */
 
-        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
-        TELE.addData("Target Pos", "%.3f", targetTurretPos);
-        TELE.addData("Current Localization Pos", "%.3f", deltaPos);
-        TELE.addData("Commanded Pos", "%.3f", turretPos);
+//        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
+//        TELE.addData("Target Pos", "%.3f", targetTurretPos);
+//        TELE.addData("Current Localization Pos", deltaPos);
+//        TELE.addData("Commanded Pos", "%.3f", turretPos);
 //        TELE.addData("LL Valid", result.isValid());
 //        TELE.addData("LL getTx", result.getTx());
 //        TELE.addData("LL Offset", offset);
 //        TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
 //        TELE.addData("Learned Offset", "%.2f", offset);
-        TELE.update();
+//        TELE.update();
     }
 
 }

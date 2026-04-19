@@ -65,4 +65,7 @@ public class Front_Poses {
     public static double bOpenGateMiddleX = 36, bOpenGateMiddleY = -59, bOpenGateMiddleH = -50;
 
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
+
+    //For PedroPathing TODO: figure out how to change start poses in auto
+    public static double teleStartPoseX = 72, teleStartPoseY = 72, teleStartPoseH = 0;
 }

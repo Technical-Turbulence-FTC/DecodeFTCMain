@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.shootAllSpindexerSpeedIncrease;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
 import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
@@ -12,6 +15,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,6 +25,7 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.constants.StateEnums;
 import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Light;
@@ -38,10 +43,11 @@ import java.util.List;
 public class TeleopV3 extends LinearOpMode {
     public static double manualVel = 3000;
     public static double hoodDefaultPos = 0.5;
-
+    private double predictedResetX, predictedResetY, predictedResetH;
+    public static double redPredictedResetX = 9, redPredictedResetY = 10.25, redPredictedResetH = 0;
+    public static double bluePredictedResetX = 135.0, bluePredictedResetY = 9, bluePredictedResetH = 180;
     public static double spinPow = 0.09;
     public static double tp = 0.8, ti = 0.001, td = 0.0315, tf = 0;
-    public static double spinSpeedIncrease = 0.03;
     public static int resetSpinTicks = 0;
     public static double hoodSpeedOffset = 0.01;
     public static double turretSpeedOffset = 0.01;
@@ -56,12 +62,13 @@ public class TeleopV3 extends LinearOpMode {
     Light light;
     Servos servo;
     Flywheel flywheel;
-    MecanumDrive drive;
+//    MecanumDrive drive;
     Spindexer spindexer;
     Targeting targeting;
     Targeting.Settings targetingSettings;
     Drivetrain drivetrain;
     MeasuringLoopTimes loopTimes;
+    Follower follower;
     double autoHoodOffset = 0.0;
     int shooterTicker = 0;
     boolean intake = false;
@@ -84,7 +91,6 @@ public class TeleopV3 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
-        robot.light.setPosition(0);
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
         for (LynxModule hub : allHubs) {
@@ -94,12 +100,15 @@ public class TeleopV3 extends LinearOpMode {
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         servo = new Servos(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
-        drive = new MecanumDrive(hardwareMap, teleStart);
+//        drive = new MecanumDrive(hardwareMap, teleStart);
+        follower = Constants.createFollower(hardwareMap);
+        Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
+        follower.setStartingPose(start);
         spindexer = new Spindexer(hardwareMap);
         targeting = new Targeting();
         targetingSettings = new Targeting.Settings(0.0, 0.0);
 
-        drivetrain = new Drivetrain(robot, drive);
+        drivetrain = new Drivetrain(robot, follower);
 
         loopTimes = new MeasuringLoopTimes();
         loopTimes.init();
@@ -118,21 +127,33 @@ public class TeleopV3 extends LinearOpMode {
         Spindexer.teleop = true;
 
         while (opModeInInit()) {
+            //ONLY FOR TESTING: COMMENT OUT FOR COMPETITIONS
+            if (gamepad1.crossWasPressed()){
+                redAlliance = !redAlliance;
+            }
+
             robot.limelight.start();
             if (redAlliance) {
                 turret.pipelineSwitch(4);
                 light.setManualLightColor(Color.LightRed);
+                predictedResetX = redPredictedResetX;
+                predictedResetY = redPredictedResetY;
+                predictedResetH = Math.toRadians(redPredictedResetH);
             } else {
                 turret.pipelineSwitch(2);
                 light.setManualLightColor(Color.LightBlue);
-
+                predictedResetX = bluePredictedResetX;
+                predictedResetY = bluePredictedResetY;
+                predictedResetH = Math.toRadians(bluePredictedResetH);
             }
-            robot.light.setPosition(1);
+            limelightUsed = true;
+
+            TELE.addData("Red Alliance?", redAlliance);
+            TELE.update();
 
             light.update();
         }
 
-        limelightUsed = true;
 
         waitForStart();
         if (isStopRequested()) return;
@@ -143,8 +164,8 @@ public class TeleopV3 extends LinearOpMode {
         while (opModeIsActive()) {
 
             //TELE.addData("Is limelight on?", robot.limelight.getStatus());
-            drive.updatePoseEstimate();
-            Pose2d currentPose = drive.localizer.getPose();
+            follower.update();
+            Pose currentPose = follower.getPose();
 
             if (enableSpindexerManager) {
                 //if (!shootAll) {
@@ -226,20 +247,21 @@ public class TeleopV3 extends LinearOpMode {
 
             //TURRET TRACKING
 
-            double robX = currentPose.position.x;
-            double robY = currentPose.position.y;
-            double robH = currentPose.heading.toDouble();
+            double robX = currentPose.getX();
+            double robY = currentPose.getY();
+            double robH = currentPose.getHeading();
 
             double robotX = robX + xOffset;
             double robotY = robY + yOffset;
             double robotHeading = robH + hOffset;
 
-            double goalX = -15;
-            double goalY = 0;
-
-            double dx = robotX - goalX;  // delta x from robot to goal
-            double dy = robotY - goalY;  // delta y from robot to goal
-            Pose deltaPose = new Pose(dx, dy, robotHeading);
+//            double goalX = -15;
+//            double goalY = 0;
+//
+//            double dx = robotX - goalX;  // delta x from robot to goal
+//            double dy = robotY - goalY;  // delta y from robot to goal
+//            Pose deltaPose = new Pose(dx, dy, robotHeading);
+            Pose deltaPose = new Pose(robotX, robotY, robotHeading);
 
 //            double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 
@@ -253,14 +275,15 @@ public class TeleopV3 extends LinearOpMode {
                 gamepad2.rumble(500);
             }
 
-            if (relocalize){
-                turret.relocalize();
-                xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
-                yOffset = (turret.getLimelightX() * 39.3701) - robY;
-                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
-            } else {
+            //TODO: relocalize using limelight
+//            if (relocalize){
+//                turret.relocalize();
+//                xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
+//                yOffset = (turret.getLimelightX() * 39.3701) - robY;
+//                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
+//            } else {
                 turret.trackGoal(deltaPose);
-            }
+            //}
 
             //VELOCITY AUTOMATIC
             if (autoVel) {
@@ -324,7 +347,8 @@ public class TeleopV3 extends LinearOpMode {
             }
 
             if (gamepad2.crossWasPressed()) {
-                drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+//                drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+                follower.setPose(new Pose(predictedResetX, predictedResetY, predictedResetH));
                 gamepad2.rumble(200);
                 sleep(500);
             }
@@ -381,9 +405,9 @@ public class TeleopV3 extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
-            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
-            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
+//            TELE.addData("Tag Pos X", -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset));
+//            TELE.addData("Tag Pos Y", turret.getLimelightX() * 39.3701);
+//            TELE.addData("Tag Pos H", Math.toRadians(turret.getLimelightH()));
 
             TELE.update();
 

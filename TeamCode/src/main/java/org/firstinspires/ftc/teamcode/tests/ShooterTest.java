@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spindexer_outtakeBall1;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_in;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.transferServo_out;
-import static org.firstinspires.ftc.teamcode.teleop.TeleopV3.spinSpeedIncrease;
 import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 
 import com.acmerobotics.dashboard.FtcDashboard;

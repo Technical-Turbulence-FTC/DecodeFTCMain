@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.utils;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import java.lang.Math;
 
+import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 
 public class Targeting {
@@ -71,7 +73,7 @@ public class Targeting {
     public final int TILE_UPPER_QUARTILE = 18;
     public final int TILE_LOWER_QUARTILE = 6;
     public double robotInchesX, robotInchesY = 0.0;
-    public int robotGridX, robotGridY = 0;
+    public int robotGridX = 0, robotGridY = 0;
     MultipleTelemetry TELE;
     double cancelOffsetX = 0.0;  // was -40.0
     double cancelOffsetY = 0.0;  // was 7.0
@@ -89,45 +91,59 @@ public class Targeting {
         Settings recommendedSettings = new Settings(0.0, 0.0);
         int gridX;
         int gridY;
-        if (!redAlliance){
-            sin54 = Math.sin(Math.toRadians(54));
-            double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
-            double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
+        int remX = 0;
+        int remY = 0;
+        // Old code
+//        if (!redAlliance){
+//            sin54 = Math.sin(Math.toRadians(54));
+//            double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
+//            double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
+//
+//            // Convert robot coordinates to inches
+//            robotInchesX = rotatedX * unitConversionFactor + 20;
+//            robotInchesY = rotatedY * unitConversionFactor + 20;
+//
+//            // Find approximate location in the grid
+//            gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize));
+//            gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
+//        } else {
+//            sin54 = Math.sin(Math.toRadians(-54));
+//            double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
+//            double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
+//
+//            // Convert robot coordinates to inches
+//            robotInchesX = rotatedX * unitConversionFactor;
+//            robotInchesY = rotatedY * unitConversionFactor;
+//
+//            // Find approximate location in the grid
+//            gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
+//            gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
+//        }
+//
+//
+        remX = Math.floorMod((int) robotX, tileSize);
+        remY = Math.floorMod((int) robotY, tileSize);
+//
+//        //clamp
+//
+//        if (redAlliance) {
+//            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+//            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
+//        } else {
+//            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+//            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
+//        }
 
-            // Convert robot coordinates to inches
-            robotInchesX = rotatedX * unitConversionFactor + 20;
-            robotInchesY = rotatedY * unitConversionFactor + 20;
-
-            // Find approximate location in the grid
-            gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize));
-            gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
+        // New code
+        if (redAlliance){
+            gridY = Math.round((float) (((144-robotX)-12) / 24));
         } else {
-            sin54 = Math.sin(Math.toRadians(-54));
-            double rotatedY = (robotX + cancelOffsetX) * sin54 + (robotY + cancelOffsetY) * cos54;
-            double rotatedX = (robotX + cancelOffsetX) * cos54 - (robotY + cancelOffsetY) * sin54;
-
-            // Convert robot coordinates to inches
-            robotInchesX = rotatedX * unitConversionFactor;
-            robotInchesY = rotatedY * unitConversionFactor;
-
-            // Find approximate location in the grid
-            gridX = Math.abs(Math.floorDiv((int) robotInchesX, tileSize) + 1);
-            gridY = Math.abs(Math.floorDiv((int) robotInchesY, tileSize));
+            gridY = Math.round((float) ((robotX-12) / 24));
         }
+        gridX = Math.round((float) (((144-robotY)-12) / 24));
 
-
-        int remX = Math.floorMod((int) robotInchesX, tileSize);
-        int remY = Math.floorMod((int) robotInchesY, tileSize);
-
-        //clamp
-
-        if (redAlliance) {
-            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
-            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
-        } else {
-            robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
-            robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
-        }
+        robotGridX = Math.max(0, Math.min(gridX, KNOWNTARGETING[0].length - 1));
+        robotGridY = Math.max(0, Math.min(gridY, KNOWNTARGETING.length - 1));
 
         // Determine if we need to interpolate based on tile position.
         // if near upper or lower quarter or tile interpolate with next tile.
