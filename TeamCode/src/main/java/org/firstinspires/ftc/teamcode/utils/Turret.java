@@ -109,7 +109,7 @@ public class Turret {
     private void limelightRead() { // only for tracking purposes, not general reads
         Double xPos = null;
         Double yPos = null;
-        Double zPos = null;
+        double zPos;
         Double hPos = null;
         result = webcam.getLatestResult();
         if (result != null) {
@@ -117,25 +117,16 @@ public class Turret {
                 tx = result.getTx();
                 ty = result.getTy();
                 if (TeleopV3.relocalize){
-                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                    for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                        limelightTagPose = fiducial.getRobotPoseTargetSpace();
-                        if (limelightTagPose != null){
-                            xPos = limelightTagPose.getPosition().x;
-                            yPos = limelightTagPose.getPosition().y;
-                            zPos = limelightTagPose.getPosition().z;
-                            hPos = limelightTagPose.getOrientation().getYaw();
-                        }
+                    zPos = result.getBotpose().getPosition().z;
+                    if (zPos < 0.15){
+                        xPos = result.getBotpose().getPosition().x;
+                        yPos = result.getBotpose().getPosition().y;
+                        hPos = result.getBotpose().getOrientation().getYaw();
+                        limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
+                        limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
+                        limelightTagH = (alphaPosConstant * hPos) + ((1 - alphaPosConstant) * limelightTagH);
                     }
                 }
-            }
-        }
-        if (xPos != null){
-            if (zPos<0) {
-                limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
-                limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
-                limelightTagZ = (alphaPosConstant * zPos) + ((1 - alphaPosConstant) * limelightTagZ);
-                limelightTagH = (alphaPosConstant * hPos) + ((1 - alphaPosConstant) * limelightTagH);
             }
         }
     }
@@ -150,7 +141,6 @@ public class Turret {
         return ty;
     }
 
-    Pose3D limelightTagPose;
     double limelightTagX = 0.0;
     double limelightTagY = 0.0;
     double limelightTagZ = 0.0;

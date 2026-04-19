@@ -41,6 +41,7 @@ import java.util.List;
 @Config
 @TeleOp
 public class TeleopV3 extends LinearOpMode {
+    private double metersToInches = 39.3700787402;
     public static double manualVel = 3000;
     public static double hoodDefaultPos = 0.5;
     private double predictedResetX, predictedResetY, predictedResetH;
@@ -275,15 +276,17 @@ public class TeleopV3 extends LinearOpMode {
                 gamepad2.rumble(500);
             }
 
-            //TODO: relocalize using limelight
-//            if (relocalize){
-//                turret.relocalize();
-//                xOffset = -((turret.getLimelightZ() * 39.3701) + Turret.limelightPosOffset) - robX;
-//                yOffset = (turret.getLimelightX() * 39.3701) - robY;
-//                hOffset = (Math.toRadians(turret.getLimelightH())) - robH;
-//            } else {
+            if (relocalize){
+                turret.relocalize();
+                xOffset = ((turret.getLimelightY()*metersToInches)+72) - robX;
+                yOffset = (72-(turret.getLimelightX()*metersToInches)) - robY;
+                hOffset = (Math.toRadians(turret.getLimelightH() + 90));
+                while (hOffset > 180) {hOffset-=360;}
+                while (hOffset < -180) {hOffset+=360;}
+                hOffset = hOffset - robH;
+            } else {
                 turret.trackGoal(deltaPose);
-            //}
+            }
 
             //VELOCITY AUTOMATIC
             if (autoVel) {
