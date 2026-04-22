@@ -239,11 +239,11 @@ public class Turret {
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
         double posX;
         if (Color.redAlliance){
-            posX = 144 - deltaPos.getX();
+            posX = 134 - deltaPos.getX();
         } else {
-            posX = deltaPos.getX();
+            posX = deltaPos.getX() - 10;
         }
-        double posY = 144 - deltaPos.getY();
+        double posY = 140 - deltaPos.getY();
         double posH = Math.toDegrees(deltaPos.getHeading());
         while (posH > 180) posH -= 360;
         while (posH < -180) posH += 360;
