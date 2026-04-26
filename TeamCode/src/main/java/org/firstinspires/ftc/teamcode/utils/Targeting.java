@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
+import static org.firstinspires.ftc.teamcode.constants.ServoPositions.hoodOffset;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import java.lang.Math;
@@ -84,8 +85,6 @@ public class Targeting {
     public Targeting() {
     }
 
-    double cos54 = Math.cos(Math.toRadians(-54));
-    double sin54 = Math.sin(Math.toRadians(-54));
     //TODO: change code so it uses pedropathing paths
     public Settings calculateSettings(double robotX, double robotY, double robotHeading, double robotVelocity, boolean interpolate) {
         Settings recommendedSettings = new Settings(0.0, 0.0);
@@ -220,7 +219,7 @@ public class Targeting {
         if (true) { //!interpolate) {
             if ((robotGridY < 6) && (robotGridX < 6)) {
                 recommendedSettings.flywheelRPM = KNOWNTARGETING[robotGridX][robotGridY].flywheelRPM;
-                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle;
+                recommendedSettings.hoodAngle = KNOWNTARGETING[robotGridX][robotGridY].hoodAngle + hoodOffset;
             }
             return recommendedSettings;
         } else {
