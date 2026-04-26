@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.pedroPathing;
+package org.firstinspires.ftc.teamcode.libs.pedroPathing;
 
 import static com.pedropathing.math.MathFunctions.quadraticFit;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.changes;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawCurrent;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawCurrentAndHistory;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.stopRobot;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.changes;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.drawCurrent;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.drawCurrentAndHistory;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.follower;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.stopRobot;
+import static org.firstinspires.ftc.teamcode.libs.pedroPathing.Tuning.telemetryM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
