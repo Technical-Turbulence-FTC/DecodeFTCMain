@@ -382,6 +382,7 @@ public class Spindexer {
                 commandedIntakePosition = 0;
                 servos.setSpinPos(intakePositions[0]);
                 currentIntakeState = Spindexer.IntakeState.UNKNOWN_MOVE;
+                servos.setTransferPos(transferServo_out);
                 break;
             case UNKNOWN_MOVE:
                 // Stopping when we get to the new position
@@ -393,6 +394,7 @@ public class Spindexer {
                     // Keep moving the spindexer
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                 }
+                servos.setTransferPos(transferServo_out);
                 break;
             case UNKNOWN_DETECT:
                 if (unknownColorDetect >5) {
@@ -401,6 +403,7 @@ public class Spindexer {
                     //detectBalls(true, true);
                     unknownColorDetect++;
                 }
+                servos.setTransferPos(transferServo_out);
                 break;
             case INTAKE:
                 // Ready for intake and Detecting a New Ball
@@ -412,6 +415,7 @@ public class Spindexer {
                     spindexerWiggle *= -1.0;
                     servos.setSpinPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
                 }
+                servos.setTransferPos(transferServo_out);
                 break;
             case FINDNEXT:
                 // Find Next Open Position and start movement
@@ -443,8 +447,8 @@ public class Spindexer {
                     currentIntakeState = Spindexer.IntakeState.FULL;
                 }
                 servos.setSpinPos(intakePositions[commandedIntakePosition]);
+                servos.setTransferPos(transferServo_out);
                 break;
-
             case MOVING:
                 // Stopping when we get to the new position
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
@@ -460,6 +464,7 @@ public class Spindexer {
                     // Keep moving the spindexer
                     servos.setSpinPos(intakePositions[commandedIntakePosition]);
                 }
+                servos.setTransferPos(transferServo_out);
                 break;
 
             case FULL:
@@ -472,6 +477,7 @@ public class Spindexer {
                 // Maintain Position
                 spindexerWiggle *= -1.0;
                 servos.setSpinPos(intakePositions[commandedIntakePosition]+spindexerWiggle);
+                servos.setTransferPos(transferServo_out);
                 break;
 
             case SHOOT_ALL_PREP:
