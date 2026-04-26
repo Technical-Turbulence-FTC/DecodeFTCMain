@@ -215,7 +215,7 @@ public class TeleopV3 extends LinearOpMode {
                 }
 
                 if (gamepad1.left_stick_button) {
-                    servo.setTransferPos(transferServo_out);
+//                    servo.setTransferPos(transferServo_out);
                     //spindexPos = spindexer_intakePos1;
                     shootAll = false;
                     spindexer.resetSpindexer();
