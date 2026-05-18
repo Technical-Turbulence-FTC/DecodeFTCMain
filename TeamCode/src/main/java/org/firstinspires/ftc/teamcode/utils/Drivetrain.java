@@ -1,54 +1,76 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
-import org.firstinspires.ftc.teamcode.libs.RR.MecanumDrive;
 
 public class Drivetrain {
 
-     Robot robot;
+    Robot robot;
     boolean autoDrive = false;
 
-    Pose2d brakePos = new Pose2d(0, 0, 0);
+    Pose brakePos = new Pose(0, 0, 0);
 
-    MecanumDrive drive;
+//    MecanumDrive drive;
+    Follower follower;
 
     private final TranslationalVelConstraint VEL_CONSTRAINT = new TranslationalVelConstraint(200);
     private final ProfileAccelConstraint ACCEL_CONSTRAINT = new ProfileAccelConstraint(-Math.abs(60), 200);
 
 
-    public Drivetrain (Robot rob, MecanumDrive mecanumDrive){
+    public Drivetrain (Robot rob, Follower follower){
 
         this.robot = rob;
-        this.drive = mecanumDrive;
+        this.follower = follower;
 
     }
 
+    private double prevY = 0;
+    private double prevX = 0;
+    private double prevRX = 0;
+    private double prevBrake = 0;
     public void drive(double y, double x, double rx, double brake){
+        int countConstant = 0;
+        boolean brakeChange = false;
+        if (Math.abs(prevY - y) > 0.05){
+            prevY = y;
+            countConstant++;
+        }
+        if (Math.abs(prevX - x) > 0.05){
+            prevX = x;
+            countConstant++;
+        }
+        if (Math.abs(prevRX - rx) > 0.05){
+            prevRX = rx;
+            countConstant++;
+        }
+        if (Math.abs(prevBrake - brake) > 0.05){
+            prevBrake = brake;
+            brakeChange = true;
+        }
 
-        if (!autoDrive) {
+        if (!autoDrive && countConstant > 0) {
 
             x = x* 1.1; // Counteract imperfect strafing
 
 
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+            double denominator = Math.max(Math.abs(prevY) + Math.abs(prevX) + Math.abs(prevRX), 1);
+            double frontLeftPower = (prevY + prevX + prevRX) / denominator;
+            double backLeftPower = (prevY - prevX + prevRX) / denominator;
+            double frontRightPower = (prevY - prevX - prevRX) / denominator;
+            double backRightPower = (prevY + prevX - prevRX) / denominator;
 
             robot.frontLeft.setPower(frontLeftPower);
             robot.backLeft.setPower(backLeftPower);
             robot.frontRight.setPower(frontRightPower);
             robot.backRight.setPower(backRightPower);
         }
+        Pose currentPos = follower.getPose();
+        brakePos = currentPos;
 
         if (brake > 0.4 && robot.frontLeft.getZeroPowerBehavior() != DcMotor.ZeroPowerBehavior.BRAKE && !autoDrive) {
             robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -56,23 +78,17 @@ public class Drivetrain {
             robot.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            drive.updatePoseEstimate();
-
-            brakePos = drive.localizer.getPose();
             autoDrive = true;
 
         } else if (brake > 0.4) {
-            drive.updatePoseEstimate();
 
-            Pose2d currentPos = drive.localizer.getPose();
+            PathChain traj2 = follower.pathBuilder()
+                    .addPath(new BezierLine(currentPos, brakePos))
+                    .setLinearHeadingInterpolation(currentPos.getHeading(), brakePos.getHeading())
+                    .build();
 
-            TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPos)
-                    .strafeToLinearHeading(new Vector2d(brakePos.position.x, brakePos.position.y), brakePos.heading.toDouble(), VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-
-            if (Math.abs(currentPos.position.x - brakePos.position.x) > 1 || Math.abs(currentPos.position.y - brakePos.position.y) > 1) {
-                Actions.runBlocking(
-                        traj2.build()
-                );
+            if (Math.abs(currentPos.getX() - brakePos.getX()) > 1 || Math.abs(currentPos.getY() - brakePos.getY()) > 1) {
+                follower.followPath(traj2);
             }
         } else {
             autoDrive = false;

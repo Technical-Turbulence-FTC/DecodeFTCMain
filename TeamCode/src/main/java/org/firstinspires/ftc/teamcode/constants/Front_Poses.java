@@ -7,14 +7,14 @@ import com.acmerobotics.roadrunner.Pose2d;
 public class Front_Poses {
 
 
-    public static double rx1 = 20, ry1 = 0.5, rh1 = 0.1;
-    public static double bx1 = 20, by1 = -0.5, bh1 = -0.1;
+    public static double rx1 = 30, ry1 = 5, rh1 = 0.1;
+    public static double bx1 = 30, by1 = -5, bh1 = -0.1;
 
     public static double rx2a = 41, ry2a = 18, rh2a = 140;
     public static double bx2a = 41, by2a = -18, bh2a = -140;
 
     public static double rx2b = 21, ry2b = 34, rh2b = 140.1;
-    public static double bx2b = 23, by2b = -36, bh2b = -140.1;
+    public static double bx2b = 23, by2b = -34, bh2b = -140.1;
 
     public static double rx3a = 55, ry3a = 39, rh3a = 140;
     public static double bx3a = 55, by3a = -39, bh3a = -140;
@@ -33,8 +33,8 @@ public class Front_Poses {
 
     public static double rfx1 = 10, rfy1 = 0, rfh1 = 0;
 
-    public static double rShootX = 40, rShootY = 10, rShootH = 50;
-    public static double bShootX = 40, bShootY = -10, bShootH = -50;
+    public static double rShootX = 60, rShootY = 10, rShootH = 50;
+    public static double bShootX = 60, bShootY = -10, bShootH = -50;
 
     public static double rxPrep = 45, ryPrep = 10, rhPrep = 50;
     public static double bxPrep = 45, byPrep = -10, bhPrep = -50;
@@ -58,5 +58,14 @@ public class Front_Poses {
     public static double bPickupGateBX = 38, bPickupGateBY = -68, bPickupGateBH = -180;
     public static double pickupGateCX = 34, pickupGateCY = 58, pickupGateCH = 220;
 
+    public static double rOpenGateCloseX = 20, rOpenGateCloseY = 35, rOpenGateCloseH = 230;
+    public static double bOpenGateCloseX = 20, bOpenGateCloseY = -35, bOpenGateCloseH = -230;
+
+    public static double rOpenGateMiddleX = 36, rOpenGateMiddleY = 59, rOpenGateMiddleH = 50;
+    public static double bOpenGateMiddleX = 36, bOpenGateMiddleY = -59, bOpenGateMiddleH = -50;
+
     public static Pose2d teleStart = new Pose2d(0, 0, 0);
+
+    //For PedroPathing TODO: figure out how to change start poses in auto
+    public static double teleStartPoseX = 72, teleStartPoseY = 72, teleStartPoseH = 0;
 }

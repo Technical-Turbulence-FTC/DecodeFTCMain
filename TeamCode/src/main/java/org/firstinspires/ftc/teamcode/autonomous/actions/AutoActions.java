@@ -18,6 +18,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -54,8 +56,8 @@ public class AutoActions {
     public static double firstSpindexShootPos = spinStartPos;
     private boolean shootForward = true;
     public int motif = 0;
-    double spinEndPos = ServoPositions.spinEndPos;
-
+    double spinEndPos = 0.95;
+    private boolean intaking = false;
     public AutoActions(Robot rob, MecanumDrive dri, MultipleTelemetry tel, Servos ser, Flywheel fly, Spindexer spi, Targeting tar, Targeting.Settings tS, Turret tur, Light lig) {
         this.robot = rob;
         this.drive = dri;
@@ -427,8 +429,10 @@ public class AutoActions {
 
                 if ((System.currentTimeMillis() - stamp) > (time * 1000)) {
                     servos.setSpinPos(spindexer_intakePos1);
+                    intaking = false;
                     return false;
                 } else {
+                    intaking = true;
                     return true;
                 }
             }
@@ -523,7 +527,7 @@ public class AutoActions {
 
 
                 drive.updatePoseEstimate();
-                Pose2d currentPose = drive.localizer.getPose();
+                Pose2d currentPose = null; //drive.localizer.getPose();
 
                 if (ticker == 0) {
                     stamp = System.currentTimeMillis();
@@ -540,10 +544,10 @@ public class AutoActions {
 
                 ticker++;
 
-                double robotX = currentPose.position.x;
-                double robotY = currentPose.position.y;
+                double robotX = 0.0;//currentPose.position.x;
+                double robotY = 0.0;//currentPose.position.y;
 
-                double robotHeading = currentPose.heading.toDouble();
+                double robotHeading = 0.0;//currentPose.heading.toDouble();
 
                 double goalX = -15;
                 double goalY = 0;
@@ -552,11 +556,11 @@ public class AutoActions {
                 double dy = robotY - goalY;  // delta y from robot to goal
 
 
-                Pose2d deltaPose;
+                Pose deltaPose;
                 if (posX != 0.501) {
-                    deltaPose = new Pose2d(posX, posY, Math.toRadians(posH));
+                    deltaPose = new Pose(posX, posY, Math.toRadians(posH));
                 } else {
-                    deltaPose = new Pose2d(dx, dy, robotHeading);
+                    deltaPose = new Pose(dx, dy, robotHeading);
                 }
                 Turret.limelightUsed = true;
 
@@ -644,9 +648,9 @@ public class AutoActions {
 
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose;
+                Pose deltaPose;
                 if (turr == 0.501) {
-                    deltaPose = new Pose2d(dx, dy, robotHeading);
+                    deltaPose = new Pose(dx, dy, robotHeading);
                     if (!detectingObelisk) {
                         turret.trackGoal(deltaPose);
                     }
@@ -669,6 +673,44 @@ public class AutoActions {
                 TELE.update();
 
                 return !timeDone;
+            }
+        };
+    }
+
+    public Action ShakeDrivetrain(
+            double time
+    ){
+        return new Action() {
+            int ticker = 0;
+            double stamp = 0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if (ticker == 0){
+                    stamp = System.currentTimeMillis();
+                }
+                ticker++;
+
+                double currentStamp = System.currentTimeMillis();
+                if (currentStamp - stamp < time*1000 && (intaking || ticker < 50)) {
+                    if (ticker % 10000 < 5000) {
+                        robot.frontLeft.setPower(0.5);
+                        robot.backLeft.setPower(0.5);
+                        robot.frontRight.setPower(0.5);
+                        robot.backRight.setPower(0.5);
+                    } else {
+                        robot.frontLeft.setPower(-0.5);
+                        robot.backLeft.setPower(-0.5);
+                        robot.frontRight.setPower(-0.5);
+                        robot.backRight.setPower(-0.5);
+                    }
+                    return true;
+                } else {
+                    robot.frontLeft.setPower(0);
+                    robot.backLeft.setPower(0);
+                    robot.frontRight.setPower(0);
+                    robot.backRight.setPower(0);
+                    return false;
+                }
             }
         };
     }

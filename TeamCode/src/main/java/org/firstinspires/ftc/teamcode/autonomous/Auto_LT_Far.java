@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.Back_Poses.*;
+import static org.firstinspires.ftc.teamcode.constants.Back_Poses.bStackPickupFarAH;
+import static org.firstinspires.ftc.teamcode.constants.Back_Poses.bStackPickupFarAY;
+import static org.firstinspires.ftc.teamcode.constants.Back_Poses.bStackPickupFarBH;
+import static org.firstinspires.ftc.teamcode.constants.Back_Poses.bStackPickupFarBX;
+import static org.firstinspires.ftc.teamcode.constants.Back_Poses.bStackPickupFarBY;
 import static org.firstinspires.ftc.teamcode.constants.Color.redAlliance;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStart;
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.blueObeliskTurrPos1;
@@ -63,8 +68,8 @@ public class Auto_LT_Far extends LinearOpMode {
     boolean stack3 = true;
     double xStackPickupA, yStackPickupA, hStackPickupA;
     double xStackPickupB, yStackPickupB, hStackPickupB;
-    public static int pickupStackSpeed = 17;
-    public static int pickupGateSpeed = 25;
+    public static int pickupStackSpeed = 12;
+    public static int pickupGateSpeed = 30;
     int prevMotif = 0;
     public static double spindexerSpeedIncrease = 0.014;
     public static double shootAllTime = 2;
@@ -74,8 +79,8 @@ public class Auto_LT_Far extends LinearOpMode {
     public static double shootStackTime = 2;
     public static double shootGateTime = 2.5;
     public static double colorSenseTime = 1;
-    public static double intakeStackTime = 4.5;
-    public static double intakeGateTime = 8;
+    public static double intakeStackTime = 5;
+    public static double intakeGateTime = 3.75;
     double obeliskTurrPos1 = 0.0;
     double obeliskTurrPos2 = 0.0;
     double obeliskTurrPos3 = 0.0;
@@ -117,12 +122,10 @@ public class Auto_LT_Far extends LinearOpMode {
         robot.limelight.pipelineSwitch(1);
 
         turret = new Turret(robot, TELE, robot.limelight);
+        limelightUsed = false;
 
-        turret.setTurret(turrDefault);
 
-        servos.setSpinPos(spinStartPos);
-
-        servos.setTransferPos(transferServo_out);
+//        Spindexer.teleop = false;
 
         while (opModeInInit()) {
 
@@ -164,17 +167,17 @@ public class Auto_LT_Far extends LinearOpMode {
                 yShoot = rShootY;
                 hShoot = rShootH;
 
-                xStackPickupA = rStackPickupAX;
-                yStackPickupA = rStackPickupAY;
-                hStackPickupA = rStackPickupAH;
+                xStackPickupA = rStackPickupFarAX;
+                yStackPickupA = rStackPickupFarAY;
+                hStackPickupA = rStackPickupFarAH;
 
-                xStackPickupB = rStackPickupBX;
-                yStackPickupB = rStackPickupBY;
-                hStackPickupB = rStackPickupBH;
+                xStackPickupB = rStackPickupFarBX;
+                yStackPickupB = rStackPickupFarBY;
+                hStackPickupB = rStackPickupFarBH;
 
-                pickupGateX = rPickupGateX;
-                pickupGateY = rPickupGateY;
-                pickupGateH = rPickupGateH;
+                pickupGateX = rPickupGateXA;
+                pickupGateY = rPickupGateYA;
+                pickupGateH = rPickupGateHA;
 
                 obeliskTurrPos1 = turrDefault + redObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + redObeliskTurrPos2;
@@ -184,9 +187,14 @@ public class Auto_LT_Far extends LinearOpMode {
                 if (gamepad2.squareWasPressed()){
                     turret.pipelineSwitch(4);
                     robot.limelight.start();
-                    drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
-
                     gamepad2.rumble(500);
+                    sleep(1000);
+                    turret.setTurret(turrDefault);
+
+                    servos.setSpinPos(spinStartPos);
+                    limelightUsed = true;
+
+                    servos.setTransferPos(transferServo_out);
                 }
             } else {
                 robot.light.setPosition(0.6);
@@ -203,17 +211,17 @@ public class Auto_LT_Far extends LinearOpMode {
                 yShoot = bShootY;
                 hShoot = bShootH;
 
-                xStackPickupA = bStackPickupAX;
-                yStackPickupA = bStackPickupAY;
-                hStackPickupA = bStackPickupAH;
+                xStackPickupA = bStackPickupFarAX;
+                yStackPickupA = bStackPickupFarAY;
+                hStackPickupA = bStackPickupFarAH;
 
-                xStackPickupB = bStackPickupBX;
-                yStackPickupB = bStackPickupBY;
-                hStackPickupB = bStackPickupBH;
+                xStackPickupB = bStackPickupFarBX;
+                yStackPickupB = bStackPickupFarBY;
+                hStackPickupB = bStackPickupFarBH;
 
-                pickupGateX = bPickupGateX;
-                pickupGateY = bPickupGateY;
-                pickupGateH = bPickupGateH;
+                pickupGateX = bPickupGateXA;
+                pickupGateY = bPickupGateYA;
+                pickupGateH = bPickupGateHA;
 
                 obeliskTurrPos1 = turrDefault + blueObeliskTurrPos1;
                 obeliskTurrPos2 = turrDefault + blueObeliskTurrPos2;
@@ -223,9 +231,14 @@ public class Auto_LT_Far extends LinearOpMode {
                 if (gamepad2.squareWasPressed()){
                     turret.pipelineSwitch(2);
                     robot.limelight.start();
-                    drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
-
                     gamepad2.rumble(500);
+                    sleep(1000);
+                    turret.setTurret(turrDefault);
+                    limelightUsed = true;
+
+                    servos.setSpinPos(spinStartPos);
+
+                    servos.setTransferPos(transferServo_out);
                 }
             }
 
@@ -244,19 +257,16 @@ public class Auto_LT_Far extends LinearOpMode {
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
 
             pickupGate = drive.actionBuilder(new Pose2d(xShoot, yShoot, Math.toRadians(hShoot)))
-                    .strafeToLinearHeading(new Vector2d(pickupGateX, pickupGateY), Math.toRadians(pickupGateH))
-                    .waitSeconds(0.2)
-                    .strafeToLinearHeading(new Vector2d(pickupGateXB, pickupGateYB), Math.toRadians(pickupGateHB))
-                    .strafeToLinearHeading(new Vector2d(pickupGateXC, pickupGateYC), Math.toRadians(pickupGateHC),
+                    .strafeToLinearHeading(new Vector2d(pickupGateX, pickupGateY), Math.toRadians(pickupGateH),
                             new TranslationalVelConstraint(pickupGateSpeed));
 
             shootGate = drive.actionBuilder(new Pose2d(pickupGateX, pickupGateY, Math.toRadians(pickupGateH)))
                     .strafeToLinearHeading(new Vector2d(xShoot, yShoot), Math.toRadians(hShoot));
 
-            limelightUsed = true;
 
             TELE.addData("Red?", redAlliance);
             TELE.addData("Turret Default", turrDefault);
+            TELE.addData("Limelight On?",limelightUsed);
             TELE.addData("Gate Cycle?", gatePickup);
             TELE.addData("Pickup Stack?", stack3);
             TELE.addData("Start Position", autoStart);
@@ -275,11 +285,17 @@ public class Auto_LT_Far extends LinearOpMode {
             robot.transfer.setPower(1);
 
             startAuto();
-            shoot();
+            if (redAlliance){
+                shoot(autoStartRX, autoStartRY, autoStartRH);
+
+            } else {
+                shoot(autoStartBX, autoStartBY, autoStartBH);
+
+            }
 
             if (stack3){
                 cycleStackFar();
-                shoot();
+                shoot(xShoot, yShoot, hShoot);
             }
 
             while (gatePickup && getRuntime() - stamp < endAutoTime){
@@ -288,10 +304,7 @@ public class Auto_LT_Far extends LinearOpMode {
                     break;
                 }
                 cycleGatePrepareShoot();
-                if (getRuntime() - stamp > endAutoTime + shootAllTime + 1){
-                    break;
-                }
-                shoot();
+                shoot(xShoot, yShoot, hShoot);
             }
 
             if (gatePickup || stack3){
@@ -318,28 +331,46 @@ public class Auto_LT_Far extends LinearOpMode {
 
     }
 
-    void shoot(){
+    void shoot(double x, double y, double z){
         Actions.runBlocking(
                 new ParallelAction(
-                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, 0.501, 0.501, 0.501)
+                        autoActions.shootAllAuto(shootAllTime, spindexerSpeedIncrease, x, y, z)
                 )
 
         );
     }
 
     void startAuto(){
-        Actions.runBlocking(
-                new ParallelAction(
-                        autoActions.manageShooterAuto(
-                                flywheel0Time,
-                                0.501,
-                                0.501,
-                                0.501,
-                                true
-                        )
 
-                )
-        );
+        if (redAlliance){
+            Actions.runBlocking(
+                    new ParallelAction(
+                            autoActions.manageShooterAuto(
+                                    flywheel0Time,
+                                    autoStartRX,
+                                    autoStartRY,
+                                    autoStartRH,
+                                    true
+                            )
+
+                    )
+            );
+
+        } else {
+            Actions.runBlocking(
+                    new ParallelAction(
+                            autoActions.manageShooterAuto(
+                                    flywheel0Time,
+                                    autoStartBX,
+                                    autoStartBY,
+                                    autoStartBH,
+                                    true
+                            )
+
+                    )
+            );
+        }
+
     }
 
     void leave3Ball(){
@@ -361,34 +392,17 @@ public class Auto_LT_Far extends LinearOpMode {
                                 xStackPickupB,
                                 yStackPickupB,
                                 hStackPickupB
-                        ),
-                        autoActions.detectObelisk(
-                                intakeStackTime,
-                                xStackPickupB,
-                                yStackPickupB,
-                                posXTolerance,
-                                posYTolerance,
-                                obeliskTurrPos3
                         )
-
                 )
         );
-
-        motif = turret.getObeliskID();
-
-        if (motif == 0) motif = 22;
-        prevMotif = motif;
-
+        servos.setSpinPos(spinStartPos);
+        spindexer.setIntakePower(-0.1);
         Actions.runBlocking(
                 new ParallelAction(
                         shoot3.build(),
-                        autoActions.prepareShootAll(
-                                colorSenseTime,
-                                shootStackTime,
-                                motif,
-                                xShoot,
-                                yShoot,
-                                hShoot)
+                        autoActions.manageShooterAuto(
+                                shootStackTime,xShoot, yShoot, hShoot, false
+                        )
                 )
         );
     }
@@ -398,39 +412,26 @@ public class Auto_LT_Far extends LinearOpMode {
                 new ParallelAction(
                         pickupGate.build(),
                         autoActions.intake(
-                                intakeStackTime,
-                                pickupGateX,
-                                pickupGateY,
-                                pickupGateH
-                        ),
-                        autoActions.detectObelisk(
                                 intakeGateTime,
                                 pickupGateX,
                                 pickupGateY,
-                                posXTolerance,
-                                posYTolerance,
-                                obeliskTurrPos3
+                                pickupGateH
                         )
                 )
         );
-
-        motif = turret.getObeliskID();
-
-        if (motif == 0) motif = prevMotif;
-        prevMotif = motif;
     }
 
     void cycleGatePrepareShoot(){
+        spindexer.setIntakePower(-0.1);
         Actions.runBlocking(
                 new ParallelAction(
                         shootGate.build(),
-                        autoActions.prepareShootAll(
-                                colorSenseTime,
-                                shootGateTime,
-                                motif,
+                        autoActions.manageShooterAuto(
+                               shootGateTime,
                                 xShoot,
                                 yShoot,
-                                hShoot
+                                hShoot,
+                                false
                         )
                 )
         );

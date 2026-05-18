@@ -79,6 +79,6 @@ public class Servos {
     }
 
     public boolean spinEqual(double pos) {
-        return Math.abs(pos - this.getSpinPos()) < 0.03;
+        return Math.abs(pos - this.getSpinPos()) < 0.05;
     }
 }

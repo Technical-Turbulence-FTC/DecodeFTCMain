@@ -65,46 +65,51 @@ public class SortingTest extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        while (opModeIsActive()){
-            spindexer.setIntakePower(1);
-            robot.transfer.setPower(1);
-
-            if (gamepad1.crossWasPressed()){
-                motif = 21;
-            } else if (gamepad1.squareWasPressed()){
-                motif = 22;
-            } else if (gamepad1.triangleWasPressed()){
-                motif = 23;
-            }
-            flywheel.manageFlywheel(2500);
-
-            if (gamepad1.leftBumperWasPressed()){
-                intaking = false;
-                Actions.runBlocking(
-                        autoActions.prepareShootAll(
-                                3,
-                                5,
-                                motif,
-                                0.501,
-                                0.501,
-                                0.501
-                        )
-                );
-            } else if (gamepad1.rightBumperWasPressed()){
-                intaking = false;
-                Actions.runBlocking(
-                        autoActions.shootAllAuto(
-                                3.5,
-                                0.014,
-                                0.501,
-                                0.501,
-                                0.501
-                        )
-                );
-                intaking = true;
-            } else if (intaking){
-                spindexer.processIntake();
-            }
+        if (opModeIsActive()){
+            Actions.runBlocking(
+                    autoActions.ShakeDrivetrain(
+                            100
+                    )
+            );
+//            spindexer.setIntakePower(1);
+//            robot.transfer.setPower(1);
+//
+//            if (gamepad1.crossWasPressed()){
+//                motif = 21;
+//            } else if (gamepad1.squareWasPressed()){
+//                motif = 22;
+//            } else if (gamepad1.triangleWasPressed()){
+//                motif = 23;
+//            }
+//            flywheel.manageFlywheel(2500);
+//
+//            if (gamepad1.leftBumperWasPressed()){
+//                intaking = false;
+//                Actions.runBlocking(
+//                        autoActions.prepareShootAll(
+//                                3,
+//                                5,
+//                                motif,
+//                                0.501,
+//                                0.501,
+//                                0.501
+//                        )
+//                );
+//            } else if (gamepad1.rightBumperWasPressed()){
+//                intaking = false;
+//                Actions.runBlocking(
+//                        autoActions.shootAllAuto(
+//                                3.5,
+//                                0.014,
+//                                0.501,
+//                                0.501,
+//                                0.501
+//                        )
+//                );
+//                intaking = true;
+//            } else if (intaking){
+//                spindexer.processIntake();
+//            }
         }
     }
 }

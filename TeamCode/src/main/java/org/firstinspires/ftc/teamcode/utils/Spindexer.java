@@ -48,7 +48,7 @@ public class Spindexer {
     public double distanceFrontDriver = 0.0;
     public double distanceFrontPassenger = 0.0;
 
-    public double spindexerWiggle = 0.01;
+    public double spindexerWiggle = 0.03;
 
     public double spindexerOuttakeWiggle = 0.01;
     private double prevPos = 0.0;
@@ -173,10 +173,25 @@ public class Spindexer {
     // Detects if a ball is found and what color.
     // Returns true is there was a new ball found in Position 1
     // FIXIT: Reduce number of times that we read the color sensors for loop times.
+    public static boolean teleop = false;
     public boolean detectBalls(boolean detectRearColor, boolean detectFrontColor) {
 
         boolean newPos1Detection = false;
         int spindexerBallPos = 0;
+        double rearDistance;
+        double frontDriverDistance;
+        double frontPassengerDistance;
+        if (teleop){
+            rearDistance = 48;
+            frontDriverDistance = 50;
+            frontPassengerDistance = 29;
+            detectFrontColor = false;
+            detectRearColor = false;
+        } else {
+            rearDistance = 48;
+            frontDriverDistance = 56;
+            frontPassengerDistance = 29;
+        }
 
         // Read Distances
         double dRearCenter = robot.color1.getDistance(DistanceUnit.MM);
@@ -187,12 +202,12 @@ public class Spindexer {
         distanceFrontPassenger = (colorFilterAlpha * dFrontPassenger) + ((1-colorFilterAlpha) * distanceFrontPassenger);
 
         // Position 1
-        if (distanceRearCenter < 48) {
+        if (distanceRearCenter < rearDistance) {
 
             // Mark Ball Found
             newPos1Detection = true;
 
-            if (detectRearColor) {
+            if (detectRearColor && !teleop) {
                 // Detect which color
                 NormalizedRGBA color1RGBA = robot.color1.getNormalizedColors();
 
@@ -209,10 +224,10 @@ public class Spindexer {
         // Position 2
         // Find which ball position this is in the spindexer
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTDRIVER.ordinal()];
-        if (distanceFrontDriver < 50) {
+        if (distanceFrontDriver < frontDriverDistance) {
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            if (detectFrontColor) {
+            if (detectFrontColor && !teleop) {
                 NormalizedRGBA color2RGBA = robot.color2.getNormalizedColors();
 
                 double gP = color2RGBA.green / (color2RGBA.green + color2RGBA.red + color2RGBA.blue);
@@ -235,11 +250,11 @@ public class Spindexer {
 
         // Position 3
         spindexerBallPos = RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.FRONTPASSENGER.ordinal()];
-        if (distanceFrontPassenger < 29) {
+        if (distanceFrontPassenger < frontPassengerDistance) {
 
             // reset FoundEmpty because looking for 3 in a row before reset
             ballPositions[spindexerBallPos].foundEmpty = 0;
-            if (detectFrontColor) {
+            if (detectFrontColor && !teleop) {
                 NormalizedRGBA color3RGBA = robot.color3.getNormalizedColors();
 
                 double gP = color3RGBA.green / (color3RGBA.green + color3RGBA.red + color3RGBA.blue);
@@ -433,13 +448,13 @@ public class Spindexer {
             case MOVING:
                 // Stopping when we get to the new position
                 if (servos.spinEqual(intakePositions[commandedIntakePosition])) {
-                    if (intakeTicker > 1){
+                    //if (intakeTicker > 1){
                         currentIntakeState = Spindexer.IntakeState.INTAKE;
                         stopSpindexer();
                         intakeTicker = 0;
-                    } else {
-                        intakeTicker++;
-                    }
+                    //} else {
+                    //    intakeTicker++;
+                    //}
                     //detectBalls(false, false);
                 } else {
                     // Keep moving the spindexer
@@ -535,13 +550,11 @@ public class Spindexer {
                 break;
 
             case SHOOT_PREP_CONTINOUS:
-                if (shootTicks > waitFirstBallTicks){
-                    currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
-                    shootTicks++;
-                } else if (servos.spinEqual(spinStartPos)){
-                    shootTicks++;
+                if (servos.spinEqual(spinStartPos)){
                     servos.setTransferPos(transferServo_in);
+                    currentIntakeState = Spindexer.IntakeState.SHOOT_CONTINOUS;
                 } else {
+                    servos.setTransferPos(transferServo_out);
                     servos.setSpinPos(spinStartPos);
                 }
                 break;
@@ -557,7 +570,7 @@ public class Spindexer {
                     shootTicks = 0;
                     currentIntakeState = IntakeState.FINDNEXT;
                 } else {
-                    double spinPos = servos.getSpinCmdPos() + shootAllSpindexerSpeedIncrease;
+                    double spinPos = robot.spin1.getPosition() + shootAllSpindexerSpeedIncrease;
                     if (spinPos > spinEndPos + 0.03){
                         spinPos = spinEndPos + 0.03;
                     }
@@ -671,10 +684,8 @@ public class Spindexer {
         return ballPositions[RotatedBallPositions[commandedIntakePosition][RotatedBallPositionNames.REARCENTER.ordinal()]].ballColor;
     }
     private double prevPow = 0.501;
-    private boolean firstIntakePow = true;
     public void setIntakePower(double pow){
-        if (firstIntakePow || prevPow != pow){
-            firstIntakePow = false;
+        if (prevPow != 0.501 && prevPow != pow){
             robot.intake.setPower(pow);
         }
         prevPow = pow;

@@ -77,6 +77,7 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -628,7 +629,7 @@ public class Auto_LT_Close_GateOpen extends LinearOpMode {
 
                 double dx = robotX - goalX;  // delta x from robot to goal
                 double dy = robotY - goalY;  // delta y from robot to goal
-                Pose2d deltaPose = new Pose2d(dx, dy, robotHeading);
+                Pose deltaPose = new Pose(dx, dy, robotHeading);
 
                 double distanceToGoal = Math.sqrt(dx * dx + dy * dy);
 

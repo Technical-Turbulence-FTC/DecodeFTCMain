@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,10 @@ public class Turret {
 
     public static double turretTolerance = 0.02;
     public static double turrPosScalar = 0.00011264432;
-    public static double turret180Range = 0.54;
+    public static double turret180Range = 0.55;
     public static double turrDefault = 0.35;
     public static double turrMin = 0;
-    public static double turrMax = 1;
+    public static double turrMax = 0.69;
     public static boolean limelightUsed = true;
     public static double limelightPosOffset = 5;
     public static double manualOffset = 0.0;
@@ -79,7 +81,7 @@ public class Turret {
     }
 
     public double getTurrPos() {
-        return turrPosScalar * (robot.turr1Pos.getVoltage() / 3.3) + turrDefault;
+        return robot.turr1.getPosition();
 
     }
     private double prevTurrPos = 0;
@@ -107,38 +109,24 @@ public class Turret {
     private void limelightRead() { // only for tracking purposes, not general reads
         Double xPos = null;
         Double yPos = null;
-        Double zPos = null;
+        double zPos;
         Double hPos = null;
         result = webcam.getLatestResult();
         if (result != null) {
             if (result.isValid()) {
                 tx = result.getTx();
                 ty = result.getTy();
-                // MegaTag1 code for receiving position
-                Pose3D botpose = result.getBotpose();
-                if (botpose != null) {
-                    limelightPosX = botpose.getPosition().x;
-                    limelightPosY = botpose.getPosition().y;
-                }
-                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                    limelightTagPose = fiducial.getRobotPoseTargetSpace();
-                    if (limelightTagPose != null){
-                        xPos = limelightTagPose.getPosition().x;
-                        yPos = limelightTagPose.getPosition().y;
-                        zPos = limelightTagPose.getPosition().z;
-                        hPos = limelightTagPose.getOrientation().getYaw();
+                if (TeleopV3.relocalize){
+                    zPos = result.getBotpose().getPosition().z;
+                    if (zPos < 0.15){
+                        xPos = result.getBotpose().getPosition().x;
+                        yPos = result.getBotpose().getPosition().y;
+                        hPos = result.getBotpose().getOrientation().getYaw();
+                        limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
+                        limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
+                        limelightTagH = (alphaPosConstant * hPos) + ((1 - alphaPosConstant) * limelightTagH);
                     }
                 }
-
-            }
-        }
-        if (xPos != null){
-            if (zPos<0) {
-                limelightTagX = (alphaPosConstant * xPos) + ((1 - alphaPosConstant) * limelightTagX);
-                limelightTagY = (alphaPosConstant * yPos) + ((1 - alphaPosConstant) * limelightTagY);
-                limelightTagZ = (alphaPosConstant * zPos) + ((1 - alphaPosConstant) * limelightTagZ);
-                limelightTagH = (alphaPosConstant * hPos) + ((1 - alphaPosConstant) * limelightTagH);
             }
         }
     }
@@ -153,7 +141,6 @@ public class Turret {
         return ty;
     }
 
-    Pose3D limelightTagPose;
     double limelightTagX = 0.0;
     double limelightTagY = 0.0;
     double limelightTagZ = 0.0;
@@ -246,17 +233,31 @@ public class Turret {
         return bearingOffset;
     }
 
-    public void trackGoal(Pose2d deltaPos) {
+    double targetTurretPos;
+    public void trackGoal(Pose deltaPos) {
 
         /* ---------------- FIELD → TURRET GEOMETRY ---------------- */
+        double posX;
+        if (Color.redAlliance){
+            posX = 134 - deltaPos.getX();
+        } else {
+            posX = deltaPos.getX() - 10;
+        }
+        double posY = 140 - deltaPos.getY();
+        double posH = Math.toDegrees(deltaPos.getHeading());
+        while (posH > 180) posH -= 360;
+        while (posH < -180) posH += 360;
 
         // Angle from robot to goal in robot frame
-        double desiredTurretAngleDeg = Math.toDegrees(
-                Math.atan2(deltaPos.position.y, deltaPos.position.x)
-        );
+        double desiredTurretAngleDeg = Math.toDegrees(Math.atan2(posY, posX)) - 45;
 
         // Robot heading (field → robot)
-        double robotHeadingDeg = Math.toDegrees(deltaPos.heading.toDouble());
+        double robotHeadingDeg;
+        if (Color.redAlliance){
+            robotHeadingDeg = posH + 135;
+        } else {
+            robotHeadingDeg = posH + 45;
+        }
 
         // Turret angle needed relative to robot
         double turretAngleDeg = desiredTurretAngleDeg - robotHeadingDeg;
@@ -277,7 +278,7 @@ public class Turret {
 
         limelightRead();
         // Active correction if we see the target
-        if (result.isValid() && !lockOffset && limelightUsed) {
+        if (result.isValid() && !lockOffset && limelightUsed && targetTurretPos > turrMin && targetTurretPos < turrMax) {
             currentTrackOffset += bearingAlign(result);
             currentTrackCount++;
 
@@ -333,7 +334,7 @@ public class Turret {
 
         /* ---------------- ANGLE → SERVO POSITION ---------------- */
 
-        double targetTurretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
+        targetTurretPos = turrDefault + (turretAngleDeg * (turret180Range * 2.0) / 360);
 
         // Clamp to physical servo limits
         targetTurretPos = Math.max(turrMin, Math.min(targetTurretPos, turrMax));
@@ -358,13 +359,14 @@ public class Turret {
 
 //        TELE.addData("Turret Angle (deg)", "%.2f", turretAngleDeg);
 //        TELE.addData("Target Pos", "%.3f", targetTurretPos);
-//        TELE.addData("Current Pos", "%.3f", currentPos);
+//        TELE.addData("Current Localization Pos", deltaPos);
 //        TELE.addData("Commanded Pos", "%.3f", turretPos);
 //        TELE.addData("LL Valid", result.isValid());
 //        TELE.addData("LL getTx", result.getTx());
 //        TELE.addData("LL Offset", offset);
 //        TELE.addData("Bearing Error", hasValidTarget ? String.format("%.2f", tagBearingDeg) : "NO TARGET");
 //        TELE.addData("Learned Offset", "%.2f", offset);
+//        TELE.update();
     }
 
 }
