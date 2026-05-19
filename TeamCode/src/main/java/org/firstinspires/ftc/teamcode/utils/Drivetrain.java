@@ -22,7 +22,7 @@ public class Drivetrain {
     private final ProfileAccelConstraint ACCEL_CONSTRAINT = new ProfileAccelConstraint(-Math.abs(60), 200);
 
 
-    public Drivetrain (Robot rob, Follower follower){
+    public Drivetrain(Robot rob, Follower follower){
 
         this.robot = rob;
         this.follower = follower;
