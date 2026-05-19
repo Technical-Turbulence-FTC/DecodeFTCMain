@@ -43,7 +43,7 @@ public class MeasuringLoopTimes {
 
     public void loop() {
         currentTime = getTimeSeconds();
-        if ((MeasurementStart + 15.0) < currentTime)
+        if ((MeasurementStart + 5.0) < currentTime)
         {
             minLoopTime = 9999999.0;
             maxLoopTime = 0.0;

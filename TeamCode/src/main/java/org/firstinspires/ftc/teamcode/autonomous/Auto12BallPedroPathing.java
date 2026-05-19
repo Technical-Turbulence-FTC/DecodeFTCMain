@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.constants.ServoPositions.spinStartPos;
+import static org.firstinspires.ftc.teamcode.utils.Targeting.turretInterpolate;
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
 import static org.firstinspires.ftc.teamcode.utils.Turret.turrDefault;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
@@ -22,12 +23,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
-import com.pedropathing.util.Timer;
 
 import java.util.List;
 
@@ -43,30 +44,21 @@ public class Auto12BallPedroPathing extends LinearOpMode {
     Turret turret;
     Spindexer spindexer;
     Servos servos;
-    Timer opModeTimer, shootingTimer;
+    MeasuringLoopTimes loopTimes;
 
     // Wait Times
     public static double shootTime = 2;
 
     // Extra Variables
     public static double intakePower = 0.3;
+    double shootX, shootY, shootH;
 
     // Initialize path state machine
     private enum PathState {
-        DRIVE_SHOOT0,
-        WAIT_SHOOT0,
-        DRIVE_PICKUP1,
-        PICKUP1,
-        DRIVE_SHOOT1,
-        WAIT_SHOOT1,
-        DRIVE_PICKUP2,
-        PICKUP2,
-        DRIVE_SHOOT2,
-        WAIT_SHOOT2,
-        DRIVE_PICKUP3,
-        PICKUP3,
-        DRIVE_SHOOT3,
-        WAIT_SHOOT3
+        DRIVE_SHOOT0, WAIT_SHOOT0,
+        DRIVE_PICKUP1, PICKUP1, DRIVE_SHOOT1, WAIT_SHOOT1,
+        DRIVE_PICKUP2, PICKUP2, DRIVE_SHOOT2, WAIT_SHOOT2,
+        DRIVE_PICKUP3, PICKUP3, DRIVE_SHOOT3, WAIT_SHOOT3
     }
     PathState pathState = PathState.DRIVE_SHOOT0;
 
@@ -86,21 +78,10 @@ public class Auto12BallPedroPathing extends LinearOpMode {
     public static double pickup3X = 132, pickup3Y = 34.5, pickup3H = 0;
     public static double shoot3ControlX = 86, shoot3ControlY = 34.5;
     public static double shoot3X = 84, shoot3Y = 102, shoot3H = -90;
-    Pose startPose;
-    Pose shoot0;
-    Pose drivePickup1;
-    Pose pickup1;
-    Pose shoot1;
-    Pose drivePickup2Control;
-    Pose drivePickup2;
-    Pose pickup2;
-    Pose shoot2Control;
-    Pose shoot2;
-    Pose drivePickup3Control;
-    Pose drivePickup3;
-    Pose pickup3;
-    Pose shoot3Control;
-    Pose shoot3;
+    Pose startPose, shoot0,
+            drivePickup1, pickup1, shoot1,
+            drivePickup2Control, drivePickup2, pickup2, shoot2Control, shoot2,
+            drivePickup3Control, drivePickup3, pickup3, shoot3Control, shoot3;
     private void initializePoses(){
         startPose = new Pose(startPoseX, startPoseY, Math.toRadians(startPoseH));
         shoot0 = new Pose(shoot0X, shoot0Y, Math.toRadians(shoot0H));
@@ -120,16 +101,10 @@ public class Auto12BallPedroPathing extends LinearOpMode {
     } // add poses to void
 
     //Building Paths
-    PathChain startPose_shoot0;
-    PathChain shoot0_drivePickup1;
-    PathChain drivePickup1_pickup1;
-    PathChain pickup1_shoot1;
-    PathChain shoot1_drivePickup2;
-    PathChain drivePickup2_pickup2;
-    PathChain pickup2_shoot2;
-    PathChain shoot2_drivePickup3;
-    PathChain drivePickup3_pickup3;
-    PathChain pickup3_shoot3;
+    PathChain startPose_shoot0,
+            shoot0_drivePickup1, drivePickup1_pickup1, pickup1_shoot1,
+            shoot1_drivePickup2, drivePickup2_pickup2, pickup2_shoot2,
+            shoot2_drivePickup3, drivePickup3_pickup3, pickup3_shoot3;
     private void buildPaths(){
         startPose_shoot0 = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shoot0))
@@ -192,103 +167,107 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                 if (startAuto){
                     follower.followPath(startPose_shoot0, true);
                     startAuto = false;
+                    shootX = shoot0X;
+                    shootY = shoot0Y;
+                    shootH = shoot0H;
                 }
-                if (!follower.isBusy()){
-                    pathState = PathState.WAIT_SHOOT0;
-                    timeStamp = currentTime;
-//                    spindexer.prepareShootAllContinous();
-                }
+                driveShoot(PathState.WAIT_SHOOT0, currentTime);
                 break;
             case WAIT_SHOOT0:
-                if (spindexer.shootAllComplete() || currentTime - timeStamp > shootTime){
-//                    spindexer.resetSpindexer();
-                    pathState = PathState.DRIVE_PICKUP1;
-                    follower.followPath(shoot0_drivePickup1, true);
-                }
+                waitShoot(PathState.DRIVE_PICKUP1, shoot0_drivePickup1, currentTime);
                 break;
             case DRIVE_PICKUP1:
-                if (!follower.isBusy()){
-                    pathState = PathState.PICKUP1;
-                    follower.followPath(drivePickup1_pickup1, intakePower, false);
-                }
+                drivePickup(PathState.PICKUP1, drivePickup1_pickup1);
                 break;
             case PICKUP1:
-                if (!follower.isBusy()){
-                    pathState = PathState.DRIVE_SHOOT1;
-                    follower.followPath(pickup1_shoot1, true);
-                }
+                pickup(PathState.DRIVE_SHOOT1, pickup1_shoot1);
+                shootX = shoot1X;
+                shootY = shoot1Y;
+                shootH = shoot1H;
                 break;
             case DRIVE_SHOOT1:
-                if (!follower.isBusy()){
-                    pathState = PathState.WAIT_SHOOT1;
-                    timeStamp = currentTime;
-//                    spindexer.prepareShootAllContinous();
-                }
+                intakePowerDown(timeStamp, currentTime);
+                driveShoot(PathState.WAIT_SHOOT1, currentTime);
                 break;
             case WAIT_SHOOT1:
-                if (spindexer.shootAllComplete() || currentTime - timeStamp > shootTime){
-//                    spindexer.resetSpindexer();
-                    pathState = PathState.DRIVE_PICKUP2;
-                    follower.followPath(shoot1_drivePickup2, true);
-                }
+                waitShoot(PathState.DRIVE_PICKUP2, shoot1_drivePickup2, currentTime);
                 break;
             case DRIVE_PICKUP2:
-                if (!follower.isBusy()){
-                    pathState = PathState.PICKUP2;
-                    follower.followPath(drivePickup2_pickup2, intakePower, false);
-                }
+                drivePickup(PathState.PICKUP2, drivePickup2_pickup2);
                 break;
             case PICKUP2:
-                if (!follower.isBusy()){
-                    pathState = PathState.DRIVE_SHOOT2;
-                    follower.followPath(pickup2_shoot2, true);
-                }
+                pickup(PathState.DRIVE_SHOOT2, pickup2_shoot2);
+                shootX = shoot2X;
+                shootY = shoot2Y;
+                shootH = shoot2H;
                 break;
             case DRIVE_SHOOT2:
-                if (!follower.isBusy()){
-                    pathState = PathState.WAIT_SHOOT2;
-                    timeStamp = currentTime;
-//                    spindexer.prepareShootAllContinous();
-                }
+                intakePowerDown(timeStamp, currentTime);
+                driveShoot(PathState.WAIT_SHOOT2, currentTime);
                 break;
             case WAIT_SHOOT2:
-                if (spindexer.shootAllComplete() || currentTime - timeStamp > shootTime){
-//                    spindexer.resetSpindexer();
-                    pathState = PathState.DRIVE_PICKUP3;
-                    follower.followPath(shoot2_drivePickup3, true);
-                }
+                waitShoot(PathState.DRIVE_PICKUP3, shoot2_drivePickup3, currentTime);
                 break;
             case DRIVE_PICKUP3:
-                if (!follower.isBusy()){
-                    pathState = PathState.PICKUP3;
-                    follower.followPath(drivePickup3_pickup3, intakePower, false);
-                }
+                drivePickup(PathState.PICKUP3, drivePickup3_pickup3);
                 break;
             case PICKUP3:
-                if (!follower.isBusy()){
-                    pathState = PathState.DRIVE_SHOOT3;
-                    follower.followPath(pickup3_shoot3, true);
-                }
+                pickup(PathState.DRIVE_SHOOT3, pickup3_shoot3);
+                shootX = shoot3X;
+                shootY = shoot3Y;
+                shootH = shoot3H;
                 break;
             case DRIVE_SHOOT3:
-                if (!follower.isBusy()){
-                    pathState = PathState.WAIT_SHOOT3;
-//                    spindexer.prepareShootAllContinous();
-                }
+                intakePowerDown(timeStamp, currentTime);
+                driveShoot(PathState.WAIT_SHOOT3, currentTime);
                 break;
             case WAIT_SHOOT3:
                 if (spindexer.shootAllComplete()){
-//                    spindexer.resetSpindexer();
+                    spindexer.resetSpindexer();
                     TELE.addLine("Done Auto");
-                    TELE.update();
                 }
                 break;
             default:
                 break;
         }
-        TELE.update();
+        TELE.update(); // use for debugging
     }
 
+    // Voids for State Machine
+    private void intakePowerDown(double stamp, double currentTime) {
+        double pow = (stamp - currentTime) / 2; // adjust denominator to see how much time to adjust
+        if (pow < -1) {pow = 0;}
+        spindexer.setIntakePower(pow);
+    }
+    private void driveShoot(PathState nextState, double currentTime){
+        if (!follower.isBusy()){
+            pathState = nextState;
+            timeStamp = currentTime;
+            spindexer.prepareShootAllContinous();
+        }
+    }
+    private void waitShoot(PathState nextState, PathChain nextPath, double currentTime) {
+        if (spindexer.shootAllComplete() || currentTime - timeStamp > shootTime) {
+            spindexer.resetSpindexer();
+            pathState = nextState;
+            follower.followPath(nextPath, true);
+            spindexer.setIntakePower(1);
+        }
+    }
+    private void drivePickup(PathState nextState, PathChain nextPath) {
+        if (!follower.isBusy()) {
+            pathState = nextState;
+            follower.followPath(nextPath, intakePower, false);
+        }
+    }
+    private void pickup(PathState nextState, PathChain nextPath) {
+        if (!follower.isBusy()) {
+            pathState = nextState;
+            follower.followPath(nextPath, true);
+        }
+    }
+
+    // Helps manage spindexer
     private boolean driveToShoot(){
         return pathState == PathState.DRIVE_SHOOT0 ||
                 pathState == PathState.DRIVE_SHOOT1 ||
@@ -296,10 +275,8 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                 pathState == PathState.DRIVE_SHOOT3;
     }
 
-    private double adjustXPoseBasedOnAlliance(double pose){
-        return (144-pose);
-    }
-
+    // Used for changing alliance
+    private double adjustXPoseBasedOnAlliance(double pose) {return (144-pose);}
     private double adjustHeadingBasedOnAlliance(double heading){
         heading = 180 - heading;
         while (heading > 180) {heading-=360;}
@@ -323,8 +300,8 @@ public class Auto12BallPedroPathing extends LinearOpMode {
         turret = new Turret(robot, TELE, robot.limelight);
         spindexer = new Spindexer(hardwareMap);
         servos = new Servos(hardwareMap);
-        opModeTimer = new Timer();
-        shootingTimer = new Timer();
+        loopTimes = new MeasuringLoopTimes();
+        loopTimes.init();
 
         robot.light.setPosition(Color.LightRed);
 
@@ -340,53 +317,22 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                     robot.light.setPosition(Color.LightBlue);
                 }
 
-                startPoseX = adjustXPoseBasedOnAlliance(startPoseX);
-                startPoseH = adjustHeadingBasedOnAlliance(startPoseH);
+                double[] xPoses = {startPoseX, shoot0X,
+                        drivePickup1X, pickup1X, shoot1X,
+                        drivePickup2ControlX, drivePickup2X, pickup2X, shoot2ControlX, shoot2X,
+                        drivePickup3ControlX, drivePickup3X, pickup3X, shoot3ControlX, shoot3X};
 
-                shoot0X = adjustXPoseBasedOnAlliance(shoot0X);
-                shoot0H = adjustHeadingBasedOnAlliance(shoot0H);
+                double[] headings = {startPoseH, shoot0H,
+                        drivePickup1H, pickup1H, shoot1H,
+                        drivePickup2H, pickup2H, shoot2H,
+                        drivePickup3H, pickup3H, shoot3H};
 
-                drivePickup1X = adjustXPoseBasedOnAlliance(drivePickup1X);
-                drivePickup1H = adjustHeadingBasedOnAlliance(drivePickup1H);
-
-                pickup1X = adjustXPoseBasedOnAlliance(pickup1X);
-                pickup1H = adjustHeadingBasedOnAlliance(pickup1H);
-
-                shoot1X = adjustXPoseBasedOnAlliance(shoot1X);
-                shoot1H = adjustHeadingBasedOnAlliance(shoot1H);
-
-                drivePickup2ControlX = adjustXPoseBasedOnAlliance(drivePickup2ControlX);
-
-                drivePickup2X = adjustXPoseBasedOnAlliance(drivePickup2X);
-                drivePickup2H = adjustHeadingBasedOnAlliance(drivePickup2H);
-
-                pickup2X = adjustXPoseBasedOnAlliance(pickup2X);
-                pickup2H = adjustHeadingBasedOnAlliance(pickup2H);
-
-                shoot2ControlX = adjustXPoseBasedOnAlliance(shoot2ControlX);
-
-                shoot2X = adjustXPoseBasedOnAlliance(shoot2X);
-                shoot2H = adjustHeadingBasedOnAlliance(shoot2H);
-
-                drivePickup3ControlX = adjustXPoseBasedOnAlliance(drivePickup3ControlX);
-
-                drivePickup3X = adjustXPoseBasedOnAlliance(drivePickup3X);
-                drivePickup3H = adjustHeadingBasedOnAlliance(drivePickup3H);
-
-                pickup3X = adjustXPoseBasedOnAlliance(pickup3X);
-                pickup3H = adjustHeadingBasedOnAlliance(pickup3H);
-
-                shoot3ControlX = adjustXPoseBasedOnAlliance(shoot3ControlX);
-
-                shoot3X = adjustXPoseBasedOnAlliance(shoot3X);
-                shoot3H = adjustHeadingBasedOnAlliance(shoot3H);
+                for (int i = 0; i < xPoses.length; i++) {xPoses[i] = adjustXPoseBasedOnAlliance(xPoses[i]);}
+                for (int i = 0; i < headings.length; i++) {headings[i] = adjustHeadingBasedOnAlliance(headings[i]);}
             }
 
             if (gamepad1.triangleWasPressed()){
                 initializeRobot = true;
-            }
-
-            if (initializeRobot){
                 initializePoses();
                 follower.setPose(startPose);
                 buildPaths();
@@ -408,34 +354,38 @@ public class Auto12BallPedroPathing extends LinearOpMode {
 
         robot.transfer.setPower(1);
         limelightUsed = false;
-        opModeTimer.resetTimer();
 
         while (opModeIsActive()){
             follower.update();
             pathStateMachine();
             Pose currentPose = follower.getPose();
-//            teleStartPoseX = currentPose.getX();
-//            teleStartPoseY = currentPose.getY();
-//            teleStartPoseH = Math.toDegrees(currentPose.getHeading());
+            teleStartPoseX = currentPose.getX();
+            teleStartPoseY = currentPose.getY();
+            teleStartPoseH = Math.toDegrees(currentPose.getHeading());
 
-//            turret.trackGoal(currentPose);
-//            targetingSettings = targeting.calculateSettings(currentPose.getX(), currentPose.getY(), currentPose.getHeading(), 0, turretInterpolate);
-//
-//            double voltage = robot.voltage.getVoltage();
-//            flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
-//            flywheel.manageFlywheel(targetingSettings.flywheelRPM);
-//            servos.setHoodPos(targetingSettings.hoodAngle);
-//
-//            if (driveToShoot()){
-//                servos.setSpinPos(spinStartPos);
-//            } else {
-//                spindexer.processIntake();
-//            }
+            turret.trackGoal(new Pose(shootX, shootY, Math.toRadians(shootH)));
+            targetingSettings = targeting.calculateSettings(shootX, shootY, Math.toRadians(shootH), 0, turretInterpolate);
 
-//            TELE.addData("X:", currentPose.getX());
-//            TELE.addData("Y:", currentPose.getY());
-//            TELE.addData("H:", currentPose.getHeading());
-//            TELE.update();
+            double voltage = robot.voltage.getVoltage();
+            flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
+            flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+            servos.setHoodPos(targetingSettings.hoodAngle);
+
+            if (driveToShoot()){servos.setSpinPos(spinStartPos);}
+            else {spindexer.processIntake();}
+
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
+            }
+            loopTimes.loop();
+
+            TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
+            TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
+            TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
+            TELE.addData("X:", currentPose.getX());
+            TELE.addData("Y:", currentPose.getY());
+            TELE.addData("H:", currentPose.getHeading());
+            TELE.update();
         }
     }
 }
