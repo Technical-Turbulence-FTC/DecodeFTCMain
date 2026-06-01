@@ -14,15 +14,15 @@ public class Turret {
     Robot robot;
 
     private final double servoTicksPer180 = 0.6; // TODO: Tune
-    private final double neutralPosition = 0.3; //TODO: Tune
+    private final double neutralPosition = 0.5; //TODO: Tune
     private final double turretMin = 0.04; //TODO: Tune
     private final double turretMax = 0.94; //TODO: Tune
-    private final double hVelK = 0.12; // TODO: Tune
-    private final double hAccK = 0.02; // TODO: Tune
-    private final double xVelK = 0.10; // TODO: Tune
-    private final double xAccK = 0.02; // TODO: Tune
-    private final double yVelK = 0.10; // TODO: Tune
-    private final double yAccK = 0.02; // TODO: Tune
+    private final double hVelK = 0; // TODO: Tune
+    private final double hAccK = 0; // TODO: Tune
+    private final double xVelK = 0; // TODO: Tune
+    private final double xAccK = 0; // TODO: Tune
+    private final double yVelK = 0; // TODO: Tune
+    private final double yAccK = 0; // TODO: Tune
 
     private int obeliskID = 0;
 
@@ -94,8 +94,7 @@ public class Turret {
 
         double fieldRelativeHeading = Math.atan2(predictedDy, predictedDx);
 
-        double desiredAngle = fieldRelativeHeading - predictedH;
-        double angleDelta = desiredAngle - Math.PI;
+        double angleDelta = fieldRelativeHeading - predictedH;
         angleDelta = wrapAngle(angleDelta);
 
         double servoTicksFromNeutral = (angleDelta / (2.0 * Math.PI)) * (2.0 * servoTicksPer180);
@@ -105,6 +104,6 @@ public class Turret {
         servoAngle = Range.clip(servoAngle, turretMin, turretMax);
 
         robot.turr1.setPosition(servoAngle);
-        robot.turr2.setPosition(1.0 - servoAngle);
+        robot.turr2.setPosition(servoAngle);
     }
 }
