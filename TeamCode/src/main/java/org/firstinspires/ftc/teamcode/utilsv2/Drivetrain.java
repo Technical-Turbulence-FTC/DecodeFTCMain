@@ -76,10 +76,10 @@ public class Drivetrain {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        robot.frontLeft.setPower(frontLeftPower);
-        robot.backLeft.setPower(backLeftPower);
-        robot.frontRight.setPower(frontRightPower);
-        robot.backRight.setPower(backRightPower);
+        robot.setFrontLeftPower(frontLeftPower);
+        robot.setBackLeftPower(backLeftPower);
+        robot.setFrontRightPower(frontRightPower);
+        robot.setBackRightPower(backRightPower);
 
         if (tele) {
 
