@@ -18,7 +18,6 @@ public class Turret {
     private final double turretMin = 0.04; //TODO: Tune
     private final double turretMax = 0.94; //TODO: Tune
     private final double hVelK = 0; // TODO: Tune
-    private final double hAccK = 0; // TODO: Tune
     private final double xVelK = 0; // TODO: Tune
     private final double xAccK = 0; // TODO: Tune
     private final double yVelK = 0; // TODO: Tune
@@ -81,14 +80,19 @@ public class Turret {
         return obeliskID;
     }
 
+    public void manual (double pos) {
+        robot.turr1.setPosition(pos);
+        robot.turr2.setPosition(pos);
+    }
 
-    public void trackGoal(double dx, double dy, double h, double hVel, double hAcc, double xVel, double xAcc, double yVel, double yAcc) {
+
+    public void trackGoal(double dx, double dy, double h, double hVel, double xVel, double xAcc, double yVel, double yAcc) {
         // dx, dy, dz is target - robot
         // h is the raw heading where 0 degrees is positive x in the system of x, y
 
         double predictedDx = dx - (xVel * xVelK) - (0.5 * xAcc * xAccK); // Negative bc dx = target - robot
         double predictedDy = dy - (yVel * yVelK) - (0.5 * yAcc * yAccK);  // Negative bc dy = target - robot
-        double predictedH = h + (hVel * hVelK) + (0.5 * hAcc * hAccK); // Positive bc h = robot heading
+        double predictedH = h + (hVel * hVelK); // Positive bc h = robot heading
 
         predictedH = wrapAngle(predictedH);
 

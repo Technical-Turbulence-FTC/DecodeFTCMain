@@ -26,9 +26,9 @@ public class Flywheel {
 
     private final LinkedList<Double> velocityHistory = new LinkedList<>();
 
-    public Flywheel(HardwareMap hardwareMap) {
+    public Flywheel(Robot rob) {
 
-        robot = new Robot(hardwareMap);
+        robot = rob;
         shooterPIDF1 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
         shooterPIDF2 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
     }
