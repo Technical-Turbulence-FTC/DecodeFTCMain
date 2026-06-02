@@ -5,6 +5,19 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoPositions {
 
+    public static double rapidFireBlocker_Closed = 0.3;
+    public static double rapidFireBlocker_Open = 0.5;
+
+    public static double spindexBlocker_Closed = 0.31;
+    public static double spindexBlocker_Open = 0.5;
+
+    public static double spindexer_A1 = 0.16;
+    public static double spindexer_A2 = 0.35;
+    public static double spindexer_A3 = 0.54;
+    public static double spindexer_B1 = 0.73;
+    public static double spindexer_B2 = 0.92;
+
+
     public static double spindexer_intakePos1 = 0.18; //0.13;
 
     public static double spindexer_intakePos2 = 0.37; //0.33;//0.5;
@@ -21,13 +34,13 @@ public class ServoPositions {
 
     public static double shootAllSpindexerSpeedIncrease = 0.01;
 
-    public static double transferServo_out = 0.15;
+    public static double transferServo_out = 0.57;
 
-    public static double transferServo_in = 0.38;
+    public static double transferServo_in = 0.77;
 
     public static double hoodAuto = 0.27;
 
-    public static double hoodOffset = -0.05; // offset from 0.93 (or position at 0,0 in targeting class)
+    public static double hoodOffset = 0; // offset from 0.93 (or position at 0,0 in targeting class)
 
     public static double turret_redClose = 0;
     public static double turret_blueClose = 0;
@@ -43,5 +56,11 @@ public class ServoPositions {
     public static double blueObeliskTurrPos3 = -0.17;
     public static double redTurretShootPos = 0.05;
     public static double blueTurretShootPos = -0.05;
+
+    public static double tilt1_down = 0.6;
+    public static double tilt2_down = 0.4;
+    public static double tilt1_up = 0.08;
+    public static double tilt2_up = 0.97;
+
 
 }

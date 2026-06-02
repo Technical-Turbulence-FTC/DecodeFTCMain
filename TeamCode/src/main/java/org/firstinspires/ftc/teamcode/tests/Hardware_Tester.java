@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -51,6 +52,11 @@ public class Hardware_Tester extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
         TELE = new MultipleTelemetry();
+
+        robot.shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        waitForStart();
 
         if (isStopRequested()) return;
         while (opModeIsActive()){
@@ -116,9 +122,9 @@ public class Hardware_Tester extends LinearOpMode {
 
             // Sensor Data
 
-            TELE.addData("Beam Break 1?", robot.beam1.isPressed());
-            TELE.addData("Beam Break 2?", robot.beam2.isPressed());
-            TELE.addData("Beam Break 3?", robot.beam3.isPressed());
+//            TELE.addData("Beam Break 1?", robot.beam1.isPressed());
+//            TELE.addData("Beam Break 2?", robot.beam2.isPressed());
+//            TELE.addData("Beam Break 3?", robot.beam3.isPressed());
 
             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
             TELE.addData("REV Distance", robot.revSensor.getDistance(DistanceUnit.MM));

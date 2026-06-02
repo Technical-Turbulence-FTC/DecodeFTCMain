@@ -83,6 +83,7 @@ public class Robot {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
 
@@ -103,11 +104,12 @@ public class Robot {
 
         turr2 = hardwareMap.get(Servo.class, "turr2");
 
-        spin1 = hardwareMap.get(Servo.class, "spin2");
+        spin1 = hardwareMap.get(Servo.class, "spin1");
 
-        spin2 = hardwareMap.get(Servo.class, "spin1");
+        spin2 = hardwareMap.get(Servo.class, "spin2");
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
+        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
         transferServo = hardwareMap.get(Servo.class, "transferServo");
 
@@ -121,27 +123,27 @@ public class Robot {
         tilt1 = hardwareMap.get(Servo.class, "tilt1");
         tilt2 = hardwareMap.get(Servo.class, "tilt2");
 
-        beam1 = hardwareMap.get(TouchSensor.class, "beam1");
-        beam2 = hardwareMap.get(TouchSensor.class, "beam2");
-        beam3 = hardwareMap.get(TouchSensor.class, "beam3");
+//        beam1 = hardwareMap.get(TouchSensor.class, "beam1");
+//        beam2 = hardwareMap.get(TouchSensor.class, "beam2");
+//        beam3 = hardwareMap.get(TouchSensor.class, "beam3");
 
         revSensor = hardwareMap.get(RevColorSensorV3.class, "rev");
 
         // Below is disregarded
 
-        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
-
-        spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
-
-        spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
-
-        transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
-
-        color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
-
-        color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
-
-        color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
+//        turr1Pos = hardwareMap.get(AnalogInput.class, "t1Pos"); // Encoder of turret plugged in intake port
+//
+//        spin1Pos = hardwareMap.get(AnalogInput.class, "spin1Pos");
+//
+//        spin2Pos = hardwareMap.get(AnalogInput.class, "spin2Pos");
+//
+//        transferServoPos = hardwareMap.get(AnalogInput.class, "tSPos");
+//
+//        color1 = hardwareMap.get(RevColorSensorV3.class, "c1");
+//
+//        color2 = hardwareMap.get(RevColorSensorV3.class, "c2");
+//
+//        color3 = hardwareMap.get(RevColorSensorV3.class, "c3");
 
         if (usingLimelight) {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -150,7 +152,8 @@ public class Robot {
             aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         }
 
-        light = hardwareMap.get(Servo.class, "light");
+//        light = hardwareMap.get(Servo.class, "light");
+
         voltage = hardwareMap.voltageSensor.iterator().next();
     }
 
