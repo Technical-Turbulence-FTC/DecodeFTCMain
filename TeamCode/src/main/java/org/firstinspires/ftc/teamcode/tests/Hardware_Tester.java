@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -51,7 +52,7 @@ public class Hardware_Tester extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
-        TELE = new MultipleTelemetry();
+        TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         robot.shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

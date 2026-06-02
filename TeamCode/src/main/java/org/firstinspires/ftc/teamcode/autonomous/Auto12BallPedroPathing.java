@@ -33,17 +33,17 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 import java.util.List;
 
 @Config
-@Autonomous (preselectTeleOp = "TeleopV3")
+@Autonomous (preselectTeleOp = "TeleopV4")
 public class Auto12BallPedroPathing extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
-    Flywheel flywheel;
-    Targeting targeting;
-    Targeting.Settings targetingSettings;
+//    Flywheel flywheel;
+//    Targeting targeting;
+//    Targeting.Settings targetingSettings;
     Follower follower;
-    Turret turret;
-    Spindexer spindexer;
-    Servos servos;
+//    Turret turret;
+//    Spindexer spindexer;
+//    Servos servos;
     MeasuringLoopTimes loopTimes;
 
     // Wait Times
@@ -222,10 +222,10 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                 driveShoot(PathState.WAIT_SHOOT3, currentTime);
                 break;
             case WAIT_SHOOT3:
-                if (spindexer.shootAllComplete()){
-                    spindexer.resetSpindexer();
-                    TELE.addLine("Done Auto");
-                }
+//                if (spindexer.shootAllComplete()){
+//                    spindexer.resetSpindexer();
+//                    TELE.addLine("Done Auto");
+//                }
                 break;
             default:
                 break;
@@ -237,21 +237,21 @@ public class Auto12BallPedroPathing extends LinearOpMode {
     private void intakePowerDown(double stamp, double currentTime) {
         double pow = (stamp - currentTime) / 2; // adjust denominator to see how much time to adjust
         if (pow < -1) {pow = 0;}
-        spindexer.setIntakePower(pow);
+//        spindexer.setIntakePower(pow);
     }
     private void driveShoot(PathState nextState, double currentTime){
         if (!follower.isBusy()){
             pathState = nextState;
             timeStamp = currentTime;
-            spindexer.prepareShootAllContinous();
+//            spindexer.prepareShootAllContinous();
         }
     }
     private void waitShoot(PathState nextState, PathChain nextPath, double currentTime) {
-        if (spindexer.shootAllComplete() || currentTime - timeStamp > shootTime) {
-            spindexer.resetSpindexer();
+        if (currentTime - timeStamp > shootTime) { // spindexer.shootAllComplete() ||
+//            spindexer.resetSpindexer();
             pathState = nextState;
             follower.followPath(nextPath, true);
-            spindexer.setIntakePower(1);
+//            spindexer.setIntakePower(1);
         }
     }
     private void drivePickup(PathState nextState, PathChain nextPath) {
@@ -292,18 +292,18 @@ public class Auto12BallPedroPathing extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        flywheel = new Flywheel(hardwareMap);
-        targeting = new Targeting();
-        targetingSettings = new Targeting.Settings(0,0);
+//        flywheel = new Flywheel(hardwareMap);
+//        targeting = new Targeting();
+//        targetingSettings = new Targeting.Settings(0,0);
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(72,72,0));
-        turret = new Turret(robot, TELE, robot.limelight);
-        spindexer = new Spindexer(hardwareMap);
-        servos = new Servos(hardwareMap);
+//        turret = new Turret(robot, TELE, robot.limelight);
+//        spindexer = new Spindexer(hardwareMap);
+//        servos = new Servos(hardwareMap);
         loopTimes = new MeasuringLoopTimes();
         loopTimes.init();
 
-        robot.light.setPosition(Color.LightRed);
+//        robot.light.setPosition(Color.LightRed);
 
         boolean initializeRobot = false;
         while (opModeInInit()){
@@ -311,11 +311,11 @@ public class Auto12BallPedroPathing extends LinearOpMode {
 
             if (gamepad1.crossWasPressed() && !initializeRobot){
                 Color.redAlliance = !Color.redAlliance;
-                if (Color.redAlliance){
-                    robot.light.setPosition(Color.LightRed);
-                } else {
-                    robot.light.setPosition(Color.LightBlue);
-                }
+//                if (Color.redAlliance){
+//                    robot.light.setPosition(Color.LightRed);
+//                } else {
+//                    robot.light.setPosition(Color.LightBlue);
+//                }
 
                 double[] xPoses = {startPoseX, shoot0X,
                         drivePickup1X, pickup1X, shoot1X,
@@ -338,8 +338,8 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                 buildPaths();
                 sleep(2000);
 
-                turret.setTurret(turrDefault);
-                servos.setSpinPos(spinStartPos);
+//                turret.setTurret(turrDefault);
+//                servos.setSpinPos(spinStartPos);
             }
 
             TELE.addData("Red Alliance?", Color.redAlliance);
@@ -352,27 +352,27 @@ public class Auto12BallPedroPathing extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        robot.transfer.setPower(1);
+//        robot.transfer.setPower(1);
         limelightUsed = false;
 
         while (opModeIsActive()){
             follower.update();
             pathStateMachine();
             Pose currentPose = follower.getPose();
-            teleStartPoseX = currentPose.getX();
-            teleStartPoseY = currentPose.getY();
-            teleStartPoseH = Math.toDegrees(currentPose.getHeading());
-
-            turret.trackGoal(new Pose(shootX, shootY, Math.toRadians(shootH)));
-            targetingSettings = targeting.calculateSettings(shootX, shootY, Math.toRadians(shootH), 0, turretInterpolate);
-
-            double voltage = robot.voltage.getVoltage();
-            flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
-            flywheel.manageFlywheel(targetingSettings.flywheelRPM);
-            servos.setHoodPos(targetingSettings.hoodAngle);
-
-            if (driveToShoot()){servos.setSpinPos(spinStartPos);}
-            else {spindexer.processIntake();}
+//            teleStartPoseX = currentPose.getX();
+//            teleStartPoseY = currentPose.getY();
+//            teleStartPoseH = Math.toDegrees(currentPose.getHeading());
+//
+//            turret.trackGoal(new Pose(shootX, shootY, Math.toRadians(shootH)));
+//            targetingSettings = targeting.calculateSettings(shootX, shootY, Math.toRadians(shootH), 0, turretInterpolate);
+//
+//            double voltage = robot.voltage.getVoltage();
+//            flywheel.setPIDF(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / voltage);
+//            flywheel.manageFlywheel(targetingSettings.flywheelRPM);
+//            servos.setHoodPos(targetingSettings.hoodAngle);
+//
+//            if (driveToShoot()){servos.setSpinPos(spinStartPos);}
+//            else {spindexer.processIntake();}
 
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
