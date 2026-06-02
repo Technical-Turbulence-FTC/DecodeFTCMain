@@ -63,9 +63,9 @@ public class Robot {
     public Servo turr2;
     public Servo spin1;
     public Servo spin2;
-    public TouchSensor beam1;
-    public TouchSensor beam2;
-    public TouchSensor beam3;
+    public TouchSensor insideBeam;
+    public TouchSensor outsideBeam;
+
     public RevColorSensorV3 revSensor;
 
     public VoltageSensor voltage;
@@ -139,9 +139,8 @@ public class Robot {
         tilt1 = hardwareMap.get(Servo.class, "tilt1");
         tilt2 = hardwareMap.get(Servo.class, "tilt2");
 
-//        beam1 = hardwareMap.get(TouchSensor.class, "beam1");
-//        beam2 = hardwareMap.get(TouchSensor.class, "beam2");
-//        beam3 = hardwareMap.get(TouchSensor.class, "beam3");
+        insideBeam = hardwareMap.get(TouchSensor.class, "beam1");
+        outsideBeam = hardwareMap.get(TouchSensor.class, "beam2");
 
         revSensor = hardwareMap.get(RevColorSensorV3.class, "rev");
 

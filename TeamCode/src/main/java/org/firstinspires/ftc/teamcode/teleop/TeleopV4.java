@@ -6,8 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.utilsv2.Drivetrain;
-import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utilsv2.*;
 
 @TeleOp
 @Config
@@ -18,15 +17,13 @@ public class TeleopV4 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        robot = new Robot(hardwareMap);
+        robot = Robot.getInstance(hardwareMap);
 
         TELE = new MultipleTelemetry(
                 FtcDashboard.getInstance().getTelemetry(), telemetry
         );
 
         drivetrain = new Drivetrain(robot, TELE);
-
-        drivetrain.setTelemetry(true);
 
         waitForStart();
 
@@ -41,6 +38,8 @@ public class TeleopV4 extends LinearOpMode {
                     gamepad1.right_stick_x,
                     gamepad1.left_stick_x
             );
+
+
 
             TELE.update();
         }
