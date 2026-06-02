@@ -33,11 +33,10 @@ public class Shooter {
 
         if (redAlliance) {
             goalX = 144;
-            goalY = 144;
         } else {
             goalX = 0;
-            goalY = 144;
         }
+        goalY = 144;
     }
 
     public void setRedAlliance(boolean input) {
