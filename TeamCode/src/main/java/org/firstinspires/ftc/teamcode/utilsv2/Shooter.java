@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.utilsv2;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 
-import org.firstinspires.ftc.teamcode.utils.Robot;
 
 public class Shooter {
 

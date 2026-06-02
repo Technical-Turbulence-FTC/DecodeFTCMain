@@ -18,8 +18,8 @@ public class Drivetrain {
 
     private static final double STRAFE_MULTIPLIER = 1.2;
 
-    public static double FORWARD_ROTATION_CORRECTION = 0.03;
-    public static double STRAFE_ROTATION_CORRECTION = -0.03;
+    public static double FORWARD_ROTATION_CORRECTION = 0;
+    public static double STRAFE_ROTATION_CORRECTION = -0;
 
     private boolean tele = false;
 

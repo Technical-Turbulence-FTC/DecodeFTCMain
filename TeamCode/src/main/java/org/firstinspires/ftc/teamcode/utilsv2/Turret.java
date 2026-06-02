@@ -5,7 +5,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.utils.Robot;
 
 import java.util.List;
 
@@ -13,10 +12,10 @@ import java.util.List;
 public class Turret {
     Robot robot;
 
-    private final double servoTicksPer180 = 0.6; // TODO: Tune
-    private final double neutralPosition = 0.5; //TODO: Tune
-    private final double turretMin = 0.04; //TODO: Tune
-    private final double turretMax = 0.94; //TODO: Tune
+    private final double servoTicksPer180 = 0.58;
+    private final double neutralPosition = 0.51;
+    private final double turretMin = 0.05;
+    private final double turretMax = 0.95;
     private final double hVelK = 0; // TODO: Tune
     private final double xVelK = 0; // TODO: Tune
     private final double xAccK = 0; // TODO: Tune
@@ -53,8 +52,8 @@ public class Turret {
 
         servoAngle = Range.clip(servoAngle, turretMin, turretMax);
 
-        robot.turr1.setPosition(servoAngle);
-        robot.turr2.setPosition(1.0 - servoAngle);
+        robot.setTurretPos(servoAngle);
+
 
         detectObelisk();
 
@@ -81,8 +80,8 @@ public class Turret {
     }
 
     public void manual (double pos) {
-        robot.turr1.setPosition(pos);
-        robot.turr2.setPosition(pos);
+        robot.setTurretPos(pos);
+
     }
 
 
@@ -107,7 +106,6 @@ public class Turret {
 
         servoAngle = Range.clip(servoAngle, turretMin, turretMax);
 
-        robot.turr1.setPosition(servoAngle);
-        robot.turr2.setPosition(servoAngle);
+        robot.setTurretPos(servoAngle);
     }
 }
