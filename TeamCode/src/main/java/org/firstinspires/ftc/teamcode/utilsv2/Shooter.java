@@ -45,7 +45,7 @@ public class Shooter {
     private double flywheelVelocity = 0.0;
     private double turretPosition = 0.5;
 
-    enum ShooterState {
+    public enum ShooterState {
         READ_OBELISK,
         TRACK_GOAL,
         MANUAL_FLYWHEEL_TRACK_TURR,

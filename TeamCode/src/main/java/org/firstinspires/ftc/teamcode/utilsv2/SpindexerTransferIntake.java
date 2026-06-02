@@ -51,6 +51,10 @@ public class SpindexerTransferIntake {
         this.mode = spindexerMode;
     }
 
+    public RapidMode getRapidState(){
+        return this.rapidMode;
+    }
+
     private long stateTime() {
         return System.currentTimeMillis() - stateStartTime;
     }
