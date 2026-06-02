@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoPositions {
 
-    public static double rapidFireBlocker_Closed = 0.3;
+    public static double rapidFireBlocker_Closed = 0.35;
     public static double rapidFireBlocker_Open = 0.5;
 
     public static double spindexBlocker_Closed = 0.31;

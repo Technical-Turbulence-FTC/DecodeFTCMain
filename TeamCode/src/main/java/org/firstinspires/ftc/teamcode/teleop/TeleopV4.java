@@ -25,6 +25,7 @@ public class TeleopV4 extends LinearOpMode {
     MultipleTelemetry TELE;
     Follower follower;
     SpindexerTransferIntake spindexerTransferIntake;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -49,7 +50,7 @@ public class TeleopV4 extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        while (opModeIsActive()){
+        while (opModeIsActive()) {
 
             //Drivetrain
 
@@ -91,9 +92,6 @@ public class TeleopV4 extends LinearOpMode {
                         SpindexerTransferIntake.RapidMode.INTAKE
                 );
             }
-
-
-
 
 
             TELE.update();

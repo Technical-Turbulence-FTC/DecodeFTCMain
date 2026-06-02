@@ -125,7 +125,7 @@ public class Robot {
         spin2 = hardwareMap.get(Servo.class, "spin2");
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
-        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         transferServo = hardwareMap.get(Servo.class, "transferServo");
 
