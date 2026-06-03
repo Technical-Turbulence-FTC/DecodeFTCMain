@@ -8,14 +8,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.utilsv2.Flywheel;
 import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 import org.firstinspires.ftc.teamcode.utilsv2.Shooter;
+import org.firstinspires.ftc.teamcode.utilsv2.Turret;
 
 @Config
 @TeleOp
 public class NewShooterTest extends LinearOpMode {
 
     Robot robot;
+    Flywheel flywheel;
+    Turret turret;
 
     public static boolean intake = true;
     public static boolean shoot = false;
@@ -24,7 +28,7 @@ public class NewShooterTest extends LinearOpMode {
     public static double transferIntakePower = -1.0;
     public static double turretPos = 0.51;
     public static double hoodPos = 0.51;
-    public static double flywheel = 0;
+    public static double flywheel_velo = 0;
 
     private enum ShootState {
         IDLE,
@@ -42,6 +46,9 @@ public class NewShooterTest extends LinearOpMode {
 
         robot = Robot.getInstance(hardwareMap);
 
+        flywheel = new Flywheel(robot);
+        turret = new Turret(robot);
+
         Shooter shooter = new Shooter(
                 robot,
                 new MultipleTelemetry(
@@ -49,7 +56,9 @@ public class NewShooterTest extends LinearOpMode {
                         FtcDashboard.getInstance().getTelemetry()
                 ),
                 Constants.createFollower(hardwareMap),
-                true
+                true,
+                turret,
+                flywheel
         );
 
         shooter.setState(Shooter.ShooterState.MANUAL);
@@ -62,7 +71,7 @@ public class NewShooterTest extends LinearOpMode {
 
             robot.setHoodPos(hoodPos);
             shooter.setTurretPosition(turretPos);
-            shooter.setFlywheelVelocity(flywheel);
+            shooter.setFlywheelVelocity(flywheel_velo);
             robot.setSpinPos(ServoPositions.spindexer_A2);
 
             if (intake && !shoot) {

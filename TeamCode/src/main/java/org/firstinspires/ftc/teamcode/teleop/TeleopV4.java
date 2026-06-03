@@ -25,6 +25,8 @@ public class TeleopV4 extends LinearOpMode {
     MultipleTelemetry TELE;
     Follower follower;
     SpindexerTransferIntake spindexerTransferIntake;
+    Turret turret;
+    Flywheel flywheel;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,7 +42,11 @@ public class TeleopV4 extends LinearOpMode {
         Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
         follower.setStartingPose(start);
 
-        shooter = new Shooter(robot, TELE, follower, Color.redAlliance);
+        flywheel = new Flywheel(robot);
+        turret = new Turret(robot);
+
+
+        shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
         spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);

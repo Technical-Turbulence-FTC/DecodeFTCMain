@@ -21,25 +21,26 @@ public class Shooter {
 
     Follower follow;
 
-    public Shooter(Robot rob, MultipleTelemetry TELE, Follower follower, boolean redAlliance) {
+    public Shooter(Robot rob, MultipleTelemetry TELE, Follower follower, boolean redAlliance, Turret turret, Flywheel flywheel) {
         this.robot = rob;
-        this.fly = new Flywheel(rob);
-        this.turr = new Turret(rob);
+        this.fly = flywheel;
+        this.turr = turret;
         this.follow = follower;
         this.commander = new VelocityCommander();
 
         setRedAlliance(redAlliance);
 
-        if (redAlliance) {
+    }
+
+    public void setRedAlliance(boolean input) {
+        this.red = input;
+
+        if (this.red) {
             goalX = 144;
         } else {
             goalX = 0;
         }
         goalY = 144;
-    }
-
-    public void setRedAlliance(boolean input) {
-        this.red = input;
     }
 
     private double flywheelVelocity = 0.0;
