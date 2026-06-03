@@ -107,6 +107,7 @@ public class Flywheel {
         averageVelocity = sum / velocityHistory.size();
     }
 
+    double power;
     public void manageFlywheel(double commandedVelocity) {
 
         if (Math.abs(targetVelocity - commandedVelocity) > 0.0001) {
@@ -114,7 +115,7 @@ public class Flywheel {
         }
 
         robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-        double power = robot.shooter1.getPower();
+        power = robot.shooter1.getPower();
         robot.shooter2.setPower(power);
 
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
@@ -127,4 +128,5 @@ public class Flywheel {
 
         steady = (Math.abs(commandedVelocity - averageVelocity) < 50);
     }
+    public double getShooterPower(){return power;}
 }

@@ -68,7 +68,7 @@ public class Shooter {
     public void setFlywheelVelocity(double input) {
         this.flywheelVelocity = input;
     }
-
+    public double getFlywheelVelocity(){return this.flywheelVelocity;}
     public int getObeliskID() {
         return turr.getObeliskID();
     }
@@ -80,7 +80,6 @@ public class Shooter {
             case NOTHING:
                 break;
             case MANUAL:
-                fly.manageFlywheel(flywheelVelocity);
                 turr.manual(turretPosition);
                 break;
             case TRACK_GOAL:
@@ -104,7 +103,6 @@ public class Shooter {
                         follow.getAcceleration().getYComponent()
                 );
 
-                fly.manageFlywheel(flywheelVelocity);
                 break;
             case READ_OBELISK:
                 turr.trackObelisk(
@@ -122,7 +120,6 @@ public class Shooter {
                         follow.getAcceleration().getYComponent()
                 );
 
-                fly.manageFlywheel(flywheelVelocity);
                 break;
 
             case MANUAL_TURRET_TRACK_FLY:
@@ -136,7 +133,6 @@ public class Shooter {
                         follow.getAcceleration().getYComponent()
                 );
 
-                fly.manageFlywheel(flywheelVelocity);
                 break;
 
             case MANUAL_FLYWHEEL_TRACK_TURR:
@@ -150,7 +146,6 @@ public class Shooter {
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent()
                 );
-                fly.manageFlywheel(flywheelVelocity);
                 break;
 
         }

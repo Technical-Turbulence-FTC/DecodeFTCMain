@@ -70,6 +70,7 @@ public class NewShooterTest extends LinearOpMode {
             robot.setHoodPos(hoodPos);
             shooter.setTurretPosition(turretPos);
             shooter.setFlywheelVelocity(flywheel);
+            rpmFlywheel.manageFlywheel(shooter.getFlywheelVelocity());
             double voltage = robot.voltage.getVoltage();
             rpmFlywheel.setPIDF(shooterP, shooterI, shooterD, shooterF / voltage);
 
@@ -132,6 +133,7 @@ public class NewShooterTest extends LinearOpMode {
             TELE.addData("Flywheel Velocity2", (robot.shooter2.getVelocity() * 60) / 28);
             TELE.addData("Flywheel Averag Velocity", rpmFlywheel.getAverageVelocity());
             TELE.addData("PIDF Coefficients", Flywheel.shooterPIDF);
+            TELE.addData("Power", rpmFlywheel.getShooterPower());
             TELE.update();
 
             shooter.update();
