@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 
 @Config
 @TeleOp
@@ -51,7 +51,8 @@ public class Hardware_Tester extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new Robot(hardwareMap);
+        Robot.resetInstance();
+        robot = Robot.getInstance(hardwareMap);
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         robot.shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

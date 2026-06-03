@@ -106,13 +106,11 @@ public class Robot {
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
 
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F);
+        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F / 12);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter1.setVelocity(0);
-        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
-        shooter2.setVelocity(0);
+        shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         hood = hardwareMap.get(Servo.class, "hood");
 

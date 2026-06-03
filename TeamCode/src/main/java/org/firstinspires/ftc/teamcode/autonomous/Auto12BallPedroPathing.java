@@ -22,13 +22,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.utils.Flywheel;
+import org.firstinspires.ftc.teamcode.utilsv2.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
-import org.firstinspires.ftc.teamcode.utils.Robot;
+import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
-import org.firstinspires.ftc.teamcode.utils.Turret;
+import org.firstinspires.ftc.teamcode.utilsv2.Turret;
 
 import java.util.List;
 
@@ -286,7 +286,8 @@ public class Auto12BallPedroPathing extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new Robot(hardwareMap);
+        Robot.resetInstance();
+        robot = Robot.getInstance(hardwareMap);
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);

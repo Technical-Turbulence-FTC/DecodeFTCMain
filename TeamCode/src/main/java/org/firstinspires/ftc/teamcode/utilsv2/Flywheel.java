@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
-import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 
 import java.util.LinkedList;
 
@@ -27,10 +25,8 @@ public class Flywheel {
     private final LinkedList<Double> velocityHistory = new LinkedList<>();
 
     public Flywheel(Robot rob) {
-
         robot = rob;
-        shooterPIDF1 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
-        shooterPIDF2 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
+        shooterPIDF1 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F / 12);
     }
 
     public double getVelo() {
@@ -65,19 +61,14 @@ public class Flywheel {
         shooterPIDF1.d = d;
         shooterPIDF1.f = f;
 
-        shooterPIDF2.p = p;
-        shooterPIDF2.i = i;
-        shooterPIDF2.d = d;
-        shooterPIDF2.f = f;
+        robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
 
-        if (Math.abs(prevF - f) > voltagePIDFDifference) {
-
-            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
-
-            robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
-
-            prevF = f;
-        }
+//        if (Math.abs(prevF - f) > voltagePIDFDifference) {
+//
+//            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
+//
+//            prevF = f;
+//        }
     }
 
     // Convert from RPM to Ticks per Second
@@ -115,8 +106,8 @@ public class Flywheel {
         }
 
         robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-
-        robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+        double power = robot.shooter1.getPower();
+        robot.shooter2.setPower(power);
 
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
 
