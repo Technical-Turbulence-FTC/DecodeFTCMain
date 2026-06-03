@@ -48,11 +48,6 @@ public class Robot {
     public DcMotorEx backRight;
     public DcMotorEx intake;
     public DcMotorEx transfer;
-    public PIDFCoefficients shooterPIDF;
-    public static double shooterPIDF_P = 255;
-    public static double shooterPIDF_I = 0.0;
-    public static double shooterPIDF_D = 0.0;
-    public static double shooterPIDF_F = 75;
     //    public double[] shooterPIDF_StepSizes = {10.0, 1.0, 0.001, 0.0001};
     public DcMotorEx shooter1;
     public DcMotorEx shooter2;
@@ -108,10 +103,9 @@ public class Robot {
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
 
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F / 12);
+//        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F / 12);
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
-        shooter1.setVelocity(0);
+//        shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         hood = hardwareMap.get(Servo.class, "hood");

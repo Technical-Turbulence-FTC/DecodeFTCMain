@@ -17,16 +17,15 @@ import org.firstinspires.ftc.teamcode.utilsv2.Shooter;
 public class NewShooterTest extends LinearOpMode {
 
     Robot robot;
-
     MultipleTelemetry TELE;
-
+    Shooter shooter;
     Flywheel rpmFlywheel;
 
     public static boolean intake = true;
     public static boolean shoot = false;
     public static double intakePower = 1.0;
     public static double transferShootPower = -1;
-    public static double transferIntakePower = -1.0;
+    public static double transferIntakePower = -1;
     public static double turretPos = 0.51;
     public static double hoodPos = 0.51;
     public static double flywheel = 0;
@@ -45,16 +44,15 @@ public class NewShooterTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        Robot.resetInstance();
+
         robot = Robot.getInstance(hardwareMap);
 
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        Shooter shooter = new Shooter(
+        shooter = new Shooter(
                 robot,
-                new MultipleTelemetry(
-                        telemetry,
-                        FtcDashboard.getInstance().getTelemetry()
-                ),
+                TELE,
                 Constants.createFollower(hardwareMap),
                 true
         );
@@ -130,7 +128,10 @@ public class NewShooterTest extends LinearOpMode {
                 }
             }
 
-            TELE.addData("Flywheel Velocity", (robot.shooter1.getVelocity() * 60) / 28);
+            TELE.addData("Flywheel Velocity1", (robot.shooter1.getVelocity() * 60) / 28);
+            TELE.addData("Flywheel Velocity2", (robot.shooter2.getVelocity() * 60) / 28);
+            TELE.addData("Flywheel Averag Velocity", rpmFlywheel.getAverageVelocity());
+            TELE.addData("PIDF Coefficients", Flywheel.shooterPIDF);
             TELE.update();
 
             shooter.update();
