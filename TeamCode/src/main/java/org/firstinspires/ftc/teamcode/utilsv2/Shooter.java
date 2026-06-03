@@ -74,20 +74,30 @@ public class Shooter {
         return turr.getObeliskID();
     }
 
-
+    private final double shooterDistFromCenter = 1.545;
     public void update() {
 
         switch (state) {
             case NOTHING:
                 break;
             case MANUAL:
+
+                commander.getVeloPredictive(
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
+                        follow.getVelocity().getXComponent(),
+                        follow.getAcceleration().getXComponent(),
+                        follow.getVelocity().getYComponent(),
+                        follow.getAcceleration().getYComponent()
+                );
+
                 fly.manageFlywheel(flywheelVelocity);
                 turr.manual(turretPosition);
                 break;
             case TRACK_GOAL:
                 turr.trackGoal(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getHeading(),
                         follow.getAngularVelocity(),
                         follow.getVelocity().getXComponent(),
@@ -97,8 +107,8 @@ public class Shooter {
                 );
 
                 flywheelVelocity = commander.getVeloPredictive(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getVelocity().getXComponent(),
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
@@ -109,14 +119,14 @@ public class Shooter {
                 break;
             case READ_OBELISK:
                 turr.trackObelisk(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (obeliskX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (obeliskY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getHeading()
                 );
 
                 flywheelVelocity = commander.getVeloPredictive(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getVelocity().getXComponent(),
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
@@ -129,8 +139,8 @@ public class Shooter {
             case MANUAL_TURRET_TRACK_FLY:
                 turr.manual(turretPosition);
                 flywheelVelocity = commander.getVeloPredictive(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getVelocity().getXComponent(),
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
@@ -142,8 +152,8 @@ public class Shooter {
 
             case MANUAL_FLYWHEEL_TRACK_TURR:
                 turr.trackGoal(
-                        (goalX - follow.getPose().getX()),
-                        (goalY - follow.getPose().getY()),
+                        (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
+                        (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
                         follow.getHeading(),
                         follow.getAngularVelocity(),
                         follow.getVelocity().getXComponent(),
@@ -157,5 +167,8 @@ public class Shooter {
         }
 
     }
+
+    public double getDistance(){return commander.getDistance();}
+
 
 }

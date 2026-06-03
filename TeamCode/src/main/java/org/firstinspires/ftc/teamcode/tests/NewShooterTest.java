@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -20,7 +22,9 @@ public class NewShooterTest extends LinearOpMode {
     Robot robot;
     Flywheel flywheel;
     Turret turret;
+    Shooter shooter;
     MultipleTelemetry TELE;
+    Follower follower;
 
 
     public static boolean intake = true;
@@ -52,14 +56,16 @@ public class NewShooterTest extends LinearOpMode {
 
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(new Pose(72, 72, 0));
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
 
-        Shooter shooter = new Shooter(
+        shooter = new Shooter(
                 robot,
                 TELE,
-                Constants.createFollower(hardwareMap),
+                follower,
                 true,
                 turret,
                 flywheel
@@ -72,6 +78,8 @@ public class NewShooterTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+
+            follower.update();
 
             robot.setHoodPos(hoodPos);
             shooter.setTurretPosition(turretPos);
@@ -136,9 +144,10 @@ public class NewShooterTest extends LinearOpMode {
 
             TELE.addData("Flywheel Velocity1", (robot.shooter1.getVelocity() * 60) / 28);
             TELE.addData("Flywheel Velocity2", (robot.shooter2.getVelocity() * 60) / 28);
-            TELE.addData("Flywheel Averag Velocity", flywheel.getAverageVelocity());
+            TELE.addData("Flywheel Average Velocity", flywheel.getAverageVelocity());
             TELE.addData("PIDF Coefficients", Flywheel.shooterPIDF);
             TELE.addData("Power", flywheel.getShooterPower());
+            TELE.addData("Distance", shooter.getDistance());
             TELE.update();
 
             shooter.update();

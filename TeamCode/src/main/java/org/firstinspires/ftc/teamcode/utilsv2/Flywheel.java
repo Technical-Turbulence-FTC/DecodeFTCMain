@@ -128,5 +128,7 @@ public class Flywheel {
 
         steady = (Math.abs(commandedVelocity - averageVelocity) < 50);
     }
+
+
     public double getShooterPower(){return power;}
 }
