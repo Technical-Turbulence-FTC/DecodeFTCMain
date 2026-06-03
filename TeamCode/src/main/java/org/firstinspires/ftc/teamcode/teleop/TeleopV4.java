@@ -31,6 +31,8 @@ public class TeleopV4 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        Robot.resetInstance();
+
         robot = Robot.getInstance(hardwareMap);
 
         TELE = new MultipleTelemetry(
@@ -66,12 +68,14 @@ public class TeleopV4 extends LinearOpMode {
                     gamepad1.left_stick_x
             );
 
+            follower.update();
+
             shooter.update();
             spindexerTransferIntake.update();
 
             SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
 
-            if (gamepad1.xWasPressed() &&
+            if (gamepad1.leftBumperWasPressed() &&
                     (state == SpindexerTransferIntake.RapidMode.INTAKE ||
                             state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
                             state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
@@ -82,7 +86,7 @@ public class TeleopV4 extends LinearOpMode {
                 spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
             }
 
-            if (gamepad1.aWasPressed() &&
+            if (gamepad1.right_trigger > 0.5 &&
                     (state == SpindexerTransferIntake.RapidMode.INTAKE ||
                             state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
 
@@ -90,15 +94,13 @@ public class TeleopV4 extends LinearOpMode {
                         SpindexerTransferIntake.RapidMode.HOLD_BALLS
                 );
             }
-
-            if (gamepad1.yWasPressed()
+            if (gamepad1.rightBumperWasPressed()
                     && state == SpindexerTransferIntake.RapidMode.HOLD_BALLS) {
 
                 spindexerTransferIntake.setRapidMode(
                         SpindexerTransferIntake.RapidMode.INTAKE
                 );
             }
-
 
             TELE.update();
         }

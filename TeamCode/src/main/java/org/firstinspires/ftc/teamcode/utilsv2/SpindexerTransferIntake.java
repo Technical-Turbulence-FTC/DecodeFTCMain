@@ -13,8 +13,8 @@ public class SpindexerTransferIntake {
         this.robot = rob;
     }
 
-    private final double sensorDistanceThreshold = 4.0;
-    private final long pulseTime = 50; // ms
+    private final double sensorDistanceThreshold = 6.0;
+    private final long pulseTime = 100; // ms
 
     public enum SpindexerMode {
         RAPID,
@@ -74,7 +74,7 @@ public class SpindexerTransferIntake {
                     case INTAKE:
 
                         robot.setIntakePower(1);
-                        robot.setTransferPower(1);
+                        robot.setTransferPower(-0.7);
                         robot.setRapidFireBlockerPos(
                                 ServoPositions.rapidFireBlocker_Closed
                         );
@@ -95,7 +95,7 @@ public class SpindexerTransferIntake {
 
                     case TRANSFER_OFF:
 
-                        robot.setTransferPower(0.3);
+                        robot.setTransferPower(-0.7);
 
                         if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             setRapidMode(RapidMode.BEFORE_PULSE_OUT);
@@ -145,9 +145,6 @@ public class SpindexerTransferIntake {
 
                             robot.setIntakePower(1);
                         }
-
-
-
                         break;
 
                     case OPEN_GATE:

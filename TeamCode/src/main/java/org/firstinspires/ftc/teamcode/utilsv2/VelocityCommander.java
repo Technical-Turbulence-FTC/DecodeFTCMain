@@ -12,7 +12,7 @@ public class VelocityCommander {
     }
 
     private double distToRPM (double dist){
-        return Math.sqrt(dist*dist + goalH*goalH);
+        return Math.sqrt(dist*dist + goalH*goalH) * 20;
         //TODO: Add regression here using goalH
     }
 

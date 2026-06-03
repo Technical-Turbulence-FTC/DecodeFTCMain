@@ -130,7 +130,7 @@ public class Hardware_Tester extends LinearOpMode {
 //            TELE.addData("Beam Break 3?", robot.beam3.isPressed());
 
             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
-            TELE.addData("REV Distance", robot.revSensor.getDistance(DistanceUnit.MM));
+            TELE.addData("REV Distance", robot.revSensor.getDistance(DistanceUnit.CM));
             TELE.addData("REV Green", revColor.green / (revColor.red + revColor.blue + revColor.green));
 
             TELE.addData("Voltage Sensor", robot.voltage.getVoltage());
