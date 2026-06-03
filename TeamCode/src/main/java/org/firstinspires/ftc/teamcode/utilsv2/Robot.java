@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import android.view.View;
+
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class Robot {
     // Singleton instance
     private static Robot instance;
+
 
     /**
      * Returns the existing Robot instance or creates one if it doesn't exist.
@@ -65,7 +68,6 @@ public class Robot {
     public Servo spin2;
     public TouchSensor insideBeam;
     public TouchSensor outsideBeam;
-
     public RevColorSensorV3 revSensor;
 
     public VoltageSensor voltage;

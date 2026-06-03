@@ -124,7 +124,8 @@ public class Hardware_Tester extends LinearOpMode {
 
             // Sensor Data
 
-//            TELE.addData("Beam Break 1?", robot.beam1.isPressed());
+            TELE.addData("Beam Break insideBeam?", robot.insideBeam.isPressed());
+            TELE.addData("Beam Break outsideBeam?", robot.outsideBeam.isPressed());
 //            TELE.addData("Beam Break 2?", robot.beam2.isPressed());
 //            TELE.addData("Beam Break 3?", robot.beam3.isPressed());
 
