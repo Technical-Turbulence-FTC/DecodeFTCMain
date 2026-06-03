@@ -7,7 +7,6 @@ import com.pedropathing.follower.Follower;
 public class Shooter {
 
     Robot robot;
-    Flywheel fly;
     Turret turr;
     VelocityCommander commander;
 
@@ -23,7 +22,6 @@ public class Shooter {
 
     public Shooter(Robot rob, MultipleTelemetry TELE, Follower follower, boolean redAlliance) {
         this.robot = rob;
-        this.fly = new Flywheel(rob);
         this.turr = new Turret(rob);
         this.follow = follower;
         this.commander = new VelocityCommander();
