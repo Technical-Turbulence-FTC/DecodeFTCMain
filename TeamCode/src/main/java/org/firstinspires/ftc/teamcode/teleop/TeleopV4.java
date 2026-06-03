@@ -28,6 +28,8 @@ public class TeleopV4 extends LinearOpMode {
     Turret turret;
     Flywheel flywheel;
 
+    ParkTilter parkTilter;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -46,6 +48,8 @@ public class TeleopV4 extends LinearOpMode {
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
+
+        parkTilter = new ParkTilter(robot);
 
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel);
@@ -100,6 +104,12 @@ public class TeleopV4 extends LinearOpMode {
                 spindexerTransferIntake.setRapidMode(
                         SpindexerTransferIntake.RapidMode.INTAKE
                 );
+            }
+
+            if (gamepad1.dpad_down){
+                parkTilter.park();
+            } else if (gamepad1.dpad_up) {
+                parkTilter.unpark();
             }
 
             TELE.update();
