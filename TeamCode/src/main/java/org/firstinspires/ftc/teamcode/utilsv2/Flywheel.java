@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.utilsv2.Robot;
@@ -12,7 +12,12 @@ import java.util.LinkedList;
 public class Flywheel {
     Robot robot;
 
-    public PIDFCoefficients shooterPIDF1, shooterPIDF2;
+//    public PIDFCoefficients shooterPIDF1, shooterPIDF2;
+    public static PIDFCoefficients shooterPIDF;
+    public static double shooterPIDF_P = 255;
+    public static double shooterPIDF_I = 0.0;
+    public static double shooterPIDF_D = 0.0;
+    public static double shooterPIDF_F = 75;
 
     private double velo = 0.0;
     private double velo1 = 0.0;
@@ -27,10 +32,8 @@ public class Flywheel {
     private final LinkedList<Double> velocityHistory = new LinkedList<>();
 
     public Flywheel(Robot rob) {
-
         robot = rob;
-        shooterPIDF1 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
-        shooterPIDF2 = new PIDFCoefficients(Robot.shooterPIDF_P, Robot.shooterPIDF_I, Robot.shooterPIDF_D, Robot.shooterPIDF_F);
+        shooterPIDF = new PIDFCoefficients(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F / 12);
     }
 
     public double getVelo() {
@@ -54,28 +57,24 @@ public class Flywheel {
     }
 
     // Set the robot PIDF for the next cycle.
-    private double prevF = 0;
-
-    public static double voltagePIDFDifference = 0.8;
 
     public void setPIDF(double p, double i, double d, double f) {
 
-        shooterPIDF1.p = p;
-        shooterPIDF1.i = i;
-        shooterPIDF1.d = d;
-        shooterPIDF1.f = f;
+        shooterPIDF.p = p;
+        shooterPIDF.i = i;
+        shooterPIDF.d = d;
+        shooterPIDF.f = f;
 
-        shooterPIDF2.p = p;
-        shooterPIDF2.i = i;
-        shooterPIDF2.d = d;
-        shooterPIDF2.f = f;
+        robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+    }
 
+    private double prevF = 0;
+
+    public static double voltagePIDFDifference = 0.8;
+    public void setF(double f){
         if (Math.abs(prevF - f) > voltagePIDFDifference) {
-
-            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF1);
-
-            robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF2);
-
+            shooterPIDF.f = f;
+            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
             prevF = f;
         }
     }
@@ -108,6 +107,7 @@ public class Flywheel {
         averageVelocity = sum / velocityHistory.size();
     }
 
+    double power;
     public void manageFlywheel(double commandedVelocity) {
 
         if (Math.abs(targetVelocity - commandedVelocity) > 0.0001) {
@@ -115,8 +115,8 @@ public class Flywheel {
         }
 
         robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-
-        robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+        power = robot.shooter1.getPower();
+        robot.shooter2.setPower(power);
 
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
 
@@ -128,4 +128,5 @@ public class Flywheel {
 
         steady = (Math.abs(commandedVelocity - averageVelocity) < 50);
     }
+    public double getShooterPower(){return power;}
 }
