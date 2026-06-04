@@ -55,6 +55,7 @@ public class TeleopV4 extends LinearOpMode {
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
+        shooter.setRedAlliance(Color.redAlliance);
         spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
 
@@ -73,7 +74,8 @@ public class TeleopV4 extends LinearOpMode {
 
             follower.update();
 
-            shooter.update();
+
+            shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
 
             SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
@@ -114,7 +116,8 @@ public class TeleopV4 extends LinearOpMode {
             TELE.addData("Distance From Goal", commander.getDistance());
             TELE.addData("Hood Position", commander.getHoodPredicted());
             TELE.addData("Transfer Power", robot.transfer.getPower());
-            TELE.addData("Velocity RPM", commander.getPredictedRPM());
+            TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
+            TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
 
             TELE.update();
         }

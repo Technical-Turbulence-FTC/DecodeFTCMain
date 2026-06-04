@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.utilsv2;
 
 import android.health.connect.datatypes.units.Velocity;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 
+@Config
 public class SpindexerTransferIntake {
 
     private final Robot robot;
