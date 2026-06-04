@@ -22,6 +22,7 @@ public class Shooter {
     double turretGoalY = 0;
 
     private boolean red = true;
+    public static boolean manualFlywheel = false;
 
 
     Follower follow;
@@ -89,6 +90,7 @@ public class Shooter {
             case NOTHING:
                 break;
             case MANUAL:
+                manualFlywheel = true;
                 commander.getVeloPredictive(
                         (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
                         (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
@@ -104,6 +106,7 @@ public class Shooter {
                 turr.manual(turretPosition);
                 break;
             case TRACK_GOAL:
+                manualFlywheel = false;
                 turr.trackGoal(
                         (turretGoalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
                         (turretGoalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
@@ -132,6 +135,7 @@ public class Shooter {
                 fly.setF(voltage);
                 break;
             case READ_OBELISK:
+                manualFlywheel = false;
                 turr.trackObelisk(
                         (obeliskX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
                         (obeliskY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
@@ -155,6 +159,7 @@ public class Shooter {
                 break;
 
             case MANUAL_TURRET_TRACK_FLY:
+                manualFlywheel = false;
                 turr.manual(turretPosition);
                 commander.getVeloPredictive(
                         (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
@@ -173,6 +178,7 @@ public class Shooter {
                 break;
 
             case MANUAL_FLYWHEEL_TRACK_TURR:
+                manualFlywheel = true;
                 turr.trackGoal(
                         (turretGoalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
                         (turretGoalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),

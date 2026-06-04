@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+import org.firstinspires.ftc.teamcode.tests.NewShooterTest;
 
 @Config
 public class SpindexerTransferIntake {
@@ -163,7 +164,11 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.SHOOT);
                         }
 
-                        robot.setTransferPower(commander.getTransferPow());
+                        if (Shooter.manualFlywheel){
+                            robot.setTransferPower(NewShooterTest.transferPower);
+                        } else {
+                            robot.setTransferPower(commander.getTransferPow());
+                        }
 
                         break;
 

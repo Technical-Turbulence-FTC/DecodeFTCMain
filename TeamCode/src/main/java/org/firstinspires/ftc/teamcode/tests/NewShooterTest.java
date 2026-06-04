@@ -32,6 +32,7 @@ public class NewShooterTest extends LinearOpMode {
 
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
+    public static double transferPower = -0.7;
 //    public static double turretPos = 0.51;
 
     @Override
@@ -119,7 +120,7 @@ public class NewShooterTest extends LinearOpMode {
 
             TELE.addData("Distance From Goal", commander.getDistance());
             TELE.addData("Hood Position", commander.getHoodPredicted());
-            TELE.addData("Transfer Power", robot.transfer.getPower());
+            TELE.addData("Transfer Power", commander.getTransferPow());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
 
