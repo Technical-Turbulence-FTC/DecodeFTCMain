@@ -8,6 +8,7 @@ public class VelocityCommander {
     private final double yAccK = 0; // TODO: Tune
     private double hoodPos = 0.88;
     private double transferPow = -1;
+    private double veloRPM = 2000;
 
     public VelocityCommander() {}
 
@@ -46,7 +47,7 @@ public class VelocityCommander {
     }
 
     private final double hoodA = -4.3276177*Math.pow(10, -13);
-    private final double hoodB = 2.68062979*Math.pow(10, -11);
+    private final double hoodB = 2.68062979*Math.pow(10, -10);
     private final double hoodC = -7.12859632*Math.pow(10, -8);
     private final double hoodD = 0.0000106010785;
     private final double hoodE = -0.000960693973;
@@ -73,6 +74,9 @@ public class VelocityCommander {
             hoodPos = Math.max(0.35, Math.min(0.88, hoodPos));
         }
     }
+    public double getHoodPredicted(){
+        return hoodPos;
+    }
 
     private void distToTransferPow(double dist){
         if (dist < 118){
@@ -83,12 +87,7 @@ public class VelocityCommander {
             transferPow = -0.5;
         }
     }
-
     public double getTransferPow(){return transferPow;}
-
-    public double getHoodPredicted(){
-        return hoodPos;
-    }
 
     // 27
     public double getVeloStationary (double distance){
@@ -105,9 +104,12 @@ public class VelocityCommander {
         predictedDist = Math.sqrt(predictedDx*predictedDx + predictedDy*predictedDy + goalHeight*goalHeight);
 
         distToHood(predictedDist);
-
-        return distToRPM(predictedDist);
+        distToTransferPow(predictedDist);
+        veloRPM = distToRPM(predictedDist);
+        return veloRPM;
     }
+
+    public double getPredictedRPM(){return veloRPM;}
 
     public double getDistance(){return predictedDist;}
 }

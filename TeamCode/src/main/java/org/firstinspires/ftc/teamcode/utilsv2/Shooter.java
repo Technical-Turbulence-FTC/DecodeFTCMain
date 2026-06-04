@@ -21,12 +21,12 @@ public class Shooter {
 
     Follower follow;
 
-    public Shooter(Robot rob, MultipleTelemetry TELE, Follower follower, boolean redAlliance, Turret turret, Flywheel flywheel) {
+    public Shooter(Robot rob, MultipleTelemetry TELE, Follower follower, boolean redAlliance, Turret turret, Flywheel flywheel, VelocityCommander com) {
         this.robot = rob;
         this.fly = flywheel;
         this.turr = turret;
         this.follow = follower;
-        this.commander = new VelocityCommander();
+        this.commander = com;
 
         setRedAlliance(redAlliance);
 

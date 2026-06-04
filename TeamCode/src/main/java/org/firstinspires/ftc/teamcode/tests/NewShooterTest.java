@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utilsv2.Flywheel;
 import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 import org.firstinspires.ftc.teamcode.utilsv2.Shooter;
 import org.firstinspires.ftc.teamcode.utilsv2.Turret;
+import org.firstinspires.ftc.teamcode.utilsv2.VelocityCommander;
 
 @Config
 @TeleOp
@@ -25,6 +26,7 @@ public class NewShooterTest extends LinearOpMode {
     Shooter shooter;
     MultipleTelemetry TELE;
     Follower follower;
+    VelocityCommander commander;
 
 
     public static boolean intake = true;
@@ -61,6 +63,7 @@ public class NewShooterTest extends LinearOpMode {
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
+        commander = new VelocityCommander();
 
         shooter = new Shooter(
                 robot,
@@ -68,7 +71,8 @@ public class NewShooterTest extends LinearOpMode {
                 follower,
                 true,
                 turret,
-                flywheel
+                flywheel,
+                commander
         );
 
         shooter.setState(Shooter.ShooterState.MANUAL);

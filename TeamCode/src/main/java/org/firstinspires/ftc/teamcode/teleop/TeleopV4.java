@@ -53,7 +53,7 @@ public class TeleopV4 extends LinearOpMode {
 
         parkTilter = new ParkTilter(robot);
 
-        shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel);
+        shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
         spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
@@ -64,9 +64,7 @@ public class TeleopV4 extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
             //Drivetrain
-
             drivetrain.drive(
                     -gamepad1.right_stick_y,
                     gamepad1.right_stick_x,
@@ -112,6 +110,11 @@ public class TeleopV4 extends LinearOpMode {
             } else if (gamepad1.dpad_up) {
                 parkTilter.unpark();
             }
+
+            TELE.addData("Distance From Goal", commander.getDistance());
+            TELE.addData("Hood Position", commander.getHoodPredicted());
+            TELE.addData("Transfer Power", robot.transfer.getPower());
+            TELE.addData("Velocity RPM", commander.getPredictedRPM());
 
             TELE.update();
         }

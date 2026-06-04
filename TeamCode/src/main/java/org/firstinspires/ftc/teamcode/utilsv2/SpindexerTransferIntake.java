@@ -66,10 +66,6 @@ public class SpindexerTransferIntake {
 
     public void update() {
 
-        if (mode == SpindexerMode.RAPID && rapidMode == RapidMode.INTAKE){
-            robot.setTransferPower(-0.7);
-        }
-
         switch (mode) {
 
             case RAPID:
@@ -89,6 +85,7 @@ public class SpindexerTransferIntake {
                         robot.setSpinPos(
                                 ServoPositions.spindexer_A2
                         );
+                        robot.setTransferPower(-0.7);
                         robot.setTransferServoPos(
                                 ServoPositions.transferServo_out
                         );
@@ -106,6 +103,7 @@ public class SpindexerTransferIntake {
                         if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             setRapidMode(RapidMode.BEFORE_PULSE_OUT);
                         }
+                        robot.setTransferPower(-0.3);
 
                         break;
 
@@ -163,6 +161,8 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.SHOOT);
                         }
 
+                        robot.setTransferPower(commander.getTransferPow());
+
                         break;
 
                     case SHOOT:
@@ -173,6 +173,9 @@ public class SpindexerTransferIntake {
                         if (stateTime() >= 400) {
                             setRapidMode(RapidMode.INTAKE);
                         }
+
+                        robot.setTransferPower(commander.getTransferPow());
+
                         break;
                 }
                 break;
