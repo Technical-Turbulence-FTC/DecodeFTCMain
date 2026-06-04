@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import android.health.connect.datatypes.units.Velocity;
+
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -9,8 +11,11 @@ public class SpindexerTransferIntake {
 
     private final Robot robot;
 
-    public SpindexerTransferIntake(Robot rob, MultipleTelemetry TELE) {
+    VelocityCommander commander;
+
+    public SpindexerTransferIntake(Robot rob, MultipleTelemetry TELE, VelocityCommander com) {
         this.robot = rob;
+        this.commander = com;
     }
 
     private final double sensorDistanceThreshold = 6.0;
@@ -61,6 +66,10 @@ public class SpindexerTransferIntake {
 
     public void update() {
 
+        if (mode == SpindexerMode.RAPID && rapidMode == RapidMode.INTAKE){
+            robot.setTransferPower(-0.7);
+        }
+
         switch (mode) {
 
             case RAPID:
@@ -74,7 +83,6 @@ public class SpindexerTransferIntake {
                     case INTAKE:
 
                         robot.setIntakePower(1);
-                        robot.setTransferPower(-0.7);
                         robot.setRapidFireBlockerPos(
                                 ServoPositions.rapidFireBlocker_Closed
                         );
@@ -94,8 +102,6 @@ public class SpindexerTransferIntake {
                         break;
 
                     case TRANSFER_OFF:
-
-                        robot.setTransferPower(-0.7);
 
                         if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             setRapidMode(RapidMode.BEFORE_PULSE_OUT);

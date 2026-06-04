@@ -27,6 +27,7 @@ public class TeleopV4 extends LinearOpMode {
     SpindexerTransferIntake spindexerTransferIntake;
     Turret turret;
     Flywheel flywheel;
+    VelocityCommander commander;
 
     ParkTilter parkTilter;
 
@@ -41,6 +42,7 @@ public class TeleopV4 extends LinearOpMode {
                 FtcDashboard.getInstance().getTelemetry(), telemetry
         );
 
+        commander = new VelocityCommander();
         drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
         Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
@@ -51,10 +53,9 @@ public class TeleopV4 extends LinearOpMode {
 
         parkTilter = new ParkTilter(robot);
 
-
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
-        spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE);
+        spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
 
 

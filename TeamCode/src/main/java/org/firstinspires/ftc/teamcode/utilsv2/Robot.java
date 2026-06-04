@@ -169,7 +169,7 @@ public class Robot {
     // Voids below are used to minimize hardware calls to minimize loop times
 
     // Used to cut off digits that are negligible
-    private final int maxDigits = 5;
+    private final int maxDigits = 3;
     private final int roundingFactor = (int) Math.pow(10, maxDigits);
 
     private double prevFrontLeftPower = -10.501;

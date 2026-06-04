@@ -14,10 +14,10 @@ public class Flywheel {
 
 //    public PIDFCoefficients shooterPIDF1, shooterPIDF2;
     public static PIDFCoefficients shooterPIDF;
-    public static double shooterPIDF_P = 255;
-    public static double shooterPIDF_I = 0.0;
+    public static double shooterPIDF_P = 500;
+    public static double shooterPIDF_I = 1;
     public static double shooterPIDF_D = 0.0;
-    public static double shooterPIDF_F = 75;
+    public static double shooterPIDF_F = 93;
 
     private double velo = 0.0;
     private double velo1 = 0.0;

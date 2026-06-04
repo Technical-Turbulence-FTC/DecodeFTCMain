@@ -36,7 +36,7 @@ public class NewShooterTest extends LinearOpMode {
     public static double hoodPos = 0.51;
     public static double flywheel_velo = 0;
 
-    public static double shooterP = 255, shooterI = 0, shooterD = 0, shooterF = 75;
+    public static double shooterP = 500, shooterI = 1, shooterD = 0, shooterF = 93;
 
     private enum ShootState {
         IDLE,

@@ -81,7 +81,6 @@ public class Shooter {
             case NOTHING:
                 break;
             case MANUAL:
-
                 commander.getVeloPredictive(
                         (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
                         (goalY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
@@ -115,6 +114,7 @@ public class Shooter {
                         follow.getAcceleration().getYComponent()
                 );
 
+                robot.setHoodPos(commander.getHoodPredicted());
                 fly.manageFlywheel(flywheelVelocity);
                 break;
             case READ_OBELISK:
@@ -146,6 +146,7 @@ public class Shooter {
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent()
                 );
+                robot.setHoodPos(commander.getHoodPredicted());
 
                 fly.manageFlywheel(flywheelVelocity);
                 break;
