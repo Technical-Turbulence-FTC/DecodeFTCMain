@@ -17,9 +17,12 @@ public class SpindexerTransferIntake {
 
     VelocityCommander commander;
 
-    public SpindexerTransferIntake(Robot rob, MultipleTelemetry TELE, VelocityCommander com) {
+    private MultipleTelemetry TELE;
+
+    public SpindexerTransferIntake(Robot rob, MultipleTelemetry tele, VelocityCommander com) {
         this.robot = rob;
         this.commander = com;
+        this.TELE = tele;
     }
 
     public enum DesiredPattern {
@@ -200,7 +203,7 @@ public class SpindexerTransferIntake {
     private RapidMode rapidMode = RapidMode.INTAKE;
     private SortedIntakeStates sortedIntakeStates = SortedIntakeStates.IDLE;
     private BallStates[] ballColors = {BallStates.UNKNOWN, BallStates.UNKNOWN, BallStates.UNKNOWN};
-    private final double greenThresh = 0.40;
+    private final double greenThresh = 0.39;
     private final double spinMovementTime = 250;
 
     /**
@@ -209,6 +212,25 @@ public class SpindexerTransferIntake {
     private long stateStartTime = System.currentTimeMillis();
     private long sortedStateStartTime = System.currentTimeMillis();
 
+    public void setDesiredPattern(DesiredPattern pattern) {
+        desiredPattern = pattern;
+    }
+
+    public void startSortedShoot() {
+
+        shootOrder = buildShootOrder(
+                ballColors,
+                desiredPattern
+        );
+
+        setShootState(
+                SortedShootState.IDLE
+        );
+
+        setSpindexerMode(
+                SpindexerMode.SHOOT_SORTED
+        );
+    }
     public void setRapidMode(RapidMode newMode) {
         if (rapidMode != newMode) {
             rapidMode = newMode;
@@ -241,6 +263,21 @@ public class SpindexerTransferIntake {
 
     public void update() {
 
+        TELE.addData("Sorted State", sortedIntakeStates);
+        TELE.addData("Ball0", ballColors[0]);
+        TELE.addData("Ball1", ballColors[1]);
+        TELE.addData("Ball2", ballColors[2]);
+
+        TELE.addData("Shoot0", shootOrder[0]);
+        TELE.addData("Shoot1", shootOrder[1]);
+        TELE.addData("Shoot2", shootOrder[2]);
+
+        TELE.addData("Color0", ballColors[0]);
+        TELE.addData("Color1", ballColors[1]);
+        TELE.addData("Color2", ballColors[2]);
+
+        TELE.addData("Shoot State", shootState);
+        
         switch (mode) {
 
             case RAPID:
@@ -369,6 +406,9 @@ public class SpindexerTransferIntake {
                     case NOTHING:
                         break;
                     case IDLE:
+                        ballColors[0] = BallStates.UNKNOWN;
+                        ballColors[1] = BallStates.UNKNOWN;
+                        ballColors[2] = BallStates.UNKNOWN;
                         robot.setRapidFireBlockerPos(
                                 ServoPositions.rapidFireBlocker_Open
                         );
@@ -391,6 +431,7 @@ public class SpindexerTransferIntake {
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
                         if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
+                            //TODO: ADD DELAY OR AVERGE @ DANIEL
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
                                 ballColors[0] = BallStates.GREEN;
@@ -457,7 +498,7 @@ public class SpindexerTransferIntake {
                 break;
             case SHOOT_SORTED:
 
-                robot.setIntakePower(commander.getTransferPow());
+                robot.setTransferPower(commander.getTransferPow());
 
 
                 switch (shootState) {
@@ -469,6 +510,7 @@ public class SpindexerTransferIntake {
 
                         setShootState(SortedShootState.MOVE_TO_1);
                         mode = SpindexerMode.SHOOT_SORTED;
+                        break;
                     case MOVE_TO_1:
 
                         moveToSlot(shootOrder[0]);
@@ -630,9 +672,14 @@ public class SpindexerTransferIntake {
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
 
-                        setSortedIntakeMode(SortedIntakeStates.NOTHING);
+                        if (shootStateTime() > 250) {
 
-                        mode = SpindexerMode.SORTED;
+                            setSortedIntakeMode(
+                                    SortedIntakeStates.IDLE
+                            );
+
+                            mode = SpindexerMode.SORTED;
+                        }
 
                         break;
 
