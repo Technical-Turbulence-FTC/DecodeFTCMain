@@ -181,7 +181,11 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.INTAKE);
                         }
 
-                        robot.setTransferPower(commander.getTransferPow());
+                        if (Shooter.manualFlywheel){
+                            robot.setTransferPower(NewShooterTest.transferPower);
+                        } else {
+                            robot.setTransferPower(commander.getTransferPow());
+                        }
 
                         break;
                 }
