@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.utilsv2.Robot;
 
 import java.util.LinkedList;
 
+@Config
 public class Flywheel {
     Robot robot;
 
@@ -70,8 +72,9 @@ public class Flywheel {
 
     private double prevF = 0;
 
-    public static double voltagePIDFDifference = 0.8;
-    public void setF(double f){
+    public static double voltagePIDFDifference = 1;
+    public void setF(double voltage){
+        double f = shooterPIDF_F / voltage;
         if (Math.abs(prevF - f) > voltagePIDFDifference) {
             shooterPIDF.f = f;
             robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);

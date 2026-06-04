@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import android.health.connect.datatypes.units.Velocity;
+
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+import org.firstinspires.ftc.teamcode.tests.NewShooterTest;
 
+@Config
 public class SpindexerTransferIntake {
 
     private final Robot robot;
@@ -236,10 +241,6 @@ public class SpindexerTransferIntake {
 
     public void update() {
 
-        if (mode == SpindexerMode.RAPID && rapidMode == RapidMode.INTAKE){
-            robot.setTransferPower(-0.7);
-        }
-
         switch (mode) {
 
             case RAPID:
@@ -259,6 +260,7 @@ public class SpindexerTransferIntake {
                         robot.setSpinPos(
                                 ServoPositions.spindexer_A2
                         );
+                        robot.setTransferPower(-0.7);
                         robot.setTransferServoPos(
                                 ServoPositions.transferServo_out
                         );
@@ -276,6 +278,7 @@ public class SpindexerTransferIntake {
                         if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             setRapidMode(RapidMode.BEFORE_PULSE_OUT);
                         }
+                        robot.setTransferPower(-0.3);
 
                         break;
 
@@ -333,6 +336,12 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.SHOOT);
                         }
 
+                        if (Shooter.manualFlywheel){
+                            robot.setTransferPower(NewShooterTest.transferPower);
+                        } else {
+                            robot.setTransferPower(commander.getTransferPow());
+                        }
+
                         break;
 
                     case SHOOT:
@@ -343,6 +352,13 @@ public class SpindexerTransferIntake {
                         if (stateTime() >= 400) {
                             setRapidMode(RapidMode.INTAKE);
                         }
+
+                        if (Shooter.manualFlywheel){
+                            robot.setTransferPower(NewShooterTest.transferPower);
+                        } else {
+                            robot.setTransferPower(commander.getTransferPow());
+                        }
+
                         break;
                 }
                 break;

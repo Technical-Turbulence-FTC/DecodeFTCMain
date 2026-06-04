@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class VelocityCommander {
-    private final double goalH = 20.0; //TODO: Tune
-    private final double xVelK = 0; // TODO: Tune
-    private final double xAccK = 0; // TODO: Tune
-    private final double yVelK = 0; // TODO: Tune
-    private final double yAccK = 0; // TODO: Tune
+    public static double xVelK = 0.05; // TODO: Tune
+    public static double xAccK = 0.025; // TODO: Tune
+    public static double yVelK = 0.05; // TODO: Tune
+    public static double yAccK = 0.025; // TODO: Tune
     private double hoodPos = 0.88;
     private double transferPow = -1;
+    private double velo = 0;
 
     public VelocityCommander() {}
 
@@ -23,7 +26,6 @@ public class VelocityCommander {
     private final double veloJ = 272005.7124;
     private final double veloK = -2474581.713;
     private double distToRPM (double dist){
-        double velo = 0;
         if (dist < 49) {
             velo = 2000;
         } else if (dist > 165){
@@ -46,7 +48,7 @@ public class VelocityCommander {
     }
 
     private final double hoodA = -4.3276177*Math.pow(10, -13);
-    private final double hoodB = 2.68062979*Math.pow(10, -11);
+    private final double hoodB = 2.68062979*Math.pow(10, -10);
     private final double hoodC = -7.12859632*Math.pow(10, -8);
     private final double hoodD = 0.0000106010785;
     private final double hoodE = -0.000960693973;
@@ -73,8 +75,11 @@ public class VelocityCommander {
             hoodPos = Math.max(0.35, Math.min(0.88, hoodPos));
         }
     }
+    public double getHoodPredicted(){
+        return hoodPos;
+    }
 
-    private void distToTransferPow(double dist){
+    private void distToTransferPow(double dist, double voltage){
         if (dist < 118){
             transferPow = -1;
         } else if (dist < 125){
@@ -82,32 +87,31 @@ public class VelocityCommander {
         } else {
             transferPow = -0.5;
         }
-    }
 
+//        transferPow = Math.max(-0.5, Math.min(-1, transferPow * (14/voltage)));
+    }
     public double getTransferPow(){return transferPow;}
-
-    public double getHoodPredicted(){
-        return hoodPos;
-    }
 
     // 27
     public double getVeloStationary (double distance){
         return distToRPM(distance);
     }
 
-    private final double goalHeight = 28;
     double predictedDist = 0;
-    public double getVeloPredictive(double dx, double dy, double xVel, double xAcc, double yVel, double yAcc) {
+    public void getVeloPredictive(double dx, double dy, double xVel, double xAcc, double yVel, double yAcc, double voltage) {
 
         double predictedDx = dx - (xVel * xVelK) - (0.5 * xAcc * xAccK); // Negative bc dx = target - robot
         double predictedDy = dy - (yVel * yVelK) - (0.5 * yAcc * yAccK);  // Negative bc dy = target - robot
 
-        predictedDist = Math.sqrt(predictedDx*predictedDx + predictedDy*predictedDy + goalHeight*goalHeight);
+        double goalHeight = 28;
+        predictedDist = Math.sqrt(predictedDx*predictedDx + predictedDy*predictedDy + goalHeight * goalHeight);
 
         distToHood(predictedDist);
-
-        return distToRPM(predictedDist);
+        distToTransferPow(predictedDist, voltage);
+        distToRPM(predictedDist);
     }
+
+    public double getPredictedRPM(){return velo;}
 
     public double getDistance(){return predictedDist;}
 }

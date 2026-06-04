@@ -1,51 +1,39 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
+import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.utilsv2.Flywheel;
-import org.firstinspires.ftc.teamcode.utilsv2.Robot;
-import org.firstinspires.ftc.teamcode.utilsv2.Shooter;
-import org.firstinspires.ftc.teamcode.utilsv2.Turret;
+import org.firstinspires.ftc.teamcode.utilsv2.*;
 
-@Config
 @TeleOp
+@Config
 public class NewShooterTest extends LinearOpMode {
-
     Robot robot;
-    Flywheel flywheel;
-    Turret turret;
+    Drivetrain drivetrain;
     Shooter shooter;
     MultipleTelemetry TELE;
     Follower follower;
+    SpindexerTransferIntake spindexerTransferIntake;
+    Turret turret;
+    Flywheel flywheel;
+    VelocityCommander commander;
+    ParkTilter parkTilter;
 
-
-    public static boolean intake = true;
-    public static boolean shoot = false;
-    public static double intakePower = 1.0;
-    public static double transferShootPower = -1;
-    public static double transferIntakePower = -1;
-    public static double turretPos = 0.51;
-    public static double hoodPos = 0.51;
-    public static double flywheel_velo = 0;
-
-    public static double shooterP = 500, shooterI = 1, shooterD = 0, shooterF = 93;
-
-    private enum ShootState {
-        IDLE,
-        WAIT_GATE,
-        WAIT_PUSH
-    }
-
-    private ShootState shootState = ShootState.IDLE;
-    private long timestamp = 0;
+    public static int flywheelVelo = 0;
+    public static double hoodPos = 0.5;
+    public static double transferPower = -0.7;
+//    public static double turretPos = 0.51;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,103 +42,90 @@ public class NewShooterTest extends LinearOpMode {
 
         robot = Robot.getInstance(hardwareMap);
 
-        TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        TELE = new MultipleTelemetry(
+                FtcDashboard.getInstance().getTelemetry(), telemetry
+        );
 
+        commander = new VelocityCommander();
+        drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(72, 72, 0));
+        Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
+        follower.setStartingPose(start);
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
 
-        shooter = new Shooter(
-                robot,
-                TELE,
-                follower,
-                true,
-                turret,
-                flywheel
-        );
+        parkTilter = new ParkTilter(robot);
 
-        shooter.setState(Shooter.ShooterState.MANUAL);
+        shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
+        shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
+        shooter.setRedAlliance(Color.redAlliance);
+        spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
+        spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            //Drivetrain
+            drivetrain.drive(
+                    -gamepad1.right_stick_y,
+                    gamepad1.right_stick_x,
+                    gamepad1.left_stick_x
+            );
 
             follower.update();
 
+            shooter.setFlywheelVelocity(flywheelVelo);
             robot.setHoodPos(hoodPos);
-            shooter.setTurretPosition(turretPos);
-            shooter.setFlywheelVelocity(flywheel_velo);
-            double voltage = robot.voltage.getVoltage();
-            flywheel.setPIDF(shooterP, shooterI, shooterD, shooterF / voltage);
+//            shooter.setTurretPosition(turretPos);
+            shooter.update(robot.voltage.getVoltage());
+            spindexerTransferIntake.update();
 
-            robot.setSpinPos(ServoPositions.spindexer_A2);
+            SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
 
-            if (intake && !shoot) {
+            if (gamepad1.leftBumperWasPressed() &&
+                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
+                            state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
+                            state == SpindexerTransferIntake.RapidMode.PULSE_OUT ||
+                            state == SpindexerTransferIntake.RapidMode.PULSE_IN ||
+                            state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
 
-                shootState = ShootState.IDLE;
-
-                robot.setRapidFireBlockerPos(
-                        ServoPositions.rapidFireBlocker_Closed);
-
-                robot.setTransferPower(transferIntakePower);
-                robot.setIntakePower(intakePower);
-                robot.setTransferServoPos(
-                        ServoPositions.transferServo_out);
-            } else if (shoot) {
-                robot.setIntakePower(intakePower);
-
-
-                switch (shootState) {
-
-                    case IDLE:
-
-                        robot.setTransferPower(transferShootPower);
-
-                        timestamp = System.currentTimeMillis();
-                        shootState = ShootState.WAIT_GATE;
-
-                        break;
-
-                    case WAIT_GATE:
-
-                        if (System.currentTimeMillis() - timestamp >= 300) {
-
-                            robot.setRapidFireBlockerPos(
-                                    ServoPositions.rapidFireBlocker_Open);
-
-                            timestamp = System.currentTimeMillis();
-                            shootState = ShootState.WAIT_PUSH;
-                        }
-
-                        break;
-
-                    case WAIT_PUSH:
-
-                        if (System.currentTimeMillis() - timestamp >= 100) {
-
-                            robot.setTransferServoPos(
-                                    ServoPositions.transferServo_in);
-
-                            shootState = ShootState.IDLE;
-                        }
-
-                        break;
-                }
+                spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
             }
 
-            TELE.addData("Flywheel Velocity1", (robot.shooter1.getVelocity() * 60) / 28);
-            TELE.addData("Flywheel Velocity2", (robot.shooter2.getVelocity() * 60) / 28);
-            TELE.addData("Flywheel Average Velocity", flywheel.getAverageVelocity());
-            TELE.addData("PIDF Coefficients", Flywheel.shooterPIDF);
-            TELE.addData("Power", flywheel.getShooterPower());
-            TELE.addData("Distance", shooter.getDistance());
-            TELE.update();
+            if (gamepad1.right_trigger > 0.5 &&
+                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
 
-            shooter.update();
+                spindexerTransferIntake.setRapidMode(
+                        SpindexerTransferIntake.RapidMode.HOLD_BALLS
+                );
+            }
+            if (gamepad1.rightBumperWasPressed()
+                    && state == SpindexerTransferIntake.RapidMode.HOLD_BALLS) {
+
+                spindexerTransferIntake.setRapidMode(
+                        SpindexerTransferIntake.RapidMode.INTAKE
+                );
+            }
+
+            if (gamepad1.dpad_down){
+                parkTilter.park();
+            } else if (gamepad1.dpad_up) {
+                parkTilter.unpark();
+            }
+
+            TELE.addData("Distance From Goal", commander.getDistance());
+            TELE.addData("Hood Position", commander.getHoodPredicted());
+            TELE.addData("Transfer Power", commander.getTransferPow());
+            TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
+            TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
+
+            TELE.update();
         }
+
     }
 }
