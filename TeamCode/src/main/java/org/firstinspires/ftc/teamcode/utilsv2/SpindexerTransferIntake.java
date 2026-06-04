@@ -49,7 +49,7 @@ public class SpindexerTransferIntake {
         DONE
     }
 
-    int[] shootOrder = {0,1,2};
+    int[] shootOrder = {0, 1, 2};
     private final double sensorDistanceThreshold = 6.0;
     private final long pulseTime = 100; // ms
 
@@ -58,12 +58,12 @@ public class SpindexerTransferIntake {
     private SortedShootState shootState = SortedShootState.IDLE;
     private long shootStateStartTime = System.currentTimeMillis();
 
-    private void setShootState(SortedShootState newState){
+    private void setShootState(SortedShootState newState) {
         shootState = newState;
         shootStateStartTime = System.currentTimeMillis();
     }
 
-    private long shootStateTime(){
+    private long shootStateTime() {
         return System.currentTimeMillis() - shootStateStartTime;
     }
 
@@ -139,7 +139,7 @@ public class SpindexerTransferIntake {
 
     private void moveToSlot(int slot) {
 
-        switch(slot) {
+        switch (slot) {
 
             case 0:
                 robot.setSpinPos(
@@ -227,7 +227,7 @@ public class SpindexerTransferIntake {
         this.mode = spindexerMode;
     }
 
-    public RapidMode getRapidState(){
+    public RapidMode getRapidState() {
         return this.rapidMode;
     }
 
@@ -336,7 +336,7 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.SHOOT);
                         }
 
-                        if (Shooter.manualFlywheel){
+                        if (Shooter.manualFlywheel) {
                             robot.setTransferPower(NewShooterTest.transferPower);
                         } else {
                             robot.setTransferPower(commander.getTransferPow());
@@ -353,7 +353,7 @@ public class SpindexerTransferIntake {
                             setRapidMode(RapidMode.INTAKE);
                         }
 
-                        if (Shooter.manualFlywheel){
+                        if (Shooter.manualFlywheel) {
                             robot.setTransferPower(NewShooterTest.transferPower);
                         } else {
                             robot.setTransferPower(commander.getTransferPow());
@@ -365,7 +365,7 @@ public class SpindexerTransferIntake {
 
             case SORTED:
 
-                switch (sortedIntakeStates){
+                switch (sortedIntakeStates) {
                     case NOTHING:
                         break;
                     case IDLE:
@@ -390,7 +390,7 @@ public class SpindexerTransferIntake {
                     case INTAKE_1:
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
-                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold){
+                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
                                 ballColors[0] = BallStates.GREEN;
@@ -403,14 +403,14 @@ public class SpindexerTransferIntake {
                         break;
                     case DELAY_1:
                         robot.setSpinPos(ServoPositions.spindexer_A2);
-                        if (sortedStateTime() > spinMovementTime){
+                        if (sortedStateTime() > spinMovementTime) {
                             setSortedIntakeMode(SortedIntakeStates.INTAKE_2);
                         }
                         break;
                     case INTAKE_2:
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
-                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold){
+                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
                                 ballColors[1] = BallStates.GREEN;
@@ -427,7 +427,7 @@ public class SpindexerTransferIntake {
                                 ServoPositions.spindexer_A3
                         );
 
-                        if (sortedStateTime() > spinMovementTime){
+                        if (sortedStateTime() > spinMovementTime) {
                             setSortedIntakeMode(
                                     SortedIntakeStates.INTAKE_3
                             );
@@ -437,7 +437,7 @@ public class SpindexerTransferIntake {
                     case INTAKE_3:
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
-                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold){
+                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
                                 ballColors[2] = BallStates.GREEN;
@@ -457,9 +457,10 @@ public class SpindexerTransferIntake {
                 break;
             case SHOOT_SORTED:
 
-                //TODO: ADD transfer intake powers here
+                robot.setIntakePower(commander.getTransferPow());
 
-                switch (shootState){
+
+                switch (shootState) {
                     case IDLE:
                         shootOrder = buildShootOrder(
                                 ballColors,
@@ -486,7 +487,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_1:
 
-                        if(shootStateTime() > 250){
+                        if (shootStateTime() > 250) {
 
                             setShootState(
                                     SortedShootState.SHOOT_1
@@ -501,7 +502,7 @@ public class SpindexerTransferIntake {
                         robot.setTransferServoPos(ServoPositions.transferServo_in);
 
 
-                        if(shootStateTime() > 300){
+                        if (shootStateTime() > 300) {
 
                             setShootState(
                                     SortedShootState.RETRACT_1
@@ -514,7 +515,7 @@ public class SpindexerTransferIntake {
                         robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Closed);
                         robot.setTransferServoPos(ServoPositions.transferServo_out);
 
-                        if(shootStateTime() > 150){
+                        if (shootStateTime() > 150) {
 
                             setShootState(
                                     SortedShootState.MOVE_TO_2
@@ -533,7 +534,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_2:
 
-                        if(shootStateTime() > 250){
+                        if (shootStateTime() > 250) {
 
                             setShootState(
                                     SortedShootState.SHOOT_2
@@ -546,7 +547,7 @@ public class SpindexerTransferIntake {
                         robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
                         robot.setTransferServoPos(ServoPositions.transferServo_in);
 
-                        if(shootStateTime() > 300){
+                        if (shootStateTime() > 300) {
 
                             setShootState(
                                     SortedShootState.RETRACT_2
@@ -560,8 +561,7 @@ public class SpindexerTransferIntake {
                         robot.setTransferServoPos(ServoPositions.transferServo_out);
 
 
-
-                        if(shootStateTime() > 150){
+                        if (shootStateTime() > 150) {
 
                             setShootState(
                                     SortedShootState.MOVE_TO_3
@@ -580,7 +580,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_3:
 
-                        if(shootStateTime() > 250){
+                        if (shootStateTime() > 250) {
 
                             setShootState(
                                     SortedShootState.SHOOT_3
@@ -593,7 +593,7 @@ public class SpindexerTransferIntake {
                         robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
                         robot.setTransferServoPos(ServoPositions.transferServo_in);
 
-                        if(shootStateTime() > 300){
+                        if (shootStateTime() > 300) {
 
                             setShootState(
                                     SortedShootState.RETRACT_3
@@ -605,7 +605,7 @@ public class SpindexerTransferIntake {
 
                         robot.setTransferServoPos(ServoPositions.transferServo_out);
 
-                        if(shootStateTime() > 150){
+                        if (shootStateTime() > 150) {
 
                             setShootState(
                                     SortedShootState.DONE
@@ -636,9 +636,7 @@ public class SpindexerTransferIntake {
 
                         break;
 
-
                 }
-
 
 
                 break;
