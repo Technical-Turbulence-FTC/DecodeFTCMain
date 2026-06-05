@@ -161,6 +161,8 @@ public class TeleopV4 extends LinearOpMode {
 
             TELE.addData("Current Position", currentPose);
 
+            TELE.addData("Current LL Pipeline", turret.pipeline());
+
             TELE.update();
         }
 

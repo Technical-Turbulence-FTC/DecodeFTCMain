@@ -140,11 +140,9 @@ public class Shooter {
                 break;
             case READ_OBELISK:
                 manualFlywheel = false;
-                turr.trackObelisk(
-                        (obeliskX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
-                        (obeliskY - follow.getPose().getY() - shooterDistFromCenter*Math.sin(follow.getHeading())),
-                        follow.getHeading()
-                );
+                robot.setTurretPos(Turret.neutralPosition);
+
+                turr.detectObelisk();
 
                 commander.getVeloPredictive(
                         (goalX - follow.getPose().getX() - shooterDistFromCenter*Math.cos(follow.getHeading())),
@@ -158,7 +156,7 @@ public class Shooter {
 
                 flywheelVelocity = commander.getPredictedRPM();
 
-                fly.manageFlywheel(flywheelVelocity);
+                fly.manageFlywheel(0);
                 fly.setF(voltage);
                 break;
 

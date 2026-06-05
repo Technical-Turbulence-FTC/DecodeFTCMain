@@ -16,7 +16,7 @@ public class Turret {
     Robot robot;
 
     private final double servoTicksPer180 = 0.58;
-    private final double neutralPosition = 0.51;
+    public static double neutralPosition = 0.51;
     private final double turretMin = 0.05;
     private final double turretMax = 0.95;
     public static boolean limelightUsed = true;
@@ -83,11 +83,12 @@ public class Turret {
                 pipeline = 2;
             }
         }
-        if (pipeline == 0){prevPipeline = 0;}
         if (pipeline != prevPipeline){
             robot.limelight.pipelineSwitch(pipeline);
         }
+        prevPipeline = pipeline;
     }
+    public int pipeline(){return prevPipeline;}
 
     public void trackObelisk(double dx, double dy, double h) {
 
@@ -107,7 +108,6 @@ public class Turret {
 
         robot.setTurretPos(servoAngle);
 
-
         detectObelisk();
 
     }
@@ -116,20 +116,14 @@ public class Turret {
         return obeliskID;
     }
 
-    private int detectObelisk() {
-        switchPipeline(PipelineMode.OBELISK);
+    public void detectObelisk() {
         result = robot.limelight.getLatestResult();
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            double prevTx  = -1000;
             for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                double currentTx = fiducial.getTargetXDegrees();
-                if (currentTx > prevTx){
-                    obeliskID = fiducial.getFiducialId();
-                }
+                obeliskID = fiducial.getFiducialId();
             }
         }
-        return obeliskID;
     }
 
     public void manual (double pos) {

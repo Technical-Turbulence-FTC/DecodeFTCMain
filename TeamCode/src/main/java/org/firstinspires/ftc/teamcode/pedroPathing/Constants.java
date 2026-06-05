@@ -5,7 +5,7 @@ import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.ftc.FollowerBuilder;
+import org.firstinspires.ftc.teamcode.pedroPathing.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
@@ -22,7 +22,7 @@ public class Constants {
             .lateralZeroPowerAcceleration(-60.876)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.15, 0, 0.015, 0.02))
             .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.02, 0.02))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.02, 0, 0.00001, 0.6, 0.015))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.013, 0, 0.00001, 0.6, 0.015))
             .centripetalScaling(0.0005);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -51,10 +51,16 @@ public class Constants {
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
-        return new FollowerBuilder(followerConstants, hardwareMap)
+        FollowerBuilder followerBuilder;
+        followerBuilder = new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                .pinpointLocalizer(localizerConstants)
-                .build();
+                .pinpointLocalizer(localizerConstants);
+
+        followerBuilder.resetPinpoint();
+        followerBuilder.recalibrateIMU();
+
+        return followerBuilder.build();
+
     }
 }

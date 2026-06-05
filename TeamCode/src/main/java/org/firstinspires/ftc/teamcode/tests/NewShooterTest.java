@@ -34,7 +34,7 @@ public class NewShooterTest extends LinearOpMode {
 
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
-    public static double transferPower = -0.7;
+    public static double transferPower = -0.8;
 //    public static double turretPos = 0.51;
 
     @Override
