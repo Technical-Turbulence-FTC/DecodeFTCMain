@@ -261,6 +261,8 @@ public class SpindexerTransferIntake {
         return System.currentTimeMillis() - sortedStateStartTime;
     }
 
+    private int greenTicks = 0;
+    private int ballTicks = 0;
     public void update() {
 
         TELE.addData("Sorted State", sortedIntakeStates);
@@ -431,15 +433,22 @@ public class SpindexerTransferIntake {
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
                         if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
-                            //TODO: ADD DELAY OR AVERGE @ DANIEL
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
-                                ballColors[0] = BallStates.GREEN;
-                            } else {
-                                ballColors[0] = BallStates.PURPLE;
+                                greenTicks++;
                             }
-                            robot.setSpinPos(ServoPositions.spindexer_A2);
-                            setSortedIntakeMode(SortedIntakeStates.DELAY_1);
+                            ballTicks++;
+                            if (ballTicks > 15) {
+                                if (greenTicks > 10){
+                                    ballColors[0] = BallStates.GREEN;
+                                } else {
+                                    ballColors[0] = BallStates.PURPLE;
+                                }
+                                robot.setSpinPos(ServoPositions.spindexer_A2);
+                                setSortedIntakeMode(SortedIntakeStates.DELAY_1);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
                         }
                         break;
                     case DELAY_1:
@@ -451,15 +460,25 @@ public class SpindexerTransferIntake {
                     case INTAKE_2:
                         robot.setIntakePower(1);
                         robot.setTransferPower(-1);
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-1);
                         if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
-                                ballColors[1] = BallStates.GREEN;
-                            } else {
-                                ballColors[1] = BallStates.PURPLE;
+                                greenTicks++;
                             }
-                            robot.setSpinPos(ServoPositions.spindexer_A3);
-                            setSortedIntakeMode(SortedIntakeStates.DELAY_2);
+                            ballTicks++;
+                            if (ballTicks > 15) {
+                                if (greenTicks > 10){
+                                    ballColors[0] = BallStates.GREEN;
+                                } else {
+                                    ballColors[0] = BallStates.PURPLE;
+                                }
+                                robot.setSpinPos(ServoPositions.spindexer_A3);
+                                setSortedIntakeMode(SortedIntakeStates.DELAY_2);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
                         }
                         break;
                     case DELAY_2:
@@ -481,17 +500,25 @@ public class SpindexerTransferIntake {
                         if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
                             NormalizedRGBA revColor = robot.revSensor.getNormalizedColors();
                             if ((revColor.green / (revColor.red + revColor.blue + revColor.green)) > greenThresh) {
-                                ballColors[2] = BallStates.GREEN;
-                            } else {
-                                ballColors[2] = BallStates.PURPLE;
+                                greenTicks++;
                             }
-                            setSortedIntakeMode(SortedIntakeStates.REVERSE);
-
+                            ballTicks++;
+                            if (ballTicks > 15) {
+                                if (greenTicks > 10){
+                                    ballColors[0] = BallStates.GREEN;
+                                } else {
+                                    ballColors[0] = BallStates.PURPLE;
+                                }
+                                setSortedIntakeMode(SortedIntakeStates.REVERSE);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
                         }
                         break;
                     case REVERSE:
                         robot.setTransferPower(-0.3);
                         robot.setIntakePower(-0.1);
+                        break;
                 }
 
 
