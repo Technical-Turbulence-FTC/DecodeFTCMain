@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 
 import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
@@ -31,6 +32,7 @@ public class TeleopV4 extends LinearOpMode {
     Flywheel flywheel;
     VelocityCommander commander;
     ParkTilter parkTilter;
+    MeasuringLoopTimes loopTimes;
 
     public static Pose relocalizePose = new Pose(128, 83, 0);
 
@@ -56,6 +58,9 @@ public class TeleopV4 extends LinearOpMode {
 
         parkTilter = new ParkTilter(robot);
         parkTilter.unpark();
+
+        loopTimes = new MeasuringLoopTimes();
+        loopTimes.init();
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
@@ -141,6 +146,11 @@ public class TeleopV4 extends LinearOpMode {
             } else if (gamepad1.dpad_up) {
                 parkTilter.unpark();
             }
+
+            loopTimes.loop();
+            TELE.addData("Average Loop Time", loopTimes.getAvgLoopTime());
+            TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
+            TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
 
             TELE.addData("Distance From Goal", commander.getDistance());
             TELE.addData("Hood Position", commander.getHoodPredicted());

@@ -106,22 +106,6 @@ public class SortedSpindexerTest extends LinearOpMode {
                 spindexerTransferIntake.startSortedShoot();
             }
 
-            if (gamepad1.right_trigger > 0.5 &&
-                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
-                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
-
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.HOLD_BALLS
-                );
-            }
-            if (gamepad1.rightBumperWasPressed()
-                    && state == SpindexerTransferIntake.RapidMode.HOLD_BALLS) {
-
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.INTAKE
-                );
-            }
-
             if (gamepad1.dpad_down){
                 parkTilter.park();
             } else if (gamepad1.dpad_up) {

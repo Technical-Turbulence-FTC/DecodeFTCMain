@@ -43,13 +43,12 @@ public class MeasuringLoopTimes {
 
     public void loop() {
         currentTime = getTimeSeconds();
-        if ((MeasurementStart + 5.0) < currentTime)
+        if ((MeasurementStart + 60) < currentTime)
         {
             minLoopTime = 9999999.0;
             maxLoopTime = 0.0;
             MeasurementStart = currentTime;
 
-            avgLoopTime = avgLoopTimeSum / (double) avgLoopTimeTicker;
             avgLoopTimeSum = 0.0;
             avgLoopTimeTicker = 0;
         }
@@ -59,6 +58,7 @@ public class MeasuringLoopTimes {
 
         avgLoopTimeSum += mainLoopTime;
         avgLoopTimeTicker++;
+        avgLoopTime = avgLoopTimeSum / (double) avgLoopTimeTicker;
         minLoopTime = Math.min(minLoopTime,mainLoopTime);
         maxLoopTime = Math.max(maxLoopTime,mainLoopTime);
     }
