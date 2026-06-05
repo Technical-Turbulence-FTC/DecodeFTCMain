@@ -337,6 +337,8 @@ public class Auto12BallPedroPathing extends LinearOpMode {
                 initializePoses();
                 follower.setPose(startPose);
                 buildPaths();
+//                turret.switchPipeline(Turret.PipelineMode.OBELISK);
+                robot.limelight.start();
                 sleep(2000);
 
 //                turret.setTurret(turrDefault);

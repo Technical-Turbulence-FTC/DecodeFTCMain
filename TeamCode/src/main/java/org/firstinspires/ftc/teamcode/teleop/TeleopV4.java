@@ -16,6 +16,8 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 
+import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
+
 @TeleOp
 @Config
 public class TeleopV4 extends LinearOpMode {
@@ -60,6 +62,10 @@ public class TeleopV4 extends LinearOpMode {
         spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
 
+        turret.switchPipeline(Turret.PipelineMode.TRACKING);
+        robot.limelight.start();
+
+        limelightUsed = false;
 
         waitForStart();
 
@@ -110,6 +116,12 @@ public class TeleopV4 extends LinearOpMode {
                 spindexerTransferIntake.setRapidMode(
                         SpindexerTransferIntake.RapidMode.INTAKE
                 );
+            }
+
+            if (gamepad2.leftBumperWasPressed()){
+                limelightUsed = false;
+            } else if (gamepad2.rightBumperWasPressed()){
+                limelightUsed = true;
             }
 
             if (gamepad1.dpad_down){

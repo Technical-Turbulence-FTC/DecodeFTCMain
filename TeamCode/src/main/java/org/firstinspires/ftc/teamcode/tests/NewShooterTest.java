@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
 import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
+import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -63,6 +64,11 @@ public class NewShooterTest extends LinearOpMode {
         spindexerTransferIntake = new SpindexerTransferIntake(robot, TELE, commander);
         spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
 
+        turret.switchPipeline(Turret.PipelineMode.TRACKING);
+        robot.limelight.start();
+
+        limelightUsed = true;
+
         waitForStart();
 
         if (isStopRequested()) return;
@@ -82,6 +88,12 @@ public class NewShooterTest extends LinearOpMode {
 //            shooter.setTurretPosition(turretPos);
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
+
+            if (gamepad2.leftBumperWasPressed()){
+                limelightUsed = false;
+            } else if (gamepad2.rightBumperWasPressed()){
+                limelightUsed = true;
+            }
 
             SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
 

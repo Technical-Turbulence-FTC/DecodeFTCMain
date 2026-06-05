@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.util.Range;
 
 
 import org.firstinspires.ftc.teamcode.constants.Color;
-import org.firstinspires.ftc.teamcode.teleop.TeleopV3;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ public class Turret {
     private final double turretMax = 0.95;
     public static boolean limelightUsed = true;
     public static double B_PID_P = 0.08, B_PID_I = 0.0, B_PID_D = 0.007;
-    Limelight3A webcam;
     LLResult result;
     PIDController bearingPID;
     boolean bearingAligned = false;
@@ -49,6 +47,7 @@ public class Turret {
 
     public Turret(Robot rob) {
         this.robot = rob;
+        bearingPID = new PIDController(B_PID_P, B_PID_I, B_PID_D);
     }
 
     private double wrapAngle(double angle) {
@@ -58,12 +57,36 @@ public class Turret {
     }
 
     private void limelightRead() { // only for tracking purposes, not general reads
-        result = webcam.getLatestResult();
+        switchPipeline(PipelineMode.TRACKING);
+        result = robot.limelight.getLatestResult();
         tx = 1000;
         if (result != null) {
             if (result.isValid()) {
                 tx = result.getTx();
             }
+        }
+    }
+
+    public enum PipelineMode{
+        OBELISK,
+        TRACKING
+    }
+
+    private int prevPipeline = 0;
+    public void switchPipeline(PipelineMode pipelineMode){
+        int pipeline = 0;
+        if (pipelineMode == PipelineMode.OBELISK){
+            pipeline = 1;
+        } else if (pipelineMode == PipelineMode.TRACKING){
+            if (Color.redAlliance){
+                pipeline = 4;
+            } else {
+                pipeline = 2;
+            }
+        }
+        if (pipeline == 0){prevPipeline = 0;}
+        if (pipeline != prevPipeline){
+            robot.limelight.pipelineSwitch(pipeline);
         }
     }
 
@@ -95,7 +118,7 @@ public class Turret {
     }
 
     private int detectObelisk() {
-        robot.limelight.pipelineSwitch(1);
+        switchPipeline(PipelineMode.OBELISK);
         result = robot.limelight.getLatestResult();
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();

@@ -43,13 +43,13 @@ public class Shooter {
 
         if (this.red) {
             goalX = 144;
-            turretGoalX = 136;
+            turretGoalX = 140;
         } else {
             goalX = 0;
             turretGoalX = 8;
         }
         goalY = 144;
-        turretGoalY = 136;
+        turretGoalY = 132;
     }
 
     private double flywheelVelocity = 0.0;

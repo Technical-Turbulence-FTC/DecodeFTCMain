@@ -326,6 +326,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 initializePoses();
                 follower.setPose(startPose);
                 buildPaths();
+//                turret.switchPipeline(Turret.PipelineMode.OBELISK);
+                robot.limelight.start();
                 sleep(2000);
             }
 
