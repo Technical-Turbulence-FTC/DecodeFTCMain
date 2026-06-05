@@ -71,6 +71,10 @@ public class Shooter {
         this.state = shooterState;
     }
 
+    public ShooterState getState(){
+        return state;
+    }
+
     public void setTurretPosition(double input) {
         this.turretPosition = input;
     }

@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 
 @TeleOp
@@ -57,6 +58,7 @@ public class NewShooterTest extends LinearOpMode {
         turret = new Turret(robot);
 
         parkTilter = new ParkTilter(robot);
+        parkTilter.unpark();
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
@@ -81,10 +83,28 @@ public class NewShooterTest extends LinearOpMode {
                     gamepad1.left_stick_x
             );
 
+            if (gamepad1.crossWasPressed()){
+                follower.setPose(TeleopV4.relocalizePose);
+                gamepad1.rumble(100);
+            }
+
             follower.update();
 
-            shooter.setFlywheelVelocity(flywheelVelo);
-            robot.setHoodPos(hoodPos);
+            if (gamepad1.dpadLeftWasPressed()){
+                shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
+            }
+
+            if (gamepad1.dpadRightWasPressed()){
+                shooter.setState(Shooter.ShooterState.TRACK_GOAL);
+            }
+
+            if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
+                shooter.setFlywheelVelocity(flywheelVelo);
+                robot.setHoodPos(hoodPos);
+                robot.setTransferPower(transferPower);
+            }
+
+
 //            shooter.setTurretPosition(turretPos);
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
@@ -116,12 +136,8 @@ public class NewShooterTest extends LinearOpMode {
                         SpindexerTransferIntake.RapidMode.HOLD_BALLS
                 );
             }
-            if (gamepad1.rightBumperWasPressed()
-                    && state == SpindexerTransferIntake.RapidMode.HOLD_BALLS) {
-
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.INTAKE
-                );
+            if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
+                robot.setIntakePower(1);
             }
 
             if (gamepad1.dpad_down){
@@ -135,6 +151,7 @@ public class NewShooterTest extends LinearOpMode {
             TELE.addData("Transfer Power", commander.getTransferPow());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
+            TELE.addData("TX:", turret.getTX());
 
             TELE.update();
         }

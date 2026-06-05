@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
-import static java.lang.Math.abs;
-
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.util.Range;
 
 
@@ -23,18 +21,18 @@ public class Turret {
     private final double turretMin = 0.05;
     private final double turretMax = 0.95;
     public static boolean limelightUsed = true;
-    public static double B_PID_P = 0.08, B_PID_I = 0.0, B_PID_D = 0.007;
+    public static double B_PID_P = 0.0003, B_PID_I = 0.0, B_PID_D = 0.00003;
     LLResult result;
     PIDController bearingPID;
     boolean bearingAligned = false;
-    private boolean lockOffset = false;
     public int LL_COAST_TICKS = 60;
     public static double TARGET_POSITION_TOLERANCE = 0.5;
     public static double alphaTX = 0.5;
     private double targetTx = 0;
-    private double bearingOffset = 0;
+    private double currentTrackOffset = 0;
+    private double llCoast = 0;
+    private double servoAngle = 0.51;
     double tx = 0.0;
-    double ty = 0.0;
     private final double hVelK = 0; // TODO: Tune
     private final double xVelK = 0; // TODO: Tune
     private final double xAccK = 0; // TODO: Tune
@@ -66,6 +64,8 @@ public class Turret {
             }
         }
     }
+
+    public double getTX(){return tx;}
 
     public enum PipelineMode{
         OBELISK,
@@ -137,12 +137,11 @@ public class Turret {
         robot.setTurretPos(pos);
     }
 
-    private double currentTrackOffset = 0;
-    private double llCoast = 0;
-    private double servoAngle = 0.51;
     public void trackGoal(double dx, double dy, double h, double hVel, double xVel, double xAcc, double yVel, double yAcc) {
         // dx, dy, dz is target - robot
         // h is the raw heading where 0 degrees is positive x in the system of x, y
+
+        bearingPID = new PIDController(B_PID_P, B_PID_I, B_PID_D); // Keep when debugging/tuning, comment out when doing teleop
 
         double predictedDx = dx - (xVel * xVelK) - (0.5 * xAcc * xAccK); // Negative bc dx = target - robot
         double predictedDy = dy - (yVel * yVelK) - (0.5 * yAcc * yAccK);  // Negative bc dy = target - robot
@@ -162,7 +161,7 @@ public class Turret {
                 targetTx = (tx*alphaTX)+(targetTx*(1-alphaTX));
                 bearingAligned = Math.abs(targetTx) < TARGET_POSITION_TOLERANCE;
                 if (!bearingAligned){
-                    bearingOffset = -(bearingPID.calculate(targetTx, 0.0));
+                    bearingOffset = (bearingPID.calculate(targetTx, 0.0));
                 }
             } else {
                 targetTx = 0;
@@ -177,8 +176,6 @@ public class Turret {
                 llCoast--;
             }
         }
-
-        currentTrackOffset += bearingOffset;
 
         double servoTicksFromNeutral = (angleDelta+currentTrackOffset) * (2.0 * servoTicksPer180);
 

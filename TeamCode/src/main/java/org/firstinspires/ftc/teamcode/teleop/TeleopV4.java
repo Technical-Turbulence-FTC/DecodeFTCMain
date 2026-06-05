@@ -55,6 +55,7 @@ public class TeleopV4 extends LinearOpMode {
         turret = new Turret(robot);
 
         parkTilter = new ParkTilter(robot);
+        parkTilter.unpark();
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.TRACK_GOAL);
@@ -65,7 +66,7 @@ public class TeleopV4 extends LinearOpMode {
         turret.switchPipeline(Turret.PipelineMode.TRACKING);
         robot.limelight.start();
 
-        limelightUsed = false;
+        limelightUsed = true;
 
         waitForStart();
 
@@ -85,6 +86,20 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             follower.update();
+
+            if (gamepad1.dpadLeftWasPressed()){
+                shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
+            }
+
+            if (gamepad1.dpadRightWasPressed()){
+                shooter.setState(Shooter.ShooterState.TRACK_GOAL);
+            }
+
+            if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
+                shooter.setFlywheelVelocity(2500);
+                robot.setHoodPos(0.6);
+                robot.setTransferPower(-0.8);
+            }
 
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
@@ -110,12 +125,9 @@ public class TeleopV4 extends LinearOpMode {
                         SpindexerTransferIntake.RapidMode.HOLD_BALLS
                 );
             }
-            if (gamepad1.rightBumperWasPressed()
-                    && state == SpindexerTransferIntake.RapidMode.HOLD_BALLS) {
 
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.INTAKE
-                );
+            if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
+                robot.setIntakePower(1);
             }
 
             if (gamepad2.leftBumperWasPressed()){
