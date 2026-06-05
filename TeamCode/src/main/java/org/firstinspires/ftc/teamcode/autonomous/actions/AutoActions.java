@@ -37,7 +37,6 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 import java.util.Objects;
 
-@Config
 public class AutoActions {
     Robot robot;
     MultipleTelemetry TELE;

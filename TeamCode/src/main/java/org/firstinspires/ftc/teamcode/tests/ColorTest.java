@@ -12,8 +12,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
-@Config
-@TeleOp
+
 public class ColorTest extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;

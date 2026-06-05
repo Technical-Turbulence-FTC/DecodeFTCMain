@@ -15,8 +15,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
-@TeleOp
-@Config
 public class TurretTest extends LinearOpMode {
     public static boolean zeroTurr = false;
     @Override

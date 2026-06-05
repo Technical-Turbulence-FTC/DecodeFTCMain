@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.StateEnums.LightState;
 
 
-@Config
 public final class Light {
 
     private static Light instance;

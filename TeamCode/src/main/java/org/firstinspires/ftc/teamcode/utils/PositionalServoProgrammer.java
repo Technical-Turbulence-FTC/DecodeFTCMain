@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@TeleOp
-@Config
 public class PositionalServoProgrammer extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;

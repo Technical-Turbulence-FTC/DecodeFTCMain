@@ -43,8 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
-@Config
-@Autonomous(preselectTeleOp = "TeleopV3")
+
 public class Auto_LT_Far extends LinearOpMode {
     public static double shoot0Vel = 3300, shoot0Hood = 0.48;
     double xLeave, yLeave, hLeave;

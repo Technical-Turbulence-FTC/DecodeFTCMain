@@ -28,8 +28,9 @@ public class TeleopV4 extends LinearOpMode {
     Turret turret;
     Flywheel flywheel;
     VelocityCommander commander;
-
     ParkTilter parkTilter;
+
+    public static Pose relocalizePose = new Pose(128, 83, 0);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -72,8 +73,12 @@ public class TeleopV4 extends LinearOpMode {
                     gamepad1.left_stick_x
             );
 
-            follower.update();
+            if (gamepad1.crossWasPressed()){
+                follower.setPose(relocalizePose);
+                gamepad1.rumble(100);
+            }
 
+            follower.update();
 
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();

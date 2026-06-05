@@ -93,9 +93,7 @@ import org.firstinspires.ftc.teamcode.utils.Turret;
 
 import java.util.Objects;
 
-@Disabled
-@Config
-@Autonomous(preselectTeleOp = "TeleopV3")
+
 public class Auto_LT_Close_GateOpen extends LinearOpMode {
     public static double shoot0Vel = 2300, shoot0Hood = 0.93;
     public static double autoSpinStartPos = 0.2;

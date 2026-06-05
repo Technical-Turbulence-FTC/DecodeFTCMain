@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
-@Config
-@TeleOp
 public class MotorDirectionDebugger extends LinearOpMode {
 
     public static double flPower = 0.0;

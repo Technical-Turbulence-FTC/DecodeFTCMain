@@ -27,8 +27,6 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
-@Config
-@TeleOp
 public class ShooterTest extends LinearOpMode {
     public static int mode = 1;
     public static double parameter = 0.0;

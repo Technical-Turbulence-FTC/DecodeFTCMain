@@ -82,9 +82,7 @@ import org.firstinspires.ftc.teamcode.utils.Robot;
 import org.firstinspires.ftc.teamcode.utils.Servos;
 
 import java.util.List;
-@Disabled
-@Config
-@Autonomous(preselectTeleOp = "TeleopV3")
+
 public class ProtoAutoClose_V3 extends LinearOpMode {
     public static double intake1Time = 2.7;
     public static double intake2Time = 3.0;

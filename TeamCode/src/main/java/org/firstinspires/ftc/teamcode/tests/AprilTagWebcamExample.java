@@ -9,8 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.utils.Robot;
 
-@Config
-@TeleOp
+
 public class AprilTagWebcamExample extends OpMode {
 
     MultipleTelemetry TELE;

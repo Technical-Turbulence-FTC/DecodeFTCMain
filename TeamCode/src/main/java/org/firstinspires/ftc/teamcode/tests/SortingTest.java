@@ -18,8 +18,6 @@ import org.firstinspires.ftc.teamcode.utils.Spindexer;
 import org.firstinspires.ftc.teamcode.utils.Targeting;
 import org.firstinspires.ftc.teamcode.utils.Turret;
 
-@Config
-@TeleOp
 public class SortingTest extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;

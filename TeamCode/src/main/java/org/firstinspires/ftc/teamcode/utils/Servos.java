@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-@Config
 public class Servos {
     //PID constants
     // TODO: get PIDF constants

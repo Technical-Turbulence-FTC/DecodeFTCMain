@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.teleop.TeleopV3;
 import java.util.ArrayList;
 import java.util.List;
 
-@Config
 
 public class Turret {
 
