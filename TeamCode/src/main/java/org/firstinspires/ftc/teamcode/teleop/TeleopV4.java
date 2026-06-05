@@ -148,9 +148,9 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             loopTimes.loop();
-            TELE.addData("Average Loop Time", loopTimes.getAvgLoopTime());
-            TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
+            TELE.addData("Loop Time Average", loopTimes.getAvgLoopTime());
+            TELE.addData("Loop Time Max", loopTimes.getMaxLoopTimeOneMin());
+            TELE.addData("Loop Time Min", loopTimes.getMinLoopTimeOneMin());
 
             TELE.addData("Distance From Goal", commander.getDistance());
             TELE.addData("Hood Position", commander.getHoodPredicted());
