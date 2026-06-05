@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -25,7 +24,7 @@ public class Turret {
     LLResult result;
     PIDController bearingPID;
     boolean bearingAligned = false;
-    public int LL_COAST_TICKS = 60;
+    public int LL_COAST_TICKS = 5;
     public static double TARGET_POSITION_TOLERANCE = 0.5;
     public static double alphaTX = 0.5;
     private double targetTx = 0;

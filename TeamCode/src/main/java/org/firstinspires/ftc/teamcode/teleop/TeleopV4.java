@@ -91,6 +91,7 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             follower.update();
+            Pose currentPose = follower.getPose();
 
             if (gamepad1.dpadLeftWasPressed()){
                 shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
@@ -157,6 +158,8 @@ public class TeleopV4 extends LinearOpMode {
             TELE.addData("Transfer Power", robot.transfer.getPower());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
+
+            TELE.addData("Current Position", currentPose);
 
             TELE.update();
         }
