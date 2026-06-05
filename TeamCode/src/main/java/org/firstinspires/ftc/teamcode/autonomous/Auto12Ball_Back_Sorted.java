@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
+import org.firstinspires.ftc.teamcode.constants.TeleStart;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
@@ -388,9 +389,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             follower.update();
             pathStateMachine();
             Pose currentPose = follower.getPose();
-            teleStartPoseX = currentPose.getX();
-            teleStartPoseY = currentPose.getY();
-            teleStartPoseH = Math.toDegrees(currentPose.getHeading());
+            TeleStart.teleStart = currentPose;
 
             spindexer.update();
 
@@ -402,9 +401,9 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("X:", currentPose.getX());
-            TELE.addData("Y:", currentPose.getY());
-            TELE.addData("H:", currentPose.getHeading());
+            TELE.addData("X:", teleStartPoseX);
+            TELE.addData("Y:", teleStartPoseY);
+            TELE.addData("H:", teleStartPoseH);
             TELE.update();
         }
     }

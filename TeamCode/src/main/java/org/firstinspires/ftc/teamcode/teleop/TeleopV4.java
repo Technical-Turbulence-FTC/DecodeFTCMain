@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.TeleStart;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
@@ -50,8 +51,10 @@ public class TeleopV4 extends LinearOpMode {
         commander = new VelocityCommander();
         drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
-        Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
-        follower.setStartingPose(start);
+        follower.setStartingPose(TeleStart.teleStart);
+        sleep(500);
+        follower.setPose(TeleStart.teleStart);
+        follower.update();
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
@@ -72,6 +75,9 @@ public class TeleopV4 extends LinearOpMode {
         robot.limelight.start();
 
         limelightUsed = true;
+
+        TELE.addLine("Initialization is done");
+        TELE.update();
 
         waitForStart();
 
