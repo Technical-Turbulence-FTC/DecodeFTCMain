@@ -1,10 +1,17 @@
 package org.firstinspires.ftc.teamcode.utilsv2;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.util.Range;
 
+
+import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV3;
 
 import java.util.List;
 
@@ -16,6 +23,20 @@ public class Turret {
     private final double neutralPosition = 0.51;
     private final double turretMin = 0.05;
     private final double turretMax = 0.95;
+    public static boolean limelightUsed = true;
+    public static double B_PID_P = 0.08, B_PID_I = 0.0, B_PID_D = 0.007;
+    Limelight3A webcam;
+    LLResult result;
+    PIDController bearingPID;
+    boolean bearingAligned = false;
+    private boolean lockOffset = false;
+    public int LL_COAST_TICKS = 60;
+    public static double TARGET_POSITION_TOLERANCE = 0.5;
+    public static double alphaTX = 0.5;
+    private double targetTx = 0;
+    private double bearingOffset = 0;
+    double tx = 0.0;
+    double ty = 0.0;
     private final double hVelK = 0; // TODO: Tune
     private final double xVelK = 0; // TODO: Tune
     private final double xAccK = 0; // TODO: Tune
@@ -34,6 +55,16 @@ public class Turret {
         while (angle > Math.PI) angle -= 2.0 * Math.PI;
         while (angle < -Math.PI) angle += 2.0 * Math.PI;
         return angle;
+    }
+
+    private void limelightRead() { // only for tracking purposes, not general reads
+        result = webcam.getLatestResult();
+        tx = 1000;
+        if (result != null) {
+            if (result.isValid()) {
+                tx = result.getTx();
+            }
+        }
     }
 
     public void trackObelisk(double dx, double dy, double h) {
@@ -65,7 +96,7 @@ public class Turret {
 
     private int detectObelisk() {
         robot.limelight.pipelineSwitch(1);
-        LLResult result = robot.limelight.getLatestResult();
+        result = robot.limelight.getLatestResult();
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             double prevTx  = -1000;
@@ -81,10 +112,11 @@ public class Turret {
 
     public void manual (double pos) {
         robot.setTurretPos(pos);
-
     }
-    // 1.545
 
+    private double currentTrackOffset = 0;
+    private double llCoast = 0;
+    private double servoAngle = 0.51;
     public void trackGoal(double dx, double dy, double h, double hVel, double xVel, double xAcc, double yVel, double yAcc) {
         // dx, dy, dz is target - robot
         // h is the raw heading where 0 degrees is positive x in the system of x, y
@@ -98,11 +130,36 @@ public class Turret {
         double fieldRelativeHeading = Math.atan2(predictedDy, predictedDx);
 
         double angleDelta = fieldRelativeHeading - predictedH;
-        angleDelta = wrapAngle(angleDelta);
+        angleDelta = wrapAngle(angleDelta) / (2.0 * Math.PI);
 
-        double servoTicksFromNeutral = (angleDelta / (2.0 * Math.PI)) * (2.0 * servoTicksPer180);
+        double bearingOffset = 0;
+        if (limelightUsed && servoAngle > turretMin && servoAngle < turretMax){
+            limelightRead();
+            if (result.isValid() && tx < 100){
+                targetTx = (tx*alphaTX)+(targetTx*(1-alphaTX));
+                bearingAligned = Math.abs(targetTx) < TARGET_POSITION_TOLERANCE;
+                if (!bearingAligned){
+                    bearingOffset = -(bearingPID.calculate(targetTx, 0.0));
+                }
+            } else {
+                targetTx = 0;
+                bearingOffset = 0;
+            }
+            currentTrackOffset += bearingOffset;
+            llCoast = LL_COAST_TICKS;
+        } else {
+            if (llCoast <= 0){
+                currentTrackOffset = 0;
+            } else {
+                llCoast--;
+            }
+        }
 
-        double servoAngle = neutralPosition + servoTicksFromNeutral;
+        currentTrackOffset += bearingOffset;
+
+        double servoTicksFromNeutral = (angleDelta+currentTrackOffset) * (2.0 * servoTicksPer180);
+
+        servoAngle = neutralPosition + servoTicksFromNeutral;
 
         servoAngle = Range.clip(servoAngle, turretMin, turretMax);
 
