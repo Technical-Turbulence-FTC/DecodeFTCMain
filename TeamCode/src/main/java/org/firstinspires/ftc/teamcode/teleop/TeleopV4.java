@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -92,7 +88,11 @@ public class TeleopV4 extends LinearOpMode {
             );
 
             if (gamepad1.crossWasPressed()){
-                follower.setPose(relocalizePose);
+                if (Color.redAlliance){
+                    relocalizePose = new Pose(128, 83, 0);
+                } else {
+                    relocalizePose = new Pose(16, 83, 180);
+                }
                 gamepad1.rumble(100);
             }
 

@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
 import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -51,8 +48,9 @@ public class NewShooterTest extends LinearOpMode {
         commander = new VelocityCommander();
         drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
-        Pose start = new Pose(teleStartPoseX, teleStartPoseY, Math.toRadians(teleStartPoseH));
-        follower.setStartingPose(start);
+        follower.setStartingPose(new Pose(72,72,0));
+        sleep(500);
+        follower.setPose(new Pose(72,72,0));
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
@@ -71,6 +69,9 @@ public class NewShooterTest extends LinearOpMode {
 
         limelightUsed = true;
 
+        TELE.addLine("Initialization Complete");
+        TELE.update();
+
         waitForStart();
 
         if (isStopRequested()) return;
@@ -84,7 +85,12 @@ public class NewShooterTest extends LinearOpMode {
             );
 
             if (gamepad1.crossWasPressed()){
-                follower.setPose(TeleopV4.relocalizePose);
+                if (Color.redAlliance){
+                    TeleopV4.relocalizePose = new Pose(128, 83, 0);
+                } else {
+                    TeleopV4.relocalizePose = new Pose(16, 83, 180);
+                }
+                gamepad1.rumble(100);
                 gamepad1.rumble(100);
             }
 

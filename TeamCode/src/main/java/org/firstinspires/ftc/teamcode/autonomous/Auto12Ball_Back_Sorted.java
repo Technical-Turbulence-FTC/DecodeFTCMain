@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.utils.Turret.limelightUsed;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseH;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseY;
-import static org.firstinspires.ftc.teamcode.constants.Front_Poses.teleStartPoseX;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -42,7 +39,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
     // Wait Times
     public static double sortedShootTime = 2;
     public static double rapidWaitTime = 0.25;
-    public static double rapidShootTime = 1;
+    public static double rapidShootTime = 0.8;
     public static double openGateTime = 2.5;
     public static double pushTime = 2;
 
@@ -77,28 +74,40 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
     public static double pickup3X = 133, pickup3Y = 34.5, pickup3H = 0;
     public static double shoot3ControlX = 97.62371134020621, shoot3ControlY = 34.813287514318446;
     public static double shoot3X = 84, shoot3Y = 120, shoot3H = -90;
+    double[] xPoses = {startPoseX, pushBotX, shoot0ControlX, shoot0X,
+            pickup1X, openGateControlX, openGateX, shoot1ControlX, shoot1X,
+            drivePickup2X, pickup2X, shoot2ControlX, shoot2X,
+            drivePickup3X, pickup3X, shoot3ControlX, shoot3X};
+    double[] yPoses = {startPoseY, pushBotY, shoot0ControlY, shoot0Y,
+            pickup1Y, openGateControlY, openGateY, shoot1ControlY, shoot1Y,
+            drivePickup2Y, pickup2Y, shoot2ControlY, shoot2Y,
+            drivePickup3Y, pickup3Y, shoot3ControlY, shoot3Y};
+    double[] headings = {startPoseH, pushBotH, 0, shoot0H,
+            pickup1H, 0, openGateH, 0, shoot1H,
+            drivePickup2H, pickup2H, 0, shoot2H,
+            drivePickup3H, pickup3H, 0, shoot3H};
     Pose startPose, pushBot, shoot0Control, shoot0,
             pickup1, openGateControl, openGate, shoot1Control, shoot1,
             drivePickup2, pickup2, shoot2Control, shoot2,
             drivePickup3, pickup3, shoot3Control, shoot3;
     private void initializePoses(){
-        startPose = new Pose(startPoseX, startPoseY, Math.toRadians(startPoseH));
-        pushBot = new Pose(pushBotX, pushBotY, Math.toRadians(pushBotH));
-        shoot0Control = new Pose(shoot0ControlX, shoot0ControlY);
-        shoot0 = new Pose(shoot0X, shoot0Y, Math.toRadians(shoot0H));
-        pickup1 = new Pose(pickup1X, pickup1Y, Math.toRadians(pickup1H));
-        openGateControl = new Pose(openGateControlX, openGateControlY);
-        openGate = new Pose(openGateX, openGateY, Math.toRadians(openGateH));
-        shoot1Control = new Pose(shoot1ControlX, shoot1ControlY);
-        shoot1 = new Pose(shoot1X, shoot1Y, Math.toRadians(shoot1H));
-        drivePickup2 = new Pose(drivePickup2X, drivePickup2Y, Math.toRadians(drivePickup2H));
-        pickup2 = new Pose(pickup2X, pickup2Y, Math.toRadians(pickup2H));
-        shoot2Control = new Pose(shoot2ControlX, shoot2ControlY);
-        shoot2 = new Pose(shoot2X, shoot2Y, Math.toRadians(shoot2H));
-        drivePickup3 = new Pose(drivePickup3X, drivePickup3Y, Math.toRadians(drivePickup3H));
-        pickup3 = new Pose(pickup3X, pickup3Y, Math.toRadians(pickup3H));
-        shoot3Control = new Pose(shoot3ControlX, shoot3ControlY);
-        shoot3 = new Pose(shoot3X, shoot3Y, Math.toRadians(shoot3H));
+        startPose = new Pose(xPoses[0], yPoses[0], Math.toRadians(headings[0]));
+        pushBot = new Pose(xPoses[1], yPoses[1], Math.toRadians(headings[1]));
+        shoot0Control = new Pose(xPoses[2], yPoses[2]);
+        shoot0 = new Pose(xPoses[3], yPoses[3], Math.toRadians(headings[3]));
+        pickup1 = new Pose(xPoses[4], yPoses[4], Math.toRadians(headings[4]));
+        openGateControl = new Pose(xPoses[5], yPoses[5]);
+        openGate = new Pose(xPoses[6], yPoses[6], Math.toRadians(headings[6]));
+        shoot1Control = new Pose(xPoses[7], yPoses[7]);
+        shoot1 = new Pose(xPoses[8], yPoses[8], Math.toRadians(headings[8]));
+        drivePickup2 = new Pose(xPoses[9], yPoses[9], Math.toRadians(headings[9]));
+        pickup2 = new Pose(xPoses[10], yPoses[10], Math.toRadians(headings[10]));
+        shoot2Control = new Pose(xPoses[11], yPoses[11]);
+        shoot2 = new Pose(xPoses[12], yPoses[12], Math.toRadians(headings[12]));
+        drivePickup3 = new Pose(xPoses[13], yPoses[13], Math.toRadians(headings[13]));
+        pickup3 = new Pose(xPoses[14], yPoses[14], Math.toRadians(headings[14]));
+        shoot3Control = new Pose(xPoses[15], yPoses[15]);
+        shoot3 = new Pose(xPoses[16], yPoses[16], Math.toRadians(headings[16]));
     }
 
     //Building Paths
@@ -195,7 +204,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 }
                 break;
             case WAIT_SHOOT0:
-                if (currentTime - timeStamp > rapidShootTime &&
+                if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
                     follower.followPath(shoot0_pickup1, intakePower, false);
@@ -336,16 +345,6 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 Color.redAlliance = !Color.redAlliance;
                 shooter.setRedAlliance(Color.redAlliance);
 
-                double[] xPoses = {startPoseX, pushBotX, shoot0ControlX, shoot0X,
-                        pickup1X, openGateControlX, openGateX, shoot1ControlX, shoot1X,
-                        drivePickup2X, pickup2X, shoot2ControlX, shoot2X,
-                        drivePickup3X, pickup3X, shoot3ControlX, shoot3X};
-
-                double[] headings = {startPoseH, pushBotH, shoot0H,
-                        pickup1H, openGateH, shoot1H,
-                        drivePickup2H, pickup2H, shoot2H,
-                        drivePickup3H, pickup3H, shoot3H};
-
                 for (int i = 0; i < xPoses.length; i++) {xPoses[i] = adjustXPoseBasedOnAlliance(xPoses[i]);}
                 for (int i = 0; i < headings.length; i++) {headings[i] = adjustHeadingBasedOnAlliance(headings[i]);}
             }
@@ -401,9 +400,9 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("X:", teleStartPoseX);
-            TELE.addData("Y:", teleStartPoseY);
-            TELE.addData("H:", teleStartPoseH);
+            TELE.addData("X:", currentPose.getX());
+            TELE.addData("Y:", currentPose.getY());
+            TELE.addData("H:", currentPose.getHeading());
             TELE.update();
         }
     }

@@ -32,8 +32,6 @@ import org.firstinspires.ftc.teamcode.utilsv2.Turret;
 
 import java.util.List;
 
-@Config
-@Autonomous (preselectTeleOp = "TeleopV4")
 public class Auto12BallPedroPathing extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
