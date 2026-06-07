@@ -25,7 +25,7 @@ import java.util.List;
 
 @Config
 @Autonomous (preselectTeleOp = "TeleopV4")
-public class Auto21Ball_Front_Gate extends LinearOpMode {
+public class Auto15Ball_Back extends LinearOpMode {
     Robot robot;
     MultipleTelemetry TELE;
     Follower follower;
@@ -39,126 +39,88 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
     // Wait Times
     public static double rapidWaitTime = 0.5;
     public static double rapidShootTime = 0.8;
-    public static double openGate1Time = 1.5;
-    public static double openGate2Time = 1.5;
-    public static double openGateWaitTime = 5;
+    public static double loadPickupTime = 3;
 
     // Initialize path state machine
     private enum PathState {
-        DRIVE_SHOOT0, WAIT_SHOOT0,
-        PICKUP1, OPENGATE1, DRIVE_SHOOT1, WAIT_SHOOT1,
-        PICKUP2, OPENGATE2, DRIVE_SHOOT2, WAIT_SHOOT2,
-        INTAKE_GATE, DRIVE_SHOOT_GATE, WAIT_SHOOT_GATE, DRIVE_SHOOT_LEAVE, WAIT_SHOOT_LEAVE
+        WAIT_VELOCITY, WAIT_SHOOT0,
+        PICKUP3, DRIVE_SHOOT3, WAIT_SHOOT3,
+        PICKUP_LOAD, DRIVE_SHOOT_LOAD, WAIT_SHOOT_LOAD,
+        INTAKE_GATE, DRIVE_SHOOT_GATE, WAIT_SHOOT_GATE, LEAVE
     }
-    PathState pathState = PathState.DRIVE_SHOOT0;
+    PathState pathState = PathState.WAIT_VELOCITY;
 
     // Poses
-    public static double startPoseX = 55, startPoseY = 38, startPoseH = -90;
-    public static double shoot0X = 18, shoot0Y = 18, shoot0H = -30;
-    public static double pickup1ControlX = 101.53321878579611, pickup1ControlY = 81.84077892325314;
-    public static double pickup1X = 54, pickup1Y = 10, pickup1H = 0;
-    public static double openGate1ControlX = 43.82989690721648, openGate1ControlY = 3.86540664375714;
-    public static double openGate1X = 59, openGate1Y = 2, openGate1H = 0;
-    public static double shoot1ControlX = 40, shoot1ControlY = 3;
-    public static double shoot1X = 18, shoot1Y = 11, shoot1H = -30;
-    public static double pickup2ControlX = 18, pickup2ControlY = -11;
-    public static double pickup2X = 61, pickup2Y = -14.5, pickup2H = 0;
-    public static double openGate2ControlX = 45.9782359679267, openGate2ControlY = -15.106643757159245;
-    public static double openGate2X = 57, openGate2Y = -8, openGate2H = 0;
-    public static double shoot2ControlX = 57, shoot2ControlY = -8;
-    public static double shoot2X = 18, shoot2Y = 11, shoot2H = -30;
-    public static double intakeGateControlX = 59, intakeGateControlY = 60;
-    public static double intakeGateX = 59, intakeGateY = -12, intakeGateH = 20;
-    public static double shootGateControlX = 59, shootGateControlY = -12;
-    public static double shootGateX = 18, shootGateY = 11, shootGateH = -30;
-    public static double shootLeaveControlX = 59, shootLeaveControlY = -12;
-    public static double shootLeaveX = 14, shootLeaveY = 40, shootLeaveH = -50;
-    double[] xPoses = {startPoseX, shoot0X,
-            pickup1ControlX, pickup1X, openGate1ControlX, openGate1X, shoot1ControlX, shoot1X,
-            pickup2ControlX, pickup2X, openGate2ControlX, openGate2X, shoot2ControlX, shoot2X,
-            intakeGateControlX, intakeGateX, shootGateControlX, shootGateX,
-            shootLeaveControlX, shootLeaveX};
-    double[] yPoses = {startPoseY, shoot0Y,
-            pickup1ControlY, pickup1Y, openGate1ControlY, openGate1Y, shoot1ControlY, shoot1Y,
-            pickup2ControlY, pickup2Y, openGate2ControlY, openGate2Y, shoot2ControlY, shoot2Y,
-            intakeGateControlY, intakeGateY, shootGateControlY, shootGateY,
-            shootLeaveControlY, shootLeaveY};
-    double[] headings = {startPoseH, shoot0H,
-            0, pickup1H, 0, openGate1H, 0, shoot1H,
-            0, pickup2H, 0, openGate2H, 0, shoot2H,
-            0, intakeGateH, 0, shootGateH,
-            0, shootLeaveH};
-    Pose startPose, shoot0,
-            pickup1Control, pickup1, openGate1Control, openGate1, shoot1Control, shoot1,
-            pickup2Control, pickup2, openGate2Control, openGate2, shoot2Control, shoot2,
-            intakeGateControl, intakeGate, shootGateControl, shootGate,
-            shootLeaveControl, shootLeave;
+    public static double startPoseX = 12, startPoseY = -64, startPoseH = 90;
+    public static double pickup3ControlX = 12, pickup3ControlY = -37;
+    public static double pickup3X = 61, pickup3Y = -37, pickup3H = 0;
+    public static double shoot3X = 16, shoot3Y = -57, shoot3H = 0;
+    public static double pickupLoadControlX = 21.23654066437572, pickupLoadControlY = -62.311626575028637;
+    public static double pickupLoadX = 63, pickupLoadY = -63, pickupLoadH = 0;
+    public static double shootLoadControlX = 21.23654066437572, shootLoadControlY = -62.311626575028637;
+    public static double shootLoadX = 16, shootLoadY = -57, shootLoadH = 0;
+    public static double intakeGateControl1X = 51.9656357388316, intakeGateControl1Y = -65.506277205040073;
+    public static double intakeGateControl2X = 60.13459335624285, intakeGateControl2Y = -67.300458190148911;
+    public static double intakeGateX = 59, intakeGateY = -12, intakeGateH = 90;
+    public static double shootGateControlX = 53.8705612829324, shootGateControlY = -35.14501718213059;
+    public static double shootGateX = 16, shootGateY = -57, shootGateH = 0;
+    public static double leaveX = 40, leaveY = 14, leaveH = 0;
+    double[] xPoses = {startPoseX, pickup3ControlX, pickup3X, shoot3X,
+            pickupLoadControlX, pickupLoadX, shootLoadControlX, shootLoadX,
+            intakeGateControl1X, intakeGateControl2X, intakeGateX, shootGateControlX, shootGateX, leaveX};
+    double[] yPoses = {startPoseY, pickup3ControlY, pickup3Y, shoot3Y,
+            pickupLoadControlY, pickupLoadY, shootLoadControlY, shootLoadY,
+            intakeGateControl1Y, intakeGateControl2Y, intakeGateY, shootGateControlY, shootGateY, leaveY};
+    double[] headings = {startPoseH, 0, pickup3H, shoot3H,
+            0, pickupLoadH, 0, shootLoadH,
+            0, 0, intakeGateH, 0, shootGateH, leaveH};
+    Pose startPose, pickup3Control, pickup3, shoot3,
+            pickupLoadControl, pickupLoad, shootLoadControl, shootLoad,
+            intakeGateControl1, intakeGateControl2, intakeGate, shootGateControl, shootGate, leave;
     private void initializePoses(){
         startPose = new Pose(xPoses[0], yPoses[0], Math.toRadians(headings[0]));
-        shoot0 = new Pose(xPoses[1], yPoses[1], Math.toRadians(headings[1]));
-        pickup1Control = new Pose(xPoses[2], yPoses[2]);
-        pickup1 = new Pose(xPoses[3], yPoses[3], Math.toRadians(headings[3]));
-        openGate1Control = new Pose(xPoses[4], yPoses[4]);
-        openGate1 = new Pose(xPoses[5], yPoses[5], Math.toRadians(headings[5]));
-        shoot1Control = new Pose(xPoses[6], yPoses[6]);
-        shoot1 = new Pose(xPoses[7], yPoses[7], Math.toRadians(headings[7]));
-        pickup2Control = new Pose(xPoses[8], yPoses[8]);
-        pickup2 = new Pose(xPoses[9], yPoses[9], Math.toRadians(headings[9]));
-        openGate2Control = new Pose(xPoses[10], yPoses[10]);
-        openGate2 = new Pose(xPoses[11], yPoses[11], Math.toRadians(headings[11]));
-        shoot2Control = new Pose(xPoses[12], yPoses[12]);
-        shoot2 = new Pose(xPoses[13], yPoses[13], Math.toRadians(headings[13]));
-        intakeGateControl = new Pose(xPoses[14], yPoses[14]);
-        intakeGate = new Pose(xPoses[15], yPoses[15], Math.toRadians(headings[15]));
-        shootGateControl = new Pose(xPoses[16], yPoses[16]);
-        shootGate = new Pose(xPoses[17], yPoses[17], Math.toRadians(headings[17]));
-        shootLeaveControl = new Pose(xPoses[18], yPoses[18]);
-        shootLeave = new Pose(xPoses[19], yPoses[19], Math.toRadians(headings[19]));
+        pickup3Control = new Pose(xPoses[1], yPoses[1]);
+        pickup3 = new Pose(xPoses[2], yPoses[2], Math.toRadians(headings[2]));
+        shoot3 = new Pose(xPoses[3], yPoses[3], Math.toRadians(headings[3]));
+        pickupLoadControl = new Pose(xPoses[4], yPoses[4]);
+        pickupLoad = new Pose(xPoses[5], yPoses[5], Math.toRadians(headings[5]));
+        shootLoadControl = new Pose(xPoses[6], yPoses[6]);
+        shootLoad = new Pose(xPoses[7], yPoses[7], Math.toRadians(headings[7]));
+        intakeGateControl1 = new Pose(xPoses[8], yPoses[8]);
+        intakeGateControl2 = new Pose(xPoses[9], yPoses[9]);
+        intakeGate = new Pose(xPoses[10], yPoses[10], Math.toRadians(headings[10]));
+        shootGateControl = new Pose(xPoses[11], yPoses[11]);
+        shootGate = new Pose(xPoses[12], yPoses[12], Math.toRadians(headings[12]));
+        leave = new Pose(xPoses[13], yPoses[13], Math.toRadians(headings[13]));
     }
 
     //Building Paths
-    PathChain startPose_shoot0, shoot0_pickup1, pickup1_openGate1, openGate1_shoot1,
-        shoot1_pickup2, pickup2_openGate2, openGate2_shoot2,
-        shoot2_intakeGate, intakeGate_shootGate, shootGate_intakeGate, intakeGate_shootLeave;
+    PathChain startPose_pickup3, pickup3_shoot3, shoot3_pickupLoad, pickupLoad_shootLoad,
+            shootLoad_intakeGate, intakeGate_shootGate, shootGate_intakeGate, shootGate_leave;
     private void buildPaths(){
-        startPose_shoot0 = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, shoot0))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shoot0.getHeading())
+        startPose_pickup3 = follower.pathBuilder()
+                .addPath(new BezierCurve(startPose, pickup3Control, pickup3))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        shoot0_pickup1 = follower.pathBuilder()
-                .addPath(new BezierCurve(shoot0, pickup1Control, pickup1))
-                .setLinearHeadingInterpolation(shoot0.getHeading(), pickup1.getHeading())
+        pickup3_shoot3 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup3, shoot3))
+                .setLinearHeadingInterpolation(pickup3.getHeading(), shoot3.getHeading())
                 .build();
 
-        pickup1_openGate1 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup1, openGate1Control, openGate1))
-                .setLinearHeadingInterpolation(pickup1.getHeading(), openGate1.getHeading())
+        shoot3_pickupLoad = follower.pathBuilder()
+                .addPath(new BezierCurve(shoot3, pickupLoadControl, pickupLoad))
+                .setLinearHeadingInterpolation(shoot3.getHeading(), pickupLoad.getHeading())
                 .build();
 
-        openGate1_shoot1 = follower.pathBuilder()
-                .addPath(new BezierCurve(openGate1, shoot1Control, shoot1))
-                .setLinearHeadingInterpolation(openGate1.getHeading(), shoot1.getHeading())
+        pickupLoad_shootLoad = follower.pathBuilder()
+                .addPath(new BezierCurve(pickupLoad, shootLoadControl, shootLoad))
+                .setLinearHeadingInterpolation(pickupLoad.getHeading(), shootLoad.getHeading())
                 .build();
 
-        shoot1_pickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(shoot1, pickup2Control, pickup2))
-                .setLinearHeadingInterpolation(shoot1.getHeading(), pickup2.getHeading())
-                .build();
-
-        pickup2_openGate2 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup2, openGate2Control, openGate2))
-                .setLinearHeadingInterpolation(pickup2.getHeading(), openGate2.getHeading())
-                .build();
-
-        openGate2_shoot2 = follower.pathBuilder()
-                .addPath(new BezierCurve(openGate2, shoot2Control, shoot2))
-                .setLinearHeadingInterpolation(openGate2.getHeading(), shoot2.getHeading())
-                .build();
-
-        shoot2_intakeGate = follower.pathBuilder()
-                .addPath(new BezierCurve(shoot2, intakeGateControl, intakeGate))
-                .setLinearHeadingInterpolation(shoot2.getHeading(), intakeGate.getHeading())
+        shootLoad_intakeGate = follower.pathBuilder()
+                .addPath(new BezierCurve(shootLoad, intakeGateControl1, intakeGateControl2, intakeGate))
+                .setTangentHeadingInterpolation()
                 .build();
 
         intakeGate_shootGate = follower.pathBuilder()
@@ -167,113 +129,97 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 .build();
 
         shootGate_intakeGate = follower.pathBuilder()
-                .addPath(new BezierCurve(shootGate, intakeGateControl, intakeGate))
-                .setLinearHeadingInterpolation(shootGate.getHeading(), intakeGate.getHeading())
+                .addPath(new BezierCurve(shootGate, intakeGateControl1, intakeGateControl2, intakeGate))
+                .setTangentHeadingInterpolation()
                 .build();
 
-        intakeGate_shootLeave = follower.pathBuilder()
-                .addPath(new BezierCurve(intakeGate, shootLeaveControl, shootLeave))
-                .setLinearHeadingInterpolation(intakeGate.getHeading(), shootLeave.getHeading())
+        shootGate_leave = follower.pathBuilder()
+                .addPath(new BezierLine(shootGate, leave))
+                .setLinearHeadingInterpolation(shootGate.getHeading(), leave.getHeading())
                 .build();
     }
 
     //Path State Machine
-    private boolean startAuto = true;
+    private int startAuto = 0;
     private double timeStamp = 0;
     private void pathStateMachine(){
         double currentTime = (double) System.currentTimeMillis() / 1000;
         switch(pathState){
-            case DRIVE_SHOOT0:
+            case WAIT_VELOCITY:
                 spindexer.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
                 shooter.setFlywheelVelocity(2400);
                 robot.setHoodPos(0.64);
-                if (startAuto){
-                    follower.followPath(startPose_shoot0, false);
-                    startAuto = false;
+                if (flywheel.getSteady()){
+                    startAuto++;
                 }
-                if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
+                if (startAuto > 5){
+                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT0;
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
-                } else if (follower.isBusy()){
-                    timeStamp = currentTime;
                 }
                 break;
             case WAIT_SHOOT0:
                 if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shoot0_pickup1, false);
-                    pathState = PathState.PICKUP1;
+                    follower.followPath(startPose_pickup3, false);
+                    pathState = PathState.PICKUP3;
                 }
                 break;
-            case PICKUP1:
+            case PICKUP3:
                 if (!follower.isBusy()){
-                    follower.followPath(pickup1_openGate1, false);
-                    pathState = PathState.OPENGATE1;
+                    follower.followPath(pickup3_shoot3, false);
+                    pathState = PathState.DRIVE_SHOOT3;
                     timeStamp = currentTime;
                 }
                 break;
-            case OPENGATE1:
-                if (currentTime - timeStamp > openGate1Time){
-                    follower.followPath(openGate1_shoot1, false);
-                    pathState = PathState.DRIVE_SHOOT1;
-                    timeStamp = currentTime;
-                }
-                break;
-            case DRIVE_SHOOT1:
+            case DRIVE_SHOOT3:
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
                     timeStamp = currentTime;
-                    pathState = PathState.WAIT_SHOOT1;
+                    pathState = PathState.WAIT_SHOOT3;
                     spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
                 } else if (follower.isBusy()){
                     timeStamp = currentTime;
                 }
                 break;
-            case WAIT_SHOOT1:
+            case WAIT_SHOOT3:
                 if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shoot1_pickup2, false);
-                    pathState = PathState.PICKUP2;
-                }
-                break;
-            case PICKUP2:
-                if (!follower.isBusy()){
-                    follower.followPath(pickup2_openGate2, false);
-                    pathState = PathState.DRIVE_SHOOT2;
+                    follower.followPath(shoot3_pickupLoad, false);
+                    pathState = PathState.PICKUP_LOAD;
                     timeStamp = currentTime;
                 }
                 break;
-            case OPENGATE2:
-                if (currentTime - timeStamp > openGate2Time){
-                    follower.followPath(openGate2_shoot2, false);
-                    pathState = PathState.DRIVE_SHOOT2;
+            case PICKUP_LOAD:
+                if (currentTime - timeStamp > loadPickupTime){
+                    follower.followPath(pickupLoad_shootLoad, false);
+                    pathState = PathState.DRIVE_SHOOT_LOAD;
                     timeStamp = currentTime;
                 }
                 break;
-            case DRIVE_SHOOT2:
+            case DRIVE_SHOOT_LOAD:
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
                     timeStamp = currentTime;
-                    pathState = PathState.WAIT_SHOOT2;
+                    pathState = PathState.WAIT_SHOOT_LOAD;
                     spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
                 } else if (follower.isBusy()){
                     timeStamp = currentTime;
                 }
                 break;
-            case WAIT_SHOOT2:
+            case WAIT_SHOOT_LOAD:
                 if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shoot2_intakeGate, false);
+                    follower.followPath(shootLoad_intakeGate, false);
                     pathState = PathState.INTAKE_GATE;
                     timeStamp = currentTime;
                 }
                 break;
             case INTAKE_GATE:
-                if (currentTime - timeStamp > openGateWaitTime){
-                    follower.followPath(openGate1_shoot1, false);
-                    pathState = PathState.DRIVE_SHOOT1;
+                if (!follower.isBusy()){
+                    follower.followPath(intakeGate_shootGate, false);
+                    pathState = PathState.DRIVE_SHOOT_GATE;
                     timeStamp = currentTime;
                 }
                 break;
@@ -293,18 +239,10 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                     follower.followPath(shootGate_intakeGate, false);
                     pathState = PathState.INTAKE_GATE;
                     timeStamp = currentTime;
+                    // TODO: add logic for leave
                 }
                 break;
-            case DRIVE_SHOOT_LEAVE:
-                if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
-                    timeStamp = currentTime;
-                    pathState = PathState.WAIT_SHOOT_LEAVE;
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
-                } else if (follower.isBusy()){
-                    timeStamp = currentTime;
-                }
-                break;
-            case WAIT_SHOOT_LEAVE:
+            case LEAVE:
                 // add line here to say "done auto"
                 break;
             default:
