@@ -276,6 +276,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                     pathState = PathState.DRIVE_SHOOT1;
                     timeStamp = currentTime;
                 }
+                // TODO: add logic to shoot gate
                 break;
             case DRIVE_SHOOT_GATE:
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
