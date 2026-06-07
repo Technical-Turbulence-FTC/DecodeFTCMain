@@ -174,7 +174,7 @@ public class Robot {
 
     private double prevFrontLeftPower = -10.501;
     public void setFrontLeftPower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevFrontLeftPower){
             frontLeft.setPower(pow);
         }
@@ -183,7 +183,7 @@ public class Robot {
 
     private double prevFrontRightPower = -10.501;
     public void setFrontRightPower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevFrontRightPower){
             frontRight.setPower(pow);
         }
@@ -192,7 +192,7 @@ public class Robot {
 
     private double prevBackLeftPower = -10.501;
     public void setBackLeftPower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevBackLeftPower){
             backLeft.setPower(pow);
         }
@@ -201,7 +201,7 @@ public class Robot {
 
     private double prevBackRightPower = -10.501;
     public void setBackRightPower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevBackRightPower){
             backRight.setPower(pow);
         }
@@ -210,7 +210,7 @@ public class Robot {
 
     private double prevIntakePower = -10.501;
     public void setIntakePower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevIntakePower){
             intake.setPower(pow);
         }
@@ -219,7 +219,7 @@ public class Robot {
 
     private double prevTransferPower = -10.501;
     public void setTransferPower(double pow){
-        pow = (double) Math.round(pow * roundingFactor) / roundingFactor;
+        pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevTransferPower){
             transfer.setPower(pow);
         }
@@ -230,7 +230,7 @@ public class Robot {
 
     private double prevHoodPos = -10.501;
     public void setHoodPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevHoodPos){
             hood.setPosition(pos);
         }
@@ -239,7 +239,7 @@ public class Robot {
 
     private double prevTransferServoPos = -10.501;
     public void setTransferServoPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevTransferServoPos){
             transferServo.setPosition(pos);
         }
@@ -248,7 +248,7 @@ public class Robot {
 
     private double prevSpinPos = -10.501;
     public void setSpinPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevSpinPos){
             spin1.setPosition(pos);
             spin2.setPosition(pos);
@@ -258,7 +258,7 @@ public class Robot {
 
     private double prevTurretPos = -10.501;
     public void setTurretPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevTurretPos){
             turr1.setPosition(pos);
             turr2.setPosition(pos);
@@ -268,7 +268,7 @@ public class Robot {
 
     private double prevTilt1Pos = -10.501;
     public void setTilt1Pos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevTilt1Pos){
             tilt1.setPosition(pos);
         }
@@ -277,7 +277,7 @@ public class Robot {
 
     private double prevTilt2Pos = -10.501;
     public void setTilt2Pos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevTilt2Pos){
             tilt2.setPosition(pos);
         }
@@ -286,7 +286,7 @@ public class Robot {
 
     private double prevSpindexBlockerPos = -10.501;
     public void setSpindexBlockerPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevSpindexBlockerPos){
             spindexBlocker.setPosition(pos);
         }
@@ -295,7 +295,7 @@ public class Robot {
 
     private double prevRapidFireBlockerPos = -10.501;
     public void setRapidFireBlockerPos(double pos){
-        pos = (double) Math.round(pos * roundingFactor) / roundingFactor;
+        pos = (double) Math.round((float) pos * roundingFactor) / roundingFactor;
         if (pos != prevRapidFireBlockerPos){
             rapidFireBlocker.setPosition(pos);
         }

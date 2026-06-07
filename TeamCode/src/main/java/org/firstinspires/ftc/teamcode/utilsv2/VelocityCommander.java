@@ -10,7 +10,7 @@ public class VelocityCommander {
     public static double yAccK = 0.025; // TODO: Tune
     private double hoodPos = 0.88;
     private double transferPow = -1;
-    private double velo = 0;
+    private int velo = 0;
 
     public VelocityCommander() {}
 
@@ -26,12 +26,13 @@ public class VelocityCommander {
     private final double veloJ = 272005.7124;
     private final double veloK = -2474581.713;
     private double distToRPM (double dist){
+        double currentVelo = 0;
         if (dist < 49) {
-            velo = 2000;
+            currentVelo = 2000;
         } else if (dist > 165){
             velo = 3760;
         } else {
-            velo = veloA*Math.pow(dist, 10) +
+            currentVelo = veloA*Math.pow(dist, 10) +
                     veloB*Math.pow(dist, 9) +
                     veloC*Math.pow(dist, 8) +
                     veloD*Math.pow(dist, 7) +
@@ -42,8 +43,8 @@ public class VelocityCommander {
                     veloI*Math.pow(dist, 2) +
                     veloJ*Math.pow(dist, 1) +
                     veloK;
-            velo = Math.max(2000, Math.min(3760, velo));
         }
+        velo = Math.round((float) Math.max(2000, Math.min(3760, currentVelo)));
         return velo;
     }
 

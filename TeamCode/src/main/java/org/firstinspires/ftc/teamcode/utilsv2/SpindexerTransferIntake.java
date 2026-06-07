@@ -273,6 +273,7 @@ public class SpindexerTransferIntake {
 
     private int greenTicks = 0;
     private int ballTicks = 0;
+    private int holdBallsTicker = 0;
     public void update() {
 
         TELE.addData("Sorted State", sortedIntakeStates);
@@ -365,12 +366,12 @@ public class SpindexerTransferIntake {
                     case HOLD_BALLS:
 
                         if (robot.insideBeam.isPressed()
-                                && robot.outsideBeam.isPressed()) {
+                                && robot.outsideBeam.isPressed() && holdBallsTicker > 5) {
 
                             robot.setIntakePower(0.1);
 
                         } else {
-
+                            holdBallsTicker++;
                             robot.setIntakePower(1);
                         }
                         break;
