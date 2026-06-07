@@ -32,7 +32,7 @@ public class NewShooterTest extends LinearOpMode {
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
     public static double transferPower = -0.8;
-//    public static double turretPos = 0.51;
+    public static boolean overrideTransferPower = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -84,15 +84,14 @@ public class NewShooterTest extends LinearOpMode {
                     gamepad1.left_stick_x
             );
 
-            if (gamepad1.crossWasPressed()){
-                if (Color.redAlliance){
-                    TeleopV4.relocalizePose = new Pose(56, 11, 0);
-                } else {
-                    TeleopV4.relocalizePose = new Pose(-56, 11, 180);
-                }
-                follower.setPose(TeleopV4.relocalizePose);
-                gamepad1.rumble(100);
+            if (Color.redAlliance){
+                TeleopV4.relocalizePose = new Pose(57.5, 5, 0);
+            } else {
+                TeleopV4.relocalizePose = new Pose(-57.5, 5, Math.toRadians(180));
             }
+            follower.setPose(TeleopV4.relocalizePose);
+            sleep(500);
+            gamepad1.rumble(100);
 
             follower.update();
 
@@ -107,7 +106,6 @@ public class NewShooterTest extends LinearOpMode {
             if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
                 shooter.setFlywheelVelocity(flywheelVelo);
                 robot.setHoodPos(hoodPos);
-                robot.setTransferPower(transferPower);
             }
 
 
