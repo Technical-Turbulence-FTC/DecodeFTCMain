@@ -148,7 +148,7 @@ class LocalizationTest extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72,72, 0));
+        follower.setStartingPose(new Pose(0,0, 0));
     }
 
     /** This initializes the PoseUpdater, the drive motors, and the Panels telemetry. */
@@ -1272,7 +1272,7 @@ class CentripetalTuner extends OpMode {
     public void start() {
         follower.activateAllPIDFs();
         forwards = new Path(new BezierCurve(new Pose(0,0), new Pose(Math.abs(DISTANCE) ,0), new Pose(Math.abs(DISTANCE) ,DISTANCE )));
-        backwards = new Path(new BezierCurve(new Pose(Math.abs(DISTANCE) + 72,DISTANCE + 72), new Pose(Math.abs(DISTANCE) ,0), new Pose(0,0)));
+        backwards = new Path(new BezierCurve(new Pose(Math.abs(DISTANCE) + 0,DISTANCE + 0), new Pose(Math.abs(DISTANCE) ,0), new Pose(0,0)));
 
         backwards.setTangentHeadingInterpolation();
         backwards.reverseHeadingInterpolation();
@@ -1382,14 +1382,14 @@ class Circle extends OpMode {
 
     public void start() {
         circle = follower.pathBuilder()
-                .addPath(new BezierCurve(new Pose(72, 72), new Pose(RADIUS + 72, 72), new Pose(RADIUS + 72, RADIUS + 72)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(72, RADIUS + 72))
-                .addPath(new BezierCurve(new Pose(RADIUS + 72, RADIUS + 72), new Pose(RADIUS + 72, (2 * RADIUS) + 72), new Pose(72, (2 * RADIUS) + 72)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(72, RADIUS + 72))
-                .addPath(new BezierCurve(new Pose(72, (2 * RADIUS) + 72), new Pose(-RADIUS + 72, (2 * RADIUS) + 72), new Pose(-RADIUS + 72, RADIUS + 72)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(72, RADIUS + 72))
-                .addPath(new BezierCurve(new Pose(-RADIUS + 72, RADIUS + 72), new Pose(-RADIUS + 72, 72), new Pose(72, 72)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(72, RADIUS + 72))
+                .addPath(new BezierCurve(new Pose(0, 0), new Pose(RADIUS + 0, 0), new Pose(RADIUS + 0, RADIUS + 0)))
+                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS + 0))
+                .addPath(new BezierCurve(new Pose(RADIUS + 0, RADIUS + 0), new Pose(RADIUS + 0, (2 * RADIUS) + 0), new Pose(0, (2 * RADIUS) + 0)))
+                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS + 0))
+                .addPath(new BezierCurve(new Pose(0, (2 * RADIUS) + 0), new Pose(-RADIUS + 0, (2 * RADIUS) + 0), new Pose(-RADIUS + 0, RADIUS + 0)))
+                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS + 0))
+                .addPath(new BezierCurve(new Pose(-RADIUS + 0, RADIUS + 0), new Pose(-RADIUS + 0, 0), new Pose(0, 0)))
+                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS + 0))
                 .build();
         follower.followPath(circle);
     }
@@ -1406,7 +1406,7 @@ class Circle extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72, 72));
+        follower.setStartingPose(new Pose(0, 0));
     }
 
     /**
@@ -1639,8 +1639,8 @@ class OffsetsTuner extends OpMode {
         telemetry.addLine("Total Angle: " + follower.getTotalHeading());
 
         telemetry.addLine("The following values are the offsets in inches that should be applied to your localizer.");
-        telemetry.addLine("strafeX: " + ((72.0-follower.getPose().getX()) / 2.0));
-        telemetry.addLine("forwardY: " + ((72.0-follower.getPose().getY()) / 2.0));
+        telemetry.addLine("strafeX: " + ((0.0-follower.getPose().getX()) / 2.0));
+        telemetry.addLine("forwardY: " + ((0.0-follower.getPose().getY()) / 2.0));
         telemetry.update();
 
         drawCurrentAndHistory();

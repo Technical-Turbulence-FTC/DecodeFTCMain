@@ -53,8 +53,8 @@ public class SpindexerTransferIntake {
     }
 
     int[] shootOrder = {0, 1, 2};
-    private final double sensorDistanceThreshold = 6.0;
-    private final long pulseTime = 100; // ms
+    final double sensorDistanceThreshold = 5.3;
+    final long pulseTime = 100; // ms
 
     private DesiredPattern desiredPattern = DesiredPattern.GPP;
 
@@ -203,8 +203,8 @@ public class SpindexerTransferIntake {
     private RapidMode rapidMode = RapidMode.INTAKE;
     private SortedIntakeStates sortedIntakeStates = SortedIntakeStates.IDLE;
     private BallStates[] ballColors = {BallStates.UNKNOWN, BallStates.UNKNOWN, BallStates.UNKNOWN};
-    private final double greenThresh = 0.39;
-    private final double spinMovementTime = 250;
+    final double greenThresh = 0.39;
+    final double spinMovementTime = 250;
 
     /**
      * Time when current state was entered.
@@ -571,7 +571,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_1:
 
-                        if (shootStateTime() > 250) {
+                        if (shootStateTime() > 400) {
 
                             setShootState(
                                     SortedShootState.SHOOT_1
@@ -618,7 +618,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_2:
 
-                        if (shootStateTime() > 250) {
+                        if (shootStateTime() > 400) {
 
                             setShootState(
                                     SortedShootState.SHOOT_2
@@ -664,7 +664,7 @@ public class SpindexerTransferIntake {
                         break;
                     case WAIT_FOR_3:
 
-                        if (shootStateTime() > 250) {
+                        if (shootStateTime() > 400) {
 
                             setShootState(
                                     SortedShootState.SHOOT_3

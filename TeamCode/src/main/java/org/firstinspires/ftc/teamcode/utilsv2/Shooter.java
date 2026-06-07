@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 
+import org.firstinspires.ftc.teamcode.constants.Color;
+
 @Config
 public class Shooter {
 
@@ -42,14 +44,14 @@ public class Shooter {
         this.red = input;
 
         if (this.red) {
-            goalX = 144;
-            turretGoalX = 140;
+            goalX = 72;
+            turretGoalX = 68;
         } else {
-            goalX = 0;
-            turretGoalX = 8;
+            goalX = -72;
+            turretGoalX = -68;
         }
-        goalY = 144;
-        turretGoalY = 132;
+        goalY = 72;
+        turretGoalY = 68;
     }
 
     private double flywheelVelocity = 0.0;
@@ -89,7 +91,7 @@ public class Shooter {
 
     private final double shooterDistFromCenter = 1.545;
     public void update(double voltage) {
-
+        setRedAlliance(Color.redAlliance);
         switch (state) {
             case NOTHING:
                 break;

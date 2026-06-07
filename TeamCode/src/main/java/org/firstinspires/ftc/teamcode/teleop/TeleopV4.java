@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
-import org.firstinspires.ftc.teamcode.constants.TeleStart;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
@@ -31,7 +30,8 @@ public class TeleopV4 extends LinearOpMode {
     ParkTilter parkTilter;
     MeasuringLoopTimes loopTimes;
 
-    public static Pose relocalizePose = new Pose(128, 83, 0);
+    public static Pose relocalizePose = new Pose(56, 11, 0);
+    public static Pose teleStart = new Pose(0,0,0);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -47,9 +47,9 @@ public class TeleopV4 extends LinearOpMode {
         commander = new VelocityCommander();
         drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(TeleStart.teleStart);
+        follower.setStartingPose(teleStart);
         sleep(500);
-        follower.setPose(TeleStart.teleStart);
+        follower.setPose(teleStart);
         follower.update();
 
         flywheel = new Flywheel(robot);
@@ -73,6 +73,8 @@ public class TeleopV4 extends LinearOpMode {
         limelightUsed = true;
 
         TELE.addLine("Initialization is done");
+        TELE.addData("Starting Position", follower.getPose());
+        TELE.addData("TELE START", teleStart);
         TELE.update();
 
         waitForStart();
@@ -89,10 +91,12 @@ public class TeleopV4 extends LinearOpMode {
 
             if (gamepad1.crossWasPressed()){
                 if (Color.redAlliance){
-                    relocalizePose = new Pose(128, 83, 0);
+                    relocalizePose = new Pose(57.5, 5, 0);
                 } else {
-                    relocalizePose = new Pose(16, 83, 180);
+                    relocalizePose = new Pose(-57.5, 5, Math.toRadians(180));
                 }
+                follower.setPose(relocalizePose);
+                sleep(500);
                 gamepad1.rumble(100);
             }
 

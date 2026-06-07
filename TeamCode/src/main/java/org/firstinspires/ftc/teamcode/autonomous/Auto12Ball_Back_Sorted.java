@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
-import org.firstinspires.ftc.teamcode.constants.TeleStart;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 
@@ -37,8 +37,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
     SpindexerTransferIntake spindexer;
 
     // Wait Times
-    public static double sortedShootTime = 2;
-    public static double rapidWaitTime = 0.25;
+    public static double sortedShootTime = 2.6;
+    public static double rapidWaitTime = 0.5;
     public static double rapidShootTime = 0.8;
     public static double openGateTime = 2.5;
     public static double pushTime = 2;
@@ -57,23 +57,23 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
     PathState pathState = PathState.PUSHBOT;
 
     // Poses
-    public static double startPoseX = 91.5, startPoseY = 15, startPoseH = 90;
-    public static double pushBotX = 97, pushBotY = 18, pushBotH = 100;
-    public static double shoot0ControlX = 94.29667812142038, shoot0ControlY = 55.03493699885454;
-    public static double shoot0X = 95, shoot0Y = 83, shoot0H = 0;
-    public static double pickup1X = 126, pickup1Y = 82, pickup1H = 0;
-    public static double openGateControlX = 109.184421534937, openGateControlY = 74.24455899198165;
-    public static double openGateX = 131, openGateY = 74, openGateH = 0;
-    public static double shoot1ControlX = 112, shoot1ControlY = 75;
-    public static double shoot1X = 95, shoot1Y = 83, shoot1H = 0;
-    public static double drivePickup2X = 98, drivePickup2Y = 58.5, drivePickup2H = 0;
-    public static double pickup2X = 133, pickup2Y = 57, pickup2H = 0;
-    public static double shoot2ControlX = 102, shoot2ControlY = 63;
-    public static double shoot2X = 95, shoot2Y = 83, shoot2H = 0;
-    public static double drivePickup3X = 98, drivePickup3Y = 34.5, drivePickup3H = 0;
-    public static double pickup3X = 133, pickup3Y = 34.5, pickup3H = 0;
-    public static double shoot3ControlX = 97.62371134020621, shoot3ControlY = 34.813287514318446;
-    public static double shoot3X = 84, shoot3Y = 120, shoot3H = -90;
+    public static double startPoseX = 12, startPoseY = -64, startPoseH = 90;
+    public static double pushBotX = 19, pushBotY = -63, pushBotH = 100;
+    public static double shoot0ControlX = 16.29667812142038, shoot0ControlY = -19.67493699885454;
+    public static double shoot0X = 19, shoot0Y = 10, shoot0H = 0;
+    public static double pickup1X = 54, pickup1Y = 10, pickup1H = 0;
+    public static double openGateControlX = 37.184421534937, openGateControlY = 2.24455899198165;
+    public static double openGateX = 59, openGateY = 2, openGateH = 0;
+    public static double shoot1ControlX = 40, shoot1ControlY = 3;
+    public static double shoot1X = 19, shoot1Y = 10, shoot1H = 0;
+    public static double drivePickup2X = 26, drivePickup2Y = -14, drivePickup2H = 0;
+    public static double pickup2X = 61, pickup2Y = -14.5, pickup2H = 0;
+    public static double shoot2ControlX = 30, shoot2ControlY = -9;
+    public static double shoot2X = 19, shoot2Y = 10, shoot2H = 0;
+    public static double drivePickup3X = 26, drivePickup3Y = -37.5, drivePickup3H = 0;
+    public static double pickup3X = 61, pickup3Y = -37.5, pickup3H = 0;
+    public static double shoot3ControlX = 25.62371134020621, shoot3ControlY = -38.813287514318446;
+    public static double shoot3X = 12, shoot3Y = 40, shoot3H = -90;
     double[] xPoses = {startPoseX, pushBotX, shoot0ControlX, shoot0X,
             pickup1X, openGateControlX, openGateX, shoot1ControlX, shoot1X,
             drivePickup2X, pickup2X, shoot2ControlX, shoot2X,
@@ -193,7 +193,6 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 if (!follower.isBusy() || currentTime - timeStamp > pushTime){
                     follower.followPath(pushBot_shoot0, true);
                     pathState = PathState.DRIVE_SHOOT0;
-                    timeStamp = currentTime;
                 }
                 break;
             case DRIVE_SHOOT0:
@@ -201,6 +200,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT0;
                     spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                } else if (follower.isBusy()){
+                    timeStamp = currentTime;
                 }
                 break;
             case WAIT_SHOOT0:
@@ -220,6 +221,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                     shootY = shoot1Y;
                     shootH = shoot1H;
                     timeStamp = currentTime;
+                    shooter.setFlywheelVelocity(2300);
+                    robot.setHoodPos(0.68);
                 }
                 break;
             case OPENGATE:
@@ -271,8 +274,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 break;
             case DRIVE_PICKUP3:
                 if (!follower.isBusy()){
-                    shooter.setFlywheelVelocity(2300);
-                    robot.setHoodPos(0.68);
+                    shooter.setFlywheelVelocity(2200);
+                    robot.setHoodPos(0.75);
                     follower.followPath(drivePickup3_pickup3, intakePower, false);
                     pathState = PathState.PICKUP3;
                 }
@@ -302,7 +305,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
     }
 
     // Used for changing alliance
-    private double adjustXPoseBasedOnAlliance(double pose) {return (144-pose);}
+    private double adjustXPoseBasedOnAlliance(double pose) {return -pose;}
     private double adjustHeadingBasedOnAlliance(double heading){
         heading = 180 - heading;
         while (heading > 180) {heading-=360;}
@@ -321,7 +324,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
         TELE = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         follower = Constants.createFollower(hardwareMap);
         sleep(1000);
-        follower.setStartingPose(new Pose(72,72,0));
+        follower.setStartingPose(new Pose(0,0,0));
         loopTimes = new MeasuringLoopTimes();
         loopTimes.init();
         turret = new Turret(robot);
@@ -344,9 +347,14 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             if (gamepad1.crossWasPressed() && !initializeRobot){
                 Color.redAlliance = !Color.redAlliance;
                 shooter.setRedAlliance(Color.redAlliance);
+            }
 
-                for (int i = 0; i < xPoses.length; i++) {xPoses[i] = adjustXPoseBasedOnAlliance(xPoses[i]);}
-                for (int i = 0; i < headings.length; i++) {headings[i] = adjustHeadingBasedOnAlliance(headings[i]);}
+            if (!initializeRobot){
+                if ((Color.redAlliance && xPoses[0] < 0)
+                    || (!Color.redAlliance && xPoses[0] > 0)){
+                    for (int i = 0; i < xPoses.length; i++) {xPoses[i] = adjustXPoseBasedOnAlliance(xPoses[i]);}
+                    for (int i = 0; i < headings.length; i++) {headings[i] = adjustHeadingBasedOnAlliance(headings[i]);}
+                }
             }
 
             if (gamepad1.triangleWasPressed()){
@@ -385,10 +393,11 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
             shooter.update(robot.voltage.getVoltage());
 
-            follower.update();
+            if (!isStopRequested()){
+                follower.update();
+            }
             pathStateMachine();
-            Pose currentPose = follower.getPose();
-            TeleStart.teleStart = currentPose;
+            TeleopV4.teleStart = follower.getPose();
 
             spindexer.update();
 
@@ -400,9 +409,9 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
             TELE.addData("Avg Loop Time", loopTimes.getAvgLoopTime());
             TELE.addData("Min Loop Time", loopTimes.getMinLoopTimeOneMin());
             TELE.addData("Max Loop Time", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("X:", currentPose.getX());
-            TELE.addData("Y:", currentPose.getY());
-            TELE.addData("H:", currentPose.getHeading());
+            TELE.addData("X:", TeleopV4.teleStart.getX());
+            TELE.addData("Y:", TeleopV4.teleStart.getY());
+            TELE.addData("H:", TeleopV4.teleStart.getHeading());
             TELE.update();
         }
     }

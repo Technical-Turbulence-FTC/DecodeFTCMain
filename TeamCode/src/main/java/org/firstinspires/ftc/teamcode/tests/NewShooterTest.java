@@ -48,9 +48,9 @@ public class NewShooterTest extends LinearOpMode {
         commander = new VelocityCommander();
         drivetrain = new Drivetrain(robot, TELE);
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(72,72,0));
+        follower.setStartingPose(new Pose(0,0,0));
         sleep(500);
-        follower.setPose(new Pose(72,72,0));
+        follower.setPose(new Pose(0,0,0));
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
@@ -86,11 +86,11 @@ public class NewShooterTest extends LinearOpMode {
 
             if (gamepad1.crossWasPressed()){
                 if (Color.redAlliance){
-                    TeleopV4.relocalizePose = new Pose(128, 83, 0);
+                    TeleopV4.relocalizePose = new Pose(56, 11, 0);
                 } else {
-                    TeleopV4.relocalizePose = new Pose(16, 83, 180);
+                    TeleopV4.relocalizePose = new Pose(-56, 11, 180);
                 }
-                gamepad1.rumble(100);
+                follower.setPose(TeleopV4.relocalizePose);
                 gamepad1.rumble(100);
             }
 
