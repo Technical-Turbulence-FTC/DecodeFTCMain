@@ -31,6 +31,7 @@ public class NewShooterTest extends LinearOpMode {
 
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
+    public static boolean overrideTransferPower = false;
     public static double transferPower = -0.8;
 //    public static double turretPos = 0.51;
 
@@ -107,7 +108,7 @@ public class NewShooterTest extends LinearOpMode {
             if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
                 shooter.setFlywheelVelocity(flywheelVelo);
                 robot.setHoodPos(hoodPos);
-                robot.setTransferPower(transferPower);
+                //robot.setTransferPower(transferPower);
             }
 
 

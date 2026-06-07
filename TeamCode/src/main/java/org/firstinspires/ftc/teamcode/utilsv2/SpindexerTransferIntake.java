@@ -290,6 +290,9 @@ public class SpindexerTransferIntake {
         TELE.addData("Color2", ballColors[2]);
 
         TELE.addData("Shoot State", shootState);
+
+        TELE.addData("Mode:", mode);
+        TELE.addData("RapidMode:", rapidMode);
         
         switch (mode) {
 
@@ -366,9 +369,10 @@ public class SpindexerTransferIntake {
                     case HOLD_BALLS:
 
                         if (robot.insideBeam.isPressed()
-                                && robot.outsideBeam.isPressed() && holdBallsTicker > 5) {
+                                && robot.outsideBeam.isPressed() && holdBallsTicker > 10) {
 
                             robot.setIntakePower(0.1);
+                            robot.setTransferPower(0);
 
                         } else {
                             holdBallsTicker++;

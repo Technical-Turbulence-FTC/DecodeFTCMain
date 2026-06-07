@@ -20,12 +20,12 @@ public class Turret {
     private final double turretMin = 0.05;
     private final double turretMax = 0.95;
     public static boolean limelightUsed = true;
-    public static double B_PID_P = 0.0003, B_PID_I = 0.0, B_PID_D = 0.00003;
+    public static double B_PID_P = 0.0002, B_PID_I = 0.0, B_PID_D = 0.00001;
     LLResult result;
     PIDController bearingPID;
     boolean bearingAligned = false;
     public int LL_COAST_TICKS = 5;
-    public static double TARGET_POSITION_TOLERANCE = 0.5;
+    public static double TARGET_POSITION_TOLERANCE = 0.65; //0.5;
     public static double alphaTX = 0.5;
     private double targetTx = 0;
     private double currentTrackOffset = 0;

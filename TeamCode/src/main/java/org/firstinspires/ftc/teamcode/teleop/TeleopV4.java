@@ -114,7 +114,7 @@ public class TeleopV4 extends LinearOpMode {
             if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
                 shooter.setFlywheelVelocity(2500);
                 robot.setHoodPos(0.6);
-                robot.setTransferPower(-0.8);
+                //robot.setTransferPower(-0.8);
             }
 
             shooter.update(robot.voltage.getVoltage());
@@ -144,6 +144,7 @@ public class TeleopV4 extends LinearOpMode {
 
             if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
                 robot.setIntakePower(1);
+                robot.setTransferPower(-0.7);
             }
 
             if (gamepad2.leftBumperWasPressed()){
