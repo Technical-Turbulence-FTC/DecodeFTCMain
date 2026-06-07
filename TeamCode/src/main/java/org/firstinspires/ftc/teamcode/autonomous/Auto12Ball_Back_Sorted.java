@@ -296,7 +296,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 }
                 break;
             case WAIT_SHOOT3:
-                // add line here to say "done auto'
+                // add line here to say "done auto"
                 break;
             default:
                 break;
