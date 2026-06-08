@@ -10,8 +10,8 @@ public class VelocityCommander {
     public static double yAccK = 0.025; // TODO: Tune
     public static boolean lockFront = false;
     public static boolean lockBack = false;
-    public static int farBound = 140;
-    public static int closeBound = 110;
+    public static int farBound = 138;
+    public static int closeBound = 112;
     public static double errorHoodAdjustment = 0.0005;
     private double hoodPos = 0.88;
     private double transferPow = -1;
@@ -24,6 +24,10 @@ public class VelocityCommander {
     final double veloC = -0.0739531;
     final double veloD = 5.16759;
     final double veloE = 62.45781;
+    final double veloF = -0.0000833333;
+    final double veloG = 0.0377857;
+    final double veloH = -4.55067;
+    final double veloI = 456.97486;
     private double distToRPM (double dist){
         double currentVelo;
         if (lockFront && dist > closeBound){
@@ -33,8 +37,8 @@ public class VelocityCommander {
         }
         if (dist < 54) {
             velo = 2000;
-        } else if (dist > 181){
-            velo = 3600;
+        } else if (dist > 174){
+            velo = 3700;
         } else {
             currentVelo = veloA*Math.pow(dist, 4) +
                     veloB*Math.pow(dist, 3) +
@@ -50,6 +54,8 @@ public class VelocityCommander {
     final double hoodB = -0.0000204165;
     final double hoodC = -0.00252089;
     final double hoodD = 1.06154;
+    final double hoodE = -0.002;
+    final double hoodF = 0.918;
     private void distToHood (double dist){
         if (dist > 174){
             hoodPos = 0.48;
@@ -69,9 +75,9 @@ public class VelocityCommander {
 
     private void distToTransferPow(double dist, double voltage){
         if (dist < 140){
-            transferPow = -0.8;
+            transferPow = -0.75;
         } else {
-            transferPow = -0.5;
+            transferPow = -0.6;
         }
     }
     public double getTransferPow(){return transferPow;}
@@ -94,7 +100,7 @@ public class VelocityCommander {
         distToTransferPow(predictedDist, voltage);
         distToRPM(predictedDist);
 
-        hoodPos += adjustHood(predictedDist, velocity, velo);
+//        hoodPos += adjustHood(predictedDist, velocity, velo);
     }
 
     public double adjustHood(double dist, double currentVelocity, double targetVelocity){

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
@@ -36,6 +37,8 @@ public class TeleopV4 extends LinearOpMode {
     private boolean firstTickFull = true;
     private boolean intakeFull = true;
     private boolean shooting = false;
+    public static int flywheelOffset = 0;
+    public static double hoodOffset = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -85,12 +88,15 @@ public class TeleopV4 extends LinearOpMode {
             if (gamepad1.triangleWasPressed()){
                 VelocityCommander.lockFront = true;
                 VelocityCommander.lockBack = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
             } else if (gamepad1.squareWasPressed()){
                 VelocityCommander.lockBack = true;
                 VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.SPINDEXER_BACK);
             } else if (gamepad1.circleWasPressed()){
                 VelocityCommander.lockBack = false;
                 VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
             }
             TELE.addLine("Initialization is done");
             TELE.addData("Starting Position", follower.getPose());
@@ -137,23 +143,29 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             if (shooter.getState() == Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR || shooter.getState() == Shooter.ShooterState.MANUAL){
-                shooter.setFlywheelVelocity(2500);
-                robot.setHoodPos(0.6);
+                shooter.setFlywheelVelocity(2500 + flywheelOffset);
+                robot.setHoodPos(0.6 + hoodOffset);
             }
 
             if (gamepad1.triangleWasPressed()){
                 VelocityCommander.lockFront = true;
                 VelocityCommander.lockBack = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+                spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.INTAKE);
                 TELE.addData("Front?:", true);
                 TELE.addData("Back?:", false);
             } else if (gamepad1.squareWasPressed()){
                 VelocityCommander.lockBack = true;
                 VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.SPINDEXER_BACK);
+                spindexerTransferIntake.setSortedIntakeMode(SpindexerTransferIntake.SortedIntakeStates.IDLE);
                 TELE.addData("Front?:", false);
                 TELE.addData("Back?:", true);
             } else if (gamepad1.circleWasPressed()){
                 VelocityCommander.lockBack = false;
                 VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+                spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.INTAKE);
                 TELE.addData("Front?:", false);
                 TELE.addData("Back?:", true);
             }
@@ -161,50 +173,65 @@ public class TeleopV4 extends LinearOpMode {
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
 
-            SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
+            if (VelocityCommander.lockBack){
+                robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Open);
+                if (gamepad1.leftBumperWasPressed()){
+                    spindexerTransferIntake.startBackShooting();
+                    firstTickFull = true;
+                }
 
-            if (gamepad1.leftBumperWasPressed() &&
-                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
-                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
-                            state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
-                            state == SpindexerTransferIntake.RapidMode.PULSE_OUT ||
-                            state == SpindexerTransferIntake.RapidMode.PULSE_IN ||
-                            state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
-
-                spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
-                intakeFull = false;
-                firstTickFull = true;
-                shooting = true;
-            }
-
-            if (state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT){
-                shooting = false;
-            }
-
-            if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed() && !shooting){
-                intakeFull = true;
+                if (spindexerTransferIntake.getSortedIntakeStates() == SpindexerTransferIntake.SortedIntakeStates.REVERSE && firstTickFull){
+                    gamepad1.rumble(100);
+                    firstTickFull = false;
+                }
+                TELE.addData("Intake State", spindexerTransferIntake.getSortedIntakeStates());
             } else {
-                intakeFull = false;
-                firstTickFull = true;
-            }
+                robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+                SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
 
-            if (intakeFull && firstTickFull){
-                gamepad1.rumble(100);
-                firstTickFull = false;
-            }
+                if (gamepad1.leftBumperWasPressed() &&
+                        (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                                state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
+                                state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
+                                state == SpindexerTransferIntake.RapidMode.PULSE_OUT ||
+                                state == SpindexerTransferIntake.RapidMode.PULSE_IN ||
+                                state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
 
-            if (gamepad1.right_trigger > 0.5 &&
-                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
-                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
+                    spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                    intakeFull = false;
+                    firstTickFull = true;
+                    shooting = true;
+                }
 
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.HOLD_BALLS
-                );
-            }
+                if (state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT){
+                    shooting = false;
+                }
 
-            if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
-                robot.setIntakePower(1);
-                robot.setTransferPower(-0.7);
+                if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed() && !shooting){
+                    intakeFull = true;
+                } else {
+                    intakeFull = false;
+                    firstTickFull = true;
+                }
+
+                if (intakeFull && firstTickFull){
+                    gamepad1.rumble(100);
+                    firstTickFull = false;
+                }
+
+                if (gamepad1.right_trigger > 0.5 &&
+                        (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                                state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
+
+                    spindexerTransferIntake.setRapidMode(
+                            SpindexerTransferIntake.RapidMode.HOLD_BALLS
+                    );
+                }
+
+                if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
+                    robot.setIntakePower(1);
+                    robot.setTransferPower(-0.7);
+                }
             }
 
             if (gamepad2.leftBumperWasPressed()){
@@ -217,6 +244,29 @@ public class TeleopV4 extends LinearOpMode {
                 parkTilter.park();
             } else if (gamepad1.dpad_up) {
                 parkTilter.unpark();
+            }
+
+            if (gamepad2.leftBumperWasPressed()){
+                limelightUsed = false;
+            } else if (gamepad2.rightBumperWasPressed()){
+                limelightUsed = true;
+            }
+
+            if (gamepad2.dpadUpWasPressed()){
+                hoodOffset+=0.02;
+            } else if (gamepad2.dpadDownWasPressed()){
+                hoodOffset-=0.02;
+            }
+
+            if (gamepad2.dpadRightWasPressed()){
+                flywheelOffset+=100;
+            } else if (gamepad2.dpadLeftWasPressed()){
+                flywheelOffset-=100;
+            }
+
+            if (gamepad2.crossWasPressed()){
+                flywheelOffset = 0;
+                hoodOffset = 0;
             }
 
             loopTimes.loop();

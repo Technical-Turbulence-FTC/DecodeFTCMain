@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.constants.Color;
+import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
 
 @Config
 public class Shooter {
@@ -138,8 +139,8 @@ public class Shooter {
 
                 flywheelVelocity = commander.getPredictedRPM();
 
-                robot.setHoodPos(commander.getHoodPredicted());
-                fly.manageFlywheel(flywheelVelocity);
+                robot.setHoodPos(commander.getHoodPredicted() + TeleopV4.hoodOffset);
+                fly.manageFlywheel(flywheelVelocity + TeleopV4.flywheelOffset);
                 fly.setF(voltage);
                 break;
             case READ_OBELISK:
@@ -180,9 +181,8 @@ public class Shooter {
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
-                robot.setHoodPos(commander.getHoodPredicted());
-
-                fly.manageFlywheel(flywheelVelocity);
+                robot.setHoodPos(commander.getHoodPredicted() + TeleopV4.hoodOffset);
+                fly.manageFlywheel(flywheelVelocity + TeleopV4.flywheelOffset);
                 break;
 
             case MANUAL_FLYWHEEL_TRACK_TURR:

@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
+import org.firstinspires.ftc.teamcode.tests.NewShooterTest;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 
@@ -412,6 +413,8 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 limelightUsed = true;
                 park.unpark();
             }
+
+            NewShooterTest.transferPower = -0.8;
 
             TELE.addData("Red Alliance?", Color.redAlliance);
             TELE.addData("Initialized Robot? (Don't change this until alliance is selected)", initializeRobot);

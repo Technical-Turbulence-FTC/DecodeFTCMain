@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -13,7 +11,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
+import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
+
+import static org.firstinspires.ftc.teamcode.utilsv2.Turret.limelightUsed;
 
 @TeleOp
 @Config
@@ -28,11 +29,14 @@ public class NewShooterTest extends LinearOpMode {
     Flywheel flywheel;
     VelocityCommander commander;
     ParkTilter parkTilter;
+    MeasuringLoopTimes loopTimes;
 
+    private boolean firstTickFull = true;
+    private boolean intakeFull = true;
+    private boolean shooting = false;
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
     public static double transferPower = -0.8;
-    public static boolean overrideTransferPower = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,12 +55,16 @@ public class NewShooterTest extends LinearOpMode {
         follower.setStartingPose(new Pose(0,0,0));
         sleep(500);
         follower.setPose(new Pose(0,0,0));
+        follower.update();
 
         flywheel = new Flywheel(robot);
         turret = new Turret(robot);
 
         parkTilter = new ParkTilter(robot);
         parkTilter.unpark();
+
+        loopTimes = new MeasuringLoopTimes();
+        loopTimes.init();
 
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
@@ -69,8 +77,29 @@ public class NewShooterTest extends LinearOpMode {
 
         limelightUsed = true;
 
-        TELE.addLine("Initialization Complete");
+        TELE.addLine("Initialization is done");
         TELE.update();
+
+        while (opModeInInit()){
+            if (gamepad1.triangleWasPressed()){
+                VelocityCommander.lockFront = true;
+                VelocityCommander.lockBack = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+            } else if (gamepad1.squareWasPressed()){
+                VelocityCommander.lockBack = true;
+                VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.SPINDEXER_BACK);
+                spindexerTransferIntake.setSortedIntakeMode(SpindexerTransferIntake.SortedIntakeStates.IDLE);
+            } else if (gamepad1.circleWasPressed()){
+                VelocityCommander.lockBack = false;
+                VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+            }
+            TELE.addLine("Initialization is done");
+            TELE.addData("Front?:", VelocityCommander.lockFront);
+            TELE.addData("Back?:", VelocityCommander.lockBack);
+            TELE.update();
+        }
 
         waitForStart();
 
@@ -97,6 +126,7 @@ public class NewShooterTest extends LinearOpMode {
             }
 
             follower.update();
+            Pose currentPose = follower.getPose();
 
             if (gamepad1.dpadLeftWasPressed()){
                 shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
@@ -111,40 +141,91 @@ public class NewShooterTest extends LinearOpMode {
                 robot.setHoodPos(hoodPos);
             }
 
+            if (gamepad1.triangleWasPressed()){
+                VelocityCommander.lockFront = true;
+                VelocityCommander.lockBack = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+                TELE.addData("Front?:", true);
+                TELE.addData("Back?:", false);
+            } else if (gamepad1.squareWasPressed()){
+                VelocityCommander.lockBack = true;
+                VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.SPINDEXER_BACK);
+                TELE.addData("Front?:", false);
+                TELE.addData("Back?:", true);
+            } else if (gamepad1.circleWasPressed()){
+                VelocityCommander.lockBack = false;
+                VelocityCommander.lockFront = false;
+                spindexerTransferIntake.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
+                TELE.addData("Front?:", false);
+                TELE.addData("Back?:", true);
+            }
 
-//            shooter.setTurretPosition(turretPos);
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
+
+            if (VelocityCommander.lockBack){
+                if (gamepad1.leftBumperWasPressed() && spindexerTransferIntake.getSortedIntakeStates() == SpindexerTransferIntake.SortedIntakeStates.REVERSE){
+                    spindexerTransferIntake.startBackShooting();
+                    firstTickFull = true;
+                }
+
+                if (spindexerTransferIntake.getSortedIntakeStates() == SpindexerTransferIntake.SortedIntakeStates.REVERSE && firstTickFull){
+                    gamepad1.rumble(100);
+                    firstTickFull = false;
+                }
+            } else {
+                SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
+
+                if (gamepad1.leftBumperWasPressed() &&
+                        (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                                state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
+                                state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
+                                state == SpindexerTransferIntake.RapidMode.PULSE_OUT ||
+                                state == SpindexerTransferIntake.RapidMode.PULSE_IN ||
+                                state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
+
+                    spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                    intakeFull = false;
+                    firstTickFull = true;
+                    shooting = true;
+                }
+
+                if (state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT){
+                    shooting = false;
+                }
+
+                if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed() && !shooting){
+                    intakeFull = true;
+                } else {
+                    intakeFull = false;
+                    firstTickFull = true;
+                }
+
+                if (intakeFull && firstTickFull){
+                    gamepad1.rumble(100);
+                    firstTickFull = false;
+                }
+
+                if (gamepad1.right_trigger > 0.5 &&
+                        (state == SpindexerTransferIntake.RapidMode.INTAKE ||
+                                state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
+
+                    spindexerTransferIntake.setRapidMode(
+                            SpindexerTransferIntake.RapidMode.HOLD_BALLS
+                    );
+                }
+
+                if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
+                    robot.setIntakePower(1);
+                    robot.setTransferPower(-0.7);
+                }
+            }
 
             if (gamepad2.leftBumperWasPressed()){
                 limelightUsed = false;
             } else if (gamepad2.rightBumperWasPressed()){
                 limelightUsed = true;
-            }
-
-            SpindexerTransferIntake.RapidMode state = spindexerTransferIntake.getRapidState();
-
-            if (gamepad1.leftBumperWasPressed() &&
-                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
-                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF ||
-                            state == SpindexerTransferIntake.RapidMode.BEFORE_PULSE_OUT ||
-                            state == SpindexerTransferIntake.RapidMode.PULSE_OUT ||
-                            state == SpindexerTransferIntake.RapidMode.PULSE_IN ||
-                            state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
-
-                spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
-            }
-
-            if (gamepad1.right_trigger > 0.5 &&
-                    (state == SpindexerTransferIntake.RapidMode.INTAKE ||
-                            state == SpindexerTransferIntake.RapidMode.TRANSFER_OFF)) {
-
-                spindexerTransferIntake.setRapidMode(
-                        SpindexerTransferIntake.RapidMode.HOLD_BALLS
-                );
-            }
-            if (gamepad1.right_bumper && state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT) {
-                robot.setIntakePower(1);
             }
 
             if (gamepad1.dpad_down){
@@ -153,14 +234,21 @@ public class NewShooterTest extends LinearOpMode {
                 parkTilter.unpark();
             }
 
+            loopTimes.loop();
+//            TELE.addData("Loop Time Average", loopTimes.getAvgLoopTime());
+//            TELE.addData("Loop Time Max", loopTimes.getMaxLoopTimeOneMin());
+//            TELE.addData("Loop Time Min", loopTimes.getMinLoopTimeOneMin());
+//
             TELE.addData("Distance From Goal", commander.getDistance());
-            TELE.addData("Hood Position", commander.getHoodPredicted());
-            TELE.addData("Transfer Power", commander.getTransferPow());
+//            TELE.addData("Hood Position", commander.getHoodPredicted());
+//            TELE.addData("Transfer Power", robot.transfer.getPower());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
-            TELE.addData("Manuel Velocity RPM", flywheelVelo);
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
-            TELE.addData("TX:", turret.getTX());
-
+//
+//            TELE.addData("Current Position", currentPose);
+//
+//            TELE.addData("Current LL Pipeline", turret.pipeline());
+//
             TELE.update();
         }
 

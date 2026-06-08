@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
+import org.firstinspires.ftc.teamcode.tests.NewShooterTest;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 
@@ -37,8 +38,8 @@ public class Auto15Ball_Back extends LinearOpMode {
     SpindexerTransferIntake spindexer;
 
     // Wait Times
-    public static double rapidWaitTime = 0.5;
-    public static double rapidShootTime = 0.8;
+    public static double rapidWaitTime = 0.7;
+    public static double rapidShootTime = 2.6;
     public static double loadPickupTime = 3;
 
     // Initialize path state machine
@@ -51,20 +52,20 @@ public class Auto15Ball_Back extends LinearOpMode {
     PathState pathState = PathState.WAIT_VELOCITY;
 
     // Poses
-    public static double startPoseX = 12, startPoseY = -64, startPoseH = 90;
+    public static double startPoseX = 16, startPoseY = -64, startPoseH = 90;
     public static double pickup3ControlX = 12, pickup3ControlY = -37;
     public static double pickup3X = 61, pickup3Y = -37, pickup3H = 0;
-    public static double shoot3X = 16, shoot3Y = -57, shoot3H = 0;
+    public static double shoot3X = 16, shoot3Y = -55, shoot3H = 0;
     public static double pickupLoadControlX = 21.23654066437572, pickupLoadControlY = -62.311626575028637;
     public static double pickupLoadX = 63, pickupLoadY = -63, pickupLoadH = 0;
     public static double shootLoadControlX = 21.23654066437572, shootLoadControlY = -62.311626575028637;
-    public static double shootLoadX = 16, shootLoadY = -57, shootLoadH = 0;
+    public static double shootLoadX = 16, shootLoadY = -55, shootLoadH = 0;
     public static double intakeGateControl1X = 51.9656357388316, intakeGateControl1Y = -65.506277205040073;
     public static double intakeGateControl2X = 60.13459335624285, intakeGateControl2Y = -67.300458190148911;
-    public static double intakeGateX = 59, intakeGateY = -12, intakeGateH = 90;
+    public static double intakeGateX = 63, intakeGateY = -35, intakeGateH = 90;
     public static double shootGateControlX = 53.8705612829324, shootGateControlY = -35.14501718213059;
-    public static double shootGateX = 16, shootGateY = -57, shootGateH = 0;
-    public static double leaveX = 40, leaveY = 14, leaveH = 0;
+    public static double shootGateX = 16, shootGateY = -55, shootGateH = 0;
+    public static double leaveX = 36, leaveY = -58, leaveH = 0;
     double[] xPoses = {startPoseX, pickup3ControlX, pickup3X, shoot3X,
             pickupLoadControlX, pickupLoadX, shootLoadControlX, shootLoadX,
             intakeGateControl1X, intakeGateControl2X, intakeGateX, shootGateControlX, shootGateX, leaveX};
@@ -146,29 +147,27 @@ public class Auto15Ball_Back extends LinearOpMode {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         switch(pathState){
             case WAIT_VELOCITY:
-                spindexer.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
-                shooter.setFlywheelVelocity(2400);
-                robot.setHoodPos(0.64);
+                shooter.setFlywheelVelocity(3250);
+                robot.setHoodPos(0.65);
                 if (flywheel.getSteady()){
                     startAuto++;
                 }
-                if (startAuto > 5){
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                if (startAuto > 6){
+                    spindexer.startBackShooting();
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT0;
                 }
+                timeStamp = currentTime;
                 break;
             case WAIT_SHOOT0:
-                if (currentTime - timeStamp > rapidShootTime ||
-                        (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
-                                spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
+                if (currentTime - timeStamp > rapidShootTime){
                     follower.followPath(startPose_pickup3, false);
                     pathState = PathState.PICKUP3;
                 }
                 break;
             case PICKUP3:
                 if (!follower.isBusy()){
-                    follower.followPath(pickup3_shoot3, false);
+                    follower.followPath(pickup3_shoot3, true);
                     pathState = PathState.DRIVE_SHOOT3;
                     timeStamp = currentTime;
                 }
@@ -177,15 +176,13 @@ public class Auto15Ball_Back extends LinearOpMode {
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT3;
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                    spindexer.startBackShooting();
                 } else if (follower.isBusy()){
                     timeStamp = currentTime;
                 }
                 break;
             case WAIT_SHOOT3:
-                if (currentTime - timeStamp > rapidShootTime ||
-                        (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
-                                spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
+                if (currentTime - timeStamp > rapidShootTime){
                     follower.followPath(shoot3_pickupLoad, false);
                     pathState = PathState.PICKUP_LOAD;
                     timeStamp = currentTime;
@@ -193,7 +190,7 @@ public class Auto15Ball_Back extends LinearOpMode {
                 break;
             case PICKUP_LOAD:
                 if (currentTime - timeStamp > loadPickupTime){
-                    follower.followPath(pickupLoad_shootLoad, false);
+                    follower.followPath(pickupLoad_shootLoad, true);
                     pathState = PathState.DRIVE_SHOOT_LOAD;
                     timeStamp = currentTime;
                 }
@@ -202,15 +199,13 @@ public class Auto15Ball_Back extends LinearOpMode {
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT_LOAD;
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                    spindexer.startBackShooting();
                 } else if (follower.isBusy()){
                     timeStamp = currentTime;
                 }
                 break;
             case WAIT_SHOOT_LOAD:
-                if (currentTime - timeStamp > rapidShootTime ||
-                        (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
-                                spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
+                if (currentTime - timeStamp > rapidShootTime){
                     follower.followPath(shootLoad_intakeGate, false);
                     pathState = PathState.INTAKE_GATE;
                     timeStamp = currentTime;
@@ -218,7 +213,7 @@ public class Auto15Ball_Back extends LinearOpMode {
                 break;
             case INTAKE_GATE:
                 if (!follower.isBusy()){
-                    follower.followPath(intakeGate_shootGate, false);
+                    follower.followPath(intakeGate_shootGate, true);
                     pathState = PathState.DRIVE_SHOOT_GATE;
                     timeStamp = currentTime;
                 }
@@ -227,19 +222,17 @@ public class Auto15Ball_Back extends LinearOpMode {
                 if (!follower.isBusy()  && currentTime - timeStamp > rapidWaitTime){
                     timeStamp = currentTime;
                     pathState = PathState.WAIT_SHOOT_GATE;
-                    spindexer.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                    spindexer.startBackShooting();
                 } else if (follower.isBusy()){
                     timeStamp = currentTime;
                 }
                 break;
             case WAIT_SHOOT_GATE:
-                if (currentTime - timeStamp > rapidShootTime ||
-                        (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
-                                spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shootGate_intakeGate, false);
-                    pathState = PathState.INTAKE_GATE;
+                if (currentTime - timeStamp > rapidShootTime){
+//                    follower.followPath(shootGate_intakeGate, false);
+                    follower.followPath(shootGate_leave, true);
+                    pathState = PathState.LEAVE;
                     timeStamp = currentTime;
-                    // TODO: add logic for leave
                 }
                 break;
             case LEAVE:
@@ -285,14 +278,14 @@ public class Auto15Ball_Back extends LinearOpMode {
         while (opModeInInit()){
 
             park.unpark();
-            robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
 
             follower.update();
 
             if (gamepad1.squareWasPressed()){
                 robot.setSpinPos(ServoPositions.spindexer_A2);
-                robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Closed);
-                robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+                robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Open);
+                robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Closed);
+                robot.setTurretPos(Turret.neutralPosition);
             }
 
             if (gamepad1.crossWasPressed() && !initializeRobot){
@@ -319,6 +312,8 @@ public class Auto15Ball_Back extends LinearOpMode {
                 limelightUsed = true;
                 park.unpark();
             }
+
+            NewShooterTest.transferPower = -0.6;
 
             TELE.addData("Red Alliance?", Color.redAlliance);
             TELE.addData("Initialized Robot? (Don't change this until alliance is selected)", initializeRobot);

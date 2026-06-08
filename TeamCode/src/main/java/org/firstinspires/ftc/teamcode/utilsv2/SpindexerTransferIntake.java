@@ -179,7 +179,9 @@ public class SpindexerTransferIntake {
     public enum SpindexerMode {
         RAPID,
         SORTED,
-        SHOOT_SORTED
+        SHOOT_SORTED,
+        SPINDEXER_BACK,
+        SHOOT_BACK
     }
 
     public enum BallStates {
@@ -241,6 +243,15 @@ public class SpindexerTransferIntake {
                 SpindexerMode.SHOOT_SORTED
         );
     }
+    public void startBackShooting(){
+        setShootState(
+                SortedShootState.IDLE
+        );
+
+        setSpindexerMode(
+                SpindexerMode.SHOOT_BACK
+        );
+    }
     public void setRapidMode(RapidMode newMode) {
         if (rapidMode != newMode) {
             rapidMode = newMode;
@@ -262,6 +273,10 @@ public class SpindexerTransferIntake {
     public RapidMode getRapidState() {
         return this.rapidMode;
     }
+
+    public SpindexerMode getSpindexerMode(){return this.mode;}
+
+    public SortedIntakeStates getSortedIntakeStates(){return this.sortedIntakeStates;}
 
     private long stateTime() {
         return System.currentTimeMillis() - stateStartTime;
@@ -538,20 +553,130 @@ public class SpindexerTransferIntake {
                         }
                         break;
                     case REVERSE:
-                        robot.setTransferPower(-0.3);
-                        robot.setIntakePower(-0.1);
+                        if (ballTicks > 4){
+                            robot.setTransferPower(0);
+                        } else if (ballTicks > 1){
+                            robot.setTransferPower(1);
+                        } else {
+                            robot.setTransferPower(-1);
+                        }
+                        ballTicks++;
+                        robot.setIntakePower(-0.7);
+                        robot.setSpinPos(ServoPositions.spindexer_StopShooting);
+                        break;
+                }
+
+
+                break;
+            case SPINDEXER_BACK:
+
+                robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Open);
+
+                switch (sortedIntakeStates) {
+                    case NOTHING:
+                        break;
+                    case IDLE:
+                        ballColors[0] = BallStates.UNKNOWN;
+                        ballColors[1] = BallStates.UNKNOWN;
+                        ballColors[2] = BallStates.UNKNOWN;
+                        robot.setRapidFireBlockerPos(
+                                ServoPositions.rapidFireBlocker_Open
+                        );
+                        robot.setSpindexBlockerPos(
+                                ServoPositions.spindexBlocker_Closed
+                        );
+                        robot.setSpinPos(
+                                ServoPositions.spindexer_A1
+                        );
+                        robot.setTransferServoPos(
+                                ServoPositions.transferServo_out
+                        );
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-0.7);
+                        if (sortedStateTime() > 200) {
+                            setSortedIntakeMode(SortedIntakeStates.INTAKE_1);
+                        }
+                        break;
+                    case INTAKE_1:
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-0.7);
+                        if (robot.insideBeam.isPressed()) {
+                            ballTicks++;
+                            if (ballTicks > 0) {
+                                robot.setSpinPos(ServoPositions.spindexer_A2);
+                                setSortedIntakeMode(SortedIntakeStates.DELAY_1);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
+                        }
+                        break;
+                    case DELAY_1:
+                        robot.setSpinPos(ServoPositions.spindexer_A2);
+                        if (sortedStateTime() > spinMovementTime) {
+                            setSortedIntakeMode(SortedIntakeStates.INTAKE_2);
+                        }
+                        break;
+                    case INTAKE_2:
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-1);
+                        if (robot.insideBeam.isPressed()) {
+                            ballTicks++;
+                            if (ballTicks > 0) {
+                                robot.setSpinPos(ServoPositions.spindexer_A3);
+                                setSortedIntakeMode(SortedIntakeStates.DELAY_2);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
+                        }
+                        break;
+                    case DELAY_2:
+
+                        robot.setSpinPos(
+                                ServoPositions.spindexer_A3
+                        );
+
+                        if (sortedStateTime() > spinMovementTime) {
+                            setSortedIntakeMode(
+                                    SortedIntakeStates.INTAKE_3
+                            );
+                        }
+
+                        break;
+                    case INTAKE_3:
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-1);
+                        if (robot.insideBeam.isPressed()) {
+                            ballTicks++;
+                            if (ballTicks > 0) {
+                                setSortedIntakeMode(SortedIntakeStates.REVERSE);
+                                ballTicks = 0;
+                                greenTicks = 0;
+                            }
+                        }
+                        break;
+                    case REVERSE:
+                        if (ballTicks > 3){
+                            robot.setTransferPower(0);
+                        } else if (ballTicks > 1){
+                            robot.setTransferPower(1);
+                        } else {
+                            robot.setTransferPower(-1);
+                        }
+                        ballTicks++;
+                        robot.setIntakePower(-0.7);
+                        robot.setSpinPos(ServoPositions.spindexer_StopShooting);
                         break;
                 }
 
 
                 break;
             case SHOOT_SORTED:
-
+                ballTicks = 0;
                 robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Open);
                 if (Shooter.manualFlywheel) {
                     robot.setTransferPower(NewShooterTest.transferPower);
                 } else {
-                    robot.setTransferPower(commander.getTransferPow());
+                    robot.setTransferPower(-0.8);
                 }
 
 
@@ -733,6 +858,203 @@ public class SpindexerTransferIntake {
                             );
 
                             mode = SpindexerMode.SORTED;
+                        }
+
+                        break;
+
+                }
+
+
+                break;
+            case SHOOT_BACK:
+                ballTicks = 0;
+
+                robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Open);
+                if (Shooter.manualFlywheel) {
+                    robot.setTransferPower(NewShooterTest.transferPower);
+                } else {
+                    robot.setTransferPower(-0.8);
+                }
+
+
+                switch (shootState) {
+                    case IDLE:
+                        shootOrder = buildShootOrder(
+                                ballColors,
+                                desiredPattern
+                        );
+
+                        setShootState(SortedShootState.MOVE_TO_1);
+                        mode = SpindexerMode.SHOOT_SORTED;
+                        break;
+                    case MOVE_TO_1:
+
+                        robot.setSpinPos(ServoPositions.spindexer_A3);
+                        robot.setRapidFireBlockerPos(
+                                ServoPositions.rapidFireBlocker_Open
+                        );
+                        robot.setSpindexBlockerPos(
+                                ServoPositions.spindexBlocker_Closed
+                        );
+
+
+                        setShootState(
+                                SortedShootState.WAIT_FOR_1
+                        );
+
+                        break;
+                    case WAIT_FOR_1:
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.SHOOT_1
+                            );
+                        }
+
+                        break;
+
+                    case SHOOT_1:
+
+                        robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+                        robot.setTransferServoPos(ServoPositions.transferServo_in);
+
+
+                        if (shootStateTime() > 300) {
+
+                            setShootState(
+                                    SortedShootState.RETRACT_1
+                            );
+                        }
+
+                        break;
+                    case RETRACT_1:
+
+                        robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Closed);
+                        robot.setTransferServoPos(ServoPositions.transferServo_out);
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.MOVE_TO_2
+                            );
+                        }
+
+                        break;
+                    case MOVE_TO_2:
+
+                        robot.setSpinPos(ServoPositions.spindexer_A2);
+
+                        setShootState(
+                                SortedShootState.WAIT_FOR_2
+                        );
+
+                        break;
+                    case WAIT_FOR_2:
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.SHOOT_2
+                            );
+                        }
+
+                        break;
+                    case SHOOT_2:
+
+                        robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+                        robot.setTransferServoPos(ServoPositions.transferServo_in);
+
+                        if (shootStateTime() > 300) {
+
+                            setShootState(
+                                    SortedShootState.RETRACT_2
+                            );
+                        }
+
+                        break;
+                    case RETRACT_2:
+
+                        robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Closed);
+                        robot.setTransferServoPos(ServoPositions.transferServo_out);
+
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.MOVE_TO_3
+                            );
+                        }
+
+                        break;
+                    case MOVE_TO_3:
+
+                        robot.setSpinPos(ServoPositions.spindexer_A1);
+
+                        setShootState(
+                                SortedShootState.WAIT_FOR_3
+                        );
+
+                        break;
+                    case WAIT_FOR_3:
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.SHOOT_3
+                            );
+                        }
+
+                        break;
+                    case SHOOT_3:
+
+                        robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+                        robot.setTransferServoPos(ServoPositions.transferServo_in);
+
+                        if (shootStateTime() > 300) {
+
+                            setShootState(
+                                    SortedShootState.RETRACT_3
+                            );
+                        }
+
+                        break;
+                    case RETRACT_3:
+
+                        robot.setTransferServoPos(ServoPositions.transferServo_out);
+
+                        if (shootStateTime() > 150) {
+
+                            setShootState(
+                                    SortedShootState.DONE
+                            );
+                        }
+
+                        break;
+                    case DONE:
+
+                        robot.setRapidFireBlockerPos(
+                                ServoPositions.rapidFireBlocker_Open
+                        );
+                        robot.setSpindexBlockerPos(
+                                ServoPositions.spindexBlocker_Closed
+                        );
+                        robot.setSpinPos(
+                                ServoPositions.spindexer_A1
+                        );
+                        robot.setTransferServoPos(
+                                ServoPositions.transferServo_out
+                        );
+                        robot.setIntakePower(1);
+                        robot.setTransferPower(-0.7);
+
+                        if (shootStateTime() > 250) {
+
+                            setSortedIntakeMode(
+                                    SortedIntakeStates.IDLE
+                            );
+
+                            mode = SpindexerMode.SPINDEXER_BACK;
                         }
 
                         break;

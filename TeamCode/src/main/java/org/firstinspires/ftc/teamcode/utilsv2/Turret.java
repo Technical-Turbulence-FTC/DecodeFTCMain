@@ -25,8 +25,8 @@ public class Turret {
     PIDController bearingPID;
     boolean bearingAligned = false;
     public int LL_COAST_TICKS = 5;
-    public static double TARGET_POSITION_TOLERANCE = 0.65;
-    public static double alphaTX = 0.5;
+    public static double TARGET_POSITION_TOLERANCE = 1.5;
+    public static double alphaTX = 0.3;
     private double targetTx = 0;
     private double currentTrackOffset = 0;
     private double llCoast = 0;

@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.teleop.TeleopV4;
+import org.firstinspires.ftc.teamcode.tests.NewShooterTest;
 import org.firstinspires.ftc.teamcode.utilsv2.*;
 import org.firstinspires.ftc.teamcode.utils.MeasuringLoopTimes;
 
@@ -368,6 +369,8 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 limelightUsed = true;
                 park.unpark();
             }
+
+            NewShooterTest.transferPower = -0.8;
 
             if (initializeRobot){
                 //add obelisk read here

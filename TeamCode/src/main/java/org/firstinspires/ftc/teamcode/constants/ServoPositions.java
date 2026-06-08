@@ -16,6 +16,7 @@ public class ServoPositions {
     public static double spindexer_A3 = 0.54;
     public static double spindexer_B1 = 0.73;
     public static double spindexer_B2 = 0.92;
+    public static double spindexer_StopShooting = 0.44;
 
 
     public static double spindexer_intakePos1 = 0.18; //0.13;
