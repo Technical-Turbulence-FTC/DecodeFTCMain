@@ -34,6 +34,8 @@ public class TeleopV4 extends LinearOpMode {
     public static Pose teleStart = new Pose(0,0,0);
 
     private boolean firstTickFull = true;
+    private boolean intakeFull = true;
+    private boolean shooting = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -102,6 +104,7 @@ public class TeleopV4 extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        int emptyTicks = 0;
         while (opModeIsActive()) {
             //Drivetrain
             drivetrain.drive(
@@ -141,18 +144,18 @@ public class TeleopV4 extends LinearOpMode {
             if (gamepad1.triangleWasPressed()){
                 VelocityCommander.lockFront = true;
                 VelocityCommander.lockBack = false;
-                TELE.addData("Front?:", VelocityCommander.lockFront);
-                TELE.addData("Back?:", VelocityCommander.lockBack);
+                TELE.addData("Front?:", true);
+                TELE.addData("Back?:", false);
             } else if (gamepad1.squareWasPressed()){
                 VelocityCommander.lockBack = true;
                 VelocityCommander.lockFront = false;
-                TELE.addData("Front?:", VelocityCommander.lockFront);
-                TELE.addData("Back?:", VelocityCommander.lockBack);
+                TELE.addData("Front?:", false);
+                TELE.addData("Back?:", true);
             } else if (gamepad1.circleWasPressed()){
                 VelocityCommander.lockBack = false;
                 VelocityCommander.lockFront = false;
-                TELE.addData("Front?:", VelocityCommander.lockFront);
-                TELE.addData("Back?:", VelocityCommander.lockBack);
+                TELE.addData("Front?:", false);
+                TELE.addData("Back?:", true);
             }
 
             shooter.update(robot.voltage.getVoltage());
@@ -169,11 +172,23 @@ public class TeleopV4 extends LinearOpMode {
                             state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
 
                 spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
-                SpindexerTransferIntake.intakeFull = false;
+                intakeFull = false;
+                firstTickFull = true;
+                shooting = true;
+            }
+
+            if (state != SpindexerTransferIntake.RapidMode.OPEN_GATE && state != SpindexerTransferIntake.RapidMode.SHOOT){
+                shooting = false;
+            }
+
+            if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed() && !shooting){
+                intakeFull = true;
+            } else {
+                intakeFull = false;
                 firstTickFull = true;
             }
 
-            if (SpindexerTransferIntake.intakeFull && firstTickFull){
+            if (intakeFull && firstTickFull){
                 gamepad1.rumble(100);
                 firstTickFull = false;
             }

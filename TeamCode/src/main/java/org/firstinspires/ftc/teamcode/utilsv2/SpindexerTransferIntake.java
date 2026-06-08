@@ -274,7 +274,6 @@ public class SpindexerTransferIntake {
     private int greenTicks = 0;
     private int ballTicks = 0;
     private int holdBallsTicker = 0;
-    public static boolean intakeFull = true;
     public void update() {
 
 //        TELE.addData("Sorted State", sortedIntakeStates);
@@ -376,7 +375,6 @@ public class SpindexerTransferIntake {
                             robot.setTransferPower(0);
                             robot.setIntakePower(0.1);
                             robot.setTransferServoPos(ServoPositions.transferServo_in);
-                            intakeFull = true;
 
                         } else {
                             holdBallsTicker++;
