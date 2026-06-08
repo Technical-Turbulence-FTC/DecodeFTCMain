@@ -35,13 +35,16 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
     Flywheel flywheel;
     VelocityCommander commander;
     SpindexerTransferIntake spindexer;
+    double runtime = 0;
 
     // Wait Times
-    public static double rapidWaitTime = 0.5;
-    public static double rapidShootTime = 0.8;
+    public static double rapidWaitTime = 0.4;
+    public static double rapidShootTime = 0.45;
     public static double openGate1Time = 1.5;
     public static double openGate2Time = 1.5;
-    public static double openGateWaitTime = 5;
+    public static double openGateWaitTimeMax = 3;
+    public static double openGateWaitTimeMin = 1.75;
+    public static int maxLoopCycles = 3;
 
     // Initialize path state machine
     private enum PathState {
@@ -53,46 +56,48 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
     PathState pathState = PathState.DRIVE_SHOOT0;
 
     // Poses
-    public static double startPoseX = 55, startPoseY = 38, startPoseH = -90;
-    public static double shoot0X = 18, shoot0Y = 18, shoot0H = -30;
-    public static double pickup1ControlX = 101.53321878579611, pickup1ControlY = 81.84077892325314;
-    public static double pickup1X = 54, pickup1Y = 10, pickup1H = 0;
+    public static double startPoseX = 55, startPoseY = 39, startPoseH = 0;
+    public static double shoot0X = 25, shoot0Y = 18, shoot0H = 0;
+    public static double pickup1ControlX = 29.53321878579611, pickup1ControlY = 9.84077892325314;
+    public static double pickup1X = 50, pickup1Y = 10, pickup1H = 0;
     public static double openGate1ControlX = 43.82989690721648, openGate1ControlY = 3.86540664375714;
     public static double openGate1X = 59, openGate1Y = 2, openGate1H = 0;
     public static double shoot1ControlX = 40, shoot1ControlY = 3;
-    public static double shoot1X = 18, shoot1Y = 11, shoot1H = -30;
-    public static double pickup2ControlX = 18, pickup2ControlY = -11;
+    public static double shoot1X = 25, shoot1Y = 11, shoot1H = -30;
+    public static double pickup2ControlX = 18, pickup2ControlY = -18;
     public static double pickup2X = 61, pickup2Y = -14.5, pickup2H = 0;
     public static double openGate2ControlX = 45.9782359679267, openGate2ControlY = -15.106643757159245;
     public static double openGate2X = 57, openGate2Y = -8, openGate2H = 0;
     public static double shoot2ControlX = 57, shoot2ControlY = -8;
-    public static double shoot2X = 18, shoot2Y = 11, shoot2H = -30;
-    public static double intakeGateControlX = 59, intakeGateControlY = 60;
-    public static double intakeGateX = 59, intakeGateY = -12, intakeGateH = 20;
-    public static double shootGateControlX = 59, shootGateControlY = -12;
-    public static double shootGateX = 18, shootGateY = 11, shootGateH = -30;
-    public static double shootLeaveControlX = 59, shootLeaveControlY = -12;
-    public static double shootLeaveX = 14, shootLeaveY = 40, shootLeaveH = -50;
+    public static double shoot2X = 25, shoot2Y = 11, shoot2H = -30;
+    public static double intakeGateControlX = 61, intakeGateControlY = -11;
+    public static double intakeGateX = 61, intakeGateY = -11, intakeGateH = 20;
+    public static double shootGateControlX = 56, shootGateControlY = -10;
+    public static double shootGateX = 25, shootGateY = 11, shootGateH = -30;
+    public static double shootLeaveControlX = 56, shootLeaveControlY = -10;
+    public static double shootLeaveX = 16, shootLeaveY = 36, shootLeaveH = -50;
+    public static double leaveX = 45, leaveY = 10, leaveH = 0;
+    public static double awayFromGateX = 40, awayFromGateY = -12, awayFromGateH = 0;
     double[] xPoses = {startPoseX, shoot0X,
             pickup1ControlX, pickup1X, openGate1ControlX, openGate1X, shoot1ControlX, shoot1X,
             pickup2ControlX, pickup2X, openGate2ControlX, openGate2X, shoot2ControlX, shoot2X,
             intakeGateControlX, intakeGateX, shootGateControlX, shootGateX,
-            shootLeaveControlX, shootLeaveX};
+            shootLeaveControlX, shootLeaveX, leaveX, awayFromGateX};
     double[] yPoses = {startPoseY, shoot0Y,
             pickup1ControlY, pickup1Y, openGate1ControlY, openGate1Y, shoot1ControlY, shoot1Y,
             pickup2ControlY, pickup2Y, openGate2ControlY, openGate2Y, shoot2ControlY, shoot2Y,
             intakeGateControlY, intakeGateY, shootGateControlY, shootGateY,
-            shootLeaveControlY, shootLeaveY};
+            shootLeaveControlY, shootLeaveY, leaveY, awayFromGateY};
     double[] headings = {startPoseH, shoot0H,
             0, pickup1H, 0, openGate1H, 0, shoot1H,
             0, pickup2H, 0, openGate2H, 0, shoot2H,
             0, intakeGateH, 0, shootGateH,
-            0, shootLeaveH};
+            0, shootLeaveH, leaveH, awayFromGateH};
     Pose startPose, shoot0,
             pickup1Control, pickup1, openGate1Control, openGate1, shoot1Control, shoot1,
             pickup2Control, pickup2, openGate2Control, openGate2, shoot2Control, shoot2,
             intakeGateControl, intakeGate, shootGateControl, shootGate,
-            shootLeaveControl, shootLeave;
+            shootLeaveControl, shootLeave, leave, awayFromGate;
     private void initializePoses(){
         startPose = new Pose(xPoses[0], yPoses[0], Math.toRadians(headings[0]));
         shoot0 = new Pose(xPoses[1], yPoses[1], Math.toRadians(headings[1]));
@@ -114,12 +119,14 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
         shootGate = new Pose(xPoses[17], yPoses[17], Math.toRadians(headings[17]));
         shootLeaveControl = new Pose(xPoses[18], yPoses[18]);
         shootLeave = new Pose(xPoses[19], yPoses[19], Math.toRadians(headings[19]));
+        leave = new Pose(xPoses[20], yPoses[20], Math.toRadians(headings[20]));
+        awayFromGate = new Pose(xPoses[21], yPoses[21], Math.toRadians(headings[21]));
     }
 
     //Building Paths
     PathChain startPose_shoot0, shoot0_pickup1, pickup1_openGate1, openGate1_shoot1,
         shoot1_pickup2, pickup2_openGate2, openGate2_shoot2,
-        shoot2_intakeGate, intakeGate_shootGate, shootGate_intakeGate, intakeGate_shootLeave;
+        shoot2_intakeGate, intakeGate_shootGate, shootGate_intakeGate, intakeGate_shootLeave, shootGate_leave, intakeGate_awayFromGate;
     private void buildPaths(){
         startPose_shoot0 = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shoot0))
@@ -175,18 +182,29 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 .addPath(new BezierCurve(intakeGate, shootLeaveControl, shootLeave))
                 .setLinearHeadingInterpolation(intakeGate.getHeading(), shootLeave.getHeading())
                 .build();
+
+        shootGate_leave = follower.pathBuilder()
+                .addPath(new BezierLine(shootGate, leave))
+                .setLinearHeadingInterpolation(shootGate.getHeading(), leave.getHeading())
+                .build();
+
+        intakeGate_awayFromGate = follower.pathBuilder()
+                .addPath(new BezierLine(intakeGate, awayFromGate))
+                .setLinearHeadingInterpolation(intakeGate.getHeading(), awayFromGate.getHeading())
+                .build();
     }
 
     //Path State Machine
     private boolean startAuto = true;
     private double timeStamp = 0;
+    private int cycle = 0;
     private void pathStateMachine(){
         double currentTime = (double) System.currentTimeMillis() / 1000;
         switch(pathState){
             case DRIVE_SHOOT0:
                 spindexer.setSpindexerMode(SpindexerTransferIntake.SpindexerMode.RAPID);
-                shooter.setFlywheelVelocity(2400);
-                robot.setHoodPos(0.64);
+                shooter.setFlywheelVelocity(2300);
+                robot.setHoodPos(0.68);
                 if (startAuto){
                     follower.followPath(startPose_shoot0, false);
                     startAuto = false;
@@ -241,7 +259,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
             case PICKUP2:
                 if (!follower.isBusy()){
                     follower.followPath(pickup2_openGate2, false);
-                    pathState = PathState.DRIVE_SHOOT2;
+                    pathState = PathState.OPENGATE2;
                     timeStamp = currentTime;
                 }
                 break;
@@ -271,9 +289,18 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 }
                 break;
             case INTAKE_GATE:
-                if (currentTime - timeStamp > openGateWaitTime){
-                    follower.followPath(openGate1_shoot1, false);
-                    pathState = PathState.DRIVE_SHOOT1;
+                if ((currentTime - timeStamp > openGateWaitTimeMax || (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()))
+                        && (currentTime - timeStamp > openGateWaitTimeMin)){
+                    if (getRuntime() - runtime > 27){
+                        follower.followPath(intakeGate_awayFromGate, true);
+                        pathState = PathState.WAIT_SHOOT_LEAVE;
+                    } else if (getRuntime() - runtime > 22 || cycle >= maxLoopCycles - 1){
+                        follower.followPath(intakeGate_shootLeave, true);
+                        pathState = PathState.DRIVE_SHOOT_LEAVE;
+                    } else {
+                        follower.followPath(intakeGate_shootGate, false);
+                        pathState = PathState.DRIVE_SHOOT_GATE;
+                    }
                     timeStamp = currentTime;
                 }
                 // TODO: add logic to shoot gate
@@ -291,8 +318,14 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shootGate_intakeGate, false);
-                    pathState = PathState.INTAKE_GATE;
+                    cycle++;
+                    if (getRuntime() - runtime > 24 || cycle >= maxLoopCycles){
+                        follower.followPath(shootGate_leave, true);
+                        pathState = PathState.WAIT_SHOOT_LEAVE;
+                    } else {
+                        follower.followPath(shootGate_intakeGate, false);
+                        pathState = PathState.INTAKE_GATE;
+                    }
                     timeStamp = currentTime;
                 }
                 break;
@@ -311,7 +344,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
             default:
                 break;
         }
-        TELE.update(); // use for debugging
+        TELE.addData("Moving?", follower.isBusy());
     }
 
     // Used for changing alliance
@@ -343,6 +376,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
         shooter = new Shooter(robot, TELE, follower, Color.redAlliance, turret, flywheel, commander);
         spindexer = new SpindexerTransferIntake(robot, TELE, commander);
         ParkTilter park = new ParkTilter(robot);
+        boolean startAuto = true;
 
         boolean initializeRobot = false;
         while (opModeInInit()){
@@ -391,6 +425,14 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()){
+            if (startAuto){
+                runtime = getRuntime();
+                startAuto = false;
+            }
+
+            park.unpark();
+            robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+
             shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
             shooter.update(robot.voltage.getVoltage());
 

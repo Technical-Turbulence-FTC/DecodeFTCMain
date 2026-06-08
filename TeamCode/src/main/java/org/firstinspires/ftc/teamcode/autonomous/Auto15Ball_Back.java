@@ -283,6 +283,10 @@ public class Auto15Ball_Back extends LinearOpMode {
 
         boolean initializeRobot = false;
         while (opModeInInit()){
+
+            park.unpark();
+            robot.setSpindexBlockerPos(ServoPositions.spindexBlocker_Open);
+
             follower.update();
 
             if (gamepad1.squareWasPressed()){
