@@ -91,7 +91,8 @@ public class SortedSpindexerTest extends LinearOpMode {
             drivetrain.drive(
                     -gamepad1.right_stick_y,
                     gamepad1.right_stick_x,
-                    gamepad1.left_stick_x
+                    gamepad1.left_stick_x,
+                    gamepad1.left_trigger
             );
 
             follower.update();

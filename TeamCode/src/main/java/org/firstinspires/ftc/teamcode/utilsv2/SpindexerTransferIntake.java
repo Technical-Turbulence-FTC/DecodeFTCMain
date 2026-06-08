@@ -274,22 +274,23 @@ public class SpindexerTransferIntake {
     private int greenTicks = 0;
     private int ballTicks = 0;
     private int holdBallsTicker = 0;
+    public static boolean intakeFull = true;
     public void update() {
 
-        TELE.addData("Sorted State", sortedIntakeStates);
-        TELE.addData("Ball0", ballColors[0]);
-        TELE.addData("Ball1", ballColors[1]);
-        TELE.addData("Ball2", ballColors[2]);
-
-        TELE.addData("Shoot0", shootOrder[0]);
-        TELE.addData("Shoot1", shootOrder[1]);
-        TELE.addData("Shoot2", shootOrder[2]);
-
-        TELE.addData("Color0", ballColors[0]);
-        TELE.addData("Color1", ballColors[1]);
-        TELE.addData("Color2", ballColors[2]);
-
-        TELE.addData("Shoot State", shootState);
+//        TELE.addData("Sorted State", sortedIntakeStates);
+//        TELE.addData("Ball0", ballColors[0]);
+//        TELE.addData("Ball1", ballColors[1]);
+//        TELE.addData("Ball2", ballColors[2]);
+//
+//        TELE.addData("Shoot0", shootOrder[0]);
+//        TELE.addData("Shoot1", shootOrder[1]);
+//        TELE.addData("Shoot2", shootOrder[2]);
+//
+//        TELE.addData("Color0", ballColors[0]);
+//        TELE.addData("Color1", ballColors[1]);
+//        TELE.addData("Color2", ballColors[2]);
+//
+//        TELE.addData("Shoot State", shootState);
         
         switch (mode) {
 
@@ -317,9 +318,13 @@ public class SpindexerTransferIntake {
 
                         if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
 
-                            setRapidMode(RapidMode.TRANSFER_OFF);
+                            holdBallsTicker++;
                         }
 
+                        if (holdBallsTicker > 10){
+                            setRapidMode(RapidMode.TRANSFER_OFF);
+                            holdBallsTicker = 0;
+                        }
 
                         break;
 
@@ -366,10 +371,12 @@ public class SpindexerTransferIntake {
                     case HOLD_BALLS:
 
                         if (robot.insideBeam.isPressed()
-                                && robot.outsideBeam.isPressed() && holdBallsTicker > 10) {
+                                && robot.outsideBeam.isPressed()) {
 
-                            robot.setIntakePower(0.1);
                             robot.setTransferPower(0);
+                            robot.setIntakePower(0.1);
+                            robot.setTransferServoPos(ServoPositions.transferServo_in);
+                            intakeFull = true;
 
                         } else {
                             holdBallsTicker++;
@@ -379,36 +386,41 @@ public class SpindexerTransferIntake {
 
                     case OPEN_GATE:
 
-                        robot.setRapidFireBlockerPos(
-                                ServoPositions.rapidFireBlocker_Open
-                        );
-
                         if (stateTime() >= 100) {
                             setRapidMode(RapidMode.SHOOT);
                         }
 
+                        robot.setTransferServoPos(ServoPositions.transferServo_in);
+
+                        robot.setRapidFireBlockerPos(
+                                ServoPositions.rapidFireBlocker_Open
+                        );
+
                         if (Shooter.manualFlywheel) {
                             robot.setTransferPower(NewShooterTest.transferPower);
+                            robot.setIntakePower(-NewShooterTest.transferPower);
                         } else {
                             robot.setTransferPower(commander.getTransferPow());
+                            robot.setIntakePower(-commander.getTransferPow());
                         }
 
                         break;
 
                     case SHOOT:
 
-                        robot.setTransferServoPos(
-                                ServoPositions.transferServo_in
-                        );
-                        if (stateTime() >= 400) {
+                        if (stateTime() >= 500) {
                             setRapidMode(RapidMode.INTAKE);
                         }
 
                         if (Shooter.manualFlywheel) {
                             robot.setTransferPower(NewShooterTest.transferPower);
+                            robot.setIntakePower(-NewShooterTest.transferPower);
                         } else {
                             robot.setTransferPower(commander.getTransferPow());
+                            robot.setIntakePower(-commander.getTransferPow());
                         }
+
+                        holdBallsTicker = 0;
 
                         break;
                 }

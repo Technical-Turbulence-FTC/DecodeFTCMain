@@ -81,17 +81,20 @@ public class NewShooterTest extends LinearOpMode {
             drivetrain.drive(
                     -gamepad1.right_stick_y,
                     gamepad1.right_stick_x,
-                    gamepad1.left_stick_x
+                    gamepad1.left_stick_x,
+                    gamepad1.left_trigger
             );
 
-            if (Color.redAlliance){
-                TeleopV4.relocalizePose = new Pose(57.5, 5, 0);
-            } else {
-                TeleopV4.relocalizePose = new Pose(-57.5, 5, Math.toRadians(180));
+            if (gamepad1.crossWasPressed()){
+                if (Color.redAlliance){
+                    TeleopV4.relocalizePose = new Pose(57.5, 5, 0);
+                } else {
+                    TeleopV4.relocalizePose = new Pose(-57.5, 5, Math.toRadians(180));
+                }
+                follower.setPose(TeleopV4.relocalizePose);
+                sleep(500);
+                gamepad1.rumble(100);
             }
-            follower.setPose(TeleopV4.relocalizePose);
-            sleep(500);
-            gamepad1.rumble(100);
 
             follower.update();
 
@@ -154,6 +157,7 @@ public class NewShooterTest extends LinearOpMode {
             TELE.addData("Hood Position", commander.getHoodPredicted());
             TELE.addData("Transfer Power", commander.getTransferPow());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
+            TELE.addData("Manuel Velocity RPM", flywheelVelo);
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
             TELE.addData("TX:", turret.getTX());
 

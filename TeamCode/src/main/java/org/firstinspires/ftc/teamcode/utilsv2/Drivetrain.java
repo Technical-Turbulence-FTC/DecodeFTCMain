@@ -37,7 +37,7 @@ public class Drivetrain {
         tele = input;
     }
 
-    public void drive(double y, double x, double rx) {
+    public void drive(double y, double x, double rx, double stop) {
 
         boolean snappedForward = false;
         boolean snappedStrafe = false;
@@ -79,18 +79,30 @@ public class Drivetrain {
         robot.setFrontRightPower(frontRightPower);
         robot.setBackRightPower(backRightPower);
 
-        if (tele) {
+        if (stop > 0.5){
+            robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            robot.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            telemetry.addData("Forward Snap", snappedForward);
-            telemetry.addData("Strafe Snap", snappedStrafe);
-
-            telemetry.addData("Correction RX", correctionRX);
-
-            telemetry.addData("FL", frontLeftPower);
-            telemetry.addData("BL", backLeftPower);
-            telemetry.addData("FR", frontRightPower);
-            telemetry.addData("BR", backRightPower);
-
+            robot.setFrontLeftPower(0);
+            robot.setBackLeftPower(0);
+            robot.setFrontRightPower(0);
+            robot.setBackRightPower(0);
         }
+
+//        if (tele) {
+//
+//            telemetry.addData("Forward Snap", snappedForward);
+//            telemetry.addData("Strafe Snap", snappedStrafe);
+//
+//            telemetry.addData("Correction RX", correctionRX);
+//
+//            telemetry.addData("FL", frontLeftPower);
+//            telemetry.addData("BL", backLeftPower);
+//            telemetry.addData("FR", frontRightPower);
+//            telemetry.addData("BR", backRightPower);
+//
+//        }
     }
 }

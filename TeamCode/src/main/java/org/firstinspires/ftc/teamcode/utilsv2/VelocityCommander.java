@@ -8,88 +8,71 @@ public class VelocityCommander {
     public static double xAccK = 0.025; // TODO: Tune
     public static double yVelK = 0.05; // TODO: Tune
     public static double yAccK = 0.025; // TODO: Tune
+    public static boolean lockFront = false;
+    public static boolean lockBack = false;
+    public static int farBound = 140;
+    public static int closeBound = 110;
+    public static double errorHoodAdjustment = 0.0005;
     private double hoodPos = 0.88;
     private double transferPow = -1;
     private int velo = 0;
 
     public VelocityCommander() {}
 
-    private final double veloA = -2.703087757*Math.pow(10, -14);
-    private final double veloB = 2.904756341*Math.pow(10, -11);
-    private final double veloC = -1.381814293*Math.pow(10, -8);
-    private final double veloD = 0.000003829224585;
-    private final double veloE = -0.000684090204;
-    private final double veloF = 0.0822754689;
-    private final double veloG = -6.743119277;
-    private final double veloH = 371.7359504;
-    private final double veloI = -13189.70958;
-    private final double veloJ = 272005.7124;
-    private final double veloK = -2474581.713;
+    final double veloA = -0.00000133612;
+    final double veloB = 0.000542733;
+    final double veloC = -0.0739531;
+    final double veloD = 5.16759;
+    final double veloE = 62.45781;
     private double distToRPM (double dist){
-        double currentVelo = 0;
-        if (dist < 49) {
-            currentVelo = 2000;
-        } else if (dist > 165){
-            velo = 3760;
-        } else {
-            currentVelo = veloA*Math.pow(dist, 10) +
-                    veloB*Math.pow(dist, 9) +
-                    veloC*Math.pow(dist, 8) +
-                    veloD*Math.pow(dist, 7) +
-                    veloE*Math.pow(dist, 6) +
-                    veloF*Math.pow(dist, 5) +
-                    veloG*Math.pow(dist, 4) +
-                    veloH*Math.pow(dist, 3) +
-                    veloI*Math.pow(dist, 2) +
-                    veloJ*Math.pow(dist, 1) +
-                    veloK;
+        double currentVelo;
+        if (lockFront && dist > closeBound){
+            dist = closeBound;
+        } else if (lockBack && dist < farBound){
+            dist = farBound;
         }
-        velo = Math.round((float) Math.max(2000, Math.min(3760, currentVelo)));
+        if (dist < 54) {
+            velo = 2000;
+        } else if (dist > 181){
+            velo = 3600;
+        } else {
+            currentVelo = veloA*Math.pow(dist, 4) +
+                    veloB*Math.pow(dist, 3) +
+                    veloC*Math.pow(dist, 2) +
+                    veloD*Math.pow(dist, 1) +
+                    veloE;
+            velo = 10 * Math.round((float) Math.max(200, Math.min(360, currentVelo)));
+        }
         return velo;
     }
 
-    private final double hoodA = -4.3276177*Math.pow(10, -13);
-    private final double hoodB = 2.68062979*Math.pow(10, -10);
-    private final double hoodC = -7.12859632*Math.pow(10, -8);
-    private final double hoodD = 0.0000106010785;
-    private final double hoodE = -0.000960693973;
-    private final double hoodF = 0.0540375808;
-    private final double hoodG = -1.82724027;
-    private final double hoodH = 33.4797545;
-    private final double hoodI = -246.888632;
+    final double hoodA = 9.04203*Math.pow(10, -8);
+    final double hoodB = -0.0000204165;
+    final double hoodC = -0.00252089;
+    final double hoodD = 1.06154;
     private void distToHood (double dist){
-        if (dist > 112){
-            hoodPos = 0.35;
-        } else if (dist < 49){
+        if (dist > 174){
+            hoodPos = 0.48;
+        } else if (dist < 54){
             hoodPos = 0.88;
         } else {
-            hoodPos = hoodA*Math.pow(dist, 8) +
-                    hoodB*Math.pow(dist, 7) +
-                    hoodC*Math.pow(dist, 6) +
-                    hoodD*Math.pow(dist, 5) +
-                    hoodE*Math.pow(dist, 4) +
-                    hoodF*Math.pow(dist, 3) +
-                    hoodG*Math.pow(dist, 2) +
-                    hoodH*Math.pow(dist, 1) +
-                    hoodI;
-
-            hoodPos = Math.max(0.35, Math.min(0.88, hoodPos));
+            hoodPos = hoodA*Math.pow(dist, 3) +
+                    hoodB*Math.pow(dist, 2) +
+                    hoodC*Math.pow(dist, 1) +
+                    hoodD;
         }
+        hoodPos = Math.max(0.48, Math.min(0.88, hoodPos));
     }
     public double getHoodPredicted(){
         return hoodPos;
     }
 
     private void distToTransferPow(double dist, double voltage){
-        if (dist < 118){
-            transferPow = -1;
-        } else if (dist < 125){
-            transferPow = -0.7;
+        if (dist < 140){
+            transferPow = -0.8;
         } else {
             transferPow = -0.5;
         }
-
-//        transferPow = Math.max(-0.5, Math.min(-1, transferPow * (14/voltage)));
     }
     public double getTransferPow(){return transferPow;}
 
@@ -99,7 +82,7 @@ public class VelocityCommander {
     }
 
     double predictedDist = 0;
-    public void getVeloPredictive(double dx, double dy, double xVel, double xAcc, double yVel, double yAcc, double voltage) {
+    public void getVeloPredictive(double dx, double dy, double xVel, double xAcc, double yVel, double yAcc, double voltage, double velocity) {
 
         double predictedDx = dx - (xVel * xVelK) - (0.5 * xAcc * xAccK); // Negative bc dx = target - robot
         double predictedDy = dy - (yVel * yVelK) - (0.5 * yAcc * yAccK);  // Negative bc dy = target - robot
@@ -110,6 +93,17 @@ public class VelocityCommander {
         distToHood(predictedDist);
         distToTransferPow(predictedDist, voltage);
         distToRPM(predictedDist);
+
+        hoodPos += adjustHood(predictedDist, velocity, velo);
+    }
+
+    public double adjustHood(double dist, double currentVelocity, double targetVelocity){
+        double error = targetVelocity - currentVelocity;
+        if (dist < farBound || error < 0){
+            error = 0;
+        }
+        System.out.println("Error "+ error);
+        return error * errorHoodAdjustment;
     }
 
     public double getPredictedRPM(){return velo;}

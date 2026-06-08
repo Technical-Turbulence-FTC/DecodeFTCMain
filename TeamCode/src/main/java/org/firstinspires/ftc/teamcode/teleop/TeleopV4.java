@@ -33,6 +33,8 @@ public class TeleopV4 extends LinearOpMode {
     public static Pose relocalizePose = new Pose(56, 11, 0);
     public static Pose teleStart = new Pose(0,0,0);
 
+    private boolean firstTickFull = true;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -77,6 +79,25 @@ public class TeleopV4 extends LinearOpMode {
         TELE.addData("TELE START", teleStart);
         TELE.update();
 
+        while (opModeInInit()){
+            if (gamepad1.triangleWasPressed()){
+                VelocityCommander.lockFront = true;
+                VelocityCommander.lockBack = false;
+            } else if (gamepad1.squareWasPressed()){
+                VelocityCommander.lockBack = true;
+                VelocityCommander.lockFront = false;
+            } else if (gamepad1.circleWasPressed()){
+                VelocityCommander.lockBack = false;
+                VelocityCommander.lockFront = false;
+            }
+            TELE.addLine("Initialization is done");
+            TELE.addData("Starting Position", follower.getPose());
+            TELE.addData("TELE START", teleStart);
+            TELE.addData("Front?:", VelocityCommander.lockFront);
+            TELE.addData("Back?:", VelocityCommander.lockBack);
+            TELE.update();
+        }
+
         waitForStart();
 
         if (isStopRequested()) return;
@@ -86,7 +107,8 @@ public class TeleopV4 extends LinearOpMode {
             drivetrain.drive(
                     -gamepad1.right_stick_y,
                     gamepad1.right_stick_x,
-                    gamepad1.left_stick_x
+                    gamepad1.left_stick_x,
+                    gamepad1.left_trigger
             );
 
             if (gamepad1.crossWasPressed()){
@@ -116,6 +138,23 @@ public class TeleopV4 extends LinearOpMode {
                 robot.setHoodPos(0.6);
             }
 
+            if (gamepad1.triangleWasPressed()){
+                VelocityCommander.lockFront = true;
+                VelocityCommander.lockBack = false;
+                TELE.addData("Front?:", VelocityCommander.lockFront);
+                TELE.addData("Back?:", VelocityCommander.lockBack);
+            } else if (gamepad1.squareWasPressed()){
+                VelocityCommander.lockBack = true;
+                VelocityCommander.lockFront = false;
+                TELE.addData("Front?:", VelocityCommander.lockFront);
+                TELE.addData("Back?:", VelocityCommander.lockBack);
+            } else if (gamepad1.circleWasPressed()){
+                VelocityCommander.lockBack = false;
+                VelocityCommander.lockFront = false;
+                TELE.addData("Front?:", VelocityCommander.lockFront);
+                TELE.addData("Back?:", VelocityCommander.lockBack);
+            }
+
             shooter.update(robot.voltage.getVoltage());
             spindexerTransferIntake.update();
 
@@ -130,6 +169,13 @@ public class TeleopV4 extends LinearOpMode {
                             state == SpindexerTransferIntake.RapidMode.HOLD_BALLS)) {
 
                 spindexerTransferIntake.setRapidMode(SpindexerTransferIntake.RapidMode.OPEN_GATE);
+                SpindexerTransferIntake.intakeFull = false;
+                firstTickFull = true;
+            }
+
+            if (SpindexerTransferIntake.intakeFull && firstTickFull){
+                gamepad1.rumble(100);
+                firstTickFull = false;
             }
 
             if (gamepad1.right_trigger > 0.5 &&
@@ -159,20 +205,20 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             loopTimes.loop();
-            TELE.addData("Loop Time Average", loopTimes.getAvgLoopTime());
-            TELE.addData("Loop Time Max", loopTimes.getMaxLoopTimeOneMin());
-            TELE.addData("Loop Time Min", loopTimes.getMinLoopTimeOneMin());
-
+//            TELE.addData("Loop Time Average", loopTimes.getAvgLoopTime());
+//            TELE.addData("Loop Time Max", loopTimes.getMaxLoopTimeOneMin());
+//            TELE.addData("Loop Time Min", loopTimes.getMinLoopTimeOneMin());
+//
             TELE.addData("Distance From Goal", commander.getDistance());
-            TELE.addData("Hood Position", commander.getHoodPredicted());
-            TELE.addData("Transfer Power", robot.transfer.getPower());
+//            TELE.addData("Hood Position", commander.getHoodPredicted());
+//            TELE.addData("Transfer Power", robot.transfer.getPower());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
-
-            TELE.addData("Current Position", currentPose);
-
-            TELE.addData("Current LL Pipeline", turret.pipeline());
-
+//
+//            TELE.addData("Current Position", currentPose);
+//
+//            TELE.addData("Current LL Pipeline", turret.pipeline());
+//
             TELE.update();
         }
 

@@ -104,7 +104,8 @@ public class Shooter {
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent(),
-                        voltage
+                        voltage,
+                        fly.getAverageVelocity()
                 );
 
                 fly.manageFlywheel(flywheelVelocity);
@@ -131,7 +132,8 @@ public class Shooter {
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent(),
-                        voltage
+                        voltage,
+                        fly.getAverageVelocity()
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
@@ -153,7 +155,8 @@ public class Shooter {
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent(),
-                        voltage
+                        voltage,
+                        fly.getAverageVelocity()
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
@@ -172,7 +175,8 @@ public class Shooter {
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent(),
-                        voltage
+                        voltage,
+                        fly.getAverageVelocity()
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
@@ -200,7 +204,8 @@ public class Shooter {
                         follow.getAcceleration().getXComponent(),
                         follow.getVelocity().getYComponent(),
                         follow.getAcceleration().getYComponent(),
-                        voltage
+                        voltage,
+                        fly.getAverageVelocity()
                 );
                 fly.manageFlywheel(flywheelVelocity);
                 fly.setPIDF(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, shooterPIDF_F / voltage);
