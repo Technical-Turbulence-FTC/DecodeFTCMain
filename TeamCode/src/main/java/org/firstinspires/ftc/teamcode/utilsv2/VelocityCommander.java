@@ -67,6 +67,10 @@ public class VelocityCommander {
                     hoodC*Math.pow(dist, 1) +
                     hoodD;
         }
+        if (lockBack){
+            hoodPos-=0.04;
+        }
+
         hoodPos = Math.max(0.48, Math.min(0.88, hoodPos));
     }
     public double getHoodPredicted(){
@@ -75,7 +79,7 @@ public class VelocityCommander {
 
     private void distToTransferPow(double dist, double voltage){
         if (dist < 140){
-            transferPow = -0.75;
+            transferPow = -1;
         } else {
             transferPow = -0.6;
         }

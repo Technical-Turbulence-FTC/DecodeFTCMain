@@ -53,8 +53,8 @@ public class SpindexerTransferIntake {
     }
 
     int[] shootOrder = {0, 1, 2};
-    final double sensorDistanceThreshold = 5.3;
-    final long pulseTime = 100; // ms
+    public static final double sensorDistanceThreshold = 5.35;
+    final long pulseTime = 70; // ms
 
     private DesiredPattern desiredPattern = DesiredPattern.GPP;
 
@@ -325,7 +325,7 @@ public class SpindexerTransferIntake {
                         robot.setSpinPos(
                                 ServoPositions.spindexer_A2
                         );
-                        robot.setTransferPower(-0.7);
+                        robot.setTransferPower(-1);
                         robot.setTransferServoPos(
                                 ServoPositions.transferServo_out
                         );
@@ -335,7 +335,7 @@ public class SpindexerTransferIntake {
                             holdBallsTicker++;
                         }
 
-                        if (holdBallsTicker > 10){
+                        if (holdBallsTicker > 20){
                             setRapidMode(RapidMode.TRANSFER_OFF);
                             holdBallsTicker = 0;
                         }
@@ -355,7 +355,7 @@ public class SpindexerTransferIntake {
 
                         robot.setIntakePower(1.0);
 
-                        if (stateTime() >= 300) {
+                        if (stateTime() >= 700) {
                             setRapidMode(RapidMode.PULSE_OUT);
                         }
 
@@ -375,25 +375,23 @@ public class SpindexerTransferIntake {
 
                         robot.setIntakePower(1.0);
 
-                        if (stateTime() >= 200) {
+                        if (stateTime() >= 400) {
                             setRapidMode(RapidMode.HOLD_BALLS);
                         }
-
 
                         break;
 
                     case HOLD_BALLS:
 
                         if (robot.insideBeam.isPressed()
-                                && robot.outsideBeam.isPressed()) {
+                                && robot.outsideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
 
                             robot.setTransferPower(0);
                             robot.setIntakePower(0.1);
                             robot.setTransferServoPos(ServoPositions.transferServo_in);
 
                         } else {
-                            holdBallsTicker++;
-                            robot.setIntakePower(1);
+                            setRapidMode(RapidMode.INTAKE);
                         }
                         break;
 
@@ -678,7 +676,6 @@ public class SpindexerTransferIntake {
                 } else {
                     robot.setTransferPower(-0.8);
                 }
-
 
                 switch (shootState) {
                     case IDLE:

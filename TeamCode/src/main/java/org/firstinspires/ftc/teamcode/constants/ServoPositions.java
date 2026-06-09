@@ -37,7 +37,7 @@ public class ServoPositions {
 
     public static double transferServo_out = 0.28;
 
-    public static double transferServo_in = 0.54;
+    public static double transferServo_in = 0.52;
 
     public static double hoodAuto = 0.27;
 

@@ -393,7 +393,6 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()){
-            robot.setRapidFireBlockerPos(ServoPositions.rapidFireBlocker_Closed);
             park.unpark();
 
             shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);

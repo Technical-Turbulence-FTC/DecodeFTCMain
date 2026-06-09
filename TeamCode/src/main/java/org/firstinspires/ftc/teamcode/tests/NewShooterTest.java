@@ -36,7 +36,7 @@ public class NewShooterTest extends LinearOpMode {
     private boolean shooting = false;
     public static int flywheelVelo = 0;
     public static double hoodPos = 0.5;
-    public static double transferPower = -0.8;
+    public static double transferPower = -1;
 
     @Override
     public void runOpMode() throws InterruptedException {

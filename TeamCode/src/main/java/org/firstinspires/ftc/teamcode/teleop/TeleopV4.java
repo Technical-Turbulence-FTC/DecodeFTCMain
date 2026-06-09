@@ -133,6 +133,7 @@ public class TeleopV4 extends LinearOpMode {
 
             follower.update();
             Pose currentPose = follower.getPose();
+            teleStart = currentPose;
 
             if (gamepad1.dpadLeftWasPressed()){
                 shooter.setState(Shooter.ShooterState.MANUAL_FLYWHEEL_TRACK_TURR);
@@ -259,9 +260,9 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             if (gamepad2.dpadRightWasPressed()){
-                flywheelOffset+=100;
+                flywheelOffset+=50;
             } else if (gamepad2.dpadLeftWasPressed()){
-                flywheelOffset-=100;
+                flywheelOffset-=50;
             }
 
             if (gamepad2.crossWasPressed()){
@@ -279,6 +280,10 @@ public class TeleopV4 extends LinearOpMode {
 //            TELE.addData("Transfer Power", robot.transfer.getPower());
             TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
             TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
+            TELE.addData("Velocity 1", flywheel.getVelo1());
+            TELE.addData("Velocity 2", flywheel.getVelo2());
+            TELE.addData("Flywheel Offset", flywheelOffset);
+            TELE.addData("Hood Offset", hoodOffset);
 //
 //            TELE.addData("Current Position", currentPose);
 //

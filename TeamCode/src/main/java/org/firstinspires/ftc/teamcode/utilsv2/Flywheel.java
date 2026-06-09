@@ -83,11 +83,15 @@ public class Flywheel {
 
 //        pidf.setPIDF(shooterPIDF_P, shooterPIDF_I, shooterPIDF_D, 0);
 
-        robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        if (velo1 != 0){
+            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        } else {
+            robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        }
+
     }
 
     private double prevF = 0;
-
     public static double voltagePIDFDifference = 1;
     double averageVoltage = 0;
     public void setF(double voltage){
@@ -95,7 +99,11 @@ public class Flywheel {
         double f = shooterPIDF_F / voltage;
         if (Math.abs(prevF - f) > voltagePIDFDifference && !steady) {
             shooterPIDF.f = f;
-            robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+            if (velo1 != 0){
+                robot.shooter1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+            } else {
+                robot.shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+            }
         }
         prevF = f;
     }
@@ -134,21 +142,43 @@ public class Flywheel {
     double power;
     double prevTargetTime = 0;
     double prevTargetVelocity = 0;
+    int veloMode = 0;
     public void manageFlywheel(double commandedVelocity) {
 
         if (Math.abs(targetVelocity - commandedVelocity) > 0.0001) {
             targetVelocity = commandedVelocity;
         }
 
-        robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
-        power = robot.shooter1.getPower();
-        robot.shooter2.setPower(power);
+        if (velo1 < 100){
 
+        }
         velo1 = TPS_to_RPM(robot.shooter1.getVelocity());
 
         velo2 = TPS_to_RPM(robot.shooter2.getVelocity());
 
-        velo = velo1;
+        if (velo1 < 100){
+            velo1 = 0;
+            velo = velo2;
+            robot.shooter2.setVelocity(RPM_to_TPS(targetVelocity));
+            if (veloMode != 2){
+                robot.shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                veloMode = 2;
+            }
+            power = robot.shooter2.getPower();
+            robot.shooter1.setPower(power);
+        } else {
+            velo2 = 0;
+            velo = velo1;
+            robot.shooter1.setVelocity(RPM_to_TPS(targetVelocity));
+            if (veloMode != 1){
+                robot.shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                veloMode = 1;
+            }
+            power = robot.shooter1.getPower();
+            robot.shooter2.setPower(power);
+        }
 
         updateVelocityAverage(velo);
 
