@@ -227,6 +227,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 }
                 break;
             case OPENGATE:
+                robot.setIntakePower(0);
                 if (currentTime - timeStamp > openGateTime){
                     follower.followPath(openGate_shoot1, true);
                     pathState = PathState.DRIVE_SHOOT1;
@@ -275,7 +276,7 @@ public class Auto12Ball_Back_Sorted extends LinearOpMode {
                 break;
             case DRIVE_PICKUP3:
                 if (!follower.isBusy()){
-                    shooter.setFlywheelVelocity(2200);
+                    shooter.setFlywheelVelocity(2250);
                     robot.setHoodPos(0.75);
                     follower.followPath(drivePickup3_pickup3, intakePower, false);
                     pathState = PathState.PICKUP3;

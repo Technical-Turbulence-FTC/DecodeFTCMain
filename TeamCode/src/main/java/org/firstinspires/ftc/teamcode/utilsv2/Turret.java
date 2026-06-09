@@ -17,8 +17,8 @@ public class Turret {
 
     private final double servoTicksPer180 = 0.58;
     public static double neutralPosition = 0.51;
-    private final double turretMin = 0.08;
-    private final double turretMax = 0.91;
+    private final double turretMin = 0.13;
+    private final double turretMax = 0.87;
     public static boolean limelightUsed = true;
     public static double B_PID_P = 0.0001, B_PID_I = 0.0, B_PID_D = 0.000005;
     LLResult result;

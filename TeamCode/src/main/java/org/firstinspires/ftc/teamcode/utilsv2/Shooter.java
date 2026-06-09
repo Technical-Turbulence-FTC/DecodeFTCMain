@@ -138,8 +138,8 @@ public class Shooter {
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
-
-                robot.setHoodPos(commander.getHoodPredicted() + TeleopV4.hoodOffset);
+                double hood1 = Math.max(0.35, Math.min(0.88, commander.getHoodPredicted() + TeleopV4.hoodOffset));
+                robot.setHoodPos(hood1);
                 fly.manageFlywheel(flywheelVelocity + TeleopV4.flywheelOffset);
                 fly.setF(voltage);
                 break;
@@ -181,7 +181,8 @@ public class Shooter {
                 );
 
                 flywheelVelocity = commander.getPredictedRPM();
-                robot.setHoodPos(commander.getHoodPredicted() + TeleopV4.hoodOffset);
+                double hood2 = Math.max(0.35, Math.min(0.88, commander.getHoodPredicted() + TeleopV4.hoodOffset));
+                robot.setHoodPos(hood2);
                 fly.manageFlywheel(flywheelVelocity + TeleopV4.flywheelOffset);
                 break;
 

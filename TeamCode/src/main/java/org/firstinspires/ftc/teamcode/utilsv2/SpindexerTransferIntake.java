@@ -53,7 +53,7 @@ public class SpindexerTransferIntake {
     }
 
     int[] shootOrder = {0, 1, 2};
-    public static final double sensorDistanceThreshold = 4.75;//4.85//5.35
+    public static final double sensorDistanceThreshold = 6.0;//4.85//5.35
     final long pulseTime = 70; // ms
 
     private DesiredPattern desiredPattern = DesiredPattern.GPP;

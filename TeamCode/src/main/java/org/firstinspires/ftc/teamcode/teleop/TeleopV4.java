@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.constants.Color;
 import org.firstinspires.ftc.teamcode.constants.ServoPositions;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -254,9 +255,9 @@ public class TeleopV4 extends LinearOpMode {
             }
 
             if (gamepad2.dpadUpWasPressed()){
-                hoodOffset+=0.02;
-            } else if (gamepad2.dpadDownWasPressed()){
                 hoodOffset-=0.02;
+            } else if (gamepad2.dpadDownWasPressed()){
+                hoodOffset+=0.02;
             }
 
             if (gamepad2.dpadRightWasPressed()){
@@ -284,6 +285,16 @@ public class TeleopV4 extends LinearOpMode {
             TELE.addData("Velocity 2", flywheel.getVelo2());
             TELE.addData("Flywheel Offset", flywheelOffset);
             TELE.addData("Hood Offset", hoodOffset);
+
+            TELE.addData("FR Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("FL Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("BL Drive", robot.backLeft.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("BR Drive", robot.backRight.getCurrent(CurrentUnit.AMPS));
+
+            TELE.addData("Flywheel 1", robot.shooter1.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("Flywheel 2", robot.shooter2.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("Transfer", robot.transfer.getCurrent(CurrentUnit.AMPS));
+            TELE.addData("Intake", robot.intake.getCurrent(CurrentUnit.AMPS));
 //
 //            TELE.addData("Current Position", currentPose);
 //
