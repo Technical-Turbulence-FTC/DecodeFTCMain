@@ -31,7 +31,7 @@ public class TeleopV4 extends LinearOpMode {
     ParkTilter parkTilter;
     MeasuringLoopTimes loopTimes;
 
-    public static Pose relocalizePose = new Pose(56, 11, 0);
+    public static Pose relocalizePose = new Pose(54.7, 11.4, 0);
     public static Pose teleStart = new Pose(0,0,0);
 
     private boolean firstTickFull = true;
@@ -122,9 +122,9 @@ public class TeleopV4 extends LinearOpMode {
 
             if (gamepad1.crossWasPressed()){
                 if (Color.redAlliance){
-                    relocalizePose = new Pose(57.5, 5, 0);
+                    relocalizePose = new Pose(54.4, 12, 0);
                 } else {
-                    relocalizePose = new Pose(-57.5, 5, Math.toRadians(180));
+                    relocalizePose = new Pose(-54.4, 12, Math.toRadians(180));
                 }
                 follower.setPose(relocalizePose);
                 sleep(500);

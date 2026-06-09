@@ -53,7 +53,7 @@ public class SpindexerTransferIntake {
     }
 
     int[] shootOrder = {0, 1, 2};
-    public static final double sensorDistanceThreshold = 5.35;
+    public static final double sensorDistanceThreshold = 4.75;//4.85//5.35
     final long pulseTime = 70; // ms
 
     private DesiredPattern desiredPattern = DesiredPattern.GPP;
@@ -205,7 +205,7 @@ public class SpindexerTransferIntake {
     private RapidMode rapidMode = RapidMode.INTAKE;
     private SortedIntakeStates sortedIntakeStates = SortedIntakeStates.IDLE;
     private BallStates[] ballColors = {BallStates.UNKNOWN, BallStates.UNKNOWN, BallStates.UNKNOWN};
-    final double greenThresh = 0.39;
+    final double greenThresh = 0.41;
     final double spinMovementTime = 250;
 
     /**
