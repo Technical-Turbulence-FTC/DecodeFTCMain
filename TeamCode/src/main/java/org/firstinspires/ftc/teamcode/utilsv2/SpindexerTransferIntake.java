@@ -53,7 +53,7 @@ public class SpindexerTransferIntake {
     }
 
     int[] shootOrder = {0, 1, 2};
-    public static final double sensorDistanceThreshold = 6.0;//4.85//5.35
+    public static final double sensorDistanceThreshold = 5.0;//6.0;//4.85//5.35
     final long pulseTime = 70; // ms
 
     private DesiredPattern desiredPattern = DesiredPattern.GPP;
@@ -289,6 +289,7 @@ public class SpindexerTransferIntake {
     private int greenTicks = 0;
     private int ballTicks = 0;
     private int holdBallsTicker = 0;
+    public static boolean intakeFull = false;
     public void update() {
 
 //        TELE.addData("Sorted State", sortedIntakeStates);
@@ -318,7 +319,7 @@ public class SpindexerTransferIntake {
 
                     case INTAKE:
 
-                        robot.setIntakePower(0.8);
+                        robot.setIntakePower(1);
                         robot.setRapidFireBlockerPos(
                                 ServoPositions.rapidFireBlocker_Closed
                         );
@@ -330,11 +331,11 @@ public class SpindexerTransferIntake {
                                 ServoPositions.transferServo_out
                         );
 
-                        if (robot.insideBeam.isPressed()) {
+                        if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             holdBallsTicker++;
                         }
 
-                        if (holdBallsTicker > 15){
+                        if (holdBallsTicker > 5){
                             setRapidMode(RapidMode.TRANSFER_OFF);
                             holdBallsTicker = 0;
                         }
@@ -346,6 +347,7 @@ public class SpindexerTransferIntake {
                         if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed()) {
                             setRapidMode(RapidMode.BEFORE_PULSE_OUT);
                         }
+                        robot.setTransferServoPos(ServoPositions.transferServo_in);
                         robot.setTransferPower(-0.3);
 
                         break;
@@ -354,7 +356,7 @@ public class SpindexerTransferIntake {
 
                         robot.setIntakePower(1.0);
 
-                        if (stateTime() >= 700) {
+                        if (stateTime() >= 100) {
                             setRapidMode(RapidMode.PULSE_OUT);
                         }
 
@@ -362,7 +364,7 @@ public class SpindexerTransferIntake {
 
                     case PULSE_OUT:
 
-                        robot.setIntakePower(-0.1);
+//                        robot.setIntakePower(0);
 
                         if (stateTime() >= pulseTime) {
                             setRapidMode(RapidMode.PULSE_IN);
@@ -374,7 +376,7 @@ public class SpindexerTransferIntake {
 
                         robot.setIntakePower(1.0);
 
-                        if (stateTime() >= 400) {
+                        if (stateTime() >= 100) {
                             setRapidMode(RapidMode.HOLD_BALLS);
                         }
 
@@ -383,7 +385,9 @@ public class SpindexerTransferIntake {
                     case HOLD_BALLS:
 
                         if (robot.insideBeam.isPressed()
-                                && robot.outsideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
+                                && robot.outsideBeam.isPressed()) {
+
+                            intakeFull = true;
 
                             robot.setTransferPower(0);
                             robot.setIntakePower(0.1);
@@ -391,11 +395,12 @@ public class SpindexerTransferIntake {
 
                         } else {
                             setRapidMode(RapidMode.INTAKE);
+                            intakeFull = false;
                         }
                         break;
 
                     case OPEN_GATE:
-
+                        intakeFull = false;
                         if (stateTime() >= 100) {
                             setRapidMode(RapidMode.SHOOT);
                         }

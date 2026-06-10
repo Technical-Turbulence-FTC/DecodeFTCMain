@@ -79,7 +79,7 @@ public class VelocityCommander {
 
     private void distToTransferPow(double dist, double voltage){
         if (dist < 140){
-            transferPow = -0.8;
+            transferPow = -0.85;
         } else {
             transferPow = -0.7;
         }

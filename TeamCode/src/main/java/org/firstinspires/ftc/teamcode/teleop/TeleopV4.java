@@ -132,7 +132,9 @@ public class TeleopV4 extends LinearOpMode {
                 gamepad1.rumble(100);
             }
 
-            follower.update();
+            if (!isStopRequested()){
+                follower.update();
+            }
             Pose currentPose = follower.getPose();
             teleStart = currentPose;
 
@@ -209,16 +211,11 @@ public class TeleopV4 extends LinearOpMode {
                     shooting = false;
                 }
 
-                if (robot.insideBeam.isPressed() && robot.outsideBeam.isPressed() && !shooting){
-                    intakeFull = true;
-                } else {
-                    intakeFull = false;
-                    firstTickFull = true;
-                }
-
-                if (intakeFull && firstTickFull){
+                if (SpindexerTransferIntake.intakeFull && firstTickFull){
                     gamepad1.rumble(250);
                     firstTickFull = false;
+                } else if (!SpindexerTransferIntake.intakeFull){
+                    firstTickFull = true;
                 }
 
                 if (gamepad1.right_trigger > 0.5 &&
