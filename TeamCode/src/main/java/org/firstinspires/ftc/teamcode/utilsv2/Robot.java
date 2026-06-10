@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 public class Robot {
@@ -80,6 +81,11 @@ public class Robot {
     public Limelight3A limelight;
     public Servo light;
 
+    // Current Limits
+    public static double intakeCurrentLimit = 6.0;
+    public static double transferCurrentLimit = 5.0;
+    public static double drivetrainCurrentLimit = 7.0;
+
     public Robot(HardwareMap hardwareMap) {
 
         //Define components w/ hardware map
@@ -120,7 +126,6 @@ public class Robot {
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
-
         transferServo = hardwareMap.get(Servo.class, "transferServo");
 
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -137,6 +142,13 @@ public class Robot {
         outsideBeam = hardwareMap.get(TouchSensor.class, "beam2");
 
         revSensor = hardwareMap.get(RevColorSensorV3.class, "rev");
+
+        frontLeft.setCurrentAlert(drivetrainCurrentLimit, CurrentUnit.AMPS);
+        frontRight.setCurrentAlert(drivetrainCurrentLimit, CurrentUnit.AMPS);
+        backLeft.setCurrentAlert(drivetrainCurrentLimit, CurrentUnit.AMPS);
+        backRight.setCurrentAlert(drivetrainCurrentLimit, CurrentUnit.AMPS);
+        intake.setCurrentAlert(intakeCurrentLimit, CurrentUnit.AMPS);
+        transfer.setCurrentAlert(transferCurrentLimit, CurrentUnit.AMPS);
 
         // Below is disregarded
 
@@ -174,6 +186,12 @@ public class Robot {
 
     private double prevFrontLeftPower = -10.501;
     public void setFrontLeftPower(double pow){
+        if (frontLeft.isOverCurrent()){
+            double current = frontLeft.getCurrent(CurrentUnit.AMPS);
+            if (current != 0) {
+                pow = pow * drivetrainCurrentLimit / current;
+            }
+        }
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevFrontLeftPower){
             frontLeft.setPower(pow);
@@ -183,6 +201,12 @@ public class Robot {
 
     private double prevFrontRightPower = -10.501;
     public void setFrontRightPower(double pow){
+        if (frontRight.isOverCurrent()){
+            double current = frontRight.getCurrent(CurrentUnit.AMPS);
+            if (current != 0) {
+                pow = pow * drivetrainCurrentLimit / current;
+            }
+        }
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevFrontRightPower){
             frontRight.setPower(pow);
@@ -192,6 +216,12 @@ public class Robot {
 
     private double prevBackLeftPower = -10.501;
     public void setBackLeftPower(double pow){
+        if (backLeft.isOverCurrent()){
+            double current = backLeft.getCurrent(CurrentUnit.AMPS);
+            if (current != 0) {
+                pow = pow * drivetrainCurrentLimit / current;
+            }
+        }
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevBackLeftPower){
             backLeft.setPower(pow);
@@ -201,6 +231,12 @@ public class Robot {
 
     private double prevBackRightPower = -10.501;
     public void setBackRightPower(double pow){
+        if (backRight.isOverCurrent()){
+            double current = backRight.getCurrent(CurrentUnit.AMPS);
+            if (current != 0) {
+                pow = pow * drivetrainCurrentLimit / current;
+            }
+        }
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevBackRightPower){
             backRight.setPower(pow);
@@ -210,6 +246,12 @@ public class Robot {
 
     private double prevIntakePower = -10.501;
     public void setIntakePower(double pow){
+        if (intake.isOverCurrent()){
+            double current = intake.getCurrent(CurrentUnit.AMPS);
+            if (current != 0) {
+                pow = pow * intakeCurrentLimit / current;
+            }
+        }
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
         if (pow != prevIntakePower){
             intake.setPower(pow);
@@ -220,6 +262,12 @@ public class Robot {
     private double prevTransferPower = -10.501;
     public void setTransferPower(double pow){
         pow = (double) Math.round((float) pow * roundingFactor) / roundingFactor;
+//        if (transfer.isOverCurrent()){
+//            double current = transfer.getCurrent(CurrentUnit.AMPS);
+//            if (current != 0) {
+//                pow = pow * transferCurrentLimit / current;
+//            }
+//        }
         if (pow != prevTransferPower){
             transfer.setPower(pow);
         }

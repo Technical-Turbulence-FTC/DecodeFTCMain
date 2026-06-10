@@ -217,7 +217,7 @@ public class TeleopV4 extends LinearOpMode {
                 }
 
                 if (intakeFull && firstTickFull){
-                    gamepad1.rumble(100);
+                    gamepad1.rumble(250);
                     firstTickFull = false;
                 }
 
@@ -276,25 +276,25 @@ public class TeleopV4 extends LinearOpMode {
 //            TELE.addData("Loop Time Max", loopTimes.getMaxLoopTimeOneMin());
 //            TELE.addData("Loop Time Min", loopTimes.getMinLoopTimeOneMin());
 //
-            TELE.addData("Distance From Goal", commander.getDistance());
+//            TELE.addData("Distance From Goal", commander.getDistance());
 //            TELE.addData("Hood Position", commander.getHoodPredicted());
 //            TELE.addData("Transfer Power", robot.transfer.getPower());
-            TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
-            TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
-            TELE.addData("Velocity 1", flywheel.getVelo1());
-            TELE.addData("Velocity 2", flywheel.getVelo2());
+//            TELE.addData("Theoretical Velocity RPM", commander.getPredictedRPM());
+//            TELE.addData("Actual Velocity RPM", flywheel.getAverageVelocity());
+//            TELE.addData("Velocity 1", flywheel.getVelo1());
+//            TELE.addData("Velocity 2", flywheel.getVelo2());
             TELE.addData("Flywheel Offset", flywheelOffset);
             TELE.addData("Hood Offset", hoodOffset);
 
-            TELE.addData("FR Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("FL Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("BL Drive", robot.backLeft.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("BR Drive", robot.backRight.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("FR Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("FL Drive", robot.frontRight.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("BL Drive", robot.backLeft.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("BR Drive", robot.backRight.getCurrent(CurrentUnit.AMPS));
 
-            TELE.addData("Flywheel 1", robot.shooter1.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("Flywheel 2", robot.shooter2.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("Transfer", robot.transfer.getCurrent(CurrentUnit.AMPS));
-            TELE.addData("Intake", robot.intake.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("Flywheel 1", robot.shooter1.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("Flywheel 2", robot.shooter2.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("Transfer", robot.transfer.getCurrent(CurrentUnit.AMPS));
+//            TELE.addData("Intake", robot.intake.getCurrent(CurrentUnit.AMPS));
 //
 //            TELE.addData("Current Position", currentPose);
 //

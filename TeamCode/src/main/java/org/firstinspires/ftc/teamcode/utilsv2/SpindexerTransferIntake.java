@@ -318,24 +318,23 @@ public class SpindexerTransferIntake {
 
                     case INTAKE:
 
-                        robot.setIntakePower(1);
+                        robot.setIntakePower(0.8);
                         robot.setRapidFireBlockerPos(
                                 ServoPositions.rapidFireBlocker_Closed
                         );
                         robot.setSpinPos(
                                 ServoPositions.spindexer_A2
                         );
-                        robot.setTransferPower(-1);
+                        robot.setTransferPower(-0.8);
                         robot.setTransferServoPos(
                                 ServoPositions.transferServo_out
                         );
 
-                        if (robot.insideBeam.isPressed() && robot.revSensor.getDistance(DistanceUnit.CM) < sensorDistanceThreshold) {
-
+                        if (robot.insideBeam.isPressed()) {
                             holdBallsTicker++;
                         }
 
-                        if (holdBallsTicker > 20){
+                        if (holdBallsTicker > 15){
                             setRapidMode(RapidMode.TRANSFER_OFF);
                             holdBallsTicker = 0;
                         }
