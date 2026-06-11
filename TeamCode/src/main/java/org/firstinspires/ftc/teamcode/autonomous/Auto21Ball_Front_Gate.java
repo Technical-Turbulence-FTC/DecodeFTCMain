@@ -47,7 +47,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
     public static double rapidShootTime = 0.4;
     public static double openGate1Time = 1.8;
     public static double openGate2Time = 1;
-    public static double openGateWaitTimeMax = 3.5;
+    public static double openGateWaitTimeMax = 3;
     public static int maxLoopCycles = 4;
 
     // Initialize path state machine
@@ -76,7 +76,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
     public static double shoot2X = 16, shoot2Y = 4, shoot2H = -30;
     public static double intakeGateControlX = 60, intakeGateControlY = -12;
     public static double toGateX = 60, toGateY = -10;
-    public static double intakeGateX = 62, intakeGateY = -12.5, intakeGateH = 25;
+    public static double intakeGateX = 62, intakeGateY = -12, intakeGateH = 25;
     public static double shootGateControlX = 40, shootGateControlY = -5;
     public static double shootGateX = 16, shootGateY = 4, shootGateH = -30;
     public static double shootLeaveControlX = 56, shootLeaveControlY = -10;
@@ -294,7 +294,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 if (currentTime - timeStamp > rapidShootTime ||
                         (spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.OPEN_GATE &&
                                 spindexer.getRapidState() != SpindexerTransferIntake.RapidMode.SHOOT)){
-                    follower.followPath(shoot2_intakeGate, false);
+                    follower.followPath(shoot2_intakeGate, true);
                     pathState = PathState.INTAKE_GATE;
                     timeStamp = currentTime;
                     toGateBool = true;
@@ -302,10 +302,10 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                 break;
             case INTAKE_GATE:
                 if ((currentTime - timeStamp > openGateWaitTimeMax)){
-                    if (getRuntime() - runtime > 27){
-                        follower.followPath(intakeGate_awayFromGate, true);
-                        pathState = PathState.WAIT_SHOOT_LEAVE;
-                    } else if (getRuntime() - runtime > 22 || cycle >= maxLoopCycles - 1){
+                    if (cycle == 0){
+                        openGateWaitTimeMax = openGateWaitTimeMax + 0.75;
+                    }
+                    if (cycle >= maxLoopCycles - 1){
                         follower.followPath(intakeGate_shootLeave, true);
                         pathState = PathState.DRIVE_SHOOT_LEAVE;
                         shooter.setFlywheelVelocity(2300);
@@ -336,7 +336,7 @@ public class Auto21Ball_Front_Gate extends LinearOpMode {
                         follower.followPath(shootGate_leave, true);
                         pathState = PathState.WAIT_SHOOT_LEAVE;
                     } else {
-                        follower.followPath(shootGate_intakeGate, false);
+                        follower.followPath(shootGate_intakeGate, true);
                         pathState = PathState.INTAKE_GATE;
                         toGateBool = true;
                     }
