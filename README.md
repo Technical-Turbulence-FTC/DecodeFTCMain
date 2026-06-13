@@ -1,3 +1,5 @@
+Farewell, this is the last commit for the team 23344...to any who may use this repository, please feel free to contact us (keshavanandofficial@gmail.com), and we hope our code is of use to you and your team.
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.
